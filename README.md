@@ -9,7 +9,7 @@ Service manager: CARF_ALL
 
 Port: 17000
 
-Auth wizard login: Link: http://localhost:10030/register-for-carf
+Auth wizard login link: http://localhost:10030/register-for-carf
 
 ### License
 

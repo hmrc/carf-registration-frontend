@@ -1,7 +1,15 @@
 
 # carf-registration-frontend
 
-This is a placeholder README.md for a new repository
+This is the Frontend repository for the Crypto Asset Reporting Framework (CARF) team's registration journey
+
+### Running the service
+
+Service manager: CARF_ALL
+
+Port: 17000
+
+Auth wizard login link: http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-carf
 
 ### License
 

@@ -26,13 +26,14 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IndexView
 
-class IndexController @Inject()(
-                                 val controllerComponents: MessagesControllerComponents,
-                                 identify: IdentifierAction,
-                                 sessionRepository: SessionRepository,
-                                 getData: DataRetrievalAction,
-                                 view: IndexView
-                               ) extends FrontendBaseController with I18nSupport {
+class IndexController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifierAction,
+  sessionRepository: SessionRepository,
+  getData: DataRetrievalAction,
+  view: IndexView
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
     sessionRepository.set(UserAnswers(request.userId))

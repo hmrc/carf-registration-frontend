@@ -38,7 +38,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
         val view = application.injector.instanceOf[CheckYourAnswersView]
         val list = SummaryListViewModel(Seq.empty)
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(list)(request, messages(application)).toString
       }
     }
@@ -52,7 +52,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

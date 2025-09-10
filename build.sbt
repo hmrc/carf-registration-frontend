@@ -7,6 +7,7 @@ lazy val appName: String = "carf-registration-frontend"
 
 ThisBuild / majorVersion := 0
 ThisBuild / scalaVersion := "3.3.5"
+ThisBuild / javacOptions ++= Seq("--release", "21")
 
 lazy val microservice = (project in file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)

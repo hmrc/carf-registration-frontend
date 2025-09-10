@@ -17,29 +17,73 @@
 package controllers
 
 import base.SpecBase
+import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
+import models.UniqueTaxpayerReference
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.IndexView
+import play.api.inject.bind
+import org.mockito.Mockito.{reset, verify, when}
+import play.api.Application
+import play.api.mvc.Result
+import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
+
+import java.time.Clock
+import scala.concurrent.Future
 
 class IndexControllerSpec extends SpecBase {
 
+  override def beforeEach(): Unit = {
+    reset(mockCtUtrRetrievalAction)
+    super.beforeEach()
+  }
+
   "Index Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must handle an individual user correctly" in new Setup(Individual) {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction())
 
-      running(application) {
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+      val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result: Future[Result] = route(application, request).value
 
-        val view = application.injector.instanceOf[IndexView]
-
-        status(result) mustEqual OK
-
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) must include("Take user to: Individual – What Are You Registering As? page")
     }
+
+    "must handle an organisation user with utr correctly" in new Setup(Organisation) {
+
+      when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
+
+      val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+
+      val result: Future[Result] = route(application, request).value
+
+      status(result) mustEqual OK
+      contentAsString(result) must include("User has UTR. Redirect them to Is This Your Business? page")
+    }
+
+    "must handle an organisation user without utr correctly" in new Setup(Organisation) {
+
+      when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = None))
+
+      val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+
+      val result: Future[Result] = route(application, request).value
+
+      status(result) mustEqual OK
+      contentAsString(result) must include("We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page")
+    }
+
+  }
+  class Setup(affinityGroup: AffinityGroup) {
+    val application: Application = applicationBuilder(affinityGroup = affinityGroup)
+      .overrides(
+        bind[CtUtrRetrievalAction].toInstance(mockCtUtrRetrievalAction),
+        bind[Clock].toInstance(fixedClock)
+      )
+      .build()
   }
 }

@@ -28,10 +28,23 @@ class DataRetrievalActionImpl @Inject() (
 )(implicit val executionContext: ExecutionContext)
     extends DataRetrievalAction {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    sessionRepository.get(request.userId).map {
-      OptionalDataRequest(request.request, request.userId, _)
-    }
+  override def apply(): ActionTransformer[IdentifierRequest, OptionalDataRequest] =
+    new DataRetrievalActionProvider(sessionRepository)
+
 }
 
-trait DataRetrievalAction extends ActionTransformer[IdentifierRequest, OptionalDataRequest]
+class DataRetrievalActionProvider @Inject() (
+  val sessionRepository: SessionRepository
+)(implicit val executionContext: ExecutionContext)
+    extends ActionTransformer[IdentifierRequest, OptionalDataRequest] {
+
+  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
+    sessionRepository.get(request.userId).map {
+      OptionalDataRequest(request.request, request.userId, request.affinityGroup, _)
+    }
+
+}
+
+trait DataRetrievalAction {
+  def apply(): ActionTransformer[IdentifierRequest, OptionalDataRequest]
+}

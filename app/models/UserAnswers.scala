@@ -24,9 +24,9 @@ import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(
-  id: String,
-  data: JsObject = Json.obj(),
-  lastUpdated: Instant = Instant.now
+    id: String,
+    data: JsObject = Json.obj(),
+    lastUpdated: Instant = Instant.now
 ) {
 
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =

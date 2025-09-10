@@ -39,9 +39,9 @@ trait Formatters {
     }
 
   private[mappings] def booleanFormatter(
-    requiredKey: String,
-    invalidKey: String,
-    args: Seq[String] = Seq.empty
+      requiredKey: String,
+      invalidKey: String,
+      args: Seq[String] = Seq.empty
   ): Formatter[Boolean] =
     new Formatter[Boolean] {
 
@@ -60,10 +60,10 @@ trait Formatters {
     }
 
   private[mappings] def intFormatter(
-    requiredKey: String,
-    wholeNumberKey: String,
-    nonNumericKey: String,
-    args: Seq[String] = Seq.empty
+      requiredKey: String,
+      wholeNumberKey: String,
+      nonNumericKey: String,
+      args: Seq[String] = Seq.empty
   ): Formatter[Int] =
     new Formatter[Int] {
 
@@ -90,7 +90,7 @@ trait Formatters {
     }
 
   private[mappings] def enumerableFormatter[A](requiredKey: String, invalidKey: String, args: Seq[String] = Seq.empty)(
-    implicit ev: Enumerable[A]
+      implicit ev: Enumerable[A]
   ): Formatter[A] =
     new Formatter[A] {
 
@@ -108,10 +108,10 @@ trait Formatters {
     }
 
   private[mappings] def currencyFormatter(
-    requiredKey: String,
-    invalidNumericKey: String,
-    nonNumericKey: String,
-    args: Seq[String] = Seq.empty
+      requiredKey: String,
+      invalidNumericKey: String,
+      nonNumericKey: String,
+      args: Seq[String] = Seq.empty
   ): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
       val isNumeric    = """(^£?\d*$)|(^£?\d*\.\d*$)"""

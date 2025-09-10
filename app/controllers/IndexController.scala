@@ -27,11 +27,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IndexView
 
 class IndexController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  sessionRepository: SessionRepository,
-  getData: DataRetrievalAction,
-  view: IndexView
+    val controllerComponents: MessagesControllerComponents,
+    identify: IdentifierAction,
+    sessionRepository: SessionRepository,
+    getData: DataRetrievalAction,
+    view: IndexView
 ) extends FrontendBaseController
     with I18nSupport {
 

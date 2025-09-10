@@ -31,8 +31,8 @@ trait DateFluency {
   object DateViewModel extends ErrorMessageAwareness {
 
     def apply(
-      field: Field,
-      legend: Legend
+        field: Field,
+        legend: Legend
     )(implicit messages: Messages): DateInput =
       apply(
         field = field,
@@ -40,8 +40,8 @@ trait DateFluency {
       )
 
     def apply(
-      field: Field,
-      fieldset: Fieldset
+        field: Field,
+        fieldset: Fieldset
     )(implicit messages: Messages): DateInput = {
 
       val errorClass = "govuk-input--error"

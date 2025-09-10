@@ -213,8 +213,8 @@ class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends 
   val serviceUrl: String = ""
 
   override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+      hc: HeaderCarrier,
+      ec: ExecutionContext
   ): Future[A] =
     Future.failed(exceptionToReturn)
 }

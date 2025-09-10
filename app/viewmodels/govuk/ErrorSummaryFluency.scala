@@ -28,8 +28,8 @@ trait ErrorSummaryFluency {
   object ErrorSummaryViewModel {
 
     def apply(
-      form: Form[_],
-      errorLinkOverrides: Map[String, String] = Map.empty
+        form: Form[_],
+        errorLinkOverrides: Map[String, String] = Map.empty
     )(implicit messages: Messages): ErrorSummary = {
 
       val errors = form.errors.map { error =>

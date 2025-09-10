@@ -25,10 +25,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class KeepAliveController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  sessionRepository: SessionRepository
+    val controllerComponents: MessagesControllerComponents,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController {
 

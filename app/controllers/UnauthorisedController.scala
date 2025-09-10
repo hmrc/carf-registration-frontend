@@ -23,8 +23,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.UnauthorisedView
 
 class UnauthorisedController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: UnauthorisedView
+    val controllerComponents: MessagesControllerComponents,
+    view: UnauthorisedView
 ) extends FrontendBaseController
     with I18nSupport {
 

@@ -31,7 +31,7 @@ class CheckEnrolledToServiceAction @Inject() (config: FrontendAppConfig)(implici
 ) extends ActionFilter[IdentifierRequest]
     with Logging {
 
-  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
+  override def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
     if (request.enrolments.exists(_.key == config.enrolmentKey)) {
       logger.info(s"User is already enrolled to the CARF service so doesn't need to register!")
       successful(

@@ -34,8 +34,10 @@ import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Clock, Instant, ZoneId}
+import scala.concurrent.ExecutionContext
 
 trait SpecBase
     extends AnyFreeSpec
@@ -48,12 +50,15 @@ trait SpecBase
     with BeforeAndAfterEach
     with MockitoSugar {
 
-  val userAnswersId: String = "id"
+  val userAnswersId: String            = "id"
   val testUtr: UniqueTaxpayerReference = UniqueTaxpayerReference("1234567890")
+  val testInternalId: String           = "12345"
+
   private val UtcZoneId          = "UTC"
   implicit val fixedClock: Clock = Clock.fixed(Instant.parse("2020-05-20T12:34:56.789012Z"), ZoneId.of(UtcZoneId))
 
-  def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
+  def emptyUserAnswers: UserAnswers =
+    UserAnswers(id = userAnswersId, lastUpdated = Instant.now(fixedClock))
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
@@ -66,8 +71,7 @@ trait SpecBase
   protected def applicationBuilder(
     userAnswers: Option[UserAnswers] = None,
     affinityGroup: AffinityGroup = AffinityGroup.Individual
-  ): GuiceApplicationBuilder = {
-
+  ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -75,5 +79,8 @@ trait SpecBase
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers)),
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
-  }
+
+  implicit val hc: HeaderCarrier    = HeaderCarrier()
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
 }

@@ -30,7 +30,6 @@ class DataRetrievalActionImpl @Inject() (
 
   override def apply(): ActionTransformer[IdentifierRequest, OptionalDataRequest] =
     new DataRetrievalActionProvider(sessionRepository)
-
 }
 
 class DataRetrievalActionProvider @Inject() (
@@ -42,7 +41,6 @@ class DataRetrievalActionProvider @Inject() (
     sessionRepository.get(request.userId).map {
       OptionalDataRequest(request.request, request.userId, request.affinityGroup, _)
     }
-
 }
 
 trait DataRetrievalAction {

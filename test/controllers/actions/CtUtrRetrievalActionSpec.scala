@@ -18,7 +18,7 @@ class CtUtrRetrievalActionSpec extends SpecBase {
 
   private def fakeRequest = FakeRequest("", "")
 
-  val mockConfig = mock[FrontendAppConfig]
+  val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
 
   val testContent     = "Test Content "
   val enrolment       = "IR-CT"

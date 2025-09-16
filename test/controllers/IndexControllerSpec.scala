@@ -18,14 +18,12 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
-import models.UniqueTaxpayerReference
+import org.mockito.Mockito.{reset, when}
+import play.api.Application
+import play.api.inject.bind
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.IndexView
-import play.api.inject.bind
-import org.mockito.Mockito.{reset, verify, when}
-import play.api.Application
-import play.api.mvc.Result
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 

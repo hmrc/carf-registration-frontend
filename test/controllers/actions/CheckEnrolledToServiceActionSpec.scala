@@ -20,7 +20,6 @@ class CheckEnrolledToServiceActionSpec extends SpecBase {
 
   val testContent = "Test Content"
 
-  val enrolment      = "MTD-AD-ORG"
   val carfKey        = "HMRC-CARF-ORG"
   val state          = "Activated"
   val identifierName = "CARFID"

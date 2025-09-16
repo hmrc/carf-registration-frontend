@@ -64,7 +64,7 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
     with AuthorisedFunctions
     with Logging {
 
-  private val enrolmentKey: String = config.enrolmentKey
+  private def enrolmentKey: String = config.enrolmentKey
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 

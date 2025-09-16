@@ -16,15 +16,8 @@
 
 package controllers.actions
 
-import javax.inject.Inject
 import models.requests.IdentifierRequest
 import play.api.mvc.*
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-
-import scala.concurrent.{ExecutionContext, Future}
-
-import models.requests.IdentifierRequest
-import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 import javax.inject.Inject

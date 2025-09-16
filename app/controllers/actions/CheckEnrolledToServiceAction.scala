@@ -27,7 +27,7 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 class CheckEnrolledToServiceAction @Inject() (config: FrontendAppConfig)(implicit
-  val executionContext: ExecutionContext
+    val executionContext: ExecutionContext
 ) extends ActionFilter[IdentifierRequest]
     with Logging {
 

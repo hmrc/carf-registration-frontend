@@ -27,7 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CtUtrRetrievalActionImpl @Inject() (
-  val config: FrontendAppConfig
+    val config: FrontendAppConfig
 )(implicit val executionContext: ExecutionContext)
     extends CtUtrRetrievalAction {
 
@@ -37,14 +37,14 @@ class CtUtrRetrievalActionImpl @Inject() (
 }
 
 class CtUtrRetrievalActionProvider @Inject() (
-  val config: FrontendAppConfig
+    val config: FrontendAppConfig
 )(implicit val executionContext: ExecutionContext)
     extends ActionFunction[IdentifierRequest, IdentifierRequest]
     with Logging {
 
   override def invokeBlock[A](
-    request: IdentifierRequest[A],
-    block: IdentifierRequest[A] => Future[Result]
+      request: IdentifierRequest[A],
+      block: IdentifierRequest[A] => Future[Result]
   ): Future[Result] = {
 
     val a: Option[Enrolment] = request.enrolments

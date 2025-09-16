@@ -7,7 +7,7 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeCtUtrRetrievalActionProvider(
-  utr: Option[UniqueTaxpayerReference] = None
+    utr: Option[UniqueTaxpayerReference] = None
 ) extends CtUtrRetrievalAction {
 
   def apply(): ActionFunction[IdentifierRequest, IdentifierRequest] =
@@ -16,12 +16,12 @@ class FakeCtUtrRetrievalActionProvider(
 }
 
 class FakeCtUtrRetrievalAction(
-  utr: Option[UniqueTaxpayerReference] = None
+    utr: Option[UniqueTaxpayerReference] = None
 ) extends ActionFunction[IdentifierRequest, IdentifierRequest] {
 
   override def invokeBlock[A](
-    request: IdentifierRequest[A],
-    block: IdentifierRequest[A] => Future[Result]
+      request: IdentifierRequest[A],
+      block: IdentifierRequest[A] => Future[Result]
   ): Future[Result] =
     block(request.copy(utr = utr))
 

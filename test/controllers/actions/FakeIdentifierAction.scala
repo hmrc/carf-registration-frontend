@@ -45,7 +45,7 @@ class FakeIdentifierAction @Inject() (bodyParsers: PlayBodyParsers, affinityGrou
     scala.concurrent.ExecutionContext.Implicits.global
 
   override def apply(
-    redirect: Boolean = true
+      redirect: Boolean = true
   ): ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest] = this
 
 }

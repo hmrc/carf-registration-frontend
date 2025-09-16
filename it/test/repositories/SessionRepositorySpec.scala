@@ -156,8 +156,11 @@ class SessionRepositorySpec
 
       MDC.put("test", "foo")
 
+      val expectedMdcValue = MDC.get("test")
+
       f.map { _ =>
-        MDC.get("test") mustEqual "foo"
+        val actualMdcValue = MDC.get("test")
+        actualMdcValue mustEqual expectedMdcValue
       }.futureValue
     }
 }

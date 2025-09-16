@@ -30,13 +30,13 @@ import views.html.IndexView
 import scala.concurrent.Future
 
 class IndexController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  checkEnrolment: CheckEnrolledToServiceAction,
-  retrieveCtUTR: CtUtrRetrievalAction,
-  sessionRepository: SessionRepository,
-  getData: DataRetrievalAction,
-  view: IndexView
+    val controllerComponents: MessagesControllerComponents,
+    identify: IdentifierAction,
+    checkEnrolment: CheckEnrolledToServiceAction,
+    retrieveCtUTR: CtUtrRetrievalAction,
+    sessionRepository: SessionRepository,
+    getData: DataRetrievalAction,
+    view: IndexView
 ) extends FrontendBaseController
     with I18nSupport {
 

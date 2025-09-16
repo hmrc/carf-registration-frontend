@@ -69,8 +69,8 @@ trait SpecBase
   final val mockCtUtrRetrievalAction: CtUtrRetrievalAction = mock[CtUtrRetrievalAction]
 
   protected def applicationBuilder(
-    userAnswers: Option[UserAnswers] = None,
-    affinityGroup: AffinityGroup = AffinityGroup.Individual
+      userAnswers: Option[UserAnswers] = None,
+      affinityGroup: AffinityGroup = AffinityGroup.Individual
   ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(

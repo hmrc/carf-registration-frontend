@@ -35,29 +35,29 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait IdentifierAction {
   def apply(
-    redirect: Boolean = true
+      redirect: Boolean = true
   ): ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
 }
 
 class AuthenticatedIdentifierAction @Inject() (
-  override val authConnector: AuthConnector,
-  config: FrontendAppConfig,
-  val parser: BodyParsers.Default
+    override val authConnector: AuthConnector,
+    config: FrontendAppConfig,
+    val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)
     extends IdentifierAction
     with AuthorisedFunctions {
 
   override def apply(
-    redirect: Boolean = true
+      redirect: Boolean = true
   ): ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest] =
     new AuthenticatedIdentifierActionWithRegime(authConnector, config, parser, redirect)
 }
 
 class AuthenticatedIdentifierActionWithRegime @Inject() (
-  override val authConnector: AuthConnector,
-  config: FrontendAppConfig,
-  val parser: BodyParsers.Default,
-  val redirect: Boolean
+    override val authConnector: AuthConnector,
+    config: FrontendAppConfig,
+    val parser: BodyParsers.Default,
+    val redirect: Boolean
 )(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[IdentifierRequest, AnyContent]
     with ActionFunction[Request, IdentifierRequest]

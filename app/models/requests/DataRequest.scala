@@ -27,24 +27,24 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 //    extends WrappedRequest[A](request)
 
 case class OptionalDataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  userAnswers: Option[UserAnswers]
+    request: Request[A],
+    userId: String,
+    affinityGroup: AffinityGroup,
+    userAnswers: Option[UserAnswers]
 ) extends WrappedRequest[A](request)
 
 case class DataRequest[A](request: Request[A], userId: String, affinityGroup: AffinityGroup, userAnswers: UserAnswers)
     extends WrappedRequest[A](request)
 
 case class DataRequestWithUserAnswers[A](
-  request: Request[A],
-  userId: String,
-  subscriptionId: SubscriptionId,
-  userAnswers: UserAnswers
+    request: Request[A],
+    userId: String,
+    subscriptionId: SubscriptionId,
+    userAnswers: UserAnswers
 ) extends WrappedRequest[A](request)
 
 case class DataRequestWithSubscriptionId[A](
-  request: Request[A],
-  userId: String,
-  subscriptionId: SubscriptionId
+    request: Request[A],
+    userId: String,
+    subscriptionId: SubscriptionId
 ) extends WrappedRequest[A](request)

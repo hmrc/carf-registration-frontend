@@ -24,11 +24,11 @@ import java.time.{LocalDate, Month}
 import scala.util.{Failure, Success, Try}
 
 private[mappings] class LocalDateFormatter(
-  invalidKey: String,
-  allRequiredKey: String,
-  twoRequiredKey: String,
-  requiredKey: String,
-  args: Seq[String] = Seq.empty
+    invalidKey: String,
+    allRequiredKey: String,
+    twoRequiredKey: String,
+    requiredKey: String,
+    args: Seq[String] = Seq.empty
 )(implicit messages: Messages)
     extends Formatter[LocalDate]
     with Formatters {

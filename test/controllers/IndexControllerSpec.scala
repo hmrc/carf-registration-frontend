@@ -49,7 +49,7 @@ class IndexControllerSpec extends SpecBase {
 
       val result: Future[Result] = route(application, request).value
 
-      status(result) mustEqual OK
+      status(result)     mustEqual OK
       contentAsString(result) must include("Take user to: Individual – What Are You Registering As? page")
     }
 
@@ -61,7 +61,7 @@ class IndexControllerSpec extends SpecBase {
 
       val result: Future[Result] = route(application, request).value
 
-      status(result) mustEqual OK
+      status(result)     mustEqual OK
       contentAsString(result) must include("User has UTR. Redirect them to Is This Your Business? page")
     }
 
@@ -73,8 +73,10 @@ class IndexControllerSpec extends SpecBase {
 
       val result: Future[Result] = route(application, request).value
 
-      status(result) mustEqual OK
-      contentAsString(result) must include("We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page")
+      status(result)     mustEqual OK
+      contentAsString(result) must include(
+        "We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page"
+      )
     }
 
   }

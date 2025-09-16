@@ -20,17 +20,22 @@ class CtUtrRetrievalActionSpec extends SpecBase {
 
   val mockConfig = mock[FrontendAppConfig]
 
-  val testContent = "Test Content "
-  val enrolment = "IR-CT"
-  val utrKey = "UTR"
-  val state                   = "Activated"
-  val enrolments = Set(Enrolment(enrolment, Seq(EnrolmentIdentifier(utrKey, "123")), state))
+  val testContent     = "Test Content "
+  val enrolment       = "IR-CT"
+  val utrKey          = "UTR"
+  val state           = "Activated"
+  val enrolments      = Set(Enrolment(enrolment, Seq(EnrolmentIdentifier(utrKey, "123")), state))
   val emptyEnrolments = Set.empty[Enrolment]
 
   val testCtUtrRetrievalActionProvider = new CtUtrRetrievalActionProvider(mockConfig)
 
   val identifierRequestOrganisationWithEnrolment: IdentifierRequest[AnyContentAsEmpty.type] =
-    IdentifierRequest(request = FakeRequest(), userId = testInternalId, affinityGroup = Organisation, enrolments = enrolments)
+    IdentifierRequest(
+      request = FakeRequest(),
+      userId = testInternalId,
+      affinityGroup = Organisation,
+      enrolments = enrolments
+    )
 
   val identifierRequestOrganisationNoEnrolment: IdentifierRequest[AnyContentAsEmpty.type] =
     IdentifierRequest(request = FakeRequest(), userId = testInternalId, affinityGroup = Organisation)
@@ -47,27 +52,30 @@ class CtUtrRetrievalActionSpec extends SpecBase {
     "must add utr to the request if it has been retrieved as an enrolment and affinity group is Organisation" in {
       when(mockConfig.ctEnrolmentKey).thenReturn(enrolment)
 
-      val result: Future[Result] = testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestOrganisationWithEnrolment, testAction)
+      val result: Future[Result] =
+        testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestOrganisationWithEnrolment, testAction)
 
-      status(result) mustBe OK
+      status(result)          mustBe OK
       contentAsString(result) mustBe "Test Content 123"
     }
 
     "must not add utr to the request if it has been retrieved as an enrolment but affinity group is Individual" in {
       when(mockConfig.ctEnrolmentKey).thenReturn(enrolment)
 
-      val result: Future[Result] = testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestIndividualWithEnrolment, testAction)
+      val result: Future[Result] =
+        testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestIndividualWithEnrolment, testAction)
 
-      status(result) mustBe OK
+      status(result)          mustBe OK
       contentAsString(result) mustBe "Test Content No UTR"
     }
 
     "must not add utr to the request if it has not been retrieved as an enrolment but affinity group is Organisation" in {
       when(mockConfig.ctEnrolmentKey).thenReturn(enrolment)
 
-      val result: Future[Result] = testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestOrganisationNoEnrolment, testAction)
+      val result: Future[Result] =
+        testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestOrganisationNoEnrolment, testAction)
 
-      status(result) mustBe OK
+      status(result)          mustBe OK
       contentAsString(result) mustBe "Test Content No UTR"
     }
   }

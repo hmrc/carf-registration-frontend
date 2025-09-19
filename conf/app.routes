@@ -12,6 +12,8 @@ GET         /refresh-session                             controllers.KeepAliveCo
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
+GET         /placeholder                                 controllers.PlaceholderController.onPageLoad(message: String)
+
 GET         /check-your-answers                          controllers.CheckYourAnswersController.onPageLoad()
 
 GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()
@@ -19,3 +21,8 @@ GET         /account/sign-out                            controllers.auth.AuthCo
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET        /register/organisation-registration-type                        controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/organisation-registration-type                        controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-organisation-registration-type                  controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-organisation-registration-type                  controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = CheckMode)

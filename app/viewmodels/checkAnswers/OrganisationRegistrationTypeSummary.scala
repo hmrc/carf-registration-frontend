@@ -26,25 +26,24 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object OrganisationRegistrationTypeSummary  {
+object OrganisationRegistrationTypeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(OrganisationRegistrationTypePage).map {
-      answer =>
+    answers.get(OrganisationRegistrationTypePage).map { answer =>
 
-        val value = ValueViewModel(
-          HtmlContent(
-            HtmlFormat.escape(messages(s"organisationRegistrationType.$answer"))
-          )
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"organisationRegistrationType.$answer"))
         )
+      )
 
-        SummaryListRowViewModel(
-          key     = "organisationRegistrationType.checkYourAnswersLabel",
-          value   = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.OrganisationRegistrationTypeController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key = "organisationRegistrationType.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.OrganisationRegistrationTypeController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
         )
+      )
     }
 }

@@ -16,19 +16,17 @@
 
 package navigation
 
-import javax.inject.{Inject, Singleton}
-
+import models.*
+import pages.*
 import play.api.mvc.Call
-import controllers.routes
-import pages._
-import models._
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class Navigator @Inject() () extends NormalRoutesNavigator with ChangeRoutesNavigator {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>
-      println("AAAAAAAAA" + page.toString)
       normalRoutes(page)(userAnswers)
     case CheckMode  =>
       checkRouteMap(page)(userAnswers)

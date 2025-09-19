@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
+import models.NormalMode
 import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.inject.bind
@@ -71,9 +72,9 @@ class IndexControllerSpec extends SpecBase {
 
       val result: Future[Result] = route(application, request).value
 
-      status(result)     mustEqual OK
-      contentAsString(result) must include(
-        "We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page"
+      status(result)        mustEqual SEE_OTHER
+      redirectLocation(result) mustBe Some(
+        controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
       )
     }
 

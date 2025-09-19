@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package models
 
-import models.UniqueTaxpayerReference
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment}
+import play.api.libs.json._
 
-case class IdentifierRequest[A](
-    request: Request[A],
-    userId: String,
-    affinityGroup: AffinityGroup,
-    enrolments: Set[Enrolment] = Set.empty,
-    utr: Option[UniqueTaxpayerReference] = None
-) extends WrappedRequest[A](request)
+case class UniqueTaxpayerReference(uniqueTaxPayerReference: String)
+
+object UniqueTaxpayerReference {
+  implicit val format: OFormat[UniqueTaxpayerReference] = Json.format[UniqueTaxpayerReference]
+}

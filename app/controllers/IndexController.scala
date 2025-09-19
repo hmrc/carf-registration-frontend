@@ -16,27 +16,38 @@
 
 package controllers
 
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.UserAnswers
-
-import javax.inject.Inject
+import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndexView
+
+import javax.inject.Inject
+import scala.concurrent.Future
 
 class IndexController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     identify: IdentifierAction,
-    sessionRepository: SessionRepository,
-    getData: DataRetrievalAction,
-    view: IndexView
+    checkEnrolment: CheckEnrolledToServiceAction,
+    retrieveCtUTR: CtUtrRetrievalAction
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
-    sessionRepository.set(UserAnswers(request.userId))
-    Ok(view())
+  def onPageLoad(): Action[AnyContent] = (identify() andThen checkEnrolment andThen retrieveCtUTR()).async {
+    implicit request =>
+      request.affinityGroup match {
+        case AffinityGroup.Individual =>
+          Future.successful(Ok("Take user to: Individual – What Are You Registering As? page (CARF-120)"))
+        case _                        =>
+          request.utr match {
+            case Some(utr) =>
+              Future.successful(Ok("User has UTR. Redirect them to Is This Your Business? page (CARF-126)"))
+            case None      =>
+              Future.successful(
+                Ok("We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page (CARF-119)")
+              )
+          }
+      }
   }
 }

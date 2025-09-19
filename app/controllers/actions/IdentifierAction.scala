@@ -17,21 +17,27 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
-import controllers.routes
-import models.requests.IdentifierRequest
-import play.api.mvc.Results._
-import play.api.mvc._
-import uk.gov.hmrc.auth.core._
+import play.api.mvc.Results.*
+import play.api.mvc.*
+import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, allEnrolments, credentialRole, internalId}
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import controllers.routes
+import config.FrontendAppConfig
+import models.requests.IdentifierRequest
+import play.api.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait IdentifierAction
-    extends ActionBuilder[IdentifierRequest, AnyContent]
-    with ActionFunction[Request, IdentifierRequest]
+trait IdentifierAction {
+  def apply(
+      redirect: Boolean = true
+  ): ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
+}
 
 class AuthenticatedIdentifierAction @Inject() (
     override val authConnector: AuthConnector,
@@ -41,37 +47,47 @@ class AuthenticatedIdentifierAction @Inject() (
     extends IdentifierAction
     with AuthorisedFunctions {
 
+  override def apply(
+      redirect: Boolean = true
+  ): ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest] =
+    new AuthenticatedIdentifierActionWithRegime(authConnector, config, parser, redirect)
+}
+
+class AuthenticatedIdentifierActionWithRegime @Inject() (
+    override val authConnector: AuthConnector,
+    config: FrontendAppConfig,
+    val parser: BodyParsers.Default,
+    val redirect: Boolean
+)(implicit val executionContext: ExecutionContext)
+    extends ActionBuilder[IdentifierRequest, AnyContent]
+    with ActionFunction[Request, IdentifierRequest]
+    with AuthorisedFunctions
+    with Logging {
+
+  private def enrolmentKey: String = config.enrolmentKey
+
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(Retrievals.internalId) {
-      _.map { internalId =>
-        block(IdentifierRequest(request, internalId))
-      }.getOrElse(throw new UnauthorizedException("Unable to retrieve internal Id"))
+    authorised().retrieve(
+      internalId and allEnrolments and affinityGroup and credentialRole
+    ) {
+      case _ ~ enrolments ~ _ ~ _ if enrolments.enrolments.exists(_.key == enrolmentKey) && redirect =>
+        Future.successful(Ok("User is already enrolled! TODO: Redirect to CARF Management FE when ready"))
+      case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
+        Future.successful(Ok("User is an assistant so cannot use the service so we must Redirect them as per CARF-118"))
+      case _ ~ _ ~ Some(Agent) ~ _                                                                   =>
+        Future.successful(Ok("User is an agent so cannot use the service so we must Redirect them as per CARF-113"))
+      case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
+        block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
+      case _                                                                                         =>
+        throw new UnauthorizedException("Failed to retrieve valid auth data")
     } recover {
       case _: NoActiveSession        =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
         Redirect(routes.UnauthorisedController.onPageLoad())
-    }
-  }
-}
-
-class SessionIdentifierAction @Inject() (
-    val parser: BodyParsers.Default
-)(implicit val executionContext: ExecutionContext)
-    extends IdentifierAction {
-
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-    hc.sessionId match {
-      case Some(session) =>
-        block(IdentifierRequest(request, session.value))
-      case None          =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 }

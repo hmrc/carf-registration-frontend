@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
+import models.{NormalMode, UserAnswers}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -30,7 +31,8 @@ class IndexController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     identify: IdentifierAction,
     checkEnrolment: CheckEnrolledToServiceAction,
-    retrieveCtUTR: CtUtrRetrievalAction
+    retrieveCtUTR: CtUtrRetrievalAction,
+    sessionRepository: SessionRepository
 ) extends FrontendBaseController
     with I18nSupport {
 
@@ -45,7 +47,7 @@ class IndexController @Inject() (
               Future.successful(Ok("User has UTR. Redirect them to Is This Your Business? page (CARF-126)"))
             case None      =>
               Future.successful(
-                Ok("We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page (CARF-119)")
+                Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
               )
           }
       }

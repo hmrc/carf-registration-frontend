@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package generators
+package controllers
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import com.google.inject.Inject
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.MessagesControllerComponents
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-trait ModelGenerators {}
+class PlaceholderController @Inject() (
+    override val messagesApi: MessagesApi,
+    val controllerComponents: MessagesControllerComponents
+) extends FrontendBaseController
+    with I18nSupport {
 
-implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(OrganisationRegistrationType.values.toSeq)
+  def onPageLoad(message: String) = Action {
+    Ok(message)
   }
+
+}

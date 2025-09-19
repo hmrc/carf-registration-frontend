@@ -24,18 +24,11 @@ import pages._
 import models._
 
 @Singleton
-class Navigator @Inject() () {
-
-  private val normalRoutes: Page => UserAnswers => Call = { case _ =>
-    _ => routes.IndexController.onPageLoad()
-  }
-
-  private val checkRouteMap: Page => UserAnswers => Call = { case _ =>
-    _ => routes.CheckYourAnswersController.onPageLoad()
-  }
+class Navigator @Inject() () extends NormalRoutesNavigator with ChangeRoutesNavigator {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>
+      println("AAAAAAAAA" + page.toString)
       normalRoutes(page)(userAnswers)
     case CheckMode  =>
       checkRouteMap(page)(userAnswers)

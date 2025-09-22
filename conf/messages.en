@@ -49,5 +49,5 @@ individualRegistrationType.heading = individualRegistrationType
 individualRegistrationType.soleTrader = Sole trader
 individualRegistrationType.individual = An individual not connected to a business
 individualRegistrationType.checkYourAnswersLabel = individualRegistrationType
-individualRegistrationType.error.required = Select individualRegistrationType
-individualRegistrationType.change.hidden = IndividualRegistrationType
+individualRegistrationType.error.required = Select your Individual Registration Type
+individualRegistrationType.change.hidden = Change your Individual Registration Type

@@ -20,6 +20,16 @@
             RadiosViewModel.yesNo(
                 field = form("value"),
                 legend = LegendViewModel(messages("$className;format="decap"$.heading")).asPageHeading()
+                items = Seq(
+                    RadioItem(
+                        content = Text(messages("site.yes")),
+                        value = Some("true")
+                    ),
+                    RadioItem(
+                        content = Text(messages("site.no")),
+                        value = Some("false")
+                    )
+                )
             )
         )
 

@@ -19,3 +19,8 @@ GET         /account/sign-out                            controllers.auth.AuthCo
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET        /individualRegistrationType                        controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /individualRegistrationType                        controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /changeIndividualRegistrationType                  controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeIndividualRegistrationType                  controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)

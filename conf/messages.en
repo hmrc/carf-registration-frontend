@@ -43,3 +43,11 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+individualRegistrationType.title = individualRegistrationType
+individualRegistrationType.heading = individualRegistrationType
+individualRegistrationType.soleTrader = Sole trader
+individualRegistrationType.individual = An individual not connected to a business
+individualRegistrationType.checkYourAnswersLabel = individualRegistrationType
+individualRegistrationType.error.required = Select individualRegistrationType
+individualRegistrationType.change.hidden = IndividualRegistrationType

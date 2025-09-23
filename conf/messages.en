@@ -43,3 +43,12 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+yourUniqueTaxpayerReference.title = Your Corporation Tax Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.heading = Your Corporation Tax Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.paragraph = It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+yourUniqueTaxpayerReference.checkYourAnswersLabel = yourUniqueTaxpayerReference
+yourUniqueTaxpayerReference.error.required = Enter your Unique Taxpayer Reference
+yourUniqueTaxpayerReference.error.invalid = Enter your Unique Taxpayer Reference invalid
+yourUniqueTaxpayerReference.error.invalidFormat = Unique Taxpayer Reference must only include numbers 0 to 9
+yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)

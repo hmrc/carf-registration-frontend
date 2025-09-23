@@ -18,7 +18,7 @@ package navigation
 
 import controllers.routes
 import models.UserAnswers
-import pages.{OrganisationRegistrationTypePage, Page}
+import pages.{OrganisationRegistrationTypePage, Page, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -26,6 +26,8 @@ trait NormalRoutesNavigator {
   val normalRoutes: Page => UserAnswers => Call = {
     case OrganisationRegistrationTypePage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
+    case YourUniqueTaxpayerReferencePage  =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /business-name or /your-name")
     case _                                => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 

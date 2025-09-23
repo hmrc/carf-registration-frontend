@@ -26,3 +26,8 @@ GET        /register/organisation-registration-type                        contr
 POST       /register/organisation-registration-type                        controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-organisation-registration-type                  controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-organisation-registration-type                  controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
+GET        /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)

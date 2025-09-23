@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.{NormalMode, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page}
+import pages.{OrganisationRegistrationTypePage, Page, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -41,6 +41,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
+    }
+
+    "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business or Your name page" in {
+
+      case object YourOrganisationNamePage extends Page
+      navigator.nextPage(
+        YourUniqueTaxpayerReferencePage,
+        NormalMode,
+        UserAnswers("id")
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name or /your-name")
     }
 
   }

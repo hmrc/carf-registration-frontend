@@ -28,4 +28,18 @@ trait StringFieldBehaviours extends FieldBehaviours {
         result.errors must contain only lengthError
       }
     }
+
+  def fieldWithFixedLengthsNumeric(
+      form: Form[_],
+      fieldName: String,
+      acceptedLengths: Set[Int],
+      lengthError: FormError
+  ): Unit =
+    s"must not bind strings that are not ${acceptedLengths.mkString(" or ")} characters long" in {
+
+      forAll(stringsNotOfFixedLengthsNumeric(acceptedLengths) -> "invalidString") { string =>
+        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
+        result.errors mustEqual Seq(lengthError)
+      }
+    }
 }

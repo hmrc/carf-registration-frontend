@@ -54,3 +54,27 @@ organisationRegistrationType.soleTrader = Sole trader
 organisationRegistrationType.checkYourAnswersLabel = What are you registering as?
 organisationRegistrationType.error.required = Select what you are registering as
 organisationRegistrationType.change.hidden = Change what you are registering as
+
+yourUniqueTaxpayerReference.soleTraderIndividual.title = Your Self Assessment Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.soleTraderIndividual.heading = Your Self Assessment Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.soleTraderIndividual.paragraph = You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+yourUniqueTaxpayerReference.soleTraderIndividual.link = Get more help to find your UTR (opens in new tab)
+yourUniqueTaxpayerReference.soleTraderIndividual.subtitle = What is your Self Assessment UTR?
+
+yourUniqueTaxpayerReference.partnershipLlp.title = Your Partnership Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.partnershipLlp.heading = Your Partnership Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.partnershipLlp.paragraph = You can find it in your Business Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+yourUniqueTaxpayerReference.partnershipLlp.link = Get more help to find your UTR (opens in new tab)
+yourUniqueTaxpayerReference.partnershipLlp.subtitle = What is your Partnership UTR?
+
+yourUniqueTaxpayerReference.ltdUnincorporated.title = Your Corporation Tax Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.ltdUnincorporated.heading = Your Corporation Tax Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.ltdUnincorporated.paragraph = It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+yourUniqueTaxpayerReference.ltdUnincorporated.link = Ask for a copy of your Corporation Tax UTR (opens in new tab)
+yourUniqueTaxpayerReference.ltdUnincorporated.subtitle = What is your Corporation Tax UTR?
+
+yourUniqueTaxpayerReference.hint = Your UTR can be 10 or 13 digits long.
+yourUniqueTaxpayerReference.error.required = Enter your Unique Taxpayer Reference
+yourUniqueTaxpayerReference.error.invalid = Unique Taxpayer Reference must only include numbers 0 to 9
+yourUniqueTaxpayerReference.error.invalidFormat = Enter the Unique Taxpayer Reference in the right format
+yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)

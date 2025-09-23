@@ -26,31 +26,20 @@ import javax.inject.Inject
 
 class YourUniqueTaxpayerReferenceFormProvider @Inject() extends Mappings {
 
-//  val utrRegex: Regex = "[0-9]{13}".r
   private val utrRegex = "^[0-9]*$"
 
-  def apply(taxType: UniqueTaxpayerReference) =
-  Form(
-    mapping("value" -> validatedUTR("yourUniqueTaxpayerReference.error.required",
-      "yourUniqueTaxpayerReference.error.invalid",
-      "yourUniqueTaxpayerReference.error.invalidFormat", utrRegex, taxType))(
-      UniqueTaxpayerReference.apply
-    )(
-      UniqueTaxpayerReference.unapply
+  def apply(taxType: String): Form[UniqueTaxpayerReference] =
+    Form(
+      mapping(
+        "value" -> validatedUTR(
+          "yourUniqueTaxpayerReference.error.required",
+          "yourUniqueTaxpayerReference.error.invalid",
+          "yourUniqueTaxpayerReference.error.invalidFormat",
+          utrRegex,
+          taxType
+        )
+      )(UniqueTaxpayerReference.apply)(
+        UniqueTaxpayerReference.unapply
+      )
     )
-  )
 }
-
-
-
-
-
-
-
-
-
-
-//Form(
-//  "value" -> text("yourUniqueTaxpayerReference.error.required")
-//    .verifying(maxLength(13, "yourUniqueTaxpayerReference.error.length"))
-//)

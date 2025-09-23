@@ -22,7 +22,7 @@ import models.Enumerable
 
 import scala.util.control.Exception.nonFatalCatch
 
-trait Formatters {
+trait Formatters extends Transforms {
 
   private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] =
     new Formatter[String] {
@@ -144,7 +144,8 @@ trait Formatters {
       invalidKey: String,
       invalidFormatKey: String,
       regex: String,
-      msgArg: String = ""
+      msgArg: String = "",
+      acceptedLengths: Seq[Int] = Seq(10, 13)
   ): Formatter[String] =
     new Formatter[String] {
 

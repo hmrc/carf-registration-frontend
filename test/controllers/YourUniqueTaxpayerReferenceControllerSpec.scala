@@ -38,7 +38,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
   def onwardRoute = Call("GET", "/foo")
 
   val formProvider = new YourUniqueTaxpayerReferenceFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   lazy val yourUniqueTaxpayerReferenceRoute = routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode).url
 
@@ -55,7 +55,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val view = application.injector.instanceOf[YourUniqueTaxpayerReferenceView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
@@ -73,7 +73,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
       }
     }
@@ -99,7 +99,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -119,7 +119,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
@@ -133,7 +133,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -149,7 +149,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

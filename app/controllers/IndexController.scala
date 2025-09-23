@@ -16,6 +16,8 @@
 
 package controllers
 
+import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, IdentifierAction}
+import models.NormalMode
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
 import models.NormalMode
 import play.api.i18n.I18nSupport
@@ -46,8 +48,7 @@ class IndexController @Inject() (
               Future.successful(Ok("User has UTR. Redirect them to Is This Your Business? page (CARF-126)"))
             case None      =>
               Future.successful(
-                Redirect(controllers.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode))
-//                Ok("We couldn't get a UTR for this user. Redirect them to What Are You Registering As? page (CARF-119)")
+                Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
               )
           }
       }

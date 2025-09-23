@@ -18,11 +18,12 @@ package controllers
 
 import controllers.actions.*
 import forms.YourUniqueTaxpayerReferenceFormProvider
+import models.OrganisationRegistrationType.{LimitedCompany, Partnership, SoleTrader}
 
 import javax.inject.Inject
-import models.{Mode, UniqueTaxpayerReference, UserAnswers}
+import models.{Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.Navigator
-import pages.YourUniqueTaxpayerReferencePage
+import pages.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,28 +33,27 @@ import views.html.YourUniqueTaxpayerReferenceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class YourUniqueTaxpayerReferenceController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: YourUniqueTaxpayerReferenceFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: YourUniqueTaxpayerReferenceView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class YourUniqueTaxpayerReferenceController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: YourUniqueTaxpayerReferenceFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: YourUniqueTaxpayerReferenceView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-  val form: Form[String] = formProvider()
-  
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val taxType = getTaxType(request.userAnswers)
+      val taxType = getTaxTypeMessageKey(request.userAnswers)
       val form    = formProvider(taxType)
 
       val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage) match {
-      //val preparedForm = request.userAnswers.flatMap(_.get(YourUniqueTaxpayerReferencePage)) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
@@ -62,22 +62,24 @@ class YourUniqueTaxpayerReferenceController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(YourUniqueTaxpayerReferencePage))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(YourUniqueTaxpayerReferencePage, mode, updatedAnswers))
-      )
+      val taxType = getTaxTypeMessageKey(request.userAnswers)
+      val form    = formProvider(taxType)
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, taxType))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(YourUniqueTaxpayerReferencePage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(YourUniqueTaxpayerReferencePage, mode, updatedAnswers))
+        )
   }
 
-  private def getTaxType(userAnswers: UserAnswers)(implicit messages: Messages): String =
-    userAnswers.get(OrganisationRegistrationType) match {
-      case Some(LimitedCompany) | Some(UnincorporatedAssociation) => ("pattern matching, this is in some")
-      case _ => messages("pattern matching _")
+  private def getTaxTypeMessageKey(userAnswers: UserAnswers): String =
+    userAnswers.get(OrganisationRegistrationTypePage) match {
+      case Some(LimitedCompany) | Some(Partnership) => "ltd or partnership"
+      case Some(SoleTrader)                         => "SOLE TRADER"
+      case _                                        => "Anything else"
     }
 }

@@ -16,32 +16,24 @@
 
 package forms
 
-import forms.behaviours.StringFieldBehaviours
+import forms.behaviours.OptionFieldBehaviours
+import models.OrganisationRegistrationType
 import play.api.data.FormError
 
-class YourUniqueTaxpayerReferenceFormProviderSpec extends StringFieldBehaviours {
+class OrganisationRegistrationTypeFormProviderSpec extends OptionFieldBehaviours {
 
-  val requiredKey = "yourUniqueTaxpayerReference.error.required"
-  val lengthKey   = "yourUniqueTaxpayerReference.error.length"
-  val maxLength   = 13
-
-  val form = new YourUniqueTaxpayerReferenceFormProvider()()
+  val form = new OrganisationRegistrationTypeFormProvider()()
 
   ".value" - {
 
-    val fieldName = "value"
+    val fieldName   = "value"
+    val requiredKey = "organisationRegistrationType.error.required"
 
-    behave like fieldThatBindsValidData(
+    behave like optionsField[OrganisationRegistrationType](
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
-    )
-
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      validValues = OrganisationRegistrationType.values,
+      invalidError = FormError(fieldName, "error.invalid")
     )
 
     behave like mandatoryField(

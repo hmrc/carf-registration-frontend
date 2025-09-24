@@ -20,7 +20,7 @@ GET         /account/signed-out                      controllers.auth.SignedOutC
 
 GET         /unauthorised                            controllers.UnauthorisedController.onPageLoad()
 
-GET         /individualRegistrationType              controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /individualRegistrationType              controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /changeIndividualRegistrationType        controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /changeIndividualRegistrationType        controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-registration-type               controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-registration-type               controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-registration-type        controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-registration-type        controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)

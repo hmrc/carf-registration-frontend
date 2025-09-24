@@ -45,9 +45,9 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 individualRegistrationType.title = individualRegistrationType
-individualRegistrationType.heading = individualRegistrationType
+individualRegistrationType.heading = What are you registering as?
 individualRegistrationType.soleTrader = Sole trader
 individualRegistrationType.individual = An individual not connected to a business
 individualRegistrationType.checkYourAnswersLabel = individualRegistrationType
-individualRegistrationType.error.required = Select your Individual Registration Type
+individualRegistrationType.error.required = Select what you are registering as
 individualRegistrationType.change.hidden = Change your Individual Registration Type

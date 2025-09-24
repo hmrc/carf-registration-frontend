@@ -16,10 +16,11 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.IndividualRegistrationTypeFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.IndividualRegistrationTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -30,41 +31,41 @@ import views.html.IndividualRegistrationTypeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class IndividualRegistrationTypeController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: IndividualRegistrationTypeFormProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: IndividualRegistrationTypeView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class IndividualRegistrationTypeController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: IndividualRegistrationTypeFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: IndividualRegistrationTypeView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData()) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(IndividualRegistrationTypePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-
-      Ok(view(preparedForm, mode))
+    val preparedForm = request.userAnswers.flatMap(_.get(IndividualRegistrationTypePage)) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
+    println("zxc onPageLoad.")
+    Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData()).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualRegistrationTypePage, value))
+            updatedAnswers <-
+              Future.fromTry(UserAnswers(id = request.userId).set(IndividualRegistrationTypePage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndividualRegistrationTypePage, mode, updatedAnswers))
       )

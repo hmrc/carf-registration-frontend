@@ -20,7 +20,6 @@ import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, 
 import models.NormalMode
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -32,7 +31,6 @@ class IndexController @Inject() (
     identify: IdentifierAction,
     checkEnrolment: CheckEnrolledToServiceAction,
     retrieveCtUTR: CtUtrRetrievalAction,
-    sessionRepository: SessionRepository
 ) extends FrontendBaseController
     with I18nSupport {
 

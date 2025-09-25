@@ -21,6 +21,7 @@ import controllers.routes
 import models.{NormalMode, UserAnswers}
 import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
 
+
 class NormalRoutesNavigatorSpec extends SpecBase {
 
   val navigator = new Navigator

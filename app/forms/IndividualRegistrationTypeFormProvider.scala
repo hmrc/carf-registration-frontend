@@ -26,6 +26,8 @@ class IndividualRegistrationTypeFormProvider @Inject() extends Mappings {
 
   def apply(): Form[IndividualRegistrationType] =
     Form(
-      "value" -> enumerable[IndividualRegistrationType]("individualRegistrationType.error.required")
+      "individualRegistrationType" -> enumerable[IndividualRegistrationType](
+        "individualRegistrationType.error.required"
+      )
     )
 }

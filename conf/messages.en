@@ -1,4 +1,4 @@
-service.name = carf-registration-frontend
+service.name = Send a cryptoasset reporting framework report
 
 site.back = Back
 site.remove = Remove
@@ -43,3 +43,14 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+organisationRegistrationType.title = What are you registering as?
+organisationRegistrationType.heading = What are you registering as?
+organisationRegistrationType.limitedCompany = Limited company
+organisationRegistrationType.partnership = Partnership
+organisationRegistrationType.llp = Limited partnership or limited liability partnership
+organisationRegistrationType.trust = Unincorporated association or trust
+organisationRegistrationType.soleTrader = Sole trader
+organisationRegistrationType.checkYourAnswersLabel = What are you registering as?
+organisationRegistrationType.error.required = Select what you are registering as
+organisationRegistrationType.change.hidden = Change what you are registering as

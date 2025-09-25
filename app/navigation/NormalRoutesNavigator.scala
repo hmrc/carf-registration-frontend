@@ -30,7 +30,7 @@ trait NormalRoutesNavigator {
           case Some(IndividualRegistrationType.SoleTrader) =>
             routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
           case Some(IndividualRegistrationType.Individual) =>
-            routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-163)")
+            routes.PlaceholderController.onPageLoad("Must redirect to /have-ni-number (CARF-163)")
           case _                                           =>
             routes.JourneyRecoveryController.onPageLoad()
         }

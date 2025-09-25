@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package generators
+package navigation
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import controllers.routes
+import models.UserAnswers
+import pages.Page
+import play.api.mvc.Call
 
-trait ModelGenerators {}
+trait ChangeRoutesNavigator {
 
-implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(OrganisationRegistrationType.values.toSeq)
+  val checkRouteMap: Page => UserAnswers => Call = { case _ =>
+    _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
-implicit lazy val arbitraryIndividualRegistrationType: Arbitrary[IndividualRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(IndividualRegistrationType.values.toSeq)
-  }
+}

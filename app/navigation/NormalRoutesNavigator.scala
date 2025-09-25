@@ -17,13 +17,23 @@
 package navigation
 
 import controllers.routes
-import models.UserAnswers
-import pages.{OrganisationRegistrationTypePage, Page}
+import models.{IndividualRegistrationType, UserAnswers}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
+    case IndividualRegistrationTypePage   =>
+      userAnswers =>
+        userAnswers.get(IndividualRegistrationTypePage) match {
+          case Some(IndividualRegistrationType.SoleTrader) =>
+            routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
+          case Some(IndividualRegistrationType.Individual) =>
+            routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-163)")
+          case _                                           =>
+            routes.JourneyRecoveryController.onPageLoad()
+        }
     case OrganisationRegistrationTypePage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
     case _                                => _ => routes.JourneyRecoveryController.onPageLoad()

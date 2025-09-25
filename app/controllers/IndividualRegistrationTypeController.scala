@@ -62,7 +62,7 @@ class IndividualRegistrationTypeController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
+        individualRegistrationType =>
           for {
             updatedAnswers <-
               Future.fromTry(

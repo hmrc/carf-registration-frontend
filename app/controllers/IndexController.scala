@@ -30,7 +30,7 @@ class IndexController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     identify: IdentifierAction,
     checkEnrolment: CheckEnrolledToServiceAction,
-    retrieveCtUTR: CtUtrRetrievalAction,
+    retrieveCtUTR: CtUtrRetrievalAction
 ) extends FrontendBaseController
     with I18nSupport {
 

@@ -53,7 +53,6 @@ class IndividualRegistrationTypeController @Inject() (
       case None        => form
       case Some(value) => form.fill(value)
     }
-    println("zxc onPageLoad.")
     Ok(view(preparedForm, mode))
   }
 

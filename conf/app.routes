@@ -22,7 +22,12 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET        /register/organisation-registration-type                        controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/organisation-registration-type                        controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-organisation-registration-type                  controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-organisation-registration-type                  controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
+GET        /register/organisation-registration-type                           controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/organisation-registration-type                           controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-organisation-registration-type                    controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-organisation-registration-type                    controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/registered-address-in-uk                                 controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/registered-address-in-uk                                 controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-registered-address-in-uk                          controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-registered-address-in-uk                          controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)

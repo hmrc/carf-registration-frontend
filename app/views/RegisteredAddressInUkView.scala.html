@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import requests.DataRequest
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -24,20 +26,19 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("organisationRegistrationType.title"))) {
+@layout(pageTitle = title(form, messages("registeredAddressInUk.title"))) {
 
-    @formHelper(action = routes.OrganisationRegistrationTypeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.RegisteredAddressInUkController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
         @govukRadios(
-            RadiosViewModel(
-                field  = form("value"),
-                legend = LegendViewModel(messages("organisationRegistrationType.heading")).asPageHeading(),
-                items  = OrganisationRegistrationType.options
-            )
+            RadiosViewModel.yesNo(
+                field = form("value"),
+                legend = LegendViewModel(messages("registeredAddressInUk.heading")).asPageHeading()
+            ).copy(classes = "")
         )
 
         @govukButton(

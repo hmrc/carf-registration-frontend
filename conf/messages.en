@@ -54,3 +54,9 @@ organisationRegistrationType.soleTrader = Sole trader
 organisationRegistrationType.checkYourAnswersLabel = What are you registering as?
 organisationRegistrationType.error.required = Select what you are registering as
 organisationRegistrationType.change.hidden = Change what you are registering as
+
+registeredAddressInUk.title = Is your registered address in the UK?
+registeredAddressInUk.heading = Is your registered address in the UK?
+registeredAddressInUk.checkYourAnswersLabel = Is your registered address in the UK?
+registeredAddressInUk.error.required = Select yes if your registered address is in the UK
+registeredAddressInUk.change.hidden = Change if your registered address is in the UK

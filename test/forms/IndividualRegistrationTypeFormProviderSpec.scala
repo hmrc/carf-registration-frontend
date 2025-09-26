@@ -26,7 +26,7 @@ class IndividualRegistrationTypeFormProviderSpec extends OptionFieldBehaviours {
 
   ".value" - {
 
-    val fieldName   = "value"
+    val fieldName   = "individualRegistrationType"
     val requiredKey = "individualRegistrationType.error.required"
 
     behave like optionsField[IndividualRegistrationType](

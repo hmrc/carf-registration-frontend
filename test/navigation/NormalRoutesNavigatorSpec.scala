@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.{NormalMode, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, YourUniqueTaxpayerReferencePage}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -40,7 +40,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationRegistrationTypePage,
         NormalMode,
         UserAnswers("id")
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
+      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business or Your name page" in {
@@ -53,6 +53,36 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name or /your-name")
     }
 
-  }
+    "must go to UTR page when user answers 'Yes' to UK address" in {
+      val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, true).success.value
 
+      navigator.nextPage(
+        RegisteredAddressInUkPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+    }
+
+    "must go to Have UTR page when user answers 'No' to UK address" in {
+      val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, false).success.value
+
+      navigator.nextPage(
+        RegisteredAddressInUkPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
+      )
+    }
+
+    "must go to Journey Recovery when no answer is provided" in {
+      val userAnswers = UserAnswers("id")
+
+      navigator.nextPage(
+        RegisteredAddressInUkPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 }

@@ -17,18 +17,34 @@
 package navigation
 
 import controllers.routes
-import models.UserAnswers
-import pages.{OrganisationRegistrationTypePage, Page, YourUniqueTaxpayerReferencePage}
+import models.{NormalMode, UserAnswers}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
     case OrganisationRegistrationTypePage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
-    case YourUniqueTaxpayerReferencePage  =>
+      _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+
+    case RegisteredAddressInUkPage       =>
+      userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
+    case YourUniqueTaxpayerReferencePage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /business-name or /your-name")
-    case _                                => _ => routes.JourneyRecoveryController.onPageLoad()
+    case _                               =>
+      _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
+    userAnswers.get(RegisteredAddressInUkPage) match {
+      case Some(true)  =>
+        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 
 }

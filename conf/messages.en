@@ -55,6 +55,12 @@ organisationRegistrationType.checkYourAnswersLabel = What are you registering as
 organisationRegistrationType.error.required = Select what you are registering as
 organisationRegistrationType.change.hidden = Change what you are registering as
 
+registeredAddressInUk.title = Is your registered address in the UK?
+registeredAddressInUk.heading = Is your registered address in the UK?
+registeredAddressInUk.checkYourAnswersLabel = Is your registered address in the UK?
+registeredAddressInUk.error.required = Select yes if your registered address is in the UK
+registeredAddressInUk.change.hidden = Change if your registered address is in the UK
+
 yourUniqueTaxpayerReference.soleTraderIndividual.title = Your Self Assessment Unique Taxpayer Reference (UTR)
 yourUniqueTaxpayerReference.soleTraderIndividual.heading = Your Self Assessment Unique Taxpayer Reference (UTR)
 yourUniqueTaxpayerReference.soleTraderIndividual.paragraph = You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.

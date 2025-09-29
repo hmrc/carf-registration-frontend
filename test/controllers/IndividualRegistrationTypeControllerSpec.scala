@@ -96,8 +96,8 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
       running(application) {
         val request   =
           FakeRequest(POST, individualRegistrationTypeRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+            .withFormUrlEncodedBody(("individualRegistrationType", "invalid value"))
+        val boundForm = form.bind(Map("individualRegistrationType" -> "invalid value"))
         val view      = application.injector.instanceOf[IndividualRegistrationTypeView]
         val result    = route(application, request).value
         status(result)          mustEqual BAD_REQUEST

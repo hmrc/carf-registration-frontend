@@ -19,7 +19,7 @@ package navigation
 import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{AutoMatchedUTRPage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -28,11 +28,16 @@ trait NormalRoutesNavigator {
     case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
-    case RegisteredAddressInUkPage       =>
-      userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
     case YourUniqueTaxpayerReferencePage =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
-    case _                               =>
+
+    case RegisteredAddressInUkPage =>
+      userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
+
+    case IsThisYourBusinessPage =>
+      userAnswers => navigateFromIsThisYourBusiness(userAnswers)
+
+    case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -53,5 +58,40 @@ trait NormalRoutesNavigator {
       case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
       case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
+
+  private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
+    userAnswers.get(IsThisYourBusinessPage) match {
+      case Some(true) =>
+        // User selects yes
+        if (isSoleTrader(userAnswers)) {
+          routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+        } else {
+          routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+        }
+
+      case Some(false) =>
+        // User selects no
+        if (isCTAutomatched(userAnswers)) {
+          routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+        } else {
+          if (isSoleTrader(userAnswers)) {
+            routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+          } else {
+            routes.PlaceholderController.onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+          }
+        }
+
+      case None =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def isSoleTrader(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(OrganisationRegistrationTypePage) match {
+      case Some(OrganisationRegistrationType.SoleTrader) => true
+      case _                                             => false
+    }
+
+  private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(AutoMatchedUTRPage).isDefined
 
 }

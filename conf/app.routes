@@ -36,3 +36,8 @@ GET        /register/utr                                 controllers.YourUniqueT
 POST       /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
 GET        /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/is-this-your-business                      controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/is-this-your-business                        controllers.IsThisYourBusinessController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-is-this-your-business                  controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-is-this-your-business                  controllers.IsThisYourBusinessController.onSubmit(mode: Mode = CheckMode)

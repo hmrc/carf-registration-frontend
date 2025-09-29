@@ -84,3 +84,10 @@ yourUniqueTaxpayerReference.error.required = Enter your Unique Taxpayer Referenc
 yourUniqueTaxpayerReference.error.invalid = Unique Taxpayer Reference must only include numbers 0 to 9
 yourUniqueTaxpayerReference.error.invalidFormat = Enter the Unique Taxpayer Reference in the right format
 yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)
+
+isThisYourBusiness.title = Is this your business?
+isThisYourBusiness.heading = Is this your business?
+isThisYourBusiness.checkYourAnswersLabel = Is this your business?
+isThisYourBusiness.error.required = Select yes if this is your business
+isThisYourBusiness.change.hidden = Change if this is your business
+isThisYourBusiness.businessDetails.placeholder = Agent ABC plc<br>2 High Street<br>Birmingham<br>B23 2AZ

@@ -42,7 +42,7 @@ trait NormalRoutesNavigator {
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualRegistrationTypePage) match {
       case Some(IndividualRegistrationType.SoleTrader) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
+        routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
         routes.PlaceholderController.onPageLoad("Must redirect to /have-ni-number (CARF-163)")
       case _                                           =>

@@ -55,10 +55,10 @@ organisationRegistrationType.checkYourAnswersLabel = What are you registering as
 organisationRegistrationType.error.required = Select what you are registering as
 organisationRegistrationType.change.hidden = Change what you are registering as
 
-individualRegistrationType.title = individualRegistrationType
+individualRegistrationType.title = What are you registering as?
 individualRegistrationType.heading = What are you registering as?
 individualRegistrationType.soleTrader = Sole trader
 individualRegistrationType.individual = An individual not connected to a business
-individualRegistrationType.checkYourAnswersLabel = individualRegistrationType
+individualRegistrationType.checkYourAnswersLabel = Registration type
 individualRegistrationType.error.required = Select what you are registering as
 individualRegistrationType.change.hidden = Change your Individual Registration Type

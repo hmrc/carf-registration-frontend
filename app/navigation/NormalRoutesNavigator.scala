@@ -25,18 +25,19 @@ trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
     case IndividualRegistrationTypePage   =>
-      userAnswers =>
-        userAnswers.get(IndividualRegistrationTypePage) match {
-          case Some(IndividualRegistrationType.SoleTrader) =>
-            routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
-          case Some(IndividualRegistrationType.Individual) =>
-            routes.PlaceholderController.onPageLoad("Must redirect to /have-ni-number (CARF-163)")
-          case _                                           =>
-            routes.JourneyRecoveryController.onPageLoad()
-        }
+      userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
     case OrganisationRegistrationTypePage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
     case _                                => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
+  private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualRegistrationTypePage) match {
+      case Some(IndividualRegistrationType.SoleTrader) =>
+        routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
+      case Some(IndividualRegistrationType.Individual) =>
+        routes.PlaceholderController.onPageLoad("Must redirect to /have-ni-number (CARF-163)")
+      case _                                           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 }

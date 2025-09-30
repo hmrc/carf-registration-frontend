@@ -153,7 +153,7 @@ trait Formatters {
         if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val trimmedUtr = data.get(key).map(_.replaceAll("[kK\\s]", ""))
+        val trimmedUtr = data.get(key).map(string => string.replaceAll("\\s", "").replaceAll("^[kK]+|[kK]+$", ""))
         trimmedUtr match {
           case None | Some("")                                => Left(Seq(formatError(key, requiredKey, msgArg)))
           case Some(s) if !s.matches(regex)                   => Left(Seq(formatError(key, invalidKey, msgArg)))

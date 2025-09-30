@@ -18,7 +18,7 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
@@ -43,14 +43,40 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
-    "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business or Your name page" in {
+    "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
 
-      case object YourOrganisationNamePage extends Page
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
       navigator.nextPage(
         YourUniqueTaxpayerReferencePage,
         NormalMode,
-        UserAnswers("id")
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name or /your-name")
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+    }
+
+    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        YourUniqueTaxpayerReferencePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
     }
 
     "must go to UTR page when user answers 'Yes' to UK address" in {

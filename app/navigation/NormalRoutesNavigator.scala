@@ -17,7 +17,8 @@
 package navigation
 
 import controllers.routes
-import models.{NormalMode, UserAnswers}
+import models.OrganisationRegistrationType.*
+import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
@@ -30,7 +31,7 @@ trait NormalRoutesNavigator {
     case RegisteredAddressInUkPage       =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
     case YourUniqueTaxpayerReferencePage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /business-name or /your-name")
+      userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
     case _                               =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
@@ -45,6 +46,12 @@ trait NormalRoutesNavigator {
         )
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationRegistrationTypePage) match {
+      case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+      case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
 
 }

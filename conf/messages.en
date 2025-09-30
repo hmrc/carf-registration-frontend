@@ -62,3 +62,9 @@ individualRegistrationType.individual = An individual not connected to a busines
 individualRegistrationType.checkYourAnswersLabel = Registration type
 individualRegistrationType.error.required = Select what you are registering as
 individualRegistrationType.change.hidden = Change your Individual Registration Type
+
+registeredAddressInUk.title = Is your registered address in the UK?
+registeredAddressInUk.heading = Is your registered address in the UK?
+registeredAddressInUk.checkYourAnswersLabel = Is your registered address in the UK?
+registeredAddressInUk.error.required = Select yes if your registered address is in the UK
+registeredAddressInUk.change.hidden = Change if your registered address is in the UK

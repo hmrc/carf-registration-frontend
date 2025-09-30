@@ -20,11 +20,11 @@
             RadiosViewModel.yesNo(
                 field = form("value"),
                 legend = LegendViewModel(messages("$className;format="decap"$.heading")).asPageHeading()
-            )
+            ).copy(classes = "")
         )
 
         @govukButton(
-            ButtonViewModel(messages("site.continue"))
+            ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
         )
     }
 }

@@ -17,6 +17,8 @@
 package navigation
 
 import controllers.routes
+import models.{NormalMode, UserAnswers}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
 import models.{IndividualRegistrationType, UserAnswers}
 import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page}
 import play.api.mvc.Call
@@ -24,11 +26,17 @@ import play.api.mvc.Call
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
-    case IndividualRegistrationTypePage   =>
+    case IndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
+
     case OrganisationRegistrationTypePage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /registered-address-in-uk (CARF-121)")
-    case _                                => _ => routes.JourneyRecoveryController.onPageLoad()
+      _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+
+    case RegisteredAddressInUkPage =>
+      userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
+
+    case _ =>
+      _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
@@ -38,6 +46,17 @@ trait NormalRoutesNavigator {
       case Some(IndividualRegistrationType.Individual) =>
         routes.PlaceholderController.onPageLoad("Must redirect to /have-ni-number (CARF-163)")
       case _                                           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call          =
+    userAnswers.get(RegisteredAddressInUkPage) match {
+      case Some(true)  =>
+        routes.PlaceholderController.onPageLoad("Must redirect to /register/utr (What is your UTR page - CARF-122)")
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
+        )
+      case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 }

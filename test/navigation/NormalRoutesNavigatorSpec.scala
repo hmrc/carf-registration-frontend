@@ -18,8 +18,9 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{NormalMode, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
+import models.IndividualRegistrationType.{Individual, SoleTrader}
+import models.{IndividualRegistrationType, NormalMode, UserAnswers}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -41,6 +42,28 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+    }
+
+    "must go from IndividualRegistrationTypePage to Registered Address in the UK Page when user is a Sole Trader" in {
+      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, SoleTrader).success.value
+
+      navigator.nextPage(
+        IndividualRegistrationTypePage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+    }
+
+    "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {
+      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, Individual).success.value
+
+      navigator.nextPage(
+        IndividualRegistrationTypePage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/have-ni-number (Do you have a National Insurance number? page - CARF-163)"
+      )
     }
   }
 

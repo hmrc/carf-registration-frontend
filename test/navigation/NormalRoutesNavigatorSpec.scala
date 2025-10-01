@@ -67,7 +67,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         "Must redirect to /register/have-ni-number (Do you have a National Insurance number? page - CARF-163)"
       )
     }
-  }
 
     "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
 

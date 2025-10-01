@@ -21,6 +21,9 @@ import models.{NormalMode, UserAnswers}
 import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
 import models.{IndividualRegistrationType, UserAnswers}
 import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page}
+import models.OrganisationRegistrationType.*
+import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -32,10 +35,11 @@ trait NormalRoutesNavigator {
     case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
-    case RegisteredAddressInUkPage =>
+    case RegisteredAddressInUkPage       =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
-
-    case _ =>
+    case YourUniqueTaxpayerReferencePage =>
+      userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
+    case _                               =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -53,7 +57,7 @@ trait NormalRoutesNavigator {
   private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call          =
     userAnswers.get(RegisteredAddressInUkPage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /register/utr (What is your UTR page - CARF-122)")
+        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
@@ -61,4 +65,11 @@ trait NormalRoutesNavigator {
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationRegistrationTypePage) match {
+      case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+      case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+    }
+
 }

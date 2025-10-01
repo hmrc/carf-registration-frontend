@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
 import models.NormalMode
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

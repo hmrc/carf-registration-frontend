@@ -16,11 +16,12 @@
 
 package forms.mappings
 
+import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.data.{Form, FormError}
-import models.Enumerable
+import play.api.data.Forms.mapping
 
 object MappingsSpec {
 
@@ -230,4 +231,80 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       result.apply("value").value.value mustEqual "1"
     }
   }
+
+  "validatedUTR" - {
+    val testForm: Form[UniqueTaxpayerReference] = Form(
+      mapping(
+        "value" -> validatedUTR(
+          requiredKey = "error.required",
+          invalidKey = "error.invalid.key",
+          invalidFormatKey = "error.invalid.formatKey",
+          regex = "^[0-9]*$",
+          msgArg = "UTR"
+        )
+      )(UniqueTaxpayerReference.apply)(utr => Some(utr.uniqueTaxPayerReference))
+    )
+
+    "must bind a valid UTR that is 10 characters long" in {
+      val result = testForm.bind(Map("value" -> "1234267890"))
+      result.get mustBe UniqueTaxpayerReference("1234267890")
+    }
+
+    "must bind a valid UTR that is 13 characters long" in {
+      val result = testForm.bind(Map("value" -> "1234267890121"))
+      result.get mustBe UniqueTaxpayerReference("1234267890121")
+    }
+
+    "must bind a valid UTR that contains spaces" in {
+      val result = testForm.bind(Map("value" -> "1 2 3 4 5 6 7 8 9 0"))
+      result.get mustBe UniqueTaxpayerReference("1234567890")
+    }
+
+    "must bind a UTR with K in the start and whitespace characters" in {
+      val result = testForm.bind(Map("value" -> "K123456 789 0"))
+      result.get mustBe UniqueTaxpayerReference("1234567890")
+    }
+
+    "must remove any 'K' character from the start of the string" in {
+      val result = testForm.bind(Map("value" -> "K1234561289"))
+      result.get mustBe UniqueTaxpayerReference("1234561289")
+    }
+
+    "must remove any 'K' character from the end of the string" in {
+      val result = testForm.bind(Map("value" -> "1234561289K"))
+      result.get mustBe UniqueTaxpayerReference("1234561289")
+    }
+
+    "must not bind an empty string" in {
+      val result = testForm.bind(Map("value" -> ""))
+      result.errors must contain(FormError("value", "error.required", List("UTR")))
+    }
+
+    "must not bind whitespace and k characters only" in {
+      val result = testForm.bind(Map("value" -> "k k K K"))
+      result.errors must contain(FormError("value", "error.required", List("UTR")))
+    }
+
+    "must not bind an invalid UTR (short)" in {
+      val result = testForm.bind(Map("value" -> "123456"))
+      result.errors must contain(FormError("value", "error.invalid.formatKey", List("UTR")))
+    }
+
+    "must not bind a very long invalid UTR " in {
+      val result = testForm.bind(Map("value" -> "1234561234567890"))
+      result.errors must contain(FormError("value", "error.invalid.formatKey", List("UTR")))
+    }
+
+    "must not bind invalid characters" in {
+      val result = testForm.bind(Map("value" -> "ABC123!@#$"))
+      result.errors must contain(FormError("value", "error.invalid.key", List("UTR")))
+    }
+
+    "must not bind a UTR with Kk characters in between and spaces" in {
+      val result = testForm.bind(Map("value" -> "12k 34K 567890"))
+      result.errors must contain(FormError("value", "error.invalid.key", List("UTR")))
+    }
+
+  }
+
 }

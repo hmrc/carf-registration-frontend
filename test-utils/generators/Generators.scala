@@ -111,4 +111,10 @@ trait Generators extends ModelGenerators {
       Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate
     }
   }
+
+  def stringsNotOfFixedLengthsNumeric(validLengths: Set[Int]): Gen[String] =
+    Gen
+      .choose(1, 50)
+      .suchThat(len => !validLengths.contains(len))
+      .flatMap(len => Gen.listOfN(len, Gen.numChar).map(_.mkString))
 }

@@ -31,3 +31,8 @@ GET        /register/registered-address-in-uk                                 co
 POST       /register/registered-address-in-uk                                 controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-registered-address-in-uk                          controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-registered-address-in-uk                          controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
+GET        /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)

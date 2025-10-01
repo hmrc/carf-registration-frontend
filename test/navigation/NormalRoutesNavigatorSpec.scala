@@ -18,8 +18,8 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{NormalMode, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
+import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -42,9 +42,42 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
-  }
 
-  "RegisteredAddressInUkPage navigation" - {
+    "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        YourUniqueTaxpayerReferencePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+    }
+
+    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        YourUniqueTaxpayerReferencePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+    }
 
     "must go to UTR page when user answers 'Yes' to UK address" in {
       val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, true).success.value
@@ -53,9 +86,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         RegisteredAddressInUkPage,
         NormalMode,
         userAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/utr (What is your UTR page - CARF-122)"
-      )
+      ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
     }
 
     "must go to Have UTR page when user answers 'No' to UK address" in {

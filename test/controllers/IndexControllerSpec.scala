@@ -18,13 +18,16 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
-import models.NormalMode
-import org.mockito.Mockito.{reset, when}
+import repositories.SessionRepository
+import models.{NormalMode, UserAnswers}
+import pages.AutoMatchedUTRPage
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 
@@ -35,6 +38,11 @@ class IndexControllerSpec extends SpecBase {
 
   override def beforeEach(): Unit = {
     reset(mockCtUtrRetrievalAction)
+    reset(mockSessionRepository)
+
+    when(mockSessionRepository.get(any[String])).thenReturn(Future.successful(None))
+    when(mockSessionRepository.set(any[UserAnswers])).thenReturn(Future.successful(true))
+
     super.beforeEach()
   }
 
@@ -49,7 +57,8 @@ class IndexControllerSpec extends SpecBase {
       val result: Future[Result] = route(application, request).value
 
       status(result)     mustEqual OK
-      contentAsString(result) must include("Take user to: Individual – What Are You Registering As? page")
+      contentAsString(result) must include("Take user to: Individual – What Are You Registering As? page (CARF-120)")
+
     }
 
     "must handle an organisation user with utr correctly" in new Setup(Organisation) {
@@ -60,8 +69,13 @@ class IndexControllerSpec extends SpecBase {
 
       val result: Future[Result] = route(application, request).value
 
-      status(result)     mustEqual OK
-      contentAsString(result) must include("User has UTR. Redirect them to Is This Your Business? page")
+      status(result)                 mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.routes.IsThisYourBusinessController
+        .onPageLoad(NormalMode)
+        .url
+
+      verify(mockSessionRepository).set(argThat[UserAnswers](ua => ua.get(AutoMatchedUTRPage).contains(testUtr)))
+
     }
 
     "must handle an organisation user without utr correctly" in new Setup(Organisation) {

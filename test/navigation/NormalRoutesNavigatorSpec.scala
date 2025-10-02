@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{HaveNiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -109,6 +109,37 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         userAnswers
       ) mustBe routes.JourneyRecoveryController.onPageLoad()
+    }
+
+    "HaveNiNumberPage navigation" - {
+      "when user answers 'true' (yes, I have a National Insurance number)" - {
+        "must navigate to: What is your National Insurance number?" in {
+          val userAnswers = UserAnswers("id")
+            .set(HaveNiNumberPage, true)
+            .success
+            .value
+
+          navigator.nextPage(
+            HaveNiNumberPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
+        }
+      }
+      "when user answers 'false' (no, I don't have a National Insurance number)" - {
+        "must navigate to: What is your name?" in {
+          val userAnswers = UserAnswers("id")
+            .set(HaveNiNumberPage, false)
+            .success
+            .value
+
+          navigator.nextPage(
+            HaveNiNumberPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+        }
+      }
     }
   }
 }

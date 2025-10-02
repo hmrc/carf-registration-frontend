@@ -34,8 +34,14 @@
 
         <h1 class="govuk-heading-l">@messages("isThisYourBusiness.heading")</h1>
 
+         <p class="govuk-body govuk-!-margin-bottom-1">
+            @messages("isThisYourBusiness.businessName.placeholder")
+        </p>
+
         <p class="govuk-body">
-            @Html(messages("isThisYourBusiness.businessDetails.placeholder"))
+            <span class="govuk-!-margin-bottom-0">@messages("isThisYourBusiness.businessAddress.line1")</span><br>
+            <span class="govuk-!-margin-bottom-0">@messages("isThisYourBusiness.businessAddress.line2")</span><br>
+            @messages("isThisYourBusiness.businessAddress.line3")
         </p>
 
         @govukRadios(

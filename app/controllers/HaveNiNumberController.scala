@@ -30,17 +30,19 @@ import views.html.HaveNiNumberView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HaveNiNumberController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         navigator: Navigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: HaveNiNumberFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: HaveNiNumberView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class HaveNiNumberController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: HaveNiNumberFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: HaveNiNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
@@ -48,7 +50,7 @@ class HaveNiNumberController @Inject()(
     implicit request =>
 
       val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
@@ -57,16 +59,15 @@ class HaveNiNumberController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveNiNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(HaveNiNumberPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveNiNumberPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(HaveNiNumberPage, mode, updatedAnswers))
+        )
   }
 }

@@ -18,6 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.routes
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -26,11 +27,11 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{BodyParsers, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, redirectLocation, status}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Organisation}
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, allEnrolments, credentialRole, internalId}
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.UnauthorizedException
 
 import scala.concurrent.Future
@@ -82,6 +83,7 @@ class IdentifierActionSpec extends SpecBase {
       status(result)          mustBe OK
       contentAsString(result) mustBe testContent
     }
+
     "return ok with a message if credential role is Assistant" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
@@ -101,7 +103,8 @@ class IdentifierActionSpec extends SpecBase {
       status(result)        mustBe OK
       contentAsString(result) must include("User is an assistant so cannot use the service")
     }
-    "return ok with a message if affinity group is Agent" in {
+
+    "redirect to AgentSignInProblem page when affinity group is Agent" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
         mockAuthConnector.authorise(
@@ -115,9 +118,10 @@ class IdentifierActionSpec extends SpecBase {
 
       val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
 
-      status(result)        mustBe OK
-      contentAsString(result) must include("User is an agent so cannot use the service")
+      status(result)           mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.AgentSignInProblemController.onPageLoad().url)
     }
+
     "return ok with a message if the user is already registered for this service" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
@@ -135,6 +139,7 @@ class IdentifierActionSpec extends SpecBase {
       status(result)        mustBe OK
       contentAsString(result) must include("User is already enrolled!")
     }
+
     "throw an exception if affinity group cannot be retrieved" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
@@ -153,6 +158,7 @@ class IdentifierActionSpec extends SpecBase {
 
       result.getMessage must include("Failed to retrieve valid auth data")
     }
+
     "throw an exception if internal id cannot be retrieved" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
@@ -171,6 +177,7 @@ class IdentifierActionSpec extends SpecBase {
 
       result.getMessage must include("Failed to retrieve valid auth data")
     }
+
     "throw an exception when the auth connector call fails" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
@@ -189,6 +196,7 @@ class IdentifierActionSpec extends SpecBase {
 
       result.getMessage must include("bang")
     }
+
     "redirect to the login page if no longer authorised or never logged in" in {
       List(
         BearerTokenExpired(),

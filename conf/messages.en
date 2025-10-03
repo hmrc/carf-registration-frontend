@@ -84,3 +84,9 @@ yourUniqueTaxpayerReference.error.required = Enter your Unique Taxpayer Referenc
 yourUniqueTaxpayerReference.error.invalid = Unique Taxpayer Reference must only include numbers 0 to 9
 yourUniqueTaxpayerReference.error.invalidFormat = Enter the Unique Taxpayer Reference in the right format
 yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)
+
+agentSignInProblem.title = You’re unable to use this service with this Government Gateway user ID
+agentSignInProblem.heading = You’re unable to use this service with this Government Gateway user ID
+agentSignInProblem.paragraph = You have signed in with an agent Government Gateway user ID.
+agentSignInProblem.linkText = To use this service as an agent, you must
+agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID.

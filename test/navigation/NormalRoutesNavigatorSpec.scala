@@ -96,9 +96,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         RegisteredAddressInUkPage,
         NormalMode,
         userAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
-      )
+      ) mustBe routes.HaveUTRController.onPageLoad(NormalMode)
     }
 
     "must go to Journey Recovery when no answer is provided" in {

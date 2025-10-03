@@ -49,9 +49,7 @@ trait NormalRoutesNavigator {
       case Some(IndividualRegistrationType.SoleTrader) =>
         routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/have-ni-number (Do you have a National Insurance number? page - CARF-163)"
-        )
+        routes.HaveNiNumberController.onPageLoad(NormalMode)
       case _                                           =>
         routes.JourneyRecoveryController.onPageLoad()
     }

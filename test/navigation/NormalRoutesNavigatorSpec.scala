@@ -63,9 +63,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         IndividualRegistrationTypePage,
         NormalMode,
         userAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/have-ni-number (Do you have a National Insurance number? page - CARF-163)"
-      )
+      ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {

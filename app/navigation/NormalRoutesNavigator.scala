@@ -41,17 +41,32 @@ trait NormalRoutesNavigator {
       case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
-        )
+          routes.HaveUTRController.onPageLoad(NormalMode)
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+    
+   private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
+      userAnswers.get(HaveUTRPage) match {
+        case Some(true) =>
+          routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        case Some(false) =>
+          userAnswers.get(OrganisationRegistrationTypePage) match {
+            case Some(SoleTrader) =>
+              routes.PlaceholderController.onPageLoad("redirect to - Do you have a National Insurance number? page /register/have-ni-number (CARF-163)")
+            case Some(_) => // Organisation
+              routes.PlaceholderController.onPageLoad("redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)")
+            case None =>
+              routes.JourneyRecoveryController.onPageLoad()
+          }
+        case None =>
+          routes.JourneyRecoveryController.onPageLoad()
+      }
 
   private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
     userAnswers.get(OrganisationRegistrationTypePage) match {
-      case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
-      case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+      case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
+      case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
     }
 
 }

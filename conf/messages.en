@@ -84,3 +84,10 @@ yourUniqueTaxpayerReference.error.required = Enter your Unique Taxpayer Referenc
 yourUniqueTaxpayerReference.error.invalid = Unique Taxpayer Reference must only include numbers 0 to 9
 yourUniqueTaxpayerReference.error.invalidFormat = Enter the Unique Taxpayer Reference in the right format
 yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)
+
+haveUTR.title = Do you have a Unique Taxpayer Reference (UTR)?
+haveUTR.heading = Do you have a Unique Taxpayer Reference (UTR)?
+haveUTR.checkYourAnswersLabel = Do you have a Unique Taxpayer Reference (UTR)?
+haveUTR.linkText = Find your UTR (opens in new tab)
+haveUTR.error.required = Select yes if you have a Unique Taxpayer Reference
+haveUTR.change.hidden = Change if you have a Unique Taxpayer Reference

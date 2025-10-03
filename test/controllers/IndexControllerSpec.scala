@@ -48,8 +48,10 @@ class IndexControllerSpec extends SpecBase {
 
       val result: Future[Result] = route(application, request).value
 
-      status(result)     mustEqual OK
-      contentAsString(result) must include("Take user to: Individual – What Are You Registering As? page")
+      status(result)        mustEqual SEE_OTHER
+      redirectLocation(result) mustBe Some(
+        controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+      )
     }
 
     "must handle an organisation user with utr correctly" in new Setup(Organisation) {

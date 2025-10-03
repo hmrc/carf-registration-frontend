@@ -17,6 +17,10 @@
 package navigation
 
 import controllers.routes
+import models.{NormalMode, UserAnswers}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
+import models.{IndividualRegistrationType, UserAnswers}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page}
 import models.OrganisationRegistrationType.*
 import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.{HaveNiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
@@ -25,6 +29,9 @@ import play.api.mvc.Call
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
+    case IndividualRegistrationTypePage =>
+      userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
+
     case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     case RegisteredAddressInUkPage        =>
@@ -37,7 +44,18 @@ trait NormalRoutesNavigator {
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
+  private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualRegistrationTypePage) match {
+      case Some(IndividualRegistrationType.SoleTrader) =>
+        routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      case Some(IndividualRegistrationType.Individual) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/have-ni-number (Do you have a National Insurance number? page - CARF-163)"
+        )
+      case _                                           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call          =
     userAnswers.get(RegisteredAddressInUkPage) match {
       case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)

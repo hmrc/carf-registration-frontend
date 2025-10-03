@@ -36,7 +36,7 @@ class AgentSignInProblemControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[AgentSignInProblemView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }

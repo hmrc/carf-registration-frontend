@@ -38,7 +38,7 @@ class IndexController @Inject() (
     implicit request =>
       request.affinityGroup match {
         case AffinityGroup.Individual =>
-          Future.successful(Ok("Take user to: Individual – What Are You Registering As? page (CARF-120)"))
+          Future.successful(Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode)))
         case _                        =>
           request.utr match {
             case Some(utr) =>

@@ -17,26 +17,43 @@
 package navigation
 
 import controllers.routes
+import models.{NormalMode, UserAnswers}
+import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
+import models.{IndividualRegistrationType, UserAnswers}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page}
 import models.OrganisationRegistrationType.*
 import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{HaveNiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
+    case IndividualRegistrationTypePage =>
+      userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
+
     case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
-
-    case RegisteredAddressInUkPage       =>
+    case RegisteredAddressInUkPage        =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
-    case YourUniqueTaxpayerReferencePage =>
+    case YourUniqueTaxpayerReferencePage  =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
-    case _                               =>
+    case HaveNiNumberPage                 =>
+      userAnswers => navigateFromHaveNiNumber(userAnswers)
+    case _                                =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
+  private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualRegistrationTypePage) match {
+      case Some(IndividualRegistrationType.SoleTrader) =>
+        routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      case Some(IndividualRegistrationType.Individual) =>
+        routes.HaveNiNumberController.onPageLoad(NormalMode)
+      case _                                           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call          =
     userAnswers.get(RegisteredAddressInUkPage) match {
       case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
@@ -54,4 +71,12 @@ trait NormalRoutesNavigator {
       case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
 
+  private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveNiNumberPage) match {
+      case Some(true)  => // User selects yes
+        routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
+      case Some(false) => // User selects no
+        routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+      case None        => routes.JourneyRecoveryController.onPageLoad()
+    }
 }

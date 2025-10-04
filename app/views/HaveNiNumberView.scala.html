@@ -14,12 +14,16 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
+
 @this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
-    govukRadios: GovukRadios,
-    govukButton: GovukButton
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukRadios: GovukRadios,
+        govukButton: GovukButton,
+        link: components.Link,
+        appConfig: FrontendAppConfig
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
@@ -27,15 +31,18 @@
 @layout(pageTitle = title(form, messages("haveNiNumber.title"))) {
 
     @formHelper(action = routes.HaveNiNumberController.onSubmit(mode), Symbol("autoComplete") -> "off") {
-
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-l">@messages("haveNiNumber.heading")</h1>
+        <p class="govuk-body">@link(appConfig.findNINumberUrl, "haveNiNumber.linktext", openInNewWindow = true)</p>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("haveNiNumber.heading")).asPageHeading()
+                legend = LegendViewModel(messages("haveNiNumber.heading"))
+                .withCssClass("govuk-visually-hidden govuk-!-display-block")
             ).copy(classes = "")
         )
 

@@ -98,4 +98,5 @@ haveNiNumber.heading = Do you have a National Insurance number?
 haveNiNumber.checkYourAnswersLabel = Do you have a National Insurance number?
 haveNiNumber.error.required = Select Yes if you have a National Insurance number
 haveNiNumber.change.hidden = Change if you have a National Insurance number
+haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
 

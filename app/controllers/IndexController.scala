@@ -25,8 +25,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-
-import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,8 +33,7 @@ class IndexController @Inject() (
     identify: IdentifierAction,
     checkEnrolment: CheckEnrolledToServiceAction,
     retrieveCtUTR: CtUtrRetrievalAction,
-    sessionRepository: SessionRepository,
-    clock: Clock
+    sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -53,19 +50,10 @@ class IndexController @Inject() (
           request.utr match {
             case Some(utr) =>
               // org with CT UTR, - CT Automatched - go straight to is this your business?
-              val userAnswers = UserAnswers(request.userId, lastUpdated = Instant.now(clock))
               for {
-                autoMatchedUserAnswers <- Future.fromTry(userAnswers.set(IndexPage, utr))
-                result                 <- sessionRepository.set(autoMatchedUserAnswers).map {
-                                            case true  =>
-                                              Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
-                                            case false =>
-                                              logger.error(
-                                                s"Failed to update user answers with autoMatchedUTR field for userId: [${request.userId}]"
-                                              )
-                                              Redirect(routes.JourneyRecoveryController.onPageLoad())
-                                          }
-              } yield result
+                autoMatchedUserAnswers <- Future.fromTry(UserAnswers(request.userId).set(IndexPage, utr))
+                _                      <- sessionRepository.set(autoMatchedUserAnswers)
+              } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
 
             case None =>
               // org without CT UTR- manual registration

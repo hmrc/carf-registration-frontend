@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class BusinessService @Inject() () {
+class RegistrationService @Inject() () {
 
   def getBusinessByUtr(utr: String): Future[Option[Business]] =
     Future.successful {
@@ -32,26 +32,28 @@ class BusinessService @Inject() () {
           Business(
             name = "Agent ABC Ltd",
             address = Address(
-              line1 = "2 High Street",
-              line2 = "Birmingham",
-              postcode = "B23 2AZ",
-              country = None
-            ),
-            isUkBased = true
+              addressLine1 = "2 High Street",
+              addressLine2 = Some("Birmingham"),
+              addressLine3 = None,
+              addressLine4 = None,
+              postalCode = Some("B23 2AZ"),
+              countryCode = "GB"
+            )
           )
         )
       } else if (utr.startsWith("2")) {
         // Non-UK business
         Some(
           Business(
-            name = "International Corp Ltd",
+            name = "International Ltd",
             address = Address(
-              line1 = "3 Apple Street",
-              line2 = "New York",
-              postcode = "11722",
-              country = Some("United States")
-            ),
-            isUkBased = false
+              addressLine1 = "3 Apple Street",
+              addressLine2 = Some("New York"),
+              addressLine3 = None,
+              addressLine4 = None,
+              postalCode = Some("11722"),
+              countryCode = "US"
+            )
           )
         )
       } else {

@@ -16,19 +16,30 @@
 
 package models
 
+import play.api.libs.json.{Json, OFormat}
+
 case class Address(
-    line1: String,
-    line2: String,
-    postcode: String,
-    country: Option[String] = None
+    addressLine1: String,
+    addressLine2: Option[String],
+    addressLine3: Option[String],
+    addressLine4: Option[String],
+    postalCode: Option[String],
+    countryCode: String
 ) {
 
   def renderHTML(isUkBased: Boolean): String = {
-    val addressLines = Seq(line1, line2, postcode).filter(_.nonEmpty)
-    val allLines     = if (isUkBased) {
+    val addressLines = Seq(
+      Some(addressLine1),
+      addressLine2,
+      addressLine3,
+      addressLine4,
+      postalCode
+    ).flatten.filter(_.nonEmpty)
+
+    val allLines = if (isUkBased) {
       addressLines
     } else {
-      addressLines ++ country.toSeq
+      addressLines :+ countryCode
     }
 
     val htmlLines = allLines.zipWithIndex.map { case (line, index) =>
@@ -41,9 +52,8 @@ case class Address(
 
     htmlLines.mkString("<br>")
   }
+}
 
-  def renderMessage: String =
-    Seq(line1, line2, postcode)
-      .filter(_.nonEmpty)
-      .mkString(", ")
+object Address {
+  implicit val format: OFormat[Address] = Json.format[Address]
 }

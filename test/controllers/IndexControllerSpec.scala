@@ -31,7 +31,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 
-import java.time.Clock
 import scala.concurrent.Future
 
 class IndexControllerSpec extends SpecBase {
@@ -40,8 +39,8 @@ class IndexControllerSpec extends SpecBase {
     reset(mockCtUtrRetrievalAction)
     reset(mockSessionRepository)
 
-    when(mockSessionRepository.get(any[String])).thenReturn(Future.successful(None))
-    when(mockSessionRepository.set(any[UserAnswers])).thenReturn(Future.successful(true))
+    when(mockSessionRepository.get(any)).thenReturn(Future.successful(None))
+    when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
 
     super.beforeEach()
   }
@@ -75,8 +74,7 @@ class IndexControllerSpec extends SpecBase {
         .onPageLoad(NormalMode)
         .url
 
-      verify(mockSessionRepository).set(argThat[UserAnswers](ua => ua.get(IndexPage).contains(testUtr)))
-
+      verify(mockSessionRepository).set(argThat(ua => ua.get(IndexPage).contains(testUtr)))
     }
 
     "must handle an organisation user without utr correctly" in new Setup(Organisation) {
@@ -92,13 +90,12 @@ class IndexControllerSpec extends SpecBase {
         controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
       )
     }
-
   }
+
   class Setup(affinityGroup: AffinityGroup) {
     val application: Application = applicationBuilder(affinityGroup = affinityGroup)
       .overrides(
-        bind[CtUtrRetrievalAction].toInstance(mockCtUtrRetrievalAction),
-        bind[Clock].toInstance(fixedClock)
+        bind[CtUtrRetrievalAction].toInstance(mockCtUtrRetrievalAction)
       )
       .build()
   }

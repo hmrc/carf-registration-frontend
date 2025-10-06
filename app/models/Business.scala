@@ -18,6 +18,7 @@ package models
 
 case class Business(
     name: String,
-    address: Address,
-    isUkBased: Boolean
-)
+    address: Address
+) {
+  def isUkBased: Boolean = address.countryCode == "GB"
+}

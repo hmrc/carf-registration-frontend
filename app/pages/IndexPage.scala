@@ -23,5 +23,5 @@ case object IndexPage extends QuestionPage[UniqueTaxpayerReference] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "autoMatchedUTR"
+  def indexPage: String = "autoMatchedUTR"
 }

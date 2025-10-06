@@ -109,11 +109,20 @@ trait NormalRoutesNavigator {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def isSoleTrader(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
-      case Some(OrganisationRegistrationType.SoleTrader) => true
-      case _                                             => false
+  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
+
+    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
+
+    val organisationRegistrationType: Option[OrganisationRegistrationType] =
+      userAnswers.get(OrganisationRegistrationTypePage)
+
+    (individualRegistrationType, organisationRegistrationType) match {
+      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
+        true
+      case _                                                                                                     =>
+        false
     }
+  }
 
   private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
     userAnswers.get(IndexPage).isDefined

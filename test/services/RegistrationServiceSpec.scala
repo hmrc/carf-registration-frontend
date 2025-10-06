@@ -21,9 +21,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.concurrent.ScalaFutures
 
-class BusinessServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
+class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
-  val businessService = new BusinessService()
+  val businessService = new RegistrationService()
 
   "BusinessService" should {
 
@@ -31,26 +31,26 @@ class BusinessServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
       val result = businessService.getBusinessByUtr("1234567890")
 
       val business = result.futureValue
-      business                      shouldBe defined
-      business.get.name             shouldBe "Agent ABC Ltd"
-      business.get.isUkBased        shouldBe true
-      business.get.address.line1    shouldBe "2 High Street"
-      business.get.address.line2    shouldBe "Birmingham"
-      business.get.address.postcode shouldBe "B23 2AZ"
-      business.get.address.country  shouldBe None
+      business                          shouldBe defined
+      business.get.name                 shouldBe "Agent ABC Ltd"
+      business.get.isUkBased            shouldBe true
+      business.get.address.addressLine1 shouldBe "2 High Street"
+      business.get.address.addressLine2 shouldBe Some("Birmingham")
+      business.get.address.postalCode   shouldBe Some("B23 2AZ")
+      business.get.address.countryCode  shouldBe "GB"
     }
 
     "return Non-UK business for UTR starting with '2'" in {
       val result = businessService.getBusinessByUtr("2987654321")
 
       val business = result.futureValue
-      business                      shouldBe defined
-      business.get.name             shouldBe "International Corp Ltd"
-      business.get.isUkBased        shouldBe false
-      business.get.address.line1    shouldBe "3 Apple Street"
-      business.get.address.line2    shouldBe "New York"
-      business.get.address.postcode shouldBe "11722"
-      business.get.address.country  shouldBe Some("United States")
+      business                          shouldBe defined
+      business.get.name                 shouldBe "International Ltd"
+      business.get.isUkBased            shouldBe false
+      business.get.address.addressLine1 shouldBe "3 Apple Street"
+      business.get.address.addressLine2 shouldBe Some("New York")
+      business.get.address.postalCode   shouldBe Some("11722")
+      business.get.address.countryCode  shouldBe "US"
     }
 
     "return None for UTR starting with any other digit" in {

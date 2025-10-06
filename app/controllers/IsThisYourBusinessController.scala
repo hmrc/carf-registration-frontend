@@ -20,11 +20,11 @@ import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.BusinessService
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IsThisYourBusinessView
 
@@ -39,7 +39,7 @@ class IsThisYourBusinessController @Inject() (
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     formProvider: IsThisYourBusinessFormProvider,
-    businessService: BusinessService,
+    businessService: RegistrationService,
     val controllerComponents: MessagesControllerComponents,
     view: IsThisYourBusinessView
 )(implicit ec: ExecutionContext)
@@ -51,7 +51,9 @@ class IsThisYourBusinessController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
-      val utrOpt = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+      val utrOpt = request.userAnswers
+        .get(YourUniqueTaxpayerReferencePage)
+        .orElse(request.userAnswers.get(IndexPage))
 
       utrOpt match {
         case Some(utr) =>
@@ -75,7 +77,9 @@ class IsThisYourBusinessController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
-      val utrOpt = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+      val utrOpt = request.userAnswers
+        .get(YourUniqueTaxpayerReferencePage)
+        .orElse(request.userAnswers.get(IndexPage))
 
       utrOpt match {
         case Some(utr) =>

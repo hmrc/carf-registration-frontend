@@ -100,3 +100,8 @@ haveNiNumber.error.required = Select Yes if you have a National Insurance number
 haveNiNumber.change.hidden = Change if you have a National Insurance number
 haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
 
+agentSignInProblem.title = You’re unable to use this service with this Government Gateway user ID
+agentSignInProblem.heading = You’re unable to use this service with this Government Gateway user ID
+agentSignInProblem.paragraph = You have signed in with an agent Government Gateway user ID.
+agentSignInProblem.linkText = To use this service as an agent, you must
+agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID.

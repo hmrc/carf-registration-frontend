@@ -78,7 +78,7 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
       case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
         Future.successful(Ok("User is an assistant so cannot use the service so we must Redirect them as per CARF-118"))
       case _ ~ _ ~ Some(Agent) ~ _                                                                   =>
-        Future.successful(Ok("User is an agent so cannot use the service so we must Redirect them as per CARF-113"))
+        Future.successful(Redirect(routes.AgentSignInProblemController.onPageLoad()))
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
         block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
       case _                                                                                         =>

@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
 import models.{NormalMode, UserAnswers}
-import pages.AutoMatchedUTRPage
+import pages.IndexPage
 import play.api.i18n.I18nSupport
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -46,15 +46,16 @@ class IndexController @Inject() (
     implicit request =>
       request.affinityGroup match {
         case AffinityGroup.Individual =>
-          Future.successful(Ok("Take user to: Individual – What Are You Registering As? page (CARF-120)"))
-
-        case _ =>
+          Future.successful(
+            Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+          )
+        case _                        =>
           request.utr match {
             case Some(utr) =>
               // org with CT UTR, - CT Automatched - go straight to is this your business?
               val userAnswers = UserAnswers(request.userId, lastUpdated = Instant.now(clock))
               for {
-                autoMatchedUserAnswers <- Future.fromTry(userAnswers.set(AutoMatchedUTRPage, utr))
+                autoMatchedUserAnswers <- Future.fromTry(userAnswers.set(IndexPage, utr))
                 result                 <- sessionRepository.set(autoMatchedUserAnswers).map {
                                             case true  =>
                                               Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))

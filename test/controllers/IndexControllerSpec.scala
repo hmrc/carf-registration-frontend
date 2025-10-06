@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
 import repositories.SessionRepository
 import models.{NormalMode, UserAnswers}
-import pages.AutoMatchedUTRPage
+import pages.IndexPage
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
@@ -75,7 +75,7 @@ class IndexControllerSpec extends SpecBase {
         .onPageLoad(NormalMode)
         .url
 
-      verify(mockSessionRepository).set(argThat[UserAnswers](ua => ua.get(AutoMatchedUTRPage).contains(testUtr)))
+      verify(mockSessionRepository).set(argThat[UserAnswers](ua => ua.get(IndexPage).contains(testUtr)))
 
     }
 

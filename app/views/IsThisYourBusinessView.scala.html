@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import models.Business
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -22,7 +24,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, business: Business)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("isThisYourBusiness.title"))) {
 
@@ -34,15 +36,14 @@
 
         <h1 class="govuk-heading-l">@messages("isThisYourBusiness.heading")</h1>
 
-         <p class="govuk-body govuk-!-margin-bottom-1">
-            @messages("isThisYourBusiness.businessName.placeholder")
+        <p class="govuk-body govuk-!-margin-bottom-1">
+            @business.name
         </p>
 
         <p class="govuk-body">
-            <span class="govuk-!-margin-bottom-0">@messages("isThisYourBusiness.businessAddress.line1")</span><br>
-            <span class="govuk-!-margin-bottom-0">@messages("isThisYourBusiness.businessAddress.line2")</span><br>
-            @messages("isThisYourBusiness.businessAddress.line3")
+            @Html(business.address.renderHTML(business.isUkBased))
         </p>
+
 
         @govukRadios(
             RadiosViewModel.yesNo(

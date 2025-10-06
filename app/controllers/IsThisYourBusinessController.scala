@@ -16,18 +16,19 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
-import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.IsThisYourBusinessPage
+import pages.{IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.BusinessService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IsThisYourBusinessView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IsThisYourBusinessController @Inject() (
@@ -38,6 +39,7 @@ class IsThisYourBusinessController @Inject() (
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     formProvider: IsThisYourBusinessFormProvider,
+    businessService: BusinessService,
     val controllerComponents: MessagesControllerComponents,
     view: IsThisYourBusinessView
 )(implicit ec: ExecutionContext)
@@ -46,28 +48,56 @@ class IsThisYourBusinessController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(IsThisYourBusinessPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val utrOpt = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
 
-      Ok(view(preparedForm, mode))
+      utrOpt match {
+        case Some(utr) =>
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).map {
+            case Some(business) =>
+              val preparedForm = request.userAnswers.get(IsThisYourBusinessPage) match {
+                case None        => form
+                case Some(value) => form.fill(value)
+              }
+              Ok(view(preparedForm, mode, business))
+
+            case None =>
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+          }
+
+        case None =>
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
-        )
+
+      val utrOpt = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+
+      utrOpt match {
+        case Some(utr) =>
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
+            case Some(business) =>
+              form
+                .bindFromRequest()
+                .fold(
+                  formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, business))),
+                  value =>
+                    for {
+                      updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, value))
+                      _              <- sessionRepository.set(updatedAnswers)
+                    } yield Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
+                )
+
+            case None =>
+              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+          }
+
+        case None =>
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 }

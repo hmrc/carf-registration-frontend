@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{AutoMatchedUTRPage, HaveNiNumberPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{HaveNiNumberPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -223,7 +223,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(IsThisYourBusinessPage, false)
             .success
             .value
-            .set(AutoMatchedUTRPage, testUtr)
+            .set(IndexPage, testUtr)
             .success
             .value
 

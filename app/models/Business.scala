@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.UniqueTaxpayerReference
-import play.api.libs.json.JsPath
-
-case object AutoMatchedUTRPage extends QuestionPage[UniqueTaxpayerReference] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "autoMatchedUTR"
-}
+case class Business(
+    name: String,
+    address: Address,
+    isUkBased: Boolean
+)

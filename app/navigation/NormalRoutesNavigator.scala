@@ -19,7 +19,7 @@ package navigation
 import controllers.routes
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
-import pages.{AutoMatchedUTRPage, HaveNiNumberPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{HaveNiNumberPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -39,10 +39,10 @@ trait NormalRoutesNavigator {
 
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
-   
+
     case HaveNiNumberPage =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
-    
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
@@ -53,26 +53,26 @@ trait NormalRoutesNavigator {
         routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
         routes.HaveNiNumberController.onPageLoad(NormalMode)
-      case _ =>
+      case _                                           =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisteredAddressInUkPage) match {
-      case Some(true) =>
+      case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
         )
-      case None =>
+      case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
     userAnswers.get(OrganisationRegistrationTypePage) match {
       case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
-      case _ => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+      case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
 
   private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
@@ -104,18 +104,18 @@ trait NormalRoutesNavigator {
   private def isSoleTrader(userAnswers: UserAnswers): Boolean =
     userAnswers.get(OrganisationRegistrationTypePage) match {
       case Some(OrganisationRegistrationType.SoleTrader) => true
-      case _ => false
+      case _                                             => false
     }
 
   private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(AutoMatchedUTRPage).isDefined
+    userAnswers.get(IndexPage).isDefined
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {
-      case Some(true) => // User selects yes
+      case Some(true)  => // User selects yes
         routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
       case Some(false) => // User selects no
         routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
-      case None => routes.JourneyRecoveryController.onPageLoad()
+      case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 }

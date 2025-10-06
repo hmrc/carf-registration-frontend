@@ -22,6 +22,11 @@ GET         /account/signed-out                                    controllers.a
 
 GET         /unauthorised                                          controllers.UnauthorisedController.onPageLoad()
 
+GET         /register/individual-registration-type                 controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-registration-type                 controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-registration-type          controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-registration-type          controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/organisation-registration-type               controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/organisation-registration-type               controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-organisation-registration-type        controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
@@ -36,5 +41,10 @@ GET         /register/utr                                          controllers.Y
 POST        /register/utr                                          controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
 GET         /register/changeUtr                                    controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/changeUtr                                    controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/have-ni-number                               controllers.HaveNiNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/have-ni-number                               controllers.HaveNiNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-have-ni-number                        controllers.HaveNiNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-have-ni-number                        controllers.HaveNiNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/agent-sign-in-problem                controllers.AgentSignInProblemController.onPageLoad()

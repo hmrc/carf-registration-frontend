@@ -17,13 +17,8 @@
 package navigation
 
 import controllers.routes
-import models.{NormalMode, UserAnswers}
-import pages.{OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
-import models.{IndividualRegistrationType, UserAnswers}
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page}
-import models.OrganisationRegistrationType.*
-import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
-import pages.{HaveNiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
+import pages.*
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -65,11 +60,19 @@ trait NormalRoutesNavigator {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
-      case Some(SoleTrader) => routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
-      case _                => routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call = {
+
+    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
+    val organisationRegistrationType: Option[OrganisationRegistrationType] =
+      userAnswers.get(OrganisationRegistrationTypePage)
+
+    (individualRegistrationType, organisationRegistrationType) match {
+      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
+        routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+      case _                                                                                                     =>
+        routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
+  }
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {

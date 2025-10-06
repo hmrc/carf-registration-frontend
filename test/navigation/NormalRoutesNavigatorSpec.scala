@@ -84,7 +84,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
 
-    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader" in {
+    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
 
       val updatedAnswers =
         emptyUserAnswers
@@ -100,6 +100,42 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         updatedAnswers
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+    }
+
+    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an individual" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        YourUniqueTaxpayerReferencePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+    }
+
+    "must go from YourUniqueTaxpayerReferencePage to What is your business name page for anything other than soleTrader" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        YourUniqueTaxpayerReferencePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
     }
 
     "must go to UTR page when user answers 'Yes' to UK address" in {

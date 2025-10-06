@@ -55,6 +55,14 @@ organisationRegistrationType.checkYourAnswersLabel = What are you registering as
 organisationRegistrationType.error.required = Select what you are registering as
 organisationRegistrationType.change.hidden = Change what you are registering as
 
+individualRegistrationType.title = What are you registering as?
+individualRegistrationType.heading = What are you registering as?
+individualRegistrationType.soleTrader = Sole trader
+individualRegistrationType.individual = An individual not connected to a business
+individualRegistrationType.checkYourAnswersLabel = Registration type
+individualRegistrationType.error.required = Select what you are registering as
+individualRegistrationType.change.hidden = Change your Individual Registration Type
+
 registeredAddressInUk.title = Is your registered address in the UK?
 registeredAddressInUk.heading = Is your registered address in the UK?
 registeredAddressInUk.checkYourAnswersLabel = Is your registered address in the UK?
@@ -84,3 +92,11 @@ yourUniqueTaxpayerReference.error.required = Enter your Unique Taxpayer Referenc
 yourUniqueTaxpayerReference.error.invalid = Unique Taxpayer Reference must only include numbers 0 to 9
 yourUniqueTaxpayerReference.error.invalidFormat = Enter the Unique Taxpayer Reference in the right format
 yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)
+
+haveNiNumber.title = Do you have a National Insurance number?
+haveNiNumber.heading = Do you have a National Insurance number?
+haveNiNumber.checkYourAnswersLabel = Do you have a National Insurance number?
+haveNiNumber.error.required = Select Yes if you have a National Insurance number
+haveNiNumber.change.hidden = Change if you have a National Insurance number
+haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
+

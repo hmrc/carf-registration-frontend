@@ -16,11 +16,16 @@ GET         /placeholder                                 controllers.Placeholder
 
 GET         /check-your-answers                          controllers.CheckYourAnswersController.onPageLoad()
 
-GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()
-GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
+GET         /account/sign-out-survey                                          controllers.auth.AuthController.signOut()
+GET         /account/sign-out                                                 controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/signed-out                                               controllers.auth.SignedOutController.onPageLoad()
 
-GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+GET         /unauthorised                                                     controllers.UnauthorisedController.onPageLoad()
+
+GET         /register/individual-registration-type                            controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-registration-type                            controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-registration-type                     controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-registration-type                     controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
 
 GET        /register/organisation-registration-type                           controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
 POST       /register/organisation-registration-type                           controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
@@ -32,12 +37,17 @@ POST       /register/registered-address-in-uk                                 co
 GET        /register/change-registered-address-in-uk                          controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-registered-address-in-uk                          controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
-GET        /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
+GET        /register/utr                                                      controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/utr                                                      controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
+GET        /register/changeUtr                                                controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/changeUtr                                                controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/is-this-your-business                      controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/is-this-your-business                        controllers.IsThisYourBusinessController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-is-this-your-business                  controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-is-this-your-business                  controllers.IsThisYourBusinessController.onSubmit(mode: Mode = CheckMode)
+GET        /register/is-this-your-business                                    controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/is-this-your-business                                    controllers.IsThisYourBusinessController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-is-this-your-business                             controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-is-this-your-business                             controllers.IsThisYourBusinessController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/have-ni-number                                          controllers.HaveNiNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/have-ni-number                                          controllers.HaveNiNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-have-ni-number                                   controllers.HaveNiNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-have-ni-number                                   controllers.HaveNiNumberController.onSubmit(mode: Mode = CheckMode)

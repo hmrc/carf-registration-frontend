@@ -18,8 +18,9 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{AutoMatchedUTRPage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.IndividualRegistrationType.{Individual, SoleTrader}
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.{AutoMatchedUTRPage, HaveNiNumberPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -41,6 +42,26 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+    }
+
+    "must go from IndividualRegistrationTypePage to Registered Address in the UK Page when user is a Sole Trader" in {
+      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, SoleTrader).success.value
+
+      navigator.nextPage(
+        IndividualRegistrationTypePage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+    }
+
+    "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {
+      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, Individual).success.value
+
+      navigator.nextPage(
+        IndividualRegistrationTypePage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
@@ -109,6 +130,37 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         userAnswers
       ) mustBe routes.JourneyRecoveryController.onPageLoad()
+    }
+
+    "HaveNiNumberPage navigation" - {
+      "when user answers 'true' (yes, I have a National Insurance number)" - {
+        "must navigate to: What is your National Insurance number?" in {
+          val userAnswers = UserAnswers("id")
+            .set(HaveNiNumberPage, true)
+            .success
+            .value
+
+          navigator.nextPage(
+            HaveNiNumberPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
+        }
+      }
+      "when user answers 'false' (no, I don't have a National Insurance number)" - {
+        "must navigate to: What is your name?" in {
+          val userAnswers = UserAnswers("id")
+            .set(HaveNiNumberPage, false)
+            .success
+            .value
+
+          navigator.nextPage(
+            HaveNiNumberPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+        }
+      }
     }
 
     "IsThisYourBusinessPage navigation" - {

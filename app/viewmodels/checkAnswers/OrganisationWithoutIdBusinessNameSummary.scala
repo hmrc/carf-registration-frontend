@@ -26,24 +26,26 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object OrganisationWithoutIdBusinessNameSummary  {
+object OrganisationWithoutIdBusinessNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(OrganisationWithoutIdBusinessNamePage).map {
-      answer =>
-        val value = ValueViewModel(
-          HtmlContent(
-            HtmlFormat.escape(messages(s"organisationWithoutIdBusinessName.$answer"))
-          )
+    answers.get(OrganisationWithoutIdBusinessNamePage).map { answer =>
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"organisationWithoutIdBusinessName.$answer"))
         )
-        
-        SummaryListRowViewModel(
-          key     = "organisationWithoutIdBusinessName.checkYourAnswersLabel",
-          value = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.OrganisationWithoutIdBusinessNameController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("organisationWithoutIdBusinessName.change.hidden"))
+      )
+
+      SummaryListRowViewModel(
+        key = "organisationWithoutIdBusinessName.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            routes.OrganisationWithoutIdBusinessNameController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("organisationWithoutIdBusinessName.change.hidden"))
         )
+      )
     }
 }

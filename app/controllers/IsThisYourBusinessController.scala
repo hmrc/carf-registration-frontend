@@ -60,16 +60,19 @@ class IsThisYourBusinessController @Inject() (
 
       utrOpt match {
         case Some(utr) =>
-          request.userAnswers.get(BusinessDetailsPage) match {
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).map {
             case Some(business) =>
               val preparedForm = request.userAnswers.get(IsThisYourBusinessPage) match {
                 case None        => form
                 case Some(value) => form.fill(value)
               }
-              Future.successful(Ok(view(preparedForm, mode, business)))
+              Ok(view(preparedForm, mode, business))
 
             case None =>
-              fetchAndCacheBusiness(utr, mode)
+              logger.warn(
+                s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery."
+              )
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
           }
 
         case None =>
@@ -89,52 +92,24 @@ class IsThisYourBusinessController @Inject() (
 
       utrOpt match {
         case Some(utr) =>
-          request.userAnswers.get(BusinessDetailsPage) match {
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
             case Some(business) =>
               processFormSubmission(business, utr, mode)
             case None           =>
-              businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
-                case Some(business) =>
-                  processFormSubmission(business, utr, mode)
-                case None           =>
-                  logger.warn(
-                    s"Business not found for UTR: ${utr.uniqueTaxPayerReference} during form submission. Redirecting to journey recovery."
-                  )
-                  Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-              }
+              logger.warn(
+                s"Business not found for UTR: ${utr.uniqueTaxPayerReference} during form submission. Redirecting to journey recovery."
+              )
+              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           }
 
         case None =>
           logger.warn(
-            "No UTR found in user answers during form submission (neither YourUniqueTaxpayerReferencePage nor IndexPage). " +
+            "No UTR found in user answers during form submission (YourUniqueTaxpayerReferencePage or IndexPage). " +
               "Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
-
-  private def fetchAndCacheBusiness(utr: UniqueTaxpayerReference, mode: Mode)(implicit
-      request: DataRequest[AnyContent]
-  ): Future[Result] =
-    businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
-      case Some(business) =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessDetailsPage, business))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield {
-          val preparedForm = updatedAnswers.get(IsThisYourBusinessPage) match {
-            case None        => form
-            case Some(value) => form.fill(value)
-          }
-          Ok(view(preparedForm, mode, business))
-        }
-
-      case None =>
-        logger.warn(
-          s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery."
-        )
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    }
 
   private def processFormSubmission(business: Business, utr: UniqueTaxpayerReference, mode: Mode)(implicit
       request: DataRequest[AnyContent]

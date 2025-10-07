@@ -265,7 +265,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when business is not found by UTR on POST (no cached business)" in {
+    "must redirect to Journey Recovery when business is not found by UTR on POST" in {
       when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(None)
 
       val userAnswers = UserAnswers(userAnswersId)

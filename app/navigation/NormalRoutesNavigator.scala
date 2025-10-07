@@ -17,7 +17,7 @@
 package navigation
 
 import controllers.routes
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessWithoutIdBusinessName, IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.mvc.Call
 
@@ -27,17 +27,17 @@ trait NormalRoutesNavigator {
     case IndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case OrganisationRegistrationTypePage      =>
+    case OrganisationRegistrationTypePage  =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
-    case RegisteredAddressInUkPage             =>
+    case RegisteredAddressInUkPage         =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
-    case YourUniqueTaxpayerReferencePage       =>
+    case YourUniqueTaxpayerReferencePage   =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
-    case HaveNiNumberPage                      =>
+    case HaveNiNumberPage                  =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
-    case OrganisationWithoutIdBusinessNamePage =>
-      userAnswers => navigateFromOrganisationWithoutIdBusinessName(userAnswers)
-    case _                                     =>
+    case BusinessWithoutIdBusinessNamePage =>
+      userAnswers => navigateFromBusinessWithoutIdBusinessName(userAnswers)
+    case _                                 =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -81,14 +81,16 @@ trait NormalRoutesNavigator {
       case Some(true)  => // User selects yes
         routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
       case Some(false) => // User selects no
-        routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+        routes.PlaceholderController.onPageLoad("Must redirect to /business-without-id/name (CARF-169)")
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromOrganisationWithoutIdBusinessName(userAnswers: UserAnswers): Call =
-    userAnswers.get(OrganisationWithoutIdBusinessNamePage) match {
-      case Some(organisationWithoutIdBusinessName) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /without-id/have-trading-name (CARF-160)")
-      case None                                    => routes.JourneyRecoveryController.onPageLoad()
+  private def navigateFromBusinessWithoutIdBusinessName(userAnswers: UserAnswers): Call =
+    userAnswers.get(BusinessWithoutIdBusinessNamePage) match {
+      case Some(businessWithoutIdBusinessName) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"
+        )
+      case None                                => routes.JourneyRecoveryController.onPageLoad()
     }
 }

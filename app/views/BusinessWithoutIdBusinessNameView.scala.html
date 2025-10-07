@@ -26,9 +26,9 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("organisationWithoutIdBusinessName.title"))) {
+@layout(pageTitle = title(form, messages("businessWithoutIdBusinessName.title"))) {
 
-    @formHelper(action = routes.OrganisationWithoutIdBusinessNameController.onSubmit(mode)) {
+    @formHelper(action = routes.BusinessWithoutIdBusinessNameController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -36,12 +36,10 @@
 
         @govukInput(
             Input(
-                name = "organisationWithoutIdBusinessName",
-                //field = form("value"),
-                label = LabelViewModel(messages("organisationWithoutIdBusinessName.heading")).asPageHeading(),
+                name = "businessWithoutIdBusinessName",
+                label = LabelViewModel(messages("businessWithoutIdBusinessName.heading")).asPageHeading(),
                 attributes = Map("autocomplete" -> "organization")
             )
-            //.withFormField(form("organisationWithoutIdBusinessName"))
             .withWidth(Full)
         )
 

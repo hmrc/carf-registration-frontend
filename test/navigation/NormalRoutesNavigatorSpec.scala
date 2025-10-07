@@ -19,10 +19,8 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
-import models.{IndividualRegistrationType, NormalMode, UserAnswers}
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage}
-import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{HaveNiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{BusinessWithoutIdBusinessName, IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.{BusinessWithoutIdBusinessNamePage, HaveNiNumberPage, IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -196,9 +194,27 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-without-id/name (CARF-169)")
         }
       }
+    }
+
+    "must go from BusinessWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .success
+          .value
+          .set(BusinessWithoutIdBusinessNamePage, BusinessWithoutIdBusinessName("org name"))
+          .success
+          .value
+      navigator.nextPage(
+        BusinessWithoutIdBusinessNamePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"
+      )
     }
   }
 }

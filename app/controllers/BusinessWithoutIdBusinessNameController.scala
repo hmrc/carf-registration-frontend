@@ -17,30 +17,30 @@
 package controllers
 
 import controllers.actions.*
-import forms.OrganisationWithoutIdBusinessNameFormProvider
+import forms.BusinessWithoutIdBusinessNameFormProvider
 
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.OrganisationWithoutIdBusinessNamePage
+import pages.BusinessWithoutIdBusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrganisationWithoutIdBusinessNameView
+import views.html.BusinessWithoutIdBusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OrganisationWithoutIdBusinessNameController @Inject() (
+class BusinessWithoutIdBusinessNameController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: OrganisationWithoutIdBusinessNameFormProvider,
+    formProvider: BusinessWithoutIdBusinessNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: OrganisationWithoutIdBusinessNameView
+    view: BusinessWithoutIdBusinessNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -50,7 +50,7 @@ class OrganisationWithoutIdBusinessNameController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(OrganisationWithoutIdBusinessNamePage) match {
+      val preparedForm = request.userAnswers.get(BusinessWithoutIdBusinessNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -66,9 +66,9 @@ class OrganisationWithoutIdBusinessNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationWithoutIdBusinessNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessWithoutIdBusinessNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(OrganisationWithoutIdBusinessNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(BusinessWithoutIdBusinessNamePage, mode, updatedAnswers))
         )
   }
 }

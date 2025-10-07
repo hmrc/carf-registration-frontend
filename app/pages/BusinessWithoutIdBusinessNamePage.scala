@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.*
+import models.BusinessWithoutIdBusinessName
+import play.api.libs.json.JsPath
 
-case class OrganisationWithoutIdBusinessName(organisationWithoutIdBusinessName: String)
+case object BusinessWithoutIdBusinessNamePage extends QuestionPage[BusinessWithoutIdBusinessName] {
 
-object OrganisationWithoutIdBusinessName {
-  implicit val format: OFormat[OrganisationWithoutIdBusinessName] = Json.format[OrganisationWithoutIdBusinessName]
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "BusinessWithoutIdBusinessName"
 }

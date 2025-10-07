@@ -76,7 +76,7 @@ trait Mappings extends Formatters with Constraints {
   ): FieldMapping[String] =
     of(validatedUtrFormatter(requiredKey, invalidKey, invalidFormatKey, regex, msgArg))
 
-  protected def validatedOrganisationWithoutIdBusinessName(
+  protected def validatedBusinessWithoutIdBusinessName(
       requiredKey: String,
       invalidFormatKey: String,
       maximumLengthErrorKey: String,

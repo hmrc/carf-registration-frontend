@@ -49,7 +49,7 @@ POST        /register/change-have-ni-number                        controllers.H
 
 GET         /register/problem/agent-sign-in-problem                controllers.AgentSignInProblemController.onPageLoad()
 
-GET         /register/without-id/business-name                     controllers.OrganisationWithoutIdBusinessNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/without-id/business-name                     controllers.OrganisationWithoutIdBusinessNameController.onSubmit(mode: Mode = NormalMode)
-GET         /register/without-id/change-business-name              controllers.OrganisationWithoutIdBusinessNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/without-id/change-business-name              controllers.OrganisationWithoutIdBusinessNameController.onSubmit(mode: Mode = CheckMode)
+GET         /register/business-without-id/business-name                     controllers.BusinessWithoutIdBusinessNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-without-id/business-name                     controllers.BusinessWithoutIdBusinessNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/business-without-id/change-business-name              controllers.BusinessWithoutIdBusinessNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/business-without-id/change-business-name              controllers.BusinessWithoutIdBusinessNameController.onSubmit(mode: Mode = CheckMode)

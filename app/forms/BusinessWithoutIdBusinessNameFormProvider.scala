@@ -18,23 +18,23 @@ package forms
 
 import javax.inject.Inject
 import forms.mappings.Mappings
-import models.{OrganisationWithoutIdBusinessName, UniqueTaxpayerReference}
+import models.{BusinessWithoutIdBusinessName, UniqueTaxpayerReference}
 import play.api.data.Form
 import play.api.data.Forms.mapping
 
-class OrganisationWithoutIdBusinessNameFormProvider @Inject() extends Mappings {
+class BusinessWithoutIdBusinessNameFormProvider @Inject() extends Mappings {
 
-  private val organisationWithoutIdBusinessNameRegex = "^[0-9]*$"
+  private val businessWithoutIdBusinessNameRegex = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
 
-  def apply(): Form[OrganisationWithoutIdBusinessName] =
+  def apply(): Form[BusinessWithoutIdBusinessName] =
     Form(
       mapping(
-        "value" -> validatedOrganisationWithoutIdBusinessName(
-          "yourUniqueTaxpayerReference.error.required",
-          "yourUniqueTaxpayerReference.error.invalidFormat",
-          "yourUniqueTaxpayerReference.error.maximumLengthError",
-          organisationWithoutIdBusinessNameRegex
+        "value" -> validatedBusinessWithoutIdBusinessName(
+          "businessWithoutIdBusinessName.error.required",
+          "businessWithoutIdBusinessName.error.invalidFormat",
+          "businessWithoutIdBusinessName.error.maximumLengthError",
+          businessWithoutIdBusinessNameRegex
         )
-      )(OrganisationWithoutIdBusinessName.apply)(org => Some(org.organisationWithoutIdBusinessName))
+      )(BusinessWithoutIdBusinessName.apply)(org => Some(org.businessWithoutIdBusinessName))
     )
 }

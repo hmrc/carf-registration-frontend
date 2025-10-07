@@ -55,6 +55,12 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val isThisYourBusinessControllerRoute = routes.IsThisYourBusinessController.onPageLoad(NormalMode).url
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockRegistrationService, mockSessionRepository)
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+  }
+
   "IsThisYourBusinessController" - {
 
     "must return OK and the correct view for a GET with UTR from YourUniqueTaxpayerReferencePage" in {
@@ -68,7 +74,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -95,7 +103,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -120,12 +130,14 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .set(YourUniqueTaxpayerReferencePage, testUtr)
         .success
         .value
-        .set(IsThisYourBusinessPage, true) // Previously answered "Yes"
+        .set(IsThisYourBusinessPage, true)
         .success
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -143,7 +155,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Journey Recovery when no UTR is found on GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -164,7 +178,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -216,7 +232,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -231,7 +249,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Journey Recovery when no UTR is found on POST" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {
@@ -254,7 +274,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
         .build()
 
       running(application) {

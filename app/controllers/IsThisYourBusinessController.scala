@@ -19,9 +19,9 @@ package controllers
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
-import models.{Business, Mode, UniqueTaxpayerReference}
+import models.{Business, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{BusinessDetailsPage, IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -60,19 +60,32 @@ class IsThisYourBusinessController @Inject() (
 
       utrOpt match {
         case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).map {
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
             case Some(business) =>
-              val preparedForm = request.userAnswers.get(IsThisYourBusinessPage) match {
-                case None        => form
-                case Some(value) => form.fill(value)
+              val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
+              val pageDetails         = IsThisYourBusinessPageDetails(
+                name = business.name,
+                address = business.address,
+                pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
+              )
+
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield {
+                val preparedForm = pageDetails.pageAnswer match {
+                  case None        => form
+                  case Some(value) => form.fill(value)
+                }
+                logger.info(s"Fresh business data cached for UTR: ${utr.uniqueTaxPayerReference}")
+                Ok(view(preparedForm, mode, business))
               }
-              Ok(view(preparedForm, mode, business))
 
             case None =>
               logger.warn(
                 s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery."
               )
-              Redirect(routes.JourneyRecoveryController.onPageLoad())
+              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           }
 
         case None =>
@@ -85,49 +98,43 @@ class IsThisYourBusinessController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      val utrOpt = request.userAnswers
-        .get(YourUniqueTaxpayerReferencePage)
-        .orElse(request.userAnswers.get(IndexPage))
-
-      utrOpt match {
-        case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
-            case Some(business) =>
-              processFormSubmission(business, utr, mode)
-            case None           =>
-              logger.warn(
-                s"Business not found for UTR: ${utr.uniqueTaxPayerReference} during form submission. Redirecting to journey recovery."
-              )
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-          }
+      request.userAnswers.get(IsThisYourBusinessPage) match {
+        case Some(existingPageDetails) =>
+          processFormSubmission(existingPageDetails, mode)
 
         case None =>
           logger.warn(
-            "No UTR found in user answers during form submission (YourUniqueTaxpayerReferencePage or IndexPage). " +
-              "Redirecting to journey recovery."
+            "No business details found in UserAnswers during form submission. " + "Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
 
-  private def processFormSubmission(business: Business, utr: UniqueTaxpayerReference, mode: Mode)(implicit
-      request: DataRequest[AnyContent]
-  ): Future[Result] =
+  private def processFormSubmission(
+      existingPageDetails: IsThisYourBusinessPageDetails,
+      mode: Mode
+  )(implicit request: DataRequest[AnyContent]): Future[Result] = {
+
+    val business = Business(existingPageDetails.name, existingPageDetails.address)
+
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, business))),
-        value =>
+        formWithErrors => {
+          logger.debug("Form submission contained errors")
+          Future.successful(BadRequest(view(formWithErrors, mode, business)))
+        },
+        value => {
+          val updatedPageDetails = existingPageDetails.copy(pageAnswer = Some(value))
+
           for {
-            answersWithFormValue <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, value))
-            updatedAnswers       <- Future.fromTry(answersWithFormValue.set(BusinessDetailsPage, business))
-            _                    <- sessionRepository.set(updatedAnswers)
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, updatedPageDetails))
+            _              <- sessionRepository.set(updatedAnswers)
           } yield {
-            logger
-              .info(s"User answered '$value' for IsThisYourBusiness with UTR: ${utr.uniqueTaxPayerReference}")
-            logger.info(s"Business details cached for UTR: ${utr.uniqueTaxPayerReference}")
+            logger.info(s"User answered '$value' for IsThisYourBusiness with business: ${existingPageDetails.name}")
             Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
           }
+        }
       )
+  }
 }

@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.{HaveNiNumberPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
@@ -205,7 +205,14 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to individual email page for sole traders" in {
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, true)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
             .success
             .value
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
@@ -221,7 +228,14 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to contact details page for non-sole traders" in {
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, true)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
             .success
             .value
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
@@ -237,7 +251,14 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to contact details page when no organisation type is set" in {
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, true)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
             .success
             .value
 
@@ -251,12 +272,19 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       "when user answers 'false' (no, this is not their business)" - {
 
-        "must navigate to different business page when CT automatched" in {
+        "must navigate to different business page when CT auto-matched" in {
 
           val testUtr = UniqueTaxpayerReference("1234567890")
 
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, false)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
             .success
             .value
             .set(IndexPage, testUtr)
@@ -270,9 +298,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
         }
 
-        "must navigate to sole trader not identified page when not CT automatched and is sole trader" in {
+        "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, false)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
             .success
             .value
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
@@ -288,9 +323,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           )
         }
 
-        "must navigate to business not identified page when not CT automatched and not sole trader" in {
+        "must navigate to business not identified page when not CT auto-matched and not sole trader" in {
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, false)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
             .success
             .value
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
@@ -306,9 +348,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           )
         }
 
-        "must navigate to business not identified page when not CT automatched and no organisation type" in {
+        "must navigate to business not identified page when not CT auto-matched and no organisation type" in {
           val userAnswers = UserAnswers("id")
-            .set(IsThisYourBusinessPage, false)
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
             .success
             .value
 
@@ -332,5 +381,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
+
   }
 }

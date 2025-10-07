@@ -84,9 +84,8 @@ trait NormalRoutesNavigator {
   }
 
   private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
-    userAnswers.get(IsThisYourBusinessPage) match {
+    userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
-        // User selects yes
         if (isSoleTrader(userAnswers)) {
           routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
         } else {
@@ -94,7 +93,6 @@ trait NormalRoutesNavigator {
         }
 
       case Some(false) =>
-        // User selects no
         if (isCTAutomatched(userAnswers)) {
           routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
         } else {
@@ -129,9 +127,9 @@ trait NormalRoutesNavigator {
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {
-      case Some(true)  => // User selects yes
+      case Some(true)  =>
         routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
-      case Some(false) => // User selects no
+      case Some(false) =>
         routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }

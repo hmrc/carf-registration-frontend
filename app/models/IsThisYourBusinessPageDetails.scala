@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.Business
-import play.api.libs.json.JsPath
-import queries.{Gettable, Settable}
+import play.api.libs.json.*
 
-case object BusinessDetailsPage extends Gettable[Business] with Settable[Business] {
-  override def path: JsPath = JsPath \ "businessDetails"
+case class IsThisYourBusinessPageDetails(
+    name: String,
+    address: Address,
+    pageAnswer: Option[Boolean]
+)
+
+object IsThisYourBusinessPageDetails {
+  implicit val format: Format[IsThisYourBusinessPageDetails] = Json.format[IsThisYourBusinessPageDetails]
 }

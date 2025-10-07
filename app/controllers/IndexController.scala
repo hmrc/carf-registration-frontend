@@ -49,14 +49,12 @@ class IndexController @Inject() (
         case _                        =>
           request.utr match {
             case Some(utr) =>
-              // org with CT UTR, - CT Automatched - go straight to is this your business?
               for {
                 autoMatchedUserAnswers <- Future.fromTry(UserAnswers(request.userId).set(IndexPage, utr))
                 _                      <- sessionRepository.set(autoMatchedUserAnswers)
               } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
 
             case None =>
-              // org without CT UTR- manual registration
               Future.successful(
                 Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
               )

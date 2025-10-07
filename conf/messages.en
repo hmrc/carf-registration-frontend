@@ -104,4 +104,4 @@ agentSignInProblem.title = You’re unable to use this service with this Governm
 agentSignInProblem.heading = You’re unable to use this service with this Government Gateway user ID
 agentSignInProblem.paragraph = You have signed in with an agent Government Gateway user ID.
 agentSignInProblem.linkText = To use this service as an agent, you must
-agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID.
+agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID

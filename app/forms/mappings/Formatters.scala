@@ -166,4 +166,29 @@ trait Formatters {
         Map(key -> value)
 
     }
+
+  protected def validatedOrganisationWithoutIdBusinessNameFormatter(
+      requiredKey: String,
+      invalidFormatKey: String,
+      maximumLengthErrorKey: String,
+      regex: String,
+      msgArg: String = "",
+      maximumLength: Int = 105
+  ): Formatter[String] =
+    new Formatter[String] {
+      def formatError(key: String, errorKey: String, msgArg: String): FormError =
+        if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
+        val trimmedOrganisationWithoutIdBusinessName = data.get(key)
+        trimmedOrganisationWithoutIdBusinessName match {
+          case None | Some("")                     => Left(Seq(formatError(key, requiredKey, msgArg)))
+          case Some(s) if !s.matches(regex)        => Left(Seq(formatError(key, invalidFormatKey, msgArg)))
+          case Some(s) if s.length > maximumLength => Left(Seq(formatError(key, maximumLengthErrorKey, msgArg)))
+          case Some(s)                             => Right(s)
+        }
+      }
+      override def unbind(key: String, value: String): Map[String, String]                      =
+        Map(key -> value)
+    }
 }

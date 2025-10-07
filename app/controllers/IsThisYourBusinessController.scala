@@ -83,7 +83,7 @@ class IsThisYourBusinessController @Inject() (
 
             case None =>
               logger.warn(
-                s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery."
+                s"Business not found for UTR. Redirecting to journey recovery."
               )
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           }

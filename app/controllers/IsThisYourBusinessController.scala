@@ -1,6 +1,5 @@
 /*
  * Copyright 2025 HM Revenue & Customs
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package controllers
 
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
-import models.Mode
+import models.requests.DataRequest
+import models.{Business, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{BusinessDetailsPage, IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -59,18 +58,16 @@ class IsThisYourBusinessController @Inject() (
 
       utrOpt match {
         case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).map {
+          request.userAnswers.get(BusinessDetailsPage) match {
             case Some(business) =>
               val preparedForm = request.userAnswers.get(IsThisYourBusinessPage) match {
                 case None        => form
                 case Some(value) => form.fill(value)
               }
-              Ok(view(preparedForm, mode, business))
+              Future.successful(Ok(view(preparedForm, mode, business)))
 
             case None =>
-              logger
-                .warn(s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery.")
-              Redirect(routes.JourneyRecoveryController.onPageLoad())
+              fetchAndCacheBusiness(utr, mode)
           }
 
         case None =>
@@ -90,28 +87,19 @@ class IsThisYourBusinessController @Inject() (
 
       utrOpt match {
         case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
+          request.userAnswers.get(BusinessDetailsPage) match {
             case Some(business) =>
-              form
-                .bindFromRequest()
-                .fold(
-                  formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, business))),
-                  value =>
-                    for {
-                      updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, value))
-                      _              <- sessionRepository.set(updatedAnswers)
-                    } yield {
-                      logger
-                        .info(s"User answered '$value' for IsThisYourBusiness with UTR: ${utr.uniqueTaxPayerReference}")
-                      Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
-                    }
-                )
-
-            case None =>
-              logger.warn(
-                s"Business not found for UTR: ${utr.uniqueTaxPayerReference} during form submission. Redirecting to journey recovery."
-              )
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              processFormSubmission(business, utr, mode)
+            case None           =>
+              businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
+                case Some(business) =>
+                  processFormSubmission(business, utr, mode)
+                case None           =>
+                  logger.warn(
+                    s"Business not found for UTR: ${utr.uniqueTaxPayerReference} during form submission. Redirecting to journey recovery."
+                  )
+                  Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              }
           }
 
         case None =>
@@ -122,4 +110,47 @@ class IsThisYourBusinessController @Inject() (
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
+
+  private def fetchAndCacheBusiness(utr: UniqueTaxpayerReference, mode: Mode)(implicit
+      request: DataRequest[AnyContent]
+  ): Future[Result] =
+    businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
+      case Some(business) =>
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessDetailsPage, business))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield {
+          val preparedForm = updatedAnswers.get(IsThisYourBusinessPage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          Ok(view(preparedForm, mode, business))
+        }
+
+      case None =>
+        logger.warn(
+          s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery."
+        )
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
+
+  private def processFormSubmission(business: Business, utr: UniqueTaxpayerReference, mode: Mode)(implicit
+      request: DataRequest[AnyContent]
+  ): Future[Result] =
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, business))),
+        value =>
+          for {
+            answersWithFormValue <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, value))
+            updatedAnswers       <- Future.fromTry(answersWithFormValue.set(BusinessDetailsPage, business))
+            _                    <- sessionRepository.set(updatedAnswers)
+          } yield {
+            logger
+              .info(s"User answered '$value' for IsThisYourBusiness with UTR: ${utr.uniqueTaxPayerReference}")
+            logger.info(s"Business details cached for UTR: ${utr.uniqueTaxPayerReference}")
+            Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
+          }
+      )
 }

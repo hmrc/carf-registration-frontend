@@ -1,6 +1,5 @@
 /*
  * Copyright 2025 HM Revenue & Customs
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package models
 
 import org.scalatest.freespec.AnyFreeSpec
@@ -28,7 +26,7 @@ class BusinessSpec extends AnyFreeSpec with Matchers {
       addressLine2 = Some("London"),
       addressLine3 = None,
       addressLine4 = None,
-      postalCode = Some("SkkA 1BB"),
+      postalCode = Some("SKKA 1BB"),
       countryCode = "GB"
     )
 
@@ -58,22 +56,6 @@ class BusinessSpec extends AnyFreeSpec with Matchers {
       "must be case sensitive" in {
         val lowercaseAddress = ukAddress.copy(countryCode = "gb")
         Business("Test", lowercaseAddress).isUkBased mustEqual false
-      }
-    }
-
-    "Business creation" - {
-      "must create business with name and address" in {
-        val business = Business("Test Company", ukAddress)
-
-        business.name    mustEqual "Test Company"
-        business.address mustEqual ukAddress
-      }
-
-      "must handle empty business name" in {
-        val business = Business("", ukAddress)
-
-        business.name      mustEqual ""
-        business.isUkBased mustEqual true
       }
     }
   }

@@ -111,6 +111,71 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must populate the view correctly when the question has previously been answered" in {
+      when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(
+        Some(businessTestBusiness)
+      )
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+        .set(IsThisYourBusinessPage, true)  // Previously answered "Yes"
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[IsThisYourBusinessView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessTestBusiness)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must redirect to Journey Recovery when no UTR is found on GET" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when business is not found by UTR on GET" in {
+      when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(None)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(
@@ -164,14 +229,39 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when no UTR is found" in {
+    "must redirect to Journey Recovery when no UTR is found on POST" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
-        val result  = route(application, request).value
+        val request = FakeRequest(POST, isThisYourBusinessControllerRoute)
+          .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when business is not found by UTR on POST (no cached business)" in {
+      when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(None)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, isThisYourBusinessControllerRoute)
+          .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url

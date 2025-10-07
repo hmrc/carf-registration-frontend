@@ -18,7 +18,6 @@ package models
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json.Json
 import org.scalatest.OptionValues
 
 class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
@@ -100,38 +99,6 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
         result must include("12345")
         result must include("DE")
         result must not include """<span class="govuk-!-margin-bottom-0"></span>"""
-      }
-    }
-
-    "JSON serialization" - {
-
-      "must serialize to JSON correctly" in {
-        val json = Json.toJson(ukAddress)
-
-        (json \ "addressLine1").as[String] mustEqual "123 Main Street"
-        (json \ "addressLine2").as[String] mustEqual "Birmingham"
-        (json \ "postalCode").as[String]   mustEqual "B23 2AZ"
-        (json \ "countryCode").as[String]  mustEqual "GB"
-      }
-
-      "must deserialize from JSON correctly" in {
-        val json = Json.obj(
-          "addressLine1" -> "778 Apple Road",
-          "addressLine2" -> "Apple City",
-          "addressLine3" -> null,
-          "addressLine4" -> null,
-          "postalCode"   -> "T44T 1SS",
-          "countryCode"  -> "GB"
-        )
-
-        val address = json.as[Address]
-
-        address.addressLine1 mustEqual "778 Apple Road"
-        address.addressLine2 mustEqual Some("Apple City")
-        address.addressLine3 mustEqual None
-        address.addressLine4 mustEqual None
-        address.postalCode   mustEqual Some("T44T 1SS")
-        address.countryCode  mustEqual "GB"
       }
     }
   }

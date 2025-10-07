@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json._
+import models.Business
+import play.api.libs.json.JsPath
+import queries.{Gettable, Settable}
 
-case class Business(
-    name: String,
-    address: Address
-) {
-  def isUkBased: Boolean = address.countryCode == "GB"
-}
-
-
-object Business {
-  implicit val format: OFormat[Business] = Json.format[Business]
+case object BusinessDetailsPage extends Gettable[Business] with Settable[Business] {
+  override def path: JsPath = JsPath \ "businessDetails"
 }

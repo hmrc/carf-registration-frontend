@@ -77,9 +77,9 @@ trait NormalRoutesNavigator {
 
     (individualRegistrationType, organisationRegistrationType) match {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+        routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
       case _                                                                                                     =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+        routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
     }
   }
 

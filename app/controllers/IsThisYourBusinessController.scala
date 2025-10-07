@@ -22,6 +22,7 @@ import models.Mode
 import navigation.Navigator
 import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.RegistrationService
@@ -44,7 +45,8 @@ class IsThisYourBusinessController @Inject() (
     view: IsThisYourBusinessView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form = formProvider()
 
@@ -66,10 +68,15 @@ class IsThisYourBusinessController @Inject() (
               Ok(view(preparedForm, mode, business))
 
             case None =>
+              logger
+                .warn(s"Business not found for UTR: ${utr.uniqueTaxPayerReference}. Redirecting to journey recovery.")
               Redirect(routes.JourneyRecoveryController.onPageLoad())
           }
 
         case None =>
+          logger.warn(
+            "No UTR found in user answers (YourUniqueTaxpayerReferencePage or IndexPage). Redirecting to journey recovery."
+          )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
@@ -93,14 +100,25 @@ class IsThisYourBusinessController @Inject() (
                     for {
                       updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, value))
                       _              <- sessionRepository.set(updatedAnswers)
-                    } yield Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
+                    } yield {
+                      logger
+                        .info(s"User answered '$value' for IsThisYourBusiness with UTR: ${utr.uniqueTaxPayerReference}")
+                      Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
+                    }
                 )
 
             case None =>
+              logger.warn(
+                s"Business not found for UTR: ${utr.uniqueTaxPayerReference} during form submission. Redirecting to journey recovery."
+              )
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           }
 
         case None =>
+          logger.warn(
+            "No UTR found in user answers during form submission (neither YourUniqueTaxpayerReferencePage nor IndexPage). " +
+              "Redirecting to journey recovery."
+          )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }

@@ -25,7 +25,6 @@ case class Business(
   def isUkBased: Boolean = address.countryCode == "GB"
 }
 
-
 object Business {
   implicit val format: OFormat[Business] = Json.format[Business]
 }

@@ -120,7 +120,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .set(YourUniqueTaxpayerReferencePage, testUtr)
         .success
         .value
-        .set(IsThisYourBusinessPage, true)  // Previously answered "Yes"
+        .set(IsThisYourBusinessPage, true) // Previously answered "Yes"
         .success
         .value
 
@@ -133,7 +133,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[IsThisYourBusinessView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessTestBusiness)(
           request,
           messages(application)

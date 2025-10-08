@@ -23,5 +23,5 @@ case object BusinessWithoutIdBusinessNamePage extends QuestionPage[BusinessWitho
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "BusinessWithoutIdBusinessName"
+  override def toString: String = "businessWithoutIdBusinessName"
 }

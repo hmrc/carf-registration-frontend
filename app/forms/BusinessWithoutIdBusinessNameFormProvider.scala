@@ -23,7 +23,6 @@ import play.api.data.Form
 import play.api.data.Forms.mapping
 
 class BusinessWithoutIdBusinessNameFormProvider @Inject() extends Mappings {
-
   private val businessWithoutIdBusinessNameRegex = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
 
   def apply(): Form[BusinessWithoutIdBusinessName] =
@@ -32,9 +31,9 @@ class BusinessWithoutIdBusinessNameFormProvider @Inject() extends Mappings {
         "value" -> validatedBusinessWithoutIdBusinessName(
           "businessWithoutIdBusinessName.error.required",
           "businessWithoutIdBusinessName.error.invalidFormat",
-          "businessWithoutIdBusinessName.error.maximumLengthError",
+          "businessWithoutIdBusinessName.error.maximumLength",
           businessWithoutIdBusinessNameRegex
         )
-      )(BusinessWithoutIdBusinessName.apply)(org => Some(org.businessWithoutIdBusinessName))
+      )(BusinessWithoutIdBusinessName.apply)(org => Some(org.value))
     )
 }

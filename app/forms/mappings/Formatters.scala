@@ -188,7 +188,6 @@ trait Formatters {
           case Some(s)                             => Right(s)
         }
       }
-      override def unbind(key: String, value: String): Map[String, String]                      =
-        Map(key -> value)
+      override def unbind(key: String, value: String): Map[String, String]                      = Map(key -> value)
     }
 }

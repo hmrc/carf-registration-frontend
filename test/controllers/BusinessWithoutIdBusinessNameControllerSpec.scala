@@ -22,62 +22,63 @@ import models.{BusinessWithoutIdBusinessName, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
 import pages.BusinessWithoutIdBusinessNamePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
+import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 import views.html.BusinessWithoutIdBusinessNameView
-
 import scala.concurrent.Future
 
 class BusinessWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoSugar {
-
-  def onwardRoute = Call("GET", "/foo")
-
-  val formProvider = new BusinessWithoutIdBusinessNameFormProvider()
-  val form         = formProvider()
-
+  def onwardRoute                             = Call("GET", "/foo")
+  val formProvider                            = new BusinessWithoutIdBusinessNameFormProvider()
+  val form                                    = formProvider()
+  val invalidCharacterErrorMessage            =
+    "Business name must only include letters a to z, numbers 0 to 9, ampersands (&amp;), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces."
   lazy val businessWithoutIdBusinessNameRoute =
     routes.BusinessWithoutIdBusinessNameController.onPageLoad(NormalMode).url
 
+  def testInvalidCharacterInBusinessName(badBusinessWithoutIdBusinessName: String): Unit = {
+    val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    running(application) {
+      val request = FakeRequest(POST, businessWithoutIdBusinessNameRoute)
+        .withFormUrlEncodedBody("value" -> badBusinessWithoutIdBusinessName)
+
+      val boundForm = form.bind(Map("value" -> badBusinessWithoutIdBusinessName))
+      val view      = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
+      val result    = route(application, request).value
+      status(result)          mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+      contentAsString(result)      must include(invalidCharacterErrorMessage)
+    }
+  }
+
   "BusinessWithoutIdBusinessName Controller" - {
-
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
       running(application) {
         val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
-
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId)
         .set(BusinessWithoutIdBusinessNamePage, BusinessWithoutIdBusinessName("valid answer"))
         .success
         .value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
       running(application) {
         val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
-
-        val view = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
-
-        val result = route(application, request).value
-
+        val view    = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
+        val result  = route(application, request).value
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(
           form.fill(BusinessWithoutIdBusinessName("valid answer")),
@@ -87,9 +88,13 @@ class BusinessWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoS
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      val userAnswersValidBusinessName = UserAnswers(userAnswersId)
+        .set(BusinessWithoutIdBusinessNamePage, BusinessWithoutIdBusinessName("valid answer"))
+        .success
+        .value
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Individual)
+      val application                  =
+        applicationBuilder(userAnswers = Some(userAnswersValidBusinessName), affinityGroup = Organisation)
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
           )
@@ -97,61 +102,101 @@ class BusinessWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoS
       running(application) {
         val request =
           FakeRequest(POST, businessWithoutIdBusinessNameRoute)
-            .withFormUrlEncodedBody(("value", "org answer"))
+            .withFormUrlEncodedBody(
+              (
+                "value",
+                "valid Business Name 105 chars long-&'^`\\12345678901234567890123456789012345678901234567890123456789012345"
+              )
+            )
         val result  = route(application, request).value
-        status(result)                 mustEqual 400 // SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, businessWithoutIdBusinessNameRoute)
-            .withFormUrlEncodedBody(("value", ""))
-
-        val boundForm = form.bind(Map("value" -> ""))
-
-        val view = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
-
-        val result = route(application, request).value
-
-        status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
-
       running(application) {
         val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
-
-        val result = route(application, request).value
-
+        val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
-
       running(application) {
         val request =
           FakeRequest(POST, businessWithoutIdBusinessNameRoute)
             .withFormUrlEncodedBody(("value", "answer"))
-
-        val result = route(application, request).value
-
+        val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
+    }
+
+    // ============================================ invalid Character data tests =======================================
+    "must return Bad Request & Empty-Business-Name error when BusinessName field is empty" in {
+      val badBusinessWithoutIdBusinessName = ""
+      val application                      = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request   = FakeRequest(POST, businessWithoutIdBusinessNameRoute).withFormUrlEncodedBody(
+          ("value", badBusinessWithoutIdBusinessName)
+        )
+        val boundForm = form.bind(Map("value" -> badBusinessWithoutIdBusinessName))
+        val view      = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
+        val result    = route(application, request).value
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result)      must include("Enter the name of your business")
+      }
+    }
+    "must return Bad Request & invalidFormat error when BusinessWithoutIdBusinessName is longer than 105 chars]" in {
+      val badBusinessWithoutIdBusinessName =
+        "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456"
+      val application                      = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request   = FakeRequest(POST, businessWithoutIdBusinessNameRoute).withFormUrlEncodedBody(
+          ("value", badBusinessWithoutIdBusinessName)
+        )
+        val boundForm = form.bind(Map("value" -> badBusinessWithoutIdBusinessName))
+        val view      = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
+        val result    = route(application, request).value
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result)      must include("Business name must be 105 characters or less")
+      }
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains a forward slash" in {
+      testInvalidCharacterInBusinessName("Business Name contains /forward slash/")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains an exclamation mark" in {
+      testInvalidCharacterInBusinessName("Business Name contains an exclamation mark!")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains a pound sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains £ a pound sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains a percent sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains % a percent sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains an asterisk sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains * an asterisk sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains a bracket sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains ( a bracket sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains an equals sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains = an equals sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains a square bracket sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains ] a square bracket sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains a hash sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains # a hash sign")
+    }
+    "must return Bad Request & invalidFormat error when BusinessName contains an 'at' sign" in {
+      testInvalidCharacterInBusinessName("Business Name contains @ an 'at' sign")
     }
   }
 }

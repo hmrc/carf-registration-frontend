@@ -79,7 +79,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
+      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
@@ -133,7 +133,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
+      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "must go to UTR page when user answers 'Yes' to UK address" in {

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +12,34 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package forms
 
-@(href: String, key: String, id: Option[String] = None, openInNewWindow: Boolean = false, classes: String = "govuk-link", fullStop: Boolean = false)(implicit messages: Messages)
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-<a class="@classes" @if(id.isDefined){id="@id"} href="@href" @if(openInNewWindow) {target="_blank" rel="noopener noreferrer"}>@messages(key)</a>@if(fullStop){.}
+class HaveNiNumberFormProviderSpec extends BooleanFieldBehaviours {
+
+  val requiredKey = "haveNiNumber.error.required"
+  val invalidKey  = "error.boolean"
+
+  val form = new HaveNiNumberFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
+}

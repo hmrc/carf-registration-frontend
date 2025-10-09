@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package pages
 
-@(href: String, key: String, id: Option[String] = None, openInNewWindow: Boolean = false, classes: String = "govuk-link", fullStop: Boolean = false)(implicit messages: Messages)
+import models.UniqueTaxpayerReference
+import play.api.libs.json.JsPath
 
-<a class="@classes" @if(id.isDefined){id="@id"} href="@href" @if(openInNewWindow) {target="_blank" rel="noopener noreferrer"}>@messages(key)</a>@if(fullStop){.}
+case object IndexPage extends QuestionPage[UniqueTaxpayerReference] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "indexPage"
+
+}

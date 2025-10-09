@@ -17,33 +17,44 @@
 package controllers
 
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
-import models.NormalMode
+import models.{NormalMode, UserAnswers}
+import pages.IndexPage
 import play.api.i18n.I18nSupport
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndexController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     identify: IdentifierAction,
     checkEnrolment: CheckEnrolledToServiceAction,
-    retrieveCtUTR: CtUtrRetrievalAction
-) extends FrontendBaseController
-    with I18nSupport {
+    retrieveCtUTR: CtUtrRetrievalAction,
+    sessionRepository: SessionRepository
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen checkEnrolment andThen retrieveCtUTR()).async {
     implicit request =>
       request.affinityGroup match {
         case AffinityGroup.Individual =>
-          Future.successful(Ok("Take user to: Individual – What Are You Registering As? page (CARF-120)"))
+          Future.successful(
+            Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+          )
         case _                        =>
           request.utr match {
             case Some(utr) =>
-              Future.successful(Ok("User has UTR. Redirect them to Is This Your Business? page (CARF-126)"))
-            case None      =>
+              for {
+                autoMatchedUserAnswers <- Future.fromTry(UserAnswers(request.userId).set(IndexPage, utr))
+                _                      <- sessionRepository.set(autoMatchedUserAnswers)
+              } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
+
+            case None =>
               Future.successful(
                 Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
               )

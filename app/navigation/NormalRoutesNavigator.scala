@@ -26,22 +26,22 @@ import play.api.mvc.Call
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
-    
+
     case IndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
     case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
-    case RegisteredAddressInUkPage       =>
+    case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
-    
-    case HaveUTRPage                     =>
+
+    case HaveUTRPage =>
       userAnswers => navigateFromHaveUTR(userAnswers)
-    
+
     case YourUniqueTaxpayerReferencePage =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
-    
+
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
 

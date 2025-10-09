@@ -55,6 +55,14 @@ organisationRegistrationType.checkYourAnswersLabel = What are you registering as
 organisationRegistrationType.error.required = Select what you are registering as
 organisationRegistrationType.change.hidden = Change what you are registering as
 
+individualRegistrationType.title = What are you registering as?
+individualRegistrationType.heading = What are you registering as?
+individualRegistrationType.soleTrader = Sole trader
+individualRegistrationType.individual = An individual not connected to a business
+individualRegistrationType.checkYourAnswersLabel = Registration type
+individualRegistrationType.error.required = Select what you are registering as
+individualRegistrationType.change.hidden = Change your Individual Registration Type
+
 registeredAddressInUk.title = Is your registered address in the UK?
 registeredAddressInUk.heading = Is your registered address in the UK?
 registeredAddressInUk.checkYourAnswersLabel = Is your registered address in the UK?
@@ -91,3 +99,22 @@ haveUTR.checkYourAnswersLabel = Do you have a Unique Taxpayer Reference (UTR)?
 haveUTR.linkText = Find your UTR (opens in new tab)
 haveUTR.error.required = Select yes if you have a Unique Taxpayer Reference
 haveUTR.change.hidden = Change if you have a Unique Taxpayer Reference
+
+isThisYourBusiness.title = Is this your business?
+isThisYourBusiness.heading = Is this your business?
+isThisYourBusiness.checkYourAnswersLabel = Is this your business?
+isThisYourBusiness.error.required = Select yes if this is your business
+isThisYourBusiness.change.hidden = Change if this is your business
+
+haveNiNumber.title = Do you have a National Insurance number?
+haveNiNumber.heading = Do you have a National Insurance number?
+haveNiNumber.checkYourAnswersLabel = Do you have a National Insurance number?
+haveNiNumber.error.required = Select yes if you have a National Insurance number
+haveNiNumber.change.hidden = Change if you have a National Insurance number
+haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
+
+agentSignInProblem.title = You’re unable to use this service with this Government Gateway user ID
+agentSignInProblem.heading = You’re unable to use this service with this Government Gateway user ID
+agentSignInProblem.paragraph = You have signed in with an agent Government Gateway user ID.
+agentSignInProblem.linkText = To use this service as an agent, you must
+agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID

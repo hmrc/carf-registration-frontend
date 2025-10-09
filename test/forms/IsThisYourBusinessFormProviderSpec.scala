@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
-package generators
+package forms
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-trait ModelGenerators {}
+class IsThisYourBusinessFormProviderSpec extends BooleanFieldBehaviours {
 
-implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(OrganisationRegistrationType.values.toSeq)
+  val requiredKey = "isThisYourBusiness.error.required"
+  val invalidKey  = "error.boolean"
+
+  val form = new IsThisYourBusinessFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
   }
-
-implicit lazy val arbitraryIndividualRegistrationType: Arbitrary[IndividualRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(IndividualRegistrationType.values.toSeq)
-  }
+}

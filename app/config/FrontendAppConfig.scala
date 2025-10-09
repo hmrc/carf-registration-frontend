@@ -38,6 +38,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val signOutUrl: String             = configuration.get[String]("urls.signOut")
   lazy val findUTRUrl: String        = configuration.get[String]("urls.findUTR")
   lazy val findCorpTaxUTRUrl: String = configuration.get[String]("urls.findCorporationTaxUTR")
+  lazy val findNINumberUrl: String   = configuration.get[String]("urls.findNINumberUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/carf-registration-frontend"

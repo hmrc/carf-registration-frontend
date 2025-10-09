@@ -16,30 +16,30 @@
 
 package controllers
 
-import controllers.actions.*
-import forms.RegisteredAddressInUkFormProvider
-
+import controllers.actions._
+import forms.HaveNiNumberFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.RegisteredAddressInUkPage
+import pages.HaveNiNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.RegisteredAddressInUkView
+import views.html.HaveNiNumberView
+
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegisteredAddressInUkController @Inject() (
+class HaveNiNumberController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: RegisteredAddressInUkFormProvider,
+    formProvider: HaveNiNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: RegisteredAddressInUkView
+    view: HaveNiNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -49,7 +49,7 @@ class RegisteredAddressInUkController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(RegisteredAddressInUkPage) match {
+      val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -65,9 +65,9 @@ class RegisteredAddressInUkController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisteredAddressInUkPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveNiNumberPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(RegisteredAddressInUkPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(HaveNiNumberPage, mode, updatedAnswers))
         )
   }
 }

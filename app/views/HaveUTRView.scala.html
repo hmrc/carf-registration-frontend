@@ -36,14 +36,15 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-l">@messages("doYouHaveUniqueTaxPayerReference.heading")</h1>
+        <h1 class="govuk-heading-l">@messages("haveUTR.heading")</h1>
 
         <p class="govuk-body">@link(appConfig.findUTRUrl, "haveUTR.linkText", openInNewWindow = true)</p>
 
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("haveUTR.heading")).asPageHeading()
+                legend = LegendViewModel(messages("haveNiNumber.heading"))
+                .withCssClass("govuk-visually-hidden govuk-!-display-block")
             ).copy(classes = "")
         )
 

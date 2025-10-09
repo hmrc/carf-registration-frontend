@@ -30,44 +30,45 @@ import views.html.HaveUTRView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HaveUTRController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         navigator: Navigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: HaveUTRFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: HaveUTRView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class HaveUTRController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: HaveUTRFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: HaveUTRView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
 
-      implicit request =>
+    implicit request =>
 
-        val preparedForm = request.userAnswers.get(HaveUTRPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      val preparedForm = request.userAnswers.get(HaveUTRPage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
 
-        Ok(view(preparedForm, mode))
+      Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveUTRPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(HaveUTRPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveUTRPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(HaveUTRPage, mode, updatedAnswers))
+        )
   }
 }

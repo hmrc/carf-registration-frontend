@@ -24,21 +24,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object HaveUTRSummary  {
+object HaveUTRSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(HaveUTRPage).map {
-      answer =>
+    answers.get(HaveUTRPage).map { answer =>
 
-        val value = if (answer) "site.yes" else "site.no"
+      val value = if (answer) "site.yes" else "site.no"
 
-        SummaryListRowViewModel(
-          key     = "haveUTR.checkYourAnswersLabel",
-          value   = ValueViewModel(value),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.HaveUTRController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("haveUTR.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key = "haveUTR.checkYourAnswersLabel",
+        value = ValueViewModel(value),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.HaveUTRController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("haveUTR.change.hidden"))
         )
+      )
     }
 }

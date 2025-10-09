@@ -61,9 +61,7 @@ class BusinessWithoutIdBusinessNameController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => {
-            Future.successful(BadRequest(view(formWithErrors, mode)))
-          },
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessWithoutIdBusinessNamePage, value))

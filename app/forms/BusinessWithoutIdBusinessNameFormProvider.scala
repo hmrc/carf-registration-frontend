@@ -25,6 +25,8 @@ import play.api.data.Forms.mapping
 class BusinessWithoutIdBusinessNameFormProvider @Inject() extends Mappings {
   private val businessWithoutIdBusinessNameRegex = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
 
+  
+  
   def apply(): Form[BusinessWithoutIdBusinessName] =
     Form(
       mapping(

@@ -83,5 +83,13 @@ trait Mappings extends Formatters with Constraints {
       regex: String,
       msgArg: String = ""
   ): FieldMapping[String] =
-    of(validatedBusinessWithoutIdBusinessNameFormatter(requiredKey, invalidFormatKey, maximumLengthErrorKey, regex, msgArg))
+    of(
+      validatedBusinessWithoutIdBusinessNameFormatter(
+        requiredKey,
+        invalidFormatKey,
+        maximumLengthErrorKey,
+        regex,
+        msgArg
+      )
+    )
 }

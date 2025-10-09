@@ -21,54 +21,37 @@ import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
 class BusinessWithoutIdBusinessNameFormProviderSpec extends StringFieldBehaviours {
-  val requiredKey = "businessWithoutIdBusinessName.error.required"
-  val lengthKey   = "businessWithoutIdBusinessName.error.maximumLength"
-  val invalidFormatKey = "businessWithoutIdBusinessName.error.invalidFormat"
-  val maxLength   = 105
-  val validBusinessName = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -&'^`\\1234567890"
-  val form = new BusinessWithoutIdBusinessNameFormProvider()()
-
-  val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&'\\^`- "
-  val businessNameCharacterGenerator: Gen[Char] = Gen.oneOf(allowedChars)
-
-  def validStringLongerThan(minLength: Int): Gen[String] = for {
-    maxLength <- Gen.const((minLength * 2).max(maxLength))
-    length <- Gen.chooseNum(minLength + 1, maxLength)
-    chars <- Gen.listOfN(length, businessNameCharacterGenerator)
-  } yield chars.mkString
-
-  def businessNameFieldWithMaxLength(form: Form[_], fieldName: String, maxLength: Int, lengthError: FormError): Unit =
-    s"not bind strings longer than $maxLength characters (and valid per regex)" in {
-      forAll(validStringLongerThan(maxLength) -> "longValidString") { (string: String) =>
-        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-        println(s"result.errors=$result.errors")
-        result.errors must contain only lengthError
-      }
-    }
+  val requiredErrorKey       = "businessWithoutIdBusinessName.error.required"
+  val lengthErrorKey         = "businessWithoutIdBusinessName.error.maximumLength"
+  val invalidFormatErrorKey  = "businessWithoutIdBusinessName.error.invalidFormat"
+  val maxLength              = 105
+  val form                   = new BusinessWithoutIdBusinessNameFormProvider()()
+  val validBusinessNameChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&'\\^`- "
 
   ".value" - {
     val fieldName = "value"
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validDataGenerator = validBusinessName
+      validDataGenerator = validBusinessNameChars
     )
-    behave like businessNameFieldWithMaxLength(
+    behave like fieldWithValidCharsLongerThanMaxLength(
       form,
       fieldName,
+      validBusinessNameChars,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey)
+      lengthError = FormError(fieldName, lengthErrorKey)
     )
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredErrorKey)
     )
     behave like fieldWithInvalidData(
       form,
       fieldName,
       "A@$%^&a![]{}*",
-      FormError(fieldName, invalidFormatKey)
+      FormError(fieldName, invalidFormatErrorKey)
     )
   }
 }

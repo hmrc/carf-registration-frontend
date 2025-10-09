@@ -194,9 +194,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "redirect to - Do you have a National Insurance number? page /register/have-ni-number (CARF-163)"
-        )
+        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)       )
       }
 
       "must go to Business Name page when user answers 'No' to having UTR and is Organisation" in {

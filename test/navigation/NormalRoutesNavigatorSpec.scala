@@ -194,7 +194,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)       )
+        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Business Name page when user answers 'No' to having UTR and is Organisation" in {

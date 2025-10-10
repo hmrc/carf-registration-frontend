@@ -181,12 +181,28 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       }
 
-      "must go to Have NI Number page when user answers 'No' to having UTR and is SoleTrader" in {
+      "must go to Have NI Number page when user answers 'No' to having UTR and is Organisation SoleTrader" in {
         val userAnswers = UserAnswers("id")
           .set(HaveUTRPage, false)
           .success
           .value
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go to Have NI Number page when user answers 'No' to having UTR and is Individual SoleTrader" in {
+        val userAnswers = UserAnswers("id")
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
           .success
           .value
 
@@ -271,7 +287,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       "when user answers 'true' (yes, this is their business)" - {
 
-        "must navigate to individual email page for sole traders" in {
+        "must navigate to individual email page for organisation sole traders" in {
           val userAnswers = UserAnswers("id")
             .set(
               IsThisYourBusinessPage,
@@ -284,6 +300,29 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .success
             .value
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+        }
+
+        "must navigate to individual email page for individual sole traders" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
+            .success
+            .value
+            .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
             .success
             .value
 

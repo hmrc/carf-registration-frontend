@@ -77,15 +77,14 @@ trait NormalRoutesNavigator {
       case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
-        userAnswers.get(OrganisationRegistrationTypePage) match {
-          case Some(SoleTrader) =>
-            routes.HaveNiNumberController.onPageLoad(NormalMode)
-          case Some(_)          =>
-            routes.PlaceholderController.onPageLoad(
-              "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
-            )
-          case None             =>
-            routes.JourneyRecoveryController.onPageLoad()
+        if (isSoleTrader(userAnswers)) {
+          routes.HaveNiNumberController.onPageLoad(NormalMode)
+        } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
+          routes.PlaceholderController.onPageLoad(
+            "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
+          )
+        } else {
+          routes.JourneyRecoveryController.onPageLoad()
         }
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()

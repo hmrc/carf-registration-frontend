@@ -16,29 +16,31 @@
 
 package forms
 
+import config.FrontendAppConfig
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
-import play.api.data.{Form, FormError}
+import play.api.data.FormError
+import javax.inject.Inject
 
-class BusinessWithoutIdBusinessNameFormProviderSpec extends StringFieldBehaviours {
-  val requiredErrorKey       = "businessWithoutIdBusinessName.error.required"
-  val lengthErrorKey         = "businessWithoutIdBusinessName.error.maximumLength"
-  val invalidFormatErrorKey  = "businessWithoutIdBusinessName.error.invalidFormat"
-  val maxLength              = 105
-  val form                   = new BusinessWithoutIdBusinessNameFormProvider()()
-  val validBusinessNameChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&'\\^`- "
+class BusinessWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppConfig)
+    extends StringFieldBehaviours {
+  val form                  = new BusinessWithoutIdBusinessNameFormProvider(config)("")
+  val requiredErrorKey      = "businessWithoutIdBusinessName.error.required"
+  val lengthErrorKey        = "businessWithoutIdBusinessName.error.maximumLength"
+  val invalidFormatErrorKey = "businessWithoutIdBusinessName.error.invalidFormat"
+  val maxLength             = 105
 
   ".value" - {
     val fieldName = "value"
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validDataGenerator = validBusinessNameChars
+      validDataGenerator = config.validBusinessNameChars
     )
     behave like fieldWithValidCharsLongerThanMaxLength(
       form,
       fieldName,
-      validBusinessNameChars,
+      config.validBusinessNameChars,
       maxLength = maxLength,
       lengthError = FormError(fieldName, lengthErrorKey)
     )

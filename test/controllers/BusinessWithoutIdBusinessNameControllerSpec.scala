@@ -17,7 +17,9 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import forms.BusinessWithoutIdBusinessNameFormProvider
+import javax.inject.Inject
 import models.{BusinessWithoutIdBusinessName, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -26,19 +28,21 @@ import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
 import pages.BusinessWithoutIdBusinessNamePage
 import play.api.inject.bind
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.BusinessWithoutIdBusinessNameView
 import scala.concurrent.Future
 
-class BusinessWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoSugar {
+class BusinessWithoutIdBusinessNameControllerSpec @Inject() (config: FrontendAppConfig)(messagesApi: MessagesApi)
+    extends SpecBase
+    with MockitoSugar {
   def onwardRoute                             = Call("GET", "/foo")
-  val formProvider                            = new BusinessWithoutIdBusinessNameFormProvider()
-  val form                                    = formProvider()
-  val invalidCharacterErrorMessage            =
-    "Business name must only include letters a to z, numbers 0 to 9, ampersands (&amp;), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces."
+  val formProvider                            = new BusinessWithoutIdBusinessNameFormProvider(config)
+  val form                                    = formProvider("")
+  val invalidCharacterErrorMessage            = messagesApi("businessWithoutIdBusinessName.error.invalidFormat")(Lang("en"))
   lazy val businessWithoutIdBusinessNameRoute =
     routes.BusinessWithoutIdBusinessNameController.onPageLoad(NormalMode).url
 
@@ -75,8 +79,12 @@ class BusinessWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoS
         .success
         .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
       running(application) {
         val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
+        val form    = new BusinessWithoutIdBusinessNameFormProvider(config).apply(
+          businessName = userAnswers.get(BusinessWithoutIdBusinessNamePage).get.toString
+        )
         val view    = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
         val result  = route(application, request).value
         status(result)          mustEqual OK
@@ -136,7 +144,7 @@ class BusinessWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoS
       }
     }
 
-    // ============================================ invalid Character data tests =======================================
+    // ========================================== invalid Character tests ==============================================
     "must return Bad Request & Empty-Business-Name error when BusinessName field is empty" in {
       val badBusinessWithoutIdBusinessName = ""
       val application                      = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()

@@ -56,6 +56,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
-  val enrolmentKey: String   = configuration.get[String]("keys.enrolmentKey.carf")
-  val ctEnrolmentKey: String = configuration.get[String]("keys.enrolmentKey.ct")
+  val enrolmentKey: String           = configuration.get[String]("keys.enrolmentKey.carf")
+  val ctEnrolmentKey: String         = configuration.get[String]("keys.enrolmentKey.ct")
+  val businessNameRegex: String      = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
+  val validBusinessNameChars: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&'\\^`- "
 }

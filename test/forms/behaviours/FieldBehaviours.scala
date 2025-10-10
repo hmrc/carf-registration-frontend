@@ -71,8 +71,8 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
   }
 
   def generateValidStringLongerThan(maxLength: Int, allowedChars: String): Gen[String] = for {
-    length    <- Gen.chooseNum(maxLength + 1, maxLength * 2)
-    chars     <- Gen.listOfN(length, Gen.oneOf(allowedChars))
+    length <- Gen.chooseNum(maxLength + 1, maxLength * 2)
+    chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
   } yield chars.mkString
 
   def fieldWithValidCharsLongerThanMaxLength(
@@ -83,10 +83,9 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
       lengthError: FormError
   ): Unit =
     s"not bind strings longer than $maxLength which have valid characters" in {
-      forAll(generateValidStringLongerThan(maxLength, validCharacters) -> "longValidString") {
-        (string: String) =>
-          val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-          result.errors must contain only lengthError
+      forAll(generateValidStringLongerThan(maxLength, validCharacters) -> "longValidString") { (string: String) =>
+        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
+        result.errors must contain only lengthError
       }
     }
 }

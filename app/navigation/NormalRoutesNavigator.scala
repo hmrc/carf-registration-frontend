@@ -19,23 +19,28 @@ package navigation
 import controllers.routes
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
+import pages.{HaveUTRPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import pages.*
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
+
     case IndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
     case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
-    case YourUniqueTaxpayerReferencePage =>
-      userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
-
     case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
+
+    case HaveUTRPage =>
+      userAnswers => navigateFromHaveUTR(userAnswers)
+
+    case YourUniqueTaxpayerReferencePage =>
+      userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
 
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
@@ -62,9 +67,25 @@ trait NormalRoutesNavigator {
       case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
-        )
+        routes.HaveUTRController.onPageLoad(NormalMode)
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveUTRPage) match {
+      case Some(true)  =>
+        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+      case Some(false) =>
+        if (isSoleTrader(userAnswers)) {
+          routes.HaveNiNumberController.onPageLoad(NormalMode)
+        } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
+          routes.PlaceholderController.onPageLoad(
+            "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
+          )
+        } else {
+          routes.JourneyRecoveryController.onPageLoad()
+        }
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }

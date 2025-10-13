@@ -16,49 +16,76 @@
 
 package services
 
-import models.{Address, Business}
+import connectors.RegistrationConnector
+import models.Business
+import models.requests.RegisterIndividualWithIdRequest
+import uk.gov.hmrc.http.HeaderCarrier
+
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() () {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
 
-  def getBusinessByUtr(utr: String): Future[Option[Business]] =
-    Future.successful {
-      // temp implementation as auto-matching not yet implemented
-      if (utr.startsWith("1")) {
-        // UK business
-        Some(
-          Business(
-            name = "Agent ABC Ltd",
-            address = Address(
-              addressLine1 = "2 High Street",
-              addressLine2 = Some("Birmingham"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("B23 2AZ"),
-              countryCode = "GB"
-            )
-          )
+  def getBusinessByUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[Business]] = {
+    println("XXXXXXXX")
+    connector
+      .individualWithNino(
+        request = RegisterIndividualWithIdRequest(
+          requiresNameMatch = true,
+          IDNumber = "test-id",
+          IDType = "NINO",
+          dateOfBirth = "test-dob",
+          firstName = "john",
+          lastName = "doe"
         )
-      } else if (utr.startsWith("2")) {
-        // Non-UK business
-        Some(
-          Business(
-            name = "International Ltd",
-            address = Address(
-              addressLine1 = "3 Apple Street",
-              addressLine2 = Some("New York"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("11722"),
-              countryCode = "US"
-            )
+      )
+      .value
+      .flatMap {
+        case Right(response) =>
+          Future.successful(
+            Some(Business(name = s"${response.firstName} ${response.lastName}", address = response.address))
           )
-        )
-      } else {
-        // Business not found
-        None
+        case Left(error)     => Future.failed(new Exception(error.toString))
       }
-    }
+  }
+
+  //  def getBusinessByUtr(utr: String): Future[Option[Business]] =
+//    Future.successful {
+//      // temp implementation as auto-matching not yet implemented
+//      if (utr.startsWith("1")) {
+//        // UK business
+//        Some(
+//          Business(
+//            name = "Agent ABC Ltd",
+//            address = Address(
+//              addressLine1 = "2 High Street",
+//              addressLine2 = Some("Birmingham"),
+//              addressLine3 = None,
+//              addressLine4 = None,
+//              postalCode = Some("B23 2AZ"),
+//              countryCode = "GB"
+//            )
+//          )
+//        )
+//      } else if (utr.startsWith("2")) {
+//        // Non-UK business
+//        Some(
+//          Business(
+//            name = "International Ltd",
+//            address = Address(
+//              addressLine1 = "3 Apple Street",
+//              addressLine2 = Some("New York"),
+//              addressLine3 = None,
+//              addressLine4 = None,
+//              postalCode = Some("11722"),
+//              countryCode = "US"
+//            )
+//          )
+//        )
+//      } else {
+//        // Business not found
+//        None
+//      }
+//    }
 }

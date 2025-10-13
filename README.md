@@ -29,7 +29,7 @@ sbt run
 
 ### Running the service in test only mode
 ```
-sm2 --start CARF_REGISTRATION_ALL
+sm2 --start CARF_ALL
 ```
 ```
 sm2 --stop CARF_REGISTRATION_FRONTEND

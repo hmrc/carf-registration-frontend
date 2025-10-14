@@ -173,7 +173,7 @@ trait Formatters {
       maximumLengthErrorKey: String,
       regex: String,
       msgArg: String = "",
-      maximumLength: Int = 105
+      maximumLength: Int
   ): Formatter[String] =
     new Formatter[String] {
       def formatError(key: String, errorKey: String, msgArg: String): FormError =

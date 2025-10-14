@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import config.FrontendAppConfig
 import forms.BusinessWithoutIdBusinessNameFormProvider
 import javax.inject.Inject
 import models.{BusinessWithoutIdBusinessName, NormalMode, UserAnswers}
@@ -34,13 +33,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.BusinessWithoutIdBusinessNameView
+import config.CarfConstants.validBusinessName105Chars
+import config.CarfConstants.invalidBusinessNameExceeds105Chars
 import scala.concurrent.Future
 
-class BusinessWithoutIdBusinessNameControllerSpec @Inject() (config: FrontendAppConfig)(messagesApi: MessagesApi)
+class BusinessWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi)
     extends SpecBase
     with MockitoSugar {
   def onwardRoute                             = Call("GET", "/foo")
-  val formProvider                            = new BusinessWithoutIdBusinessNameFormProvider(config)
+  val formProvider                            = new BusinessWithoutIdBusinessNameFormProvider()
   val form                                    = formProvider("")
   val invalidCharacterErrorMessage            = messagesApi("businessWithoutIdBusinessName.error.invalidFormat")(Lang("en"))
   lazy val businessWithoutIdBusinessNameRoute =
@@ -82,7 +83,7 @@ class BusinessWithoutIdBusinessNameControllerSpec @Inject() (config: FrontendApp
       when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
       running(application) {
         val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
-        val form    = new BusinessWithoutIdBusinessNameFormProvider(config).apply(
+        val form    = new BusinessWithoutIdBusinessNameFormProvider().apply(
           businessName = userAnswers.get(BusinessWithoutIdBusinessNamePage).get.toString
         )
         val view    = application.injector.instanceOf[BusinessWithoutIdBusinessNameView]
@@ -110,12 +111,7 @@ class BusinessWithoutIdBusinessNameControllerSpec @Inject() (config: FrontendApp
       running(application) {
         val request =
           FakeRequest(POST, businessWithoutIdBusinessNameRoute)
-            .withFormUrlEncodedBody(
-              (
-                "value",
-                "valid Business Name 105 chars long-&'^`\\12345678901234567890123456789012345678901234567890123456789012345"
-              )
-            )
+            .withFormUrlEncodedBody(("value", validBusinessName105Chars))
         val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
@@ -161,8 +157,7 @@ class BusinessWithoutIdBusinessNameControllerSpec @Inject() (config: FrontendApp
       }
     }
     "must return Bad Request & invalidFormat error when BusinessWithoutIdBusinessName is longer than 105 chars]" in {
-      val badBusinessWithoutIdBusinessName =
-        "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456"
+      val badBusinessWithoutIdBusinessName = invalidBusinessNameExceeds105Chars
       val application                      = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
         val request   = FakeRequest(POST, businessWithoutIdBusinessNameRoute).withFormUrlEncodedBody(

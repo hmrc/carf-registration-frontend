@@ -16,14 +16,14 @@
 
 package forms
 
-import config.FrontendAppConfig
 import javax.inject.Inject
 import forms.mappings.Mappings
 import models.BusinessWithoutIdBusinessName
 import play.api.data.Form
 import play.api.data.Forms.mapping
+import config.CarfConstants.businessNameRegex
 
-class BusinessWithoutIdBusinessNameFormProvider @Inject() (config: FrontendAppConfig) extends Mappings {
+class BusinessWithoutIdBusinessNameFormProvider extends Mappings {
   def apply(businessName: String): Form[BusinessWithoutIdBusinessName] =
     Form(
       mapping(
@@ -31,7 +31,7 @@ class BusinessWithoutIdBusinessNameFormProvider @Inject() (config: FrontendAppCo
           "businessWithoutIdBusinessName.error.required",
           "businessWithoutIdBusinessName.error.invalidFormat",
           "businessWithoutIdBusinessName.error.maximumLength",
-          config.businessNameRegex,
+          businessNameRegex,
           businessName
         )
       )(BusinessWithoutIdBusinessName.apply)(org => Some(org.value))

@@ -17,31 +17,32 @@
 package forms
 
 import config.FrontendAppConfig
+import config.CarfConstants.validBusinessNameMaxLength
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
+import config.CarfConstants.validBusinessNameChars
 import javax.inject.Inject
 
 class BusinessWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppConfig)
     extends StringFieldBehaviours {
-  val form                  = new BusinessWithoutIdBusinessNameFormProvider(config)("")
+  val form                  = new BusinessWithoutIdBusinessNameFormProvider()("")
   val requiredErrorKey      = "businessWithoutIdBusinessName.error.required"
   val lengthErrorKey        = "businessWithoutIdBusinessName.error.maximumLength"
   val invalidFormatErrorKey = "businessWithoutIdBusinessName.error.invalidFormat"
-  val maxLength             = 105
 
   ".value" - {
     val fieldName = "value"
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validDataGenerator = config.validBusinessNameChars
+      validDataGenerator = validBusinessNameChars
     )
     behave like fieldWithValidCharsLongerThanMaxLength(
       form,
       fieldName,
-      config.validBusinessNameChars,
-      maxLength = maxLength,
+      validBusinessNameChars,
+      maxLength = validBusinessNameMaxLength,
       lengthError = FormError(fieldName, lengthErrorKey)
     )
     behave like mandatoryField(

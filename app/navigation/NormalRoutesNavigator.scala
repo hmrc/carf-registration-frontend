@@ -49,7 +49,7 @@ trait NormalRoutesNavigator {
     case BusinessWithoutIdBusinessNamePage =>
       userAnswers => navigateFromBusinessWithoutIdBusinessName(userAnswers)
 
-    case _                                 =>
+    case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -152,7 +152,7 @@ trait NormalRoutesNavigator {
       case Some(true)  =>
         routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+        routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 

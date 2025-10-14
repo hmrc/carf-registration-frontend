@@ -21,8 +21,8 @@ import controllers.routes
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{BusinessWithoutIdBusinessName, IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{BusinessWithoutIdBusinessNamePage, HaveNiNumberPage, IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
-import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{BusinessWithoutIdBusinessNamePage, HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+//import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -280,7 +280,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-without-id/name (CARF-169)")
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
         }
       }
     }
@@ -490,7 +490,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
-
 
     "must go from BusinessWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
       val updatedAnswers =

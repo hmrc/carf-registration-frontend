@@ -16,8 +16,9 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.HaveNiNumberFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
@@ -25,6 +26,7 @@ import pages.HaveNiNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.HaveNiNumberView
 
@@ -39,15 +41,25 @@ class HaveNiNumberController @Inject() (
     requireData: DataRequiredAction,
     formProvider: HaveNiNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: HaveNiNumberView
+    view: HaveNiNumberView,
+    service: RegistrationService,
+    retrieveCtUTR: CtUtrRetrievalAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen retrieveCtUTR() andThen getData() andThen requireData) { implicit request =>
+
+      // TODO: Replace utr.get with NINO when doing CARF-164
+      service
+        .getIndividualByNino(request.utr.get.uniqueTaxPayerReference)
+        .map(a =>
+          println("ZZZZZZZZZ")
+          println(a)
+        )
 
       val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
         case None        => form
@@ -55,7 +67,7 @@ class HaveNiNumberController @Inject() (
       }
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

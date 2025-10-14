@@ -23,7 +23,7 @@ import models.error.ApiError
 import models.requests.RegisterIndividualWithIdRequest
 import models.responses.RegisterIndividualWithIdResponse
 import play.api.Logging
-import play.api.http.Status.OK
+import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -58,7 +58,7 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .flatMap {
-          case response if response.status == OK =>
+          case response if response.status == OK        =>
             Try(response.json.as[RegisterIndividualWithIdResponse]) match {
               case Success(data)      => Future.successful(Right(data))
               case Failure(exception) =>
@@ -67,7 +67,12 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
                 )
                 Future.successful(Left(ApiError.JsonValidationError))
             }
-          case response                          =>
+          case response if response.status == NOT_FOUND =>
+            logger.warn(
+              s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Future.successful(Left(ApiError.NotFoundError))
+          case response                                 =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
             Future.successful(Left(ApiError.InternalServerError))
         }

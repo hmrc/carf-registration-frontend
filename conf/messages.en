@@ -93,10 +93,23 @@ yourUniqueTaxpayerReference.error.invalid = Unique Taxpayer Reference must only 
 yourUniqueTaxpayerReference.error.invalidFormat = Enter the Unique Taxpayer Reference in the right format
 yourUniqueTaxpayerReference.change.hidden = Change your Corporation Tax Unique Taxpayer Reference (UTR)
 
+haveUTR.title = Do you have a Unique Taxpayer Reference (UTR)?
+haveUTR.heading = Do you have a Unique Taxpayer Reference (UTR)?
+haveUTR.checkYourAnswersLabel = Do you have a Unique Taxpayer Reference (UTR)?
+haveUTR.linkText = Find your UTR (opens in new tab)
+haveUTR.error.required = Select yes if you have a Unique Taxpayer Reference
+haveUTR.change.hidden = Change if you have a Unique Taxpayer Reference
+
+isThisYourBusiness.title = Is this your business?
+isThisYourBusiness.heading = Is this your business?
+isThisYourBusiness.checkYourAnswersLabel = Is this your business?
+isThisYourBusiness.error.required = Select yes if this is your business
+isThisYourBusiness.change.hidden = Change if this is your business
+
 haveNiNumber.title = Do you have a National Insurance number?
 haveNiNumber.heading = Do you have a National Insurance number?
 haveNiNumber.checkYourAnswersLabel = Do you have a National Insurance number?
-haveNiNumber.error.required = Select Yes if you have a National Insurance number
+haveNiNumber.error.required = Select yes if you have a National Insurance number
 haveNiNumber.change.hidden = Change if you have a National Insurance number
 haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
 

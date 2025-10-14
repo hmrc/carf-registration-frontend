@@ -24,19 +24,31 @@ import play.api.mvc.Call
 trait NormalRoutesNavigator {
 
   val normalRoutes: Page => UserAnswers => Call = {
+
     case IndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case OrganisationRegistrationTypePage  =>
+    case OrganisationRegistrationTypePage =>
       _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
-    case RegisteredAddressInUkPage         =>
+
+    case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
-    case YourUniqueTaxpayerReferencePage   =>
+
+    case HaveUTRPage =>
+      userAnswers => navigateFromHaveUTR(userAnswers)
+
+    case YourUniqueTaxpayerReferencePage =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
-    case HaveNiNumberPage                  =>
+
+    case IsThisYourBusinessPage =>
+      userAnswers => navigateFromIsThisYourBusiness(userAnswers)
+
+    case HaveNiNumberPage =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
+
     case BusinessWithoutIdBusinessNamePage =>
       userAnswers => navigateFromBusinessWithoutIdBusinessName(userAnswers)
+
     case _                                 =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
@@ -50,14 +62,31 @@ trait NormalRoutesNavigator {
       case _                                           =>
         routes.JourneyRecoveryController.onPageLoad()
     }
-  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call          =
+
+  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisteredAddressInUkPage) match {
       case Some(true)  =>
         routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
-        )
+        routes.HaveUTRController.onPageLoad(NormalMode)
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveUTRPage) match {
+      case Some(true)  =>
+        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+      case Some(false) =>
+        if (isSoleTrader(userAnswers)) {
+          routes.HaveNiNumberController.onPageLoad(NormalMode)
+        } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
+          routes.PlaceholderController.onPageLoad(
+            "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
+          )
+        } else {
+          routes.JourneyRecoveryController.onPageLoad()
+        }
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
@@ -70,18 +99,60 @@ trait NormalRoutesNavigator {
 
     (individualRegistrationType, organisationRegistrationType) match {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+        routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
       case _                                                                                                     =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+        routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
     }
   }
 
+  private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
+    userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
+      case Some(true) =>
+        if (isSoleTrader(userAnswers)) {
+          routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+        } else {
+          routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+        }
+
+      case Some(false) =>
+        if (isCTAutomatched(userAnswers)) {
+          routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+        } else {
+          if (isSoleTrader(userAnswers)) {
+            routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+          } else {
+            routes.PlaceholderController.onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+          }
+        }
+
+      case None =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
+
+    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
+
+    val organisationRegistrationType: Option[OrganisationRegistrationType] =
+      userAnswers.get(OrganisationRegistrationTypePage)
+
+    (individualRegistrationType, organisationRegistrationType) match {
+      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
+        true
+      case _                                                                                                     =>
+        false
+    }
+  }
+
+  private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(IndexPage).isDefined
+
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {
-      case Some(true)  => // User selects yes
+      case Some(true)  =>
         routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
-      case Some(false) => // User selects no
-        routes.PlaceholderController.onPageLoad("Must redirect to /business-without-id/name (CARF-169)")
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 

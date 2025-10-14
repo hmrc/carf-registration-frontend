@@ -18,9 +18,11 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
+import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{BusinessWithoutIdBusinessName, IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.{BusinessWithoutIdBusinessNamePage, HaveNiNumberPage, IndividualRegistrationTypePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -79,7 +81,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
@@ -97,7 +99,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an individual" in {
@@ -115,7 +117,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name")
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your business name page for anything other than soleTrader" in {
@@ -133,39 +135,123 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name")
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
     }
 
-    "must go to UTR page when user answers 'Yes' to UK address" in {
-      val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, true).success.value
+    "RegisteredAddressInUkPage navigation" - {
 
-      navigator.nextPage(
-        RegisteredAddressInUkPage,
-        NormalMode,
-        userAnswers
-      ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+      "must go to UTR page when user answers 'Yes' to UK address" in {
+        val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, true).success.value
+
+        navigator.nextPage(
+          RegisteredAddressInUkPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+      }
+
+      "must go to Have UTR page when user answers 'No' to UK address" in {
+        val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, false).success.value
+
+        navigator.nextPage(
+          RegisteredAddressInUkPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.HaveUTRController.onPageLoad(NormalMode)
+      }
+
+      "must go to Journey Recovery when no answer is provided" in {
+        val userAnswers = UserAnswers("id")
+
+        navigator.nextPage(
+          RegisteredAddressInUkPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
-    "must go to Have UTR page when user answers 'No' to UK address" in {
-      val userAnswers = UserAnswers("id").set(RegisteredAddressInUkPage, false).success.value
+    "HaveUTRPage navigation" - {
 
-      navigator.nextPage(
-        RegisteredAddressInUkPage,
-        NormalMode,
-        userAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/have-utr (Do you have a UTR page - CARF-123)"
-      )
-    }
+      "must go to UTR page when user answers 'Yes' to having UTR" in {
+        val userAnswers = UserAnswers("id").set(HaveUTRPage, true).success.value
 
-    "must go to Journey Recovery when no answer is provided" in {
-      val userAnswers = UserAnswers("id")
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+      }
 
-      navigator.nextPage(
-        RegisteredAddressInUkPage,
-        NormalMode,
-        userAnswers
-      ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      "must go to Have NI Number page when user answers 'No' to having UTR and is Organisation SoleTrader" in {
+        val userAnswers = UserAnswers("id")
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go to Have NI Number page when user answers 'No' to having UTR and is Individual SoleTrader" in {
+        val userAnswers = UserAnswers("id")
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .success
+          .value
+
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go to Business Name page when user answers 'No' to having UTR and is Organisation" in {
+        val userAnswers = UserAnswers("id")
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .success
+          .value
+
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
+        )
+      }
+
+      "must go to Journey Recovery when user answers 'No' to having UTR but no registration type is set" in {
+        val userAnswers = UserAnswers("id").set(HaveUTRPage, false).success.value
+
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go to Journey Recovery when no answer is provided for HaveUTR" in {
+        val userAnswers = UserAnswers("id")
+
+        navigator.nextPage(
+          HaveUTRPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "HaveNiNumberPage navigation" - {
@@ -198,6 +284,213 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         }
       }
     }
+
+    "IsThisYourBusinessPage navigation" - {
+
+      "when user answers 'true' (yes, this is their business)" - {
+
+        "must navigate to individual email page for organisation sole traders" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
+            .success
+            .value
+            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+        }
+
+        "must navigate to individual email page for individual sole traders" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
+            .success
+            .value
+            .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+        }
+
+        "must navigate to contact details page for non-sole traders" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
+            .success
+            .value
+            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+        }
+
+        "must navigate to contact details page when no organisation type is set" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(true)
+              )
+            )
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+        }
+      }
+
+      "when user answers 'false' (no, this is not their business)" - {
+
+        "must navigate to different business page when CT auto-matched" in {
+
+          val testUtr = UniqueTaxpayerReference("1234567890")
+
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
+            .success
+            .value
+            .set(IndexPage, testUtr)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+        }
+
+        "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
+            .success
+            .value
+            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad(
+            "Must redirect to /problem/sole-trader-not-identified (CARF-129)"
+          )
+        }
+
+        "must navigate to business not identified page when not CT auto-matched and not sole trader" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
+            .success
+            .value
+            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad(
+            "Must redirect to /problem/business-not-identified (CARF-147)"
+          )
+        }
+
+        "must navigate to business not identified page when not CT auto-matched and no organisation type" in {
+          val userAnswers = UserAnswers("id")
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                "Test Business",
+                Address("Test Line 1", None, None, None, None, "GB"),
+                Some(false)
+              )
+            )
+            .success
+            .value
+
+          navigator.nextPage(
+            IsThisYourBusinessPage,
+            NormalMode,
+            userAnswers
+          ) mustBe routes.PlaceholderController.onPageLoad(
+            "Must redirect to /problem/business-not-identified (CARF-147)"
+          )
+        }
+      }
+
+      "must navigate to Journey Recovery when no answer is provided" in {
+        val userAnswers = UserAnswers("id")
+
+        navigator.nextPage(
+          IsThisYourBusinessPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
 
     "must go from BusinessWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
       val updatedAnswers =

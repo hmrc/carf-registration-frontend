@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package config
-object CarfConstants {
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
+package base
+
+object TestConstants {
+  val validBusinessNameChars: String             = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&'\\^`- "
+  val validBusinessName105Chars: String          =
+    "valid Business Name 105 chars long-&'^`\\abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVQXYZ-456789012345"
+  val invalidBusinessNameExceeds105Chars: String =
+    "invalid Business Name 106 chars long-&'^`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVQXYZ-567890123456"
 }

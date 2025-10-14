@@ -14,40 +14,41 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.orgWithoutId
 
 import controllers.actions.*
-import forms.BusinessWithoutIdBusinessNameFormProvider
-import javax.inject.Inject
+import forms.OrgWithoutIdBusinessNameFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.BusinessWithoutIdBusinessNamePage
+import pages.OrgWithoutIdBusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.BusinessWithoutIdBusinessNameView
+import views.html.OrgWithoutIdBusinessNameView
+
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessWithoutIdBusinessNameController @Inject() (
+class OrgWithoutIdBusinessNameController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: BusinessWithoutIdBusinessNameFormProvider,
+    formProvider: OrgWithoutIdBusinessNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: BusinessWithoutIdBusinessNameView
+    view: OrgWithoutIdBusinessNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val businessWithoutIdBusinessName = request.userAnswers.get(BusinessWithoutIdBusinessNamePage)
-      val form                          = formProvider(businessWithoutIdBusinessName.toString)
-      val preparedForm                  = request.userAnswers.get(BusinessWithoutIdBusinessNamePage) match {
+      val businessWithoutIdBusinessName = request.userAnswers.get(OrgWithoutIdBusinessNamePage)
+      val form                          = formProvider("")
+      val preparedForm                  = request.userAnswers.get(OrgWithoutIdBusinessNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -57,7 +58,7 @@ class BusinessWithoutIdBusinessNameController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
       val businessWithoutIdBusinessName =
-        request.userAnswers.get(BusinessWithoutIdBusinessNamePage)
+        request.userAnswers.get(OrgWithoutIdBusinessNamePage)
       val form                          = formProvider(businessWithoutIdBusinessName.toString)
       form
         .bindFromRequest()
@@ -65,9 +66,9 @@ class BusinessWithoutIdBusinessNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessWithoutIdBusinessNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrgWithoutIdBusinessNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(BusinessWithoutIdBusinessNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(OrgWithoutIdBusinessNamePage, mode, updatedAnswers))
         )
   }
 }

@@ -21,12 +21,11 @@ import config.CarfConstants.validBusinessNameMaxLength
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
-import config.CarfConstants.validBusinessNameChars
+import base.TestConstants.validBusinessNameChars
 import javax.inject.Inject
 
-class BusinessWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppConfig)
-    extends StringFieldBehaviours {
-  val form                  = new BusinessWithoutIdBusinessNameFormProvider()("")
+class OrgWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppConfig) extends StringFieldBehaviours {
+  val form                  = new OrgWithoutIdBusinessNameFormProvider()("")
   val requiredErrorKey      = "businessWithoutIdBusinessName.error.required"
   val lengthErrorKey        = "businessWithoutIdBusinessName.error.maximumLength"
   val invalidFormatErrorKey = "businessWithoutIdBusinessName.error.invalidFormat"

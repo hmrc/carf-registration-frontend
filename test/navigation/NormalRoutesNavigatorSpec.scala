@@ -20,8 +20,8 @@ import base.SpecBase
 import controllers.routes
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import models.IndividualRegistrationType.{Individual, SoleTrader}
-import models.{BusinessWithoutIdBusinessName, IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{BusinessWithoutIdBusinessNamePage, HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{IndividualRegistrationType, NormalMode, OrgWithoutIdBusinessName, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrgWithoutIdBusinessNamePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 //import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
@@ -228,9 +228,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
-        )
+        ) mustBe controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
       }
 
       "must go to Journey Recovery when user answers 'No' to having UTR but no registration type is set" in {
@@ -491,17 +489,17 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "must go from BusinessWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
+    "must go from OrgWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
       val updatedAnswers =
         emptyUserAnswers
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
           .success
           .value
-          .set(BusinessWithoutIdBusinessNamePage, BusinessWithoutIdBusinessName("org name"))
+          .set(OrgWithoutIdBusinessNamePage, OrgWithoutIdBusinessName("org name"))
           .success
           .value
       navigator.nextPage(
-        BusinessWithoutIdBusinessNamePage,
+        OrgWithoutIdBusinessNamePage,
         NormalMode,
         updatedAnswers
       ) mustBe routes.PlaceholderController.onPageLoad(

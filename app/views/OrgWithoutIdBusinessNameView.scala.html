@@ -17,32 +17,32 @@
 @import viewmodels.InputWidth._
 
 @this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
-    govukInput: GovukInput,
-    govukButton: GovukButton
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukInput: GovukInput,
+        govukButton: GovukButton
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("businessWithoutIdBusinessName.title"))) {
 
-    @formHelper(action = routes.BusinessWithoutIdBusinessNameController.onSubmit(mode)) {
+    @formHelper(action = controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+
+        <h1 class="govuk-heading-l",isPageHeading = true>@messages("businessWithoutIdBusinessName.heading")</h1>
+
         @govukInput(
             Input(
                 name = "value",
-                label = LabelViewModel(messages("businessWithoutIdBusinessName.heading")).asPageHeading(),
                 attributes = Map("autocomplete" -> "organization")
             )
-            .withWidth(Full)
         )
-
         @govukButton(
             ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
         )

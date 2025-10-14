@@ -18,13 +18,13 @@ package forms
 
 import javax.inject.Inject
 import forms.mappings.Mappings
-import models.BusinessWithoutIdBusinessName
+import models.OrgWithoutIdBusinessName
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import config.CarfConstants.businessNameRegex
 
-class BusinessWithoutIdBusinessNameFormProvider extends Mappings {
-  def apply(businessName: String): Form[BusinessWithoutIdBusinessName] =
+class OrgWithoutIdBusinessNameFormProvider extends Mappings {
+  def apply(businessName: String): Form[OrgWithoutIdBusinessName] =
     Form(
       mapping(
         "value" -> validatedBusinessName(
@@ -34,6 +34,6 @@ class BusinessWithoutIdBusinessNameFormProvider extends Mappings {
           businessNameRegex,
           businessName
         )
-      )(BusinessWithoutIdBusinessName.apply)(org => Some(org.value))
+      )(OrgWithoutIdBusinessName.apply)(org => Some(org.value))
     )
 }

@@ -17,7 +17,7 @@
 package navigation
 
 import controllers.routes
-import models.{BusinessWithoutIdBusinessName, IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
+import models.{IndividualRegistrationType, NormalMode, OrgWithoutIdBusinessName, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.mvc.Call
 
@@ -46,8 +46,8 @@ trait NormalRoutesNavigator {
     case HaveNiNumberPage =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
 
-    case BusinessWithoutIdBusinessNamePage =>
-      userAnswers => navigateFromBusinessWithoutIdBusinessName(userAnswers)
+    case OrgWithoutIdBusinessNamePage =>
+      userAnswers => navigateFromOrgWithoutIdBusinessName(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -81,9 +81,7 @@ trait NormalRoutesNavigator {
         if (isSoleTrader(userAnswers)) {
           routes.HaveNiNumberController.onPageLoad(NormalMode)
         } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
-          routes.PlaceholderController.onPageLoad(
-            "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
-          )
+          controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
         } else {
           routes.JourneyRecoveryController.onPageLoad()
         }
@@ -156,8 +154,8 @@ trait NormalRoutesNavigator {
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromBusinessWithoutIdBusinessName(userAnswers: UserAnswers): Call =
-    userAnswers.get(BusinessWithoutIdBusinessNamePage) match {
+  private def navigateFromOrgWithoutIdBusinessName(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrgWithoutIdBusinessNamePage) match {
       case Some(businessWithoutIdBusinessName) =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"

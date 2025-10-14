@@ -21,7 +21,6 @@ import play.api.data.FieldMapping
 import play.api.data.Forms.of
 import play.api.i18n.Messages
 import config.CarfConstants.validBusinessNameMaxLength
-
 import java.time.LocalDate
 
 trait Mappings extends Formatters with Constraints {
@@ -77,15 +76,15 @@ trait Mappings extends Formatters with Constraints {
   ): FieldMapping[String] =
     of(validatedUtrFormatter(requiredKey, invalidKey, invalidFormatKey, regex, msgArg))
 
-  protected def validatedBusinessWithoutIdBusinessName(
-      requiredKey: String = "businessWithoutIdBusinessName.error.required",
-      invalidFormatKey: String = "businessWithoutIdBusinessName.error.invalidFormat",
-      maximumLengthErrorKey: String = "businessWithoutIdBusinessName.error.maximumLength",
+  protected def validatedBusinessName(
+      requiredKey: String,
+      invalidFormatKey: String,
+      maximumLengthErrorKey: String,
       regex: String,
       msgArg: String = ""
   ): FieldMapping[String] =
     of(
-      validatedBusinessWithoutIdBusinessNameFormatter(
+      validatedBusinessNameFormatter(
         requiredKey,
         invalidFormatKey,
         maximumLengthErrorKey,

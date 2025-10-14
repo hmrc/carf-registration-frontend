@@ -27,7 +27,7 @@ class BusinessWithoutIdBusinessNameFormProvider extends Mappings {
   def apply(businessName: String): Form[BusinessWithoutIdBusinessName] =
     Form(
       mapping(
-        "value" -> validatedBusinessWithoutIdBusinessName(
+        "value" -> validatedBusinessName(
           "businessWithoutIdBusinessName.error.required",
           "businessWithoutIdBusinessName.error.invalidFormat",
           "businessWithoutIdBusinessName.error.maximumLength",

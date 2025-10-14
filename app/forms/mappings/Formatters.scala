@@ -167,7 +167,7 @@ trait Formatters {
 
     }
 
-  protected def validatedBusinessWithoutIdBusinessNameFormatter(
+  protected def validatedBusinessNameFormatter(
       requiredKey: String,
       invalidFormatKey: String,
       maximumLengthErrorKey: String,

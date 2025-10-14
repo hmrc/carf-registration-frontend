@@ -18,7 +18,6 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessWithoutIdBusinessNameFormProvider
-
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
@@ -28,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessWithoutIdBusinessNameView
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessWithoutIdBusinessNameController @Inject() (

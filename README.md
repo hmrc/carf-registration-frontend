@@ -59,26 +59,20 @@ Redirect URL: http://localhost:17000/register-for-carf
 Credential Strength: Strong
 Confidence Level: 50
 Affinity Group: Organisation
+Credential role: User
 Enrolments Presets: CT (click Add preset and add Idenitfier value: 1234568945)
 ```
 
 Organisation without UTR:
 ```
 Affinity Group: Organisation
+Credential role: User
 Enrolments: leave empty
 ```
 
-Individual with UTR:
+Individual:
 ```
 Affinity Group: Individual
-Enrolments Presets: CT (click Add preset and add Idenitfier value: 1234568945)
-```
-
-
-Individual without UTR:
-```
-Affinity Group: Individual
-Enrolments: leave empty
 ```
 
 Agent/Assistant:

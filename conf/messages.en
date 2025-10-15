@@ -112,8 +112,8 @@ agentSignInProblem.paragraph = You have signed in with an agent Government Gatew
 agentSignInProblem.linkText = To use this service as an agent, you must
 agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID
 
-whatIsTheNameOfYourBusiness.ltdLpLlp.title = What is the name of your organisation?
-whatIsTheNameOfYourBusiness.ltdLpLlp.heading = What is the name of your organisation?
+whatIsTheNameOfYourBusiness.ltdLpLlp.title = What is the registered name of your business?
+whatIsTheNameOfYourBusiness.ltdLpLlp.heading = What is the registered name of your business?
 whatIsTheNameOfYourBusiness.ltdLpLlp.hint = This is the registered name on your incorporation certificate. Enter the name in full as it appears on the certificate.
 whatIsTheNameOfYourBusiness.ltdLpLlp.error.required = Enter the registered name of your business
 whatIsTheNameOfYourBusiness.ltdLpLlp.error.invalid = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
@@ -126,7 +126,7 @@ whatIsTheNameOfYourBusiness.partnership.error.required = Enter the partnership n
 whatIsTheNameOfYourBusiness.partnership.error.invalid = Partnership name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 whatIsTheNameOfYourBusiness.partnership.error.length = Partnership name must be 105 characters or less
 
-whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.title = unincorporatedAssociationTrust title
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.title = What is the registered name of your business?
 whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.heading = What is the registered name of your business?
 whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.hint = This is the registered name on your incorporation certificate. Enter the name in full as it appears on the certificate.
 whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.required = Enter the registered name of your business

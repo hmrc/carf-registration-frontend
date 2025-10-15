@@ -21,11 +21,16 @@ import play.api.data.FormError
 
 class WhatIsTheNameOfYourBusinessFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "whatIsTheNameOfYourBusiness.error.required"
-  val lengthKey   = "whatIsTheNameOfYourBusiness.error.length"
-  val maxLength   = 105
+  val businessType = "partnership"
+  val requiredKey  = s"$businessType.error.required"
+  val lengthKey    = s"$businessType.error.length"
+  val invalidKey   = s"$businessType.error.invalid"
 
-  val form = new WhatIsTheNameOfYourBusinessFormProvider()("")
+  val maxLength = 105
+
+  val orgNameRegex = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+
+  val form = new WhatIsTheNameOfYourBusinessFormProvider()(businessType)
 
   ".value" - {
 
@@ -34,14 +39,21 @@ class WhatIsTheNameOfYourBusinessFormProviderSpec extends StringFieldBehaviours 
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      stringMatchingRegexAndLength(orgNameRegex, maxLength)
     )
 
-    behave like fieldWithMaxLength(
+    behave like fieldWithInvalidData(
+      form,
+      fieldName,
+      invalidString = "@@",
+      error = FormError(fieldName, invalidKey)
+    )
+
+    behave like fieldWithMaxLengthAlphanumeric(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey)
     )
 
     behave like mandatoryField(

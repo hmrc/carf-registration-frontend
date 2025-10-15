@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{HaveNiNumberPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import pages.*
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -382,5 +382,22 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "must navigate from WhatIsTheNameOfYourBusiness to IsThisYourBusiness page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        WhatIsTheNameOfYourBusinessPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+    }
   }
 }

@@ -21,7 +21,7 @@ import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
 import models.{Business, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -64,7 +64,7 @@ class IsThisYourBusinessController @Inject() (
             case Some(business) =>
               val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
               val pageDetails         = IsThisYourBusinessPageDetails(
-                name = business.name,
+                name = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage).getOrElse(business.name),
                 address = business.address,
                 pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
               )
@@ -78,7 +78,7 @@ class IsThisYourBusinessController @Inject() (
                   case Some(value) => form.fill(value)
                 }
                 logger.info(s"Fresh business data cached for UTR: ${utr.uniqueTaxPayerReference}")
-                Ok(view(preparedForm, mode, business))
+                Ok(view(preparedForm, mode, business.copy(name = pageDetails.name)))
               }
 
             case None =>

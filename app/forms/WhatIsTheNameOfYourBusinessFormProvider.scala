@@ -22,9 +22,18 @@ import forms.mappings.Mappings
 import play.api.data.Form
 
 class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {
+
+  private val maxLength          = 105
+  private final val orgNameRegex = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+
   def apply(businessType: String): Form[String] =
     Form(
-      "value" -> text("whatIsTheNameOfYourBusiness.error.required")
-        .verifying(maxLength(105, "whatIsTheNameOfYourBusiness.error.length"))
+      "value" -> validatedText(
+        s"$businessType.error.required",
+        s"$businessType.error.invalid",
+        s"$businessType.error.length",
+        orgNameRegex,
+        maxLength = maxLength
+      )
     )
 }

@@ -16,9 +16,10 @@
 
 package services
 
-import models.{Address, Business}
+import models.{Address, Business, UniqueTaxpayerReference}
+
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() () {
@@ -60,5 +61,14 @@ class RegistrationService @Inject() () {
         // Business not found
         None
       }
+    }
+
+  def getBusinessName(
+      uniqueTaxpayerReference: UniqueTaxpayerReference,
+      businessName: String
+  )(implicit ec: ExecutionContext): Future[Option[Business]] =
+    getBusinessByUtr(uniqueTaxpayerReference.uniqueTaxPayerReference).map {
+      case Some(business) => Some(business.copy(name = businessName))
+      case None           => None
     }
 }

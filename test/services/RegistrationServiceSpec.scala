@@ -16,10 +16,11 @@
 
 package services
 
-import models.Business
+import models.{Business, UniqueTaxpayerReference}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.concurrent.ScalaFutures
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
@@ -53,10 +54,20 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
       business.get.address.countryCode  shouldBe "US"
     }
 
-    "return None for UTR starting with any other digit" in {
-      val result = businessService.getBusinessByUtr("3123456789")
+    "return a business when UTR and businessName has been provided" in {
+      val result =
+        businessService.getBusinessName(
+          uniqueTaxpayerReference = UniqueTaxpayerReference("1234567890"),
+          businessName = "Agent ABC Ltd"
+        )
 
-      result.futureValue shouldBe None
+      val business = result.futureValue
+
+      business                          shouldBe defined
+      business.get.name                 shouldBe "Agent ABC Ltd"
+      business.get.isUkBased            shouldBe true
+      business.get.address.addressLine1 shouldBe "2 High Street"
+      business.get.address.addressLine2 shouldBe Some("Birmingham")
     }
   }
 }

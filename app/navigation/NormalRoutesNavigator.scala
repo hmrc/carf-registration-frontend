@@ -37,6 +37,9 @@ trait NormalRoutesNavigator {
     case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
 
+    case WhatIsTheNameOfYourBusinessPage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
 

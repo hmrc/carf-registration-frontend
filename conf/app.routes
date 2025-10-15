@@ -32,20 +32,25 @@ POST        /register/organisation-registration-type               controllers.O
 GET         /register/change-organisation-registration-type        controllers.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-organisation-registration-type        controllers.OrganisationRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
 
+GET        /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/utr                                 controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
+GET        /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/changeUtr                           controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/have-utr                            controllers.HaveUTRController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/have-utr                            controllers.HaveUTRController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-have-utr                     controllers.HaveUTRController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-have-utr                     controllers.HaveUTRController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/registered-address-in-uk                     controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/registered-address-in-uk                     controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-registered-address-in-uk              controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-registered-address-in-uk              controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/utr                                          controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/utr                                          controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
-GET         /register/changeUtr                                    controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/changeUtr                                    controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
-
-GET         /register/is-this-your-business                        controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/is-this-your-business                        controllers.IsThisYourBusinessController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-is-this-your-business                 controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-is-this-your-business                 controllers.IsThisYourBusinessController.onSubmit(mode: Mode = CheckMode)
+GET        /register/is-this-your-business                                    controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/is-this-your-business                                    controllers.IsThisYourBusinessController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-is-this-your-business                             controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-is-this-your-business                             controllers.IsThisYourBusinessController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/have-ni-number                               controllers.HaveNiNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/have-ni-number                               controllers.HaveNiNumberController.onSubmit(mode: Mode = NormalMode)

@@ -14,12 +14,19 @@ Prerequisites:
 - Service Manager
 
 Commands:
+
+Start CARF services in service manager. (frontend,backend, any other services needed to run locally)
+
 ```
 sm2 --start CARF_ALL
 ```
+Stop this service from service manager.
+
 ```
 sm2 --stop CARF_REGISTRATION_FRONTEND 
 ```
+Run CARF_REGISTRATION_FRONTEND locally using sbt to test dev changes.
+
 ```
 sbt run
 ```
@@ -31,6 +38,7 @@ sm2 --start CARF_ALL
 ```
 sm2 --stop CARF_REGISTRATION_FRONTEND
 ```
+Starts service locally with test-only routes enabled.
 ```
 sbt "run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes"
 ```
@@ -72,9 +80,15 @@ Individual:
 Affinity Group: Individual
 ```
 
-Agent/Assistant:
+Agent: (not valid scenario so will send user to error page)
 ```
 Affinity Group: Agent
+```
+
+Assistant: (not valid scenario so will send user to error page)
+```
+Affinity Group: Organisation
+Credential role: Assistant
 ```
 
 ### Running tests
@@ -88,7 +102,7 @@ sbt it:test
 ```
 Run Unit and Integration Tests with coverage report:
 ```
-sbt clean compile coverage test it:test coverageReport
+sbt clean compile scalafmtAll coverage test it:test coverageReport 
 ```
 ### License
 

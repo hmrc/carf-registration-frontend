@@ -20,7 +20,6 @@ import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import models.orgWithoutId.OrgWithoutIdBusinessName
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
@@ -495,7 +494,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
           .success
           .value
-          .set(OrgWithoutIdBusinessNamePage, OrgWithoutIdBusinessName("org name"))
+          .set(OrgWithoutIdBusinessNamePage, "valid org name")
           .success
           .value
       navigator.nextPage(

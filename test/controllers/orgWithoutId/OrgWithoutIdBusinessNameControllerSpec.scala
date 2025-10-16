@@ -20,7 +20,6 @@ import base.SpecBase
 import base.TestConstants.{invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
 import controllers.routes
 import forms.orgWithoutId.OrgWithoutIdBusinessNameFormProvider
-import models.orgWithoutId.OrgWithoutIdBusinessName
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -35,7 +34,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.orgWithoutId.OrgWithoutIdBusinessNameView
-
 import javax.inject.Inject
 import scala.concurrent.Future
 
@@ -75,7 +73,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(OrgWithoutIdBusinessNamePage, OrgWithoutIdBusinessName("valid answer"))
+        .set(OrgWithoutIdBusinessNamePage, "valid answer organisation")
         .success
         .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -87,7 +85,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
         val result  = route(application, request).value
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(
-          form.fill(OrgWithoutIdBusinessName("valid answer")),
+          form.fill("valid answer organisation"),
           NormalMode
         )(request, messages(application))
       }
@@ -95,7 +93,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
 
     "must redirect to the next page when valid data is submitted" in {
       val userAnswersValidBusinessName = UserAnswers(userAnswersId)
-        .set(OrgWithoutIdBusinessNamePage, OrgWithoutIdBusinessName("valid answer"))
+        .set(OrgWithoutIdBusinessNamePage, "valid answer organisation")
         .success
         .value
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)

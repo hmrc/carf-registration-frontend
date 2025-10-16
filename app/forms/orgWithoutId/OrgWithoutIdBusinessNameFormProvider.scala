@@ -18,20 +18,16 @@ package forms.orgWithoutId
 
 import config.CarfConstants.businessNameRegex
 import forms.mappings.Mappings
-import models.orgWithoutId.OrgWithoutIdBusinessName
 import play.api.data.Form
-import play.api.data.Forms.mapping
 
 class OrgWithoutIdBusinessNameFormProvider extends Mappings {
-  def apply(): Form[OrgWithoutIdBusinessName] =
+  def apply(): Form[String] =
     Form(
-      mapping(
-        "value" -> validatedBusinessName(
-          "orgWithoutIdBusinessName.error.required",
-          "orgWithoutIdBusinessName.error.invalidFormat",
-          "orgWithoutIdBusinessName.error.maximumLength",
-          businessNameRegex
-        )
-      )(OrgWithoutIdBusinessName.apply)(businessName => Some(businessName.value))
+      "value" -> validatedBusinessName(
+        "orgWithoutIdBusinessName.error.required",
+        "orgWithoutIdBusinessName.error.invalidFormat",
+        "orgWithoutIdBusinessName.error.maximumLength",
+        businessNameRegex
+      )
     )
 }

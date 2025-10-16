@@ -29,17 +29,16 @@
 @layout(pageTitle = title(form, messages("orgWithoutIdBusinessName.title"))) {
 
     @formHelper(action = controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onSubmit(mode)) {
-      
+
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-      
-        <h1 class="govuk-heading-l",isPageHeading = true>@messages("orgWithoutIdBusinessName.heading")</h1>
 
         @govukInput(
             Input(
                 name = "value",
                 value = form("value").value,
+                label = LabelViewModel(messages("orgWithoutIdBusinessName.heading")).asPageHeading(),
                 attributes = Map("autocomplete" -> "organization")
             )
         )

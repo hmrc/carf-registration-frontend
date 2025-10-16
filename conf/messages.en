@@ -118,7 +118,7 @@ orgWithoutIdBusinessName.title = What is the name of your business?
 orgWithoutIdBusinessName.heading = What is the name of your business?
 orgWithoutIdBusinessName.checkYourAnswersLabel = What is the name of your business?
 orgWithoutIdBusinessName.error.required = Enter the name of your business
-orgWithoutIdBusinessName.error.invalidFormat = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces.
+orgWithoutIdBusinessName.error.invalidFormat = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 orgWithoutIdBusinessName.error.maximumLength = Business name must be 105 characters or less
 orgWithoutIdBusinessName.change.hidden = Change the name of your business
 

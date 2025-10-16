@@ -20,7 +20,6 @@ import models.Enumerable
 import play.api.data.FieldMapping
 import play.api.data.Forms.of
 import play.api.i18n.Messages
-import config.CarfConstants.validBusinessNameMaxLength
 import java.time.LocalDate
 
 trait Mappings extends Formatters with Constraints {
@@ -76,21 +75,22 @@ trait Mappings extends Formatters with Constraints {
   ): FieldMapping[String] =
     of(validatedUtrFormatter(requiredKey, invalidKey, invalidFormatKey, regex, msgArg))
 
-  protected def validatedBusinessName(
+  protected def validatedStringField(
       requiredKey: String,
       invalidFormatKey: String,
       maximumLengthErrorKey: String,
       regex: String,
+      maximumLength: Int,
       msgArg: String = ""
   ): FieldMapping[String] =
     of(
-      validatedBusinessNameFormatter(
+      validatedStringFormatter(
         requiredKey,
         invalidFormatKey,
         maximumLengthErrorKey,
         regex,
-        msgArg,
-        validBusinessNameMaxLength
+        maximumLength,
+        msgArg
       )
     )
 }

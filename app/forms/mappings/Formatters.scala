@@ -167,21 +167,21 @@ trait Formatters {
 
     }
 
-  protected def validatedBusinessNameFormatter(
+  protected def validatedStringFormatter(
       requiredKey: String,
       invalidFormatKey: String,
       maximumLengthErrorKey: String,
       regex: String,
-      msgArg: String = "",
-      maximumLength: Int
+      maximumLength: Int,
+      msgArg: String = ""
   ): Formatter[String] =
     new Formatter[String] {
       def formatError(key: String, errorKey: String, msgArg: String): FormError =
         if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val trimmedOrgWithoutIdBusinessName = data.get(key)
-        trimmedOrgWithoutIdBusinessName match {
+        val trimmedString = data.get(key)
+        trimmedString match {
           case None | Some("")                     => Left(Seq(formatError(key, requiredKey, msgArg)))
           case Some(s) if !s.matches(regex)        => Left(Seq(formatError(key, invalidFormatKey, msgArg)))
           case Some(s) if s.length > maximumLength => Left(Seq(formatError(key, maximumLengthErrorKey, msgArg)))

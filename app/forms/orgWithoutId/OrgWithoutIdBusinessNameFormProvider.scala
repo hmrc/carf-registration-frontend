@@ -16,18 +16,19 @@
 
 package forms.orgWithoutId
 
-import config.CarfConstants.businessNameRegex
+import config.CarfConstants.{businessNameRegex, validBusinessNameMaxLength}
 import forms.mappings.Mappings
 import play.api.data.Form
 
 class OrgWithoutIdBusinessNameFormProvider extends Mappings {
   def apply(): Form[String] =
     Form(
-      "value" -> validatedBusinessName(
+      "value" -> validatedStringField(
         "orgWithoutIdBusinessName.error.required",
         "orgWithoutIdBusinessName.error.invalidFormat",
         "orgWithoutIdBusinessName.error.maximumLength",
-        businessNameRegex
+        businessNameRegex,
+        validBusinessNameMaxLength
       )
     )
 }

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.orgWithoutId
 
-//import controllers.routes
-import controllers.orgWithoutId.routes
 import models.{CheckMode, UserAnswers}
-import pages.OrgWithoutIdBusinessNamePage
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -31,21 +29,17 @@ object OrgWithoutIdBusinessNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(OrgWithoutIdBusinessNamePage).map { answer =>
-      val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"businessWithoutIdBusinessName.$answer"))
-        )
-      )
+      val value = ValueViewModel(HtmlContent(HtmlFormat.escape(answer.value)))
 
       SummaryListRowViewModel(
-        key = "businessWithoutIdBusinessName.checkYourAnswersLabel",
+        key = "orgWithoutIdBusinessName.checkYourAnswersLabel",
         value = value,
         actions = Seq(
           ActionItemViewModel(
             "site.change",
             controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("businessWithoutIdBusinessName.change.hidden"))
+            .withVisuallyHiddenText(messages("orgWithoutIdBusinessName.change.hidden"))
         )
       )
     }

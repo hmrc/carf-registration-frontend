@@ -17,16 +17,15 @@
 package controllers.orgWithoutId
 
 import controllers.actions.*
-import forms.OrgWithoutIdBusinessNameFormProvider
+import forms.orgWithoutId.OrgWithoutIdBusinessNameFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.OrgWithoutIdBusinessNamePage
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrgWithoutIdBusinessNameView
-
+import views.html.orgWithoutId.OrgWithoutIdBusinessNameView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,9 +45,9 @@ class OrgWithoutIdBusinessNameController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val businessWithoutIdBusinessName = request.userAnswers.get(OrgWithoutIdBusinessNamePage)
-      val form                          = formProvider("")
-      val preparedForm                  = request.userAnswers.get(OrgWithoutIdBusinessNamePage) match {
+      val orgWithoutIdBusinessName = request.userAnswers.get(OrgWithoutIdBusinessNamePage)
+      val form                     = formProvider()
+      val preparedForm             = request.userAnswers.get(OrgWithoutIdBusinessNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -57,9 +56,8 @@ class OrgWithoutIdBusinessNameController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val businessWithoutIdBusinessName =
-        request.userAnswers.get(OrgWithoutIdBusinessNamePage)
-      val form                          = formProvider(businessWithoutIdBusinessName.toString)
+      val orgWithoutIdBusinessName = request.userAnswers.get(OrgWithoutIdBusinessNamePage)
+      val form                     = formProvider()
       form
         .bindFromRequest()
         .fold(

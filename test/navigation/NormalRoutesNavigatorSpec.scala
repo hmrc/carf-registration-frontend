@@ -18,11 +18,11 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import models.IndividualRegistrationType.{Individual, SoleTrader}
-import models.{IndividualRegistrationType, NormalMode, OrgWithoutIdBusinessName, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrgWithoutIdBusinessNamePage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
-//import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.orgWithoutId.OrgWithoutIdBusinessName
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 

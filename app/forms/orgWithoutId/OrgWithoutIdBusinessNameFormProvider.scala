@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
-import javax.inject.Inject
+import config.CarfConstants.businessNameRegex
 import forms.mappings.Mappings
-import models.OrgWithoutIdBusinessName
+import models.orgWithoutId.OrgWithoutIdBusinessName
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import config.CarfConstants.businessNameRegex
 
 class OrgWithoutIdBusinessNameFormProvider extends Mappings {
-  def apply(businessName: String): Form[OrgWithoutIdBusinessName] =
+  def apply(): Form[OrgWithoutIdBusinessName] =
     Form(
       mapping(
         "value" -> validatedBusinessName(
-          "businessWithoutIdBusinessName.error.required",
-          "businessWithoutIdBusinessName.error.invalidFormat",
-          "businessWithoutIdBusinessName.error.maximumLength",
-          businessNameRegex,
-          businessName
+          "orgWithoutIdBusinessName.error.required",
+          "orgWithoutIdBusinessName.error.invalidFormat",
+          "orgWithoutIdBusinessName.error.maximumLength",
+          businessNameRegex
         )
-      )(OrgWithoutIdBusinessName.apply)(org => Some(org.value))
+      )(OrgWithoutIdBusinessName.apply)(businessName => Some(businessName.value))
     )
 }

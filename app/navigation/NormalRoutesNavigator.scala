@@ -17,8 +17,10 @@
 package navigation
 
 import controllers.routes
-import models.{IndividualRegistrationType, NormalMode, OrgWithoutIdBusinessName, OrganisationRegistrationType, UserAnswers}
+import models.orgWithoutId.OrgWithoutIdBusinessName
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -156,10 +158,10 @@ trait NormalRoutesNavigator {
 
   private def navigateFromOrgWithoutIdBusinessName(userAnswers: UserAnswers): Call =
     userAnswers.get(OrgWithoutIdBusinessNamePage) match {
-      case Some(businessWithoutIdBusinessName) =>
+      case Some(orgWithoutIdBusinessName) =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"
         )
-      case None                                => routes.JourneyRecoveryController.onPageLoad()
+      case None                           => routes.JourneyRecoveryController.onPageLoad()
     }
 }

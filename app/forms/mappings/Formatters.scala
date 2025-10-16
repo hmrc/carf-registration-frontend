@@ -180,8 +180,8 @@ trait Formatters {
         if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val trimmedBusinessWithoutIdBusinessName = data.get(key)
-        trimmedBusinessWithoutIdBusinessName match {
+        val trimmedOrgWithoutIdBusinessName = data.get(key)
+        trimmedOrgWithoutIdBusinessName match {
           case None | Some("")                     => Left(Seq(formatError(key, requiredKey, msgArg)))
           case Some(s) if !s.matches(regex)        => Left(Seq(formatError(key, invalidFormatKey, msgArg)))
           case Some(s) if s.length > maximumLength => Left(Seq(formatError(key, maximumLengthErrorKey, msgArg)))

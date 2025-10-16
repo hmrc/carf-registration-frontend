@@ -22,4 +22,5 @@ object TestConstants {
     "valid Business Name 105 chars long-&'^`\\abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVQXYZ-456789012345"
   val invalidBusinessNameExceeds105Chars: String =
     "invalid Business Name 106 chars long-&'^`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVQXYZ-567890123456"
+  val businessNameWithInvalidChars: String       = "A@$%^&a![]{}*"
 }

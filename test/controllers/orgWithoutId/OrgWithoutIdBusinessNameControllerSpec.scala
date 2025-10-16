@@ -14,43 +14,44 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.orgWithoutId
 
 import base.SpecBase
-import forms.OrgWithoutIdBusinessNameFormProvider
-import javax.inject.Inject
-import models.{NormalMode, OrgWithoutIdBusinessName, UserAnswers}
+import base.TestConstants.{invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
+import controllers.routes
+import forms.orgWithoutId.OrgWithoutIdBusinessNameFormProvider
+import models.orgWithoutId.OrgWithoutIdBusinessName
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
-import pages.OrgWithoutIdBusinessNamePage
-import play.api.inject.bind
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.i18n.{Lang, MessagesApi}
+import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import views.html.OrgWithoutIdBusinessNameView
-import base.TestConstants.validBusinessName105Chars
-import base.TestConstants.invalidBusinessNameExceeds105Chars
+import views.html.orgWithoutId.OrgWithoutIdBusinessNameView
+
+import javax.inject.Inject
 import scala.concurrent.Future
 
 class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi) extends SpecBase with MockitoSugar {
-  def onwardRoute                             = Call("GET", "/foo")
-  val formProvider                            = new OrgWithoutIdBusinessNameFormProvider()
-  val form                                    = formProvider("")
-  val invalidCharacterErrorMessage            = messagesApi("businessWithoutIdBusinessName.error.invalidFormat")(Lang("en"))
-  lazy val businessWithoutIdBusinessNameRoute =
+  def onwardRoute                        = Call("GET", "/foo")
+  val formProvider                       = new OrgWithoutIdBusinessNameFormProvider()
+  val form                               = formProvider()
+  val invalidCharacterErrorMessage       = messagesApi("orgWithoutIdBusinessName.error.invalidFormat")(Lang("en"))
+  lazy val orgWithoutIdBusinessNameRoute =
     controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode).url
 
   def testInvalidCharacterInBusinessName(badOrgWithoutIdBusinessName: String): Unit = {
     val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
     running(application) {
-      val request = FakeRequest(POST, businessWithoutIdBusinessNameRoute)
+      val request   = FakeRequest(POST, orgWithoutIdBusinessNameRoute)
         .withFormUrlEncodedBody("value" -> badOrgWithoutIdBusinessName)
-
       val boundForm = form.bind(Map("value" -> badOrgWithoutIdBusinessName))
       val view      = application.injector.instanceOf[OrgWithoutIdBusinessNameView]
       val result    = route(application, request).value
@@ -64,7 +65,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
-        val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
+        val request = FakeRequest(GET, orgWithoutIdBusinessNameRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[OrgWithoutIdBusinessNameView]
         status(result)          mustEqual OK
@@ -80,17 +81,15 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
       when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
       running(application) {
-        val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
-        val form    = new OrgWithoutIdBusinessNameFormProvider().apply(
-          businessName = userAnswers.get(OrgWithoutIdBusinessNamePage).get.toString
-        )
+        val request = FakeRequest(GET, orgWithoutIdBusinessNameRoute)
+        val form    = new OrgWithoutIdBusinessNameFormProvider().apply()
         val view    = application.injector.instanceOf[OrgWithoutIdBusinessNameView]
         val result  = route(application, request).value
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(
           form.fill(OrgWithoutIdBusinessName("valid answer")),
           NormalMode
-        )(request, messages(application)).toString
+        )(request, messages(application))
       }
     }
 
@@ -108,7 +107,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
           .build()
       running(application) {
         val request =
-          FakeRequest(POST, businessWithoutIdBusinessNameRoute)
+          FakeRequest(POST, orgWithoutIdBusinessNameRoute)
             .withFormUrlEncodedBody(("value", validBusinessName105Chars))
         val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
@@ -119,7 +118,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
-        val request = FakeRequest(GET, businessWithoutIdBusinessNameRoute)
+        val request = FakeRequest(GET, orgWithoutIdBusinessNameRoute)
         val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -130,7 +129,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
         val request =
-          FakeRequest(POST, businessWithoutIdBusinessNameRoute)
+          FakeRequest(POST, orgWithoutIdBusinessNameRoute)
             .withFormUrlEncodedBody(("value", "answer"))
         val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
@@ -143,7 +142,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
       val badOrgWithoutIdBusinessName = ""
       val application                 = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
-        val request   = FakeRequest(POST, businessWithoutIdBusinessNameRoute).withFormUrlEncodedBody(
+        val request   = FakeRequest(POST, orgWithoutIdBusinessNameRoute).withFormUrlEncodedBody(
           ("value", badOrgWithoutIdBusinessName)
         )
         val boundForm = form.bind(Map("value" -> badOrgWithoutIdBusinessName))
@@ -158,7 +157,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
       val badOrgWithoutIdBusinessName = invalidBusinessNameExceeds105Chars
       val application                 = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
-        val request   = FakeRequest(POST, businessWithoutIdBusinessNameRoute).withFormUrlEncodedBody(
+        val request   = FakeRequest(POST, orgWithoutIdBusinessNameRoute).withFormUrlEncodedBody(
           ("value", badOrgWithoutIdBusinessName)
         )
         val boundForm = form.bind(Map("value" -> badOrgWithoutIdBusinessName))

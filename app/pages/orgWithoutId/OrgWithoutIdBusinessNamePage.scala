@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package pages
+package pages.orgWithoutId
 
-import models.OrgWithoutIdBusinessName
+import models.orgWithoutId.OrgWithoutIdBusinessName
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object OrgWithoutIdBusinessNamePage extends QuestionPage[OrgWithoutIdBusinessName] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "businessWithoutIdBusinessName"
+  override def toString: String = "orgWithoutIdBusinessName"
 }

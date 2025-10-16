@@ -114,13 +114,13 @@ haveNiNumber.change.hidden = Change if you have a National Insurance number
 haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
 
 
-businessWithoutIdBusinessName.title = What is the name of your business?
-businessWithoutIdBusinessName.heading = What is the name of your business?
-businessWithoutIdBusinessName.checkYourAnswersLabel = What is the name of your business?
-businessWithoutIdBusinessName.error.required = Enter the name of your business
-businessWithoutIdBusinessName.error.invalidFormat = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces.
-businessWithoutIdBusinessName.error.maximumLength = Business name must be 105 characters or less
-businessWithoutIdBusinessName.change.hidden = Change the name of your business
+orgWithoutIdBusinessName.title = What is the name of your business?
+orgWithoutIdBusinessName.heading = What is the name of your business?
+orgWithoutIdBusinessName.checkYourAnswersLabel = What is the name of your business?
+orgWithoutIdBusinessName.error.required = Enter the name of your business
+orgWithoutIdBusinessName.error.invalidFormat = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces.
+orgWithoutIdBusinessName.error.maximumLength = Business name must be 105 characters or less
+orgWithoutIdBusinessName.change.hidden = Change the name of your business
 
 agentSignInProblem.title = You’re unable to use this service with this Government Gateway user ID
 agentSignInProblem.heading = You’re unable to use this service with this Government Gateway user ID

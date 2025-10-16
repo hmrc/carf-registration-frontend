@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
-import config.FrontendAppConfig
+import base.TestConstants.{businessNameWithInvalidChars, validBusinessNameChars}
 import config.CarfConstants.validBusinessNameMaxLength
+import config.FrontendAppConfig
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
-import base.TestConstants.validBusinessNameChars
 import javax.inject.Inject
 
 class OrgWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppConfig) extends StringFieldBehaviours {
-  val form                  = new OrgWithoutIdBusinessNameFormProvider()("")
-  val requiredErrorKey      = "businessWithoutIdBusinessName.error.required"
-  val lengthErrorKey        = "businessWithoutIdBusinessName.error.maximumLength"
-  val invalidFormatErrorKey = "businessWithoutIdBusinessName.error.invalidFormat"
+  val form                  = new OrgWithoutIdBusinessNameFormProvider()()
+  val requiredErrorKey      = "orgWithoutIdBusinessName.error.required"
+  val lengthErrorKey        = "orgWithoutIdBusinessName.error.maximumLength"
+  val invalidFormatErrorKey = "orgWithoutIdBusinessName.error.invalidFormat"
 
   ".value" - {
     val fieldName = "value"
@@ -52,7 +52,7 @@ class OrgWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppCon
     behave like fieldWithInvalidData(
       form,
       fieldName,
-      "A@$%^&a![]{}*",
+      businessNameWithInvalidChars,
       FormError(fieldName, invalidFormatErrorKey)
     )
   }

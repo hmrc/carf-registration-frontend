@@ -8,7 +8,7 @@ This service handles organisation and individual registration journeys with inte
 ### Running the service locally
 
 Prerequisites:
-- Java 11
+- Java 21
 - SBT
 - MongoDB
 - Service Manager

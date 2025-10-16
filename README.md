@@ -3,10 +3,7 @@
 This is the Frontend repository for the Crypto Asset Reporting Framework (CARF) team's registration journey
 
 ## What this service does
-- Organisation, individual, and agent registration journeys
-- Journey navigation
-- Form validation and error handling
-- Integrates with HMRC authentication and authorisation services
+This service handles organisation and individual registration journeys with integrated navigation, form validation, and HMRC authentication.
 
 ### Running the service locally
 

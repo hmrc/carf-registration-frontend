@@ -142,3 +142,11 @@ whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.length = Organi
 
 whatIsTheNameOfYourBusiness.checkYourAnswersLabel = What is the name of your business?
 whatIsTheNameOfYourBusiness.change.hidden = Change What is the name of your business?
+
+niNumber.title = What is your National Insurance number?
+niNumber.heading = What is your National Insurance number?
+niNumber.checkYourAnswersLabel = What is your National Insurance number?
+niNumber.hint = It’s on your National Insurance card, benefit letter, payslip or P60 — for example, ‘QQ 12 34 56 C’.
+niNumber.error.required = Enter your National Insurance number
+niNumber.error.invalidFormat = Enter your National Insurance number in the right format
+niNumber.error.invalid = Enter a real National Insurance number

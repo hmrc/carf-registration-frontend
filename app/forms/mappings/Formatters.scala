@@ -175,19 +175,53 @@ trait Formatters {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
         data.get(key) match {
-          case None    =>
+          case None =>
             msgArg.isEmpty match {
-              case true  => Left(Seq(FormError(key, errorKey)))
+              case true => Left(Seq(FormError(key, errorKey)))
               case false => Left(Seq(FormError(key, errorKey, Seq(msgArg))))
             }
           case Some(s) =>
             s.trim match {
               case "" =>
                 msgArg.isEmpty match {
-                  case true  => Left(Seq(FormError(key, errorKey)))
+                  case true => Left(Seq(FormError(key, errorKey)))
                   case false => Left(Seq(FormError(key, errorKey, Seq(msgArg))))
                 }
               case s1 => Right(removeNonBreakingSpaces(s1))
+            }
+        }
+    }
+
+  protected def nationalInsuranceNumberFormatter(
+      requiredKey: String,
+      invalidFormatKey: String,
+      invalidKey: String,
+      args: Seq[Any] = Seq.empty
+  ): Formatter[String] =
+    new Formatter[String] {
+
+      final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""
+      final val ninoRegex       =
+        "^([A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z" +
+          "[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+        data.get(key) match {
+          case None                              =>
+            Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.trim.isEmpty =>
+            Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value)                       =>
+            val normalized = value.replaceAll("\\s", "").toUpperCase
+
+            if (normalized.length > 9) {
+              Left(Seq(FormError(key, invalidFormatKey, args)))
+            } else if (!normalized.matches(ninoFormatRegex)) {
+              Left(Seq(FormError(key, invalidFormatKey, args)))
+            } else if (!normalized.matches(ninoRegex)) {
+              Left(Seq(FormError(key, invalidKey, args)))
+            } else {
+              Right(normalized)
             }
         }
 

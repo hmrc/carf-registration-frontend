@@ -17,7 +17,6 @@
 package navigation
 
 import controllers.routes
-import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.mvc.Call
@@ -49,6 +48,9 @@ trait NormalRoutesNavigator {
 
     case HaveNiNumberPage =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
+
+    case NiNumberPage =>
+      userAnswers => navigateFromNiNumber(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -94,7 +96,7 @@ trait NormalRoutesNavigator {
 
   private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call = {
 
-    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
+    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
     val organisationRegistrationType: Option[OrganisationRegistrationType] =
       userAnswers.get(OrganisationRegistrationTypePage)
 
@@ -130,6 +132,9 @@ trait NormalRoutesNavigator {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
+  private def navigateFromNiNumber(userAnswers: UserAnswers): Call =
+    routes.PlaceholderController.onPageLoad("Must redirect to /register/name (CARF-165)")
+
   private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
 
     val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
@@ -151,7 +156,7 @@ trait NormalRoutesNavigator {
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
+        routes.NiNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
       case None        => routes.JourneyRecoveryController.onPageLoad()

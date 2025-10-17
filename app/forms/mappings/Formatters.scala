@@ -201,9 +201,7 @@ trait Formatters {
     new Formatter[String] {
 
       final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""
-      final val ninoRegex       =
-        "^([A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z" +
-          "[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
+      final val ninoRegex = "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
         data.get(key) match {

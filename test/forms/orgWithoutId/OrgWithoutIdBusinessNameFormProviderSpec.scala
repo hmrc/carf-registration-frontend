@@ -18,17 +18,15 @@ package forms.orgWithoutId
 
 import base.TestConstants.{businessNameWithInvalidChars, validBusinessNameChars}
 import config.CarfConstants.validBusinessNameMaxLength
-import config.FrontendAppConfig
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
-import javax.inject.Inject
 
-class OrgWithoutIdBusinessNameFormProviderSpec @Inject() (config: FrontendAppConfig) extends StringFieldBehaviours {
+class OrgWithoutIdBusinessNameFormProviderSpec extends StringFieldBehaviours {
   val form                  = new OrgWithoutIdBusinessNameFormProvider()()
-  val requiredErrorKey      = "orgWithoutIdBusinessName.error.required"
-  val lengthErrorKey        = "orgWithoutIdBusinessName.error.maximumLength"
-  val invalidFormatErrorKey = "orgWithoutIdBusinessName.error.invalidFormat"
+  val requiredErrorKey      = "businessName.error.required"
+  val lengthErrorKey        = "businessName.error.maximumLength"
+  val invalidFormatErrorKey = "businessName.error.invalidFormat"
 
   ".value" - {
     val fieldName = "value"

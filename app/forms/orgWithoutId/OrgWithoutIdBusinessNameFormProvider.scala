@@ -24,9 +24,9 @@ class OrgWithoutIdBusinessNameFormProvider extends Mappings {
   def apply(): Form[String] =
     Form(
       "value" -> validatedStringField(
-        "orgWithoutIdBusinessName.error.required",
-        "orgWithoutIdBusinessName.error.invalidFormat",
-        "orgWithoutIdBusinessName.error.maximumLength",
+        "businessName.error.required",
+        "businessName.error.invalidFormat",
+        "businessName.error.maximumLength",
         businessNameRegex,
         validBusinessNameMaxLength
       )

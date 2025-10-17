@@ -39,7 +39,7 @@ object OrgWithoutIdBusinessNameSummary {
             "site.change",
             controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("orgWithoutIdBusinessName.change.hidden"))
+            .withVisuallyHiddenText(messages("businessName.change.hidden"))
         )
       )
     }

@@ -41,7 +41,7 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
   def onwardRoute                        = Call("GET", "/foo")
   val formProvider                       = new OrgWithoutIdBusinessNameFormProvider()
   val form                               = formProvider()
-  val invalidCharacterErrorMessage       = messagesApi("orgWithoutIdBusinessName.error.invalidFormat")(Lang("en"))
+  val invalidCharacterErrorMessage       = messagesApi("businessName.error.invalidFormat")(Lang("en"))
   lazy val orgWithoutIdBusinessNameRoute =
     controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode).url
 
@@ -135,7 +135,6 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
       }
     }
 
-    // ========================================== invalid Character tests ==============================================
     "must return Bad Request & Empty-Business-Name error when BusinessName field is empty" in {
       val badOrgWithoutIdBusinessName = ""
       val application                 = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
@@ -166,35 +165,9 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
         contentAsString(result)      must include("Business name must be 105 characters or less")
       }
     }
-    "must return Bad Request & invalidFormat error when BusinessName contains a forward slash" in {
-      testInvalidCharacterInBusinessName("Business Name contains /forward slash/")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains an exclamation mark" in {
-      testInvalidCharacterInBusinessName("Business Name contains an exclamation mark!")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains a pound sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains £ a pound sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains a percent sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains % a percent sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains an asterisk sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains * an asterisk sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains a bracket sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains ( a bracket sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains an equals sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains = an equals sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains a square bracket sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains ] a square bracket sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains a hash sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains # a hash sign")
-    }
-    "must return Bad Request & invalidFormat error when BusinessName contains an 'at' sign" in {
-      testInvalidCharacterInBusinessName("Business Name contains @ an 'at' sign")
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a curly bracket" in {
+      testInvalidCharacterInBusinessName("Business Name contains {curly brackets}")
     }
   }
 }

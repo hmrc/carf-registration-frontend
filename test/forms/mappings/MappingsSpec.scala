@@ -16,6 +16,8 @@
 
 package forms.mappings
 
+import base.TestConstants.{invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
+import config.CarfConstants.{businessNameRegex, validBusinessNameMaxLength}
 import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
@@ -39,6 +41,14 @@ object MappingsSpec {
 }
 
 class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mappings {
+  val requiredKeyBusinessName           = "Enter the name of your business"
+  val invalidFormatKeyBusinessName      = "businessName.error.invalidFormat"
+  val maximumLengthErrorKeyBusinessName = "businessName.error.maximumLength"
+
+  val businessNameRequiredErrorMessage               = "Enter the name of your business"
+  val invalidCharacterInBusinessNameErrorMessage     =
+    "Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces"
+  val invalidBusinessNameExceeds105CharsErrorMessage = "Business name must be 105 characters or less"
 
   import MappingsSpec._
 
@@ -307,4 +317,106 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
   }
 
+  "validatedBusinessNameField" - {
+    val testBusinessNameForm: Form[String] = Form(
+      "value" -> validatedStringField(
+        requiredKey = requiredKeyBusinessName,
+        invalidFormatKey = invalidFormatKeyBusinessName,
+        maximumLengthErrorKey = maximumLengthErrorKeyBusinessName,
+        regex = businessNameRegex,
+        maximumLength = validBusinessNameMaxLength,
+        msgArg = "BusinessName"
+      )
+    )
+
+    "must bind a valid Business Name that is 105 characters long" in {
+      val result = testBusinessNameForm.bind(Map("value" -> validBusinessName105Chars))
+      result.get mustBe validBusinessName105Chars
+    }
+
+    "must not bind an empty Business Name" in {
+      val result = testBusinessNameForm.bind(Map("value" -> ""))
+      result.errors must contain(
+        FormError("value", requiredKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must not bind a Business Name with more than 105 characters" in {
+      val result = testBusinessNameForm.bind(Map("value" -> invalidBusinessNameExceeds105Chars))
+      result.errors must contain(
+        FormError("value", maximumLengthErrorKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a forward slash" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains /forward slash/"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains an exclamation mark" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains an exclamation mark!"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a pound sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains £ a pound sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a percent sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains % a percent sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains an asterisk sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains * an asterisk sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a bracket sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains ( a bracket sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains an equals sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains = an equals sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a square bracket sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains ] a square bracket sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains a hash sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains # a hash sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+    "must return Bad Request & invalidFormat error when BusinessName contains an 'at' sign" in {
+      val result = testBusinessNameForm.bind(Map("value" -> "Business Name contains @ an 'at' sign"))
+      result.errors must contain(
+        FormError("value", invalidFormatKeyBusinessName, List("BusinessName"))
+      )
+    }
+
+  }
 }

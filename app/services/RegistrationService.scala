@@ -16,12 +16,42 @@
 
 package services
 
+import connectors.RegistrationConnector
+import models.error.ApiError
 import models.{Address, Business}
+import models.requests.{IdentifierRequest, RegisterIndividualWithIdRequest}
+import uk.gov.hmrc.http.HeaderCarrier
+
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() () {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
+
+  def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[Business]] = {
+    println("XXXXXXXX")
+    connector
+      .individualWithNino(
+        request = RegisterIndividualWithIdRequest(
+          requiresNameMatch = true,
+          // TODO: Replace it with actual NINO CARF-164
+          IDNumber = ninoProxy,
+          IDType = "NINO",
+          dateOfBirth = "test-dob",
+          firstName = "john",
+          lastName = "doe"
+        )
+      )
+      .value
+      .flatMap {
+        case Right(response)              =>
+          Future.successful(
+            Some(Business(name = s"${response.firstName} ${response.lastName}", address = response.address))
+          )
+        case Left(ApiError.NotFoundError) => Future.successful(None)
+        case Left(error)                  => Future.failed(new Exception(error.toString))
+      }
+  }
 
   def getBusinessByUtr(utr: String): Future[Option[Business]] =
     Future.successful {

@@ -16,47 +16,50 @@
 
 package services
 
+§import base.SpecBase
+import connectors.RegistrationConnector
 import models.Business
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.concurrent.ScalaFutures
 
-class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
+class RegistrationServiceSpec extends SpecBase {
 
-  val businessService = new RegistrationService()
+  val mockConnector: RegistrationConnector = mock[RegistrationConnector]
+  val businessService                      = new RegistrationService(mockConnector)
 
-  "BusinessService" should {
+  "BusinessService" - {
 
     "return UK business for UTR starting with '1'" in {
       val result = businessService.getBusinessByUtr("1234567890")
 
       val business = result.futureValue
-      business                          shouldBe defined
-      business.get.name                 shouldBe "Agent ABC Ltd"
-      business.get.isUkBased            shouldBe true
-      business.get.address.addressLine1 shouldBe "2 High Street"
-      business.get.address.addressLine2 shouldBe Some("Birmingham")
-      business.get.address.postalCode   shouldBe Some("B23 2AZ")
-      business.get.address.countryCode  shouldBe "GB"
+      business                          mustBe defined
+      business.get.name                 mustBe "Agent ABC Ltd"
+      business.get.isUkBased            mustBe true
+      business.get.address.addressLine1 mustBe "2 High Street"
+      business.get.address.addressLine2 mustBe Some("Birmingham")
+      business.get.address.postalCode   mustBe Some("B23 2AZ")
+      business.get.address.countryCode  mustBe "GB"
     }
 
     "return Non-UK business for UTR starting with '2'" in {
       val result = businessService.getBusinessByUtr("2987654321")
 
       val business = result.futureValue
-      business                          shouldBe defined
-      business.get.name                 shouldBe "International Ltd"
-      business.get.isUkBased            shouldBe false
-      business.get.address.addressLine1 shouldBe "3 Apple Street"
-      business.get.address.addressLine2 shouldBe Some("New York")
-      business.get.address.postalCode   shouldBe Some("11722")
-      business.get.address.countryCode  shouldBe "US"
+      business                          mustBe defined
+      business.get.name                 mustBe "International Ltd"
+      business.get.isUkBased            mustBe false
+      business.get.address.addressLine1 mustBe "3 Apple Street"
+      business.get.address.addressLine2 mustBe Some("New York")
+      business.get.address.postalCode   mustBe Some("11722")
+      business.get.address.countryCode  mustBe "US"
     }
 
     "return None for UTR starting with any other digit" in {
       val result = businessService.getBusinessByUtr("3123456789")
 
-      result.futureValue shouldBe None
+      result.futureValue mustBe None
     }
   }
 }

@@ -264,7 +264,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
+          ) mustBe routes.NiNumberController.onPageLoad(NormalMode)
         }
       }
       "when user answers 'false' (no, I don't have a National Insurance number)" - {
@@ -280,6 +280,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             userAnswers
           ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
         }
+      }
+    }
+
+    "NiNumberPage navigation" - {
+      "must navigate to name page after NI number is provided" in {
+        val userAnswers = UserAnswers("id")
+          .set(NiNumberPage, "BA123456A")
+          .success
+          .value
+
+        navigator.nextPage(
+          NiNumberPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/name (CARF-165)")
       }
     }
 

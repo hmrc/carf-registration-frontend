@@ -50,7 +50,7 @@ trait NormalRoutesNavigator {
       userAnswers => navigateFromHaveNiNumber(userAnswers)
 
     case NiNumberPage =>
-      userAnswers => navigateFromNiNumber(userAnswers)
+      _ => navigateFromNiNumber()
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -96,7 +96,7 @@ trait NormalRoutesNavigator {
 
   private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call = {
 
-    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
+    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
     val organisationRegistrationType: Option[OrganisationRegistrationType] =
       userAnswers.get(OrganisationRegistrationTypePage)
 
@@ -132,7 +132,7 @@ trait NormalRoutesNavigator {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromNiNumber(userAnswers: UserAnswers): Call =
+  private def navigateFromNiNumber(): Call =
     routes.PlaceholderController.onPageLoad("Must redirect to /register/name (CARF-165)")
 
   private def isSoleTrader(userAnswers: UserAnswers): Boolean = {

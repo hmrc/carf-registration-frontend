@@ -16,22 +16,22 @@
 
 package services
 
-import models.{Address, Business, UniqueTaxpayerReference}
+import models.{Address, Business}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class RegistrationService @Inject() () {
 
-  def getBusinessByUtr(utr: String): Future[Option[Business]] =
+  def getBusinessByUtr(utr: String, name: Option[String]): Future[Option[Business]] =
     Future.successful {
       // temp implementation as auto-matching not yet implemented
       if (utr.startsWith("1")) {
         // UK business
         Some(
           Business(
-            name = "Agent ABC Ltd",
+            name = name.getOrElse("Agent ABC Ltd"),
             address = Address(
               addressLine1 = "2 High Street",
               addressLine2 = Some("Birmingham"),
@@ -46,7 +46,7 @@ class RegistrationService @Inject() () {
         // Non-UK business
         Some(
           Business(
-            name = "International Ltd",
+            name = name.getOrElse("International Ltd"),
             address = Address(
               addressLine1 = "3 Apple Street",
               addressLine2 = Some("New York"),
@@ -63,12 +63,4 @@ class RegistrationService @Inject() () {
       }
     }
 
-  def getBusinessName(
-      uniqueTaxpayerReference: UniqueTaxpayerReference,
-      businessName: String
-  )(implicit ec: ExecutionContext): Future[Option[Business]] =
-    getBusinessByUtr(uniqueTaxpayerReference.uniqueTaxPayerReference).map {
-      case Some(business) => Some(business.copy(name = businessName))
-      case None           => None
-    }
 }

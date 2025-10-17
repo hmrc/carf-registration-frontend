@@ -16,11 +16,10 @@
 
 package services
 
-import models.{Business, UniqueTaxpayerReference}
+import models.Business
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.concurrent.ScalaFutures
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
@@ -29,7 +28,7 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
   "BusinessService" should {
 
     "return UK business for UTR starting with '1'" in {
-      val result = businessService.getBusinessByUtr("1234567890")
+      val result = businessService.getBusinessByUtr("1234567890", None)
 
       val business = result.futureValue
       business                          shouldBe defined
@@ -42,7 +41,7 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
     }
 
     "return Non-UK business for UTR starting with '2'" in {
-      val result = businessService.getBusinessByUtr("2987654321")
+      val result = businessService.getBusinessByUtr("2987654321", Some("International Ltd"))
 
       val business = result.futureValue
       business                          shouldBe defined
@@ -56,10 +55,7 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
 
     "return a business when UTR and businessName has been provided" in {
       val result =
-        businessService.getBusinessName(
-          uniqueTaxpayerReference = UniqueTaxpayerReference("1234567890"),
-          businessName = "Agent ABC Ltd"
-        )
+        businessService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
 
       val business = result.futureValue
 
@@ -68,6 +64,13 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
       business.get.isUkBased            shouldBe true
       business.get.address.addressLine1 shouldBe "2 High Street"
       business.get.address.addressLine2 shouldBe Some("Birmingham")
+    }
+
+    "return None when business cannot be found by UTR" in {
+      val result = businessService.getBusinessByUtr("9999999999", None)
+
+      val business = result.futureValue
+      business shouldBe None
     }
   }
 }

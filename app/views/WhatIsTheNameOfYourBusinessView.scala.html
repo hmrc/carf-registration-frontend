@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages(s"$businessTypeMessageKey.title"))) {
 
-    @formHelper(action = routes.WhatIsTheNameOfYourBusinessController.onSubmit(mode)) {
+    @formHelper(action = routes.WhatIsTheNameOfYourBusinessController.onSubmit(mode), Symbol("autoComplete") -> "on") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -41,6 +41,7 @@
             )
             .withWidth(ThreeQuarters)
             .withHint(HintViewModel(Text(messages(s"$businessTypeMessageKey.hint"))))
+            .withAutocomplete("organization")
         )
 
         @govukButton(

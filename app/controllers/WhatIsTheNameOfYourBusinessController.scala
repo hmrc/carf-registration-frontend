@@ -19,14 +19,13 @@ package controllers
 import controllers.actions.*
 import forms.WhatIsTheNameOfYourBusinessFormProvider
 import models.OrganisationRegistrationType.*
-import models.{Mode, UniqueTaxpayerReference, UserAnswers}
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.{IndexPage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.WhatIsTheNameOfYourBusinessView
 
@@ -41,7 +40,6 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     formProvider: WhatIsTheNameOfYourBusinessFormProvider,
-    registrationService: RegistrationService,
     val controllerComponents: MessagesControllerComponents,
     view: WhatIsTheNameOfYourBusinessView
 )(implicit ec: ExecutionContext)
@@ -62,26 +60,18 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val taxType                                                       = getBusinessTypeMessageKey(request.userAnswers)
-      val form                                                          = formProvider(taxType)
-      val maybeUniqueTaxpayerReference: Option[UniqueTaxpayerReference] =
-        request.userAnswers.get(YourUniqueTaxpayerReferencePage).orElse(request.userAnswers.get(IndexPage))
+      val taxType = getBusinessTypeMessageKey(request.userAnswers)
+      val form    = formProvider(taxType)
 
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, taxType))),
           value =>
-            maybeUniqueTaxpayerReference match {
-              case None      => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-              case Some(utr) =>
-                for {
-                  businessDetails <-
-                    registrationService.getBusinessName(uniqueTaxpayerReference = utr, businessName = value)
-                  updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatIsTheNameOfYourBusinessPage, value))
-                  _               <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
-            }
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheNameOfYourBusinessPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
         )
   }
 

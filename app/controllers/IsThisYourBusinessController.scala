@@ -58,13 +58,15 @@ class IsThisYourBusinessController @Inject() (
         .get(YourUniqueTaxpayerReferencePage)
         .orElse(request.userAnswers.get(IndexPage))
 
+      val maybeName = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+
       utrOpt match {
         case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference, maybeName).flatMap {
             case Some(business) =>
               val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
               val pageDetails         = IsThisYourBusinessPageDetails(
-                name = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage).getOrElse(business.name),
+                name = business.name,
                 address = business.address,
                 pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
               )
@@ -78,14 +80,22 @@ class IsThisYourBusinessController @Inject() (
                   case Some(value) => form.fill(value)
                 }
                 logger.info(s"Fresh business data cached for UTR: ${utr.uniqueTaxPayerReference}")
-                Ok(view(preparedForm, mode, business.copy(name = pageDetails.name)))
+                Ok(view(preparedForm, mode, business))
               }
 
             case None =>
-              logger.warn(
-                s"Business not found for UTR. Redirecting to journey recovery."
-              )
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
+              if (isUserFromIndexPage) {
+                logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
+                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              } else {
+                Future.successful(
+                  Redirect(
+                    routes.PlaceholderController
+                      .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+                  )
+                )
+              }
           }
 
         case None =>

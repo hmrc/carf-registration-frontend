@@ -178,8 +178,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
         .value
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockRegistrationService.getBusinessName(any(), any())(any()))
-        .thenReturn(Future.successful(Some(companyName)))
+      when(mockRegistrationService.getBusinessByUtr(any(), any())) thenReturn Future.successful(Some(companyName))
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -209,8 +208,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
         .value
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockRegistrationService.getBusinessName(any(), any())(any()))
-        .thenReturn(Future.successful(None))
+      when(mockRegistrationService.getBusinessByUtr(any(), any())) thenReturn Future.successful(None)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(

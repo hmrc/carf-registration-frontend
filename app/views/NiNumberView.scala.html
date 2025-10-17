@@ -37,9 +37,9 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("niNumber.heading")).asPageHeading()
+                label = LabelViewModel(messages("niNumber.heading")).withCssClass("govuk-label--l")
             )
-            .withWidth(Full)
+            .withWidth(Fixed10)
             .withHint(HintViewModel(messages("niNumber.hint")))
 
         )

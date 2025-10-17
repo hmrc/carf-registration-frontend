@@ -25,19 +25,17 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object NiNumberSummary  {
+object NiNumberSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(NiNumberPage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "niNumber.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.NiNumberController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("niNumber.change.hidden"))
-          )
+    answers.get(NiNumberPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "niNumber.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.NiNumberController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("niNumber.change.hidden"))
         )
+      )
     }
 }

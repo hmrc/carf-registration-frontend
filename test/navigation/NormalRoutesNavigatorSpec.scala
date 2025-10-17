@@ -18,9 +18,9 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import models.IndividualRegistrationType.{Individual, SoleTrader}
-import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.*
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -79,7 +79,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
+      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
@@ -133,7 +133,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
+      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "RegisteredAddressInUkPage navigation" - {
@@ -489,5 +489,22 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "must navigate from WhatIsTheNameOfYourBusiness to IsThisYourBusiness page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        WhatIsTheNameOfYourBusinessPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+    }
   }
 }

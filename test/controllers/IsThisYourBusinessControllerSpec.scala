@@ -23,11 +23,12 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.RegistrationService
 import views.html.IsThisYourBusinessView
 
@@ -35,13 +36,13 @@ import scala.concurrent.Future
 
 class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute             = Call("GET", "/foo")
-  val formProvider            = new IsThisYourBusinessFormProvider()
-  val form                    = formProvider()
-  val mockRegistrationService = mock[RegistrationService]
+  def onwardRoute: Call                            = Call("GET", "/foo")
+  val formProvider: IsThisYourBusinessFormProvider = new IsThisYourBusinessFormProvider()
+  val form: Form[Boolean]                          = formProvider()
+  val mockRegistrationService: RegistrationService = mock[RegistrationService]
 
-  val businessUtrString    = "1234567890"
-  val businessTestBusiness = Business(
+  val businessUtrString: String      = "1234567890"
+  val businessTestBusiness: Business = Business(
     name = "Test Business Ltd",
     address = Address(
       addressLine1 = "123 Test Street",
@@ -53,13 +54,13 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
     )
   )
 
-  val testPageDetails = IsThisYourBusinessPageDetails(
+  val testPageDetails: IsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(
     name = businessTestBusiness.name,
     address = businessTestBusiness.address,
     pageAnswer = None
   )
 
-  lazy val isThisYourBusinessControllerRoute = routes.IsThisYourBusinessController.onPageLoad(NormalMode).url
+  lazy val isThisYourBusinessControllerRoute: String = routes.IsThisYourBusinessController.onPageLoad(NormalMode).url
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -70,7 +71,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
   "IsThisYourBusinessController" - {
 
     "must return OK and the correct view for a GET" in {
-      when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(
+      when(
+        mockRegistrationService.getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
+      ) thenReturn Future.successful(
         Some(businessTestBusiness)
       )
 
@@ -99,7 +102,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly when the question has previously been answered" in {
-      when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(
+      when(
+        mockRegistrationService.getBusinessByUtr(businessUtrString, None)
+      ) thenReturn Future.successful(
         Some(businessTestBusiness)
       )
 
@@ -152,8 +157,10 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when business is not found by UTR on GET" in {
-      when(mockRegistrationService.getBusinessByUtr(businessUtrString)) thenReturn Future.successful(None)
+    "must redirect to Business not Identified when business is not found by UTR navigating through the Journey" in {
+      when(
+        mockRegistrationService.getBusinessByUtr(businessUtrString, None)
+      ) thenReturn Future.successful(None)
 
       val userAnswers = UserAnswers(userAnswersId)
         .set(YourUniqueTaxpayerReferencePage, testUtr)
@@ -161,6 +168,28 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.PlaceholderController
+          .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+          .url
+      }
+    }
+
+    "must redirect to Journey Recovery when business is not found through UTR navigating through IndexPage (ct-automatched)" in {
+      when(
+        mockRegistrationService.getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
+      ) thenReturn Future.successful(None)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[RegistrationService].toInstance(mockRegistrationService)
         )

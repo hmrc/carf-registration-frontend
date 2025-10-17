@@ -17,9 +17,8 @@
 package navigation
 
 import controllers.routes
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
-import pages.{HaveUTRPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.mvc.Call
 
@@ -41,6 +40,9 @@ trait NormalRoutesNavigator {
 
     case YourUniqueTaxpayerReferencePage =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
+
+    case WhatIsTheNameOfYourBusinessPage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
 
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
@@ -100,7 +102,7 @@ trait NormalRoutesNavigator {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
         routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
       case _                                                                                                     =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
+        routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
   }
 

@@ -76,4 +76,14 @@ trait Mappings extends Formatters with Constraints {
   ): FieldMapping[String] =
     of(validatedUtrFormatter(requiredKey, invalidKey, invalidFormatKey, regex, msgArg))
 
+  protected def validatedText(
+      requiredKey: String,
+      invalidKey: String,
+      lengthKey: String,
+      regex: String,
+      maxLength: Int,
+      minLength: Int = 1,
+      msgArg: String = ""
+  ): FieldMapping[String] =
+    of(validatedTextFormatter(requiredKey, invalidKey, lengthKey, regex, maxLength, minLength, msgArg))
 }

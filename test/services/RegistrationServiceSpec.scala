@@ -17,9 +17,9 @@
 package services
 
 import models.Business
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.concurrent.ScalaFutures
 
 class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
@@ -28,7 +28,7 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
   "BusinessService" should {
 
     "return UK business for UTR starting with '1'" in {
-      val result = businessService.getBusinessByUtr("1234567890")
+      val result = businessService.getBusinessByUtr("1234567890", None)
 
       val business = result.futureValue
       business                          shouldBe defined
@@ -41,7 +41,7 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
     }
 
     "return Non-UK business for UTR starting with '2'" in {
-      val result = businessService.getBusinessByUtr("2987654321")
+      val result = businessService.getBusinessByUtr("2987654321", Some("International Ltd"))
 
       val business = result.futureValue
       business                          shouldBe defined
@@ -53,10 +53,24 @@ class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFuture
       business.get.address.countryCode  shouldBe "US"
     }
 
-    "return None for UTR starting with any other digit" in {
-      val result = businessService.getBusinessByUtr("3123456789")
+    "return a business when UTR and businessName has been provided" in {
+      val result =
+        businessService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
 
-      result.futureValue shouldBe None
+      val business = result.futureValue
+
+      business                          shouldBe defined
+      business.get.name                 shouldBe "Agent ABC Ltd"
+      business.get.isUkBased            shouldBe true
+      business.get.address.addressLine1 shouldBe "2 High Street"
+      business.get.address.addressLine2 shouldBe Some("Birmingham")
+    }
+
+    "return None when business cannot be found by UTR" in {
+      val result = businessService.getBusinessByUtr("9999999999", None)
+
+      val business = result.futureValue
+      business shouldBe None
     }
   }
 }

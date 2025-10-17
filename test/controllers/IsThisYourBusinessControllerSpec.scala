@@ -157,7 +157,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Business not Identified when business is not found by UTR on GET through IndexPage" in {
+    "must redirect to Business not Identified when business is not found by UTR navigating through the Journey" in {
       when(
         mockRegistrationService.getBusinessByUtr(businessUtrString, None)
       ) thenReturn Future.successful(None)
@@ -184,17 +184,12 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when business is not found through UTR from the IndexPage" in {
+    "must redirect to Journey Recovery when business is not found through UTR navigating through IndexPage (ct-automatched)" in {
       when(
         mockRegistrationService.getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
       ) thenReturn Future.successful(None)
 
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(IndexPage, testUtr)
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[RegistrationService].toInstance(mockRegistrationService)
         )

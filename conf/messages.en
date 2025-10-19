@@ -142,3 +142,8 @@ whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.length = Organi
 
 whatIsTheNameOfYourBusiness.checkYourAnswersLabel = What is the name of your business?
 whatIsTheNameOfYourBusiness.change.hidden = Change What is the name of your business?
+
+orgYourContactDetails.title = Setting up contact details for cryptoasset reporting
+orgYourContactDetails.heading = Setting up contact details for cryptoasset reporting
+orgYourContactDetails.paragraph1 = Provide the name and contact details for one or two people or teams within your organisation who could answer questions about your reports.
+orgYourContactDetails.paragraph2 = You can change your contact names and details later, if you want to.

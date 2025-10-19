@@ -112,7 +112,7 @@ trait NormalRoutesNavigator {
         if (isSoleTrader(userAnswers)) {
           routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
         } else {
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+          routes.OrgYourContactDetailsController.onPageLoad()
         }
 
       case Some(false) =>

@@ -62,3 +62,5 @@ GET         /register/business-name                                controllers.W
 POST        /register/business-name                                controllers.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-business-name                         controllers.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-business-name                         controllers.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/your-contact-details                       controllers.OrgYourContactDetailsController.onPageLoad()

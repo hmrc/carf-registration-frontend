@@ -16,8 +16,8 @@
 
 package models.requests
 
-import play.api.mvc.{Request, WrappedRequest}
 import models.{SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 case class OptionalDataRequest[A](

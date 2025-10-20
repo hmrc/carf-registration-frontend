@@ -16,9 +16,6 @@
 
 package connectors
 
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.http.HeaderCarrier
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
 import models.Address

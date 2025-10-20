@@ -19,7 +19,7 @@ package forms
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class IsThisYourBusinessDetailsFormProviderSpec extends BooleanFieldBehaviours {
+class IsThisYourBusinessFormProviderSpec extends BooleanFieldBehaviours {
 
   val requiredKey = "isThisYourBusiness.error.required"
   val invalidKey  = "error.boolean"

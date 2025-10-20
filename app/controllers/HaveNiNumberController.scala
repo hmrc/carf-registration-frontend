@@ -18,8 +18,6 @@ package controllers
 
 import controllers.actions.*
 import forms.HaveNiNumberFormProvider
-
-import javax.inject.Inject
 import models.{Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.HaveNiNumberPage
@@ -30,6 +28,7 @@ import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.HaveNiNumberView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HaveNiNumberController @Inject() (

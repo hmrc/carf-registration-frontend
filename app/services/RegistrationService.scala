@@ -18,8 +18,8 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
+import models.requests.RegisterIndividualWithIdRequest
 import models.{Address, BusinessDetails, IndividualDetails}
-import models.requests.{IdentifierRequest, RegisterIndividualWithIdRequest}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}

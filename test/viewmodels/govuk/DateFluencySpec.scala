@@ -23,7 +23,7 @@ import org.scalatest.matchers.must.Matchers
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import viewmodels.govuk.all._
+import viewmodels.govuk.all.*
 
 import java.time.LocalDate
 

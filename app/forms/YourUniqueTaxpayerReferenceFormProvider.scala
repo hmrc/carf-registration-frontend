@@ -16,11 +16,12 @@
 
 package forms
 
-import javax.inject.Inject
 import forms.mappings.Mappings
 import models.UniqueTaxpayerReference
 import play.api.data.Form
 import play.api.data.Forms.mapping
+
+import javax.inject.Inject
 
 class YourUniqueTaxpayerReferenceFormProvider @Inject() extends Mappings {
 

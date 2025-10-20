@@ -21,8 +21,8 @@ import cats.data.EitherT
 import connectors.RegistrationConnector
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
-import models.{Address, BusinessDetails, IndividualDetails}
 import models.responses.RegisterIndividualWithIdResponse
+import models.{Address, BusinessDetails, IndividualDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 
@@ -120,7 +120,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
 
-        val exception = intercept[Exception]{
+        val exception = intercept[Exception] {
           testService.getIndividualByNino("testInput").futureValue
         }
 

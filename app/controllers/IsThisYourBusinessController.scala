@@ -22,8 +22,8 @@ import models.requests.DataRequest
 import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService

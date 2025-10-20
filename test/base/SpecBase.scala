@@ -18,7 +18,6 @@ package base
 
 import controllers.actions.*
 import models.{UniqueTaxpayerReference, UserAnswers}
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -33,7 +32,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import repositories.SessionRepository
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector}
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Clock, Instant, ZoneId}

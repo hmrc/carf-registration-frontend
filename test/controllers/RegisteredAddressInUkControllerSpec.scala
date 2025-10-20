@@ -28,9 +28,9 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.RegisteredAddressInUkView
-import repositories.SessionRepository
 
 import scala.concurrent.Future
 

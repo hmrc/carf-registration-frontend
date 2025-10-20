@@ -27,7 +27,7 @@ case class IndividualDetails(
 ) {
   def isUkBased: Boolean = address.countryCode == "GB"
 
-  def fullName: String =
+  val fullName: String =
     Seq(Some(firstName), middleName, Some(lastName)).flatten
       .mkString(" ")
 

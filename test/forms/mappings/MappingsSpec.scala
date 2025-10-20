@@ -20,8 +20,8 @@ import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.data.{Form, FormError}
 import play.api.data.Forms.mapping
+import play.api.data.{Form, FormError}
 
 object MappingsSpec {
 
@@ -40,7 +40,7 @@ object MappingsSpec {
 
 class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mappings {
 
-  import MappingsSpec._
+  import MappingsSpec.*
 
   "text" - {
 

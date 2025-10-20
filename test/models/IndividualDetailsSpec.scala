@@ -64,14 +64,14 @@ class IndividualDetailsSpec extends AnyFreeSpec with Matchers {
 
       "must return false for empty country code" in {
         val emptyCountryAddress = ukAddress.copy(countryCode = "")
-        val testDetails = testIndividualDetails.copy(address = emptyCountryAddress)
+        val testDetails         = testIndividualDetails.copy(address = emptyCountryAddress)
 
         testDetails.isUkBased mustEqual false
       }
 
       "must be case sensitive" in {
         val emptyCountryAddress = ukAddress.copy(countryCode = "gb")
-        val testDetails = testIndividualDetails.copy(address = emptyCountryAddress)
+        val testDetails         = testIndividualDetails.copy(address = emptyCountryAddress)
 
         testDetails.isUkBased mustEqual false
       }

@@ -17,9 +17,8 @@
 package navigation
 
 import controllers.routes
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
-import pages.{HaveUTRPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.mvc.Call
 

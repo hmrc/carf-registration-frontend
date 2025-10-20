@@ -16,9 +16,9 @@
 
 package models
 
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.OptionValues
 
 class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
 
@@ -39,7 +39,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
     postalCode = Some("10771"),
     countryCode = "US"
   )
-  
+
   "Address" - {
 
     "renderHTML" - {

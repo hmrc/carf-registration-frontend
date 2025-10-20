@@ -22,12 +22,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
 import models.Address
+import models.error.ApiError
 import models.requests.RegisterIndividualWithIdRequest
 import models.responses.RegisterIndividualWithIdResponse
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -58,7 +59,7 @@ class RegistrationConnectorISpec
     postalCode = Some("B23 2AZ"),
     countryCode = "GB"
   )
-  
+
   val validResponse: RegisterIndividualWithIdResponse = RegisterIndividualWithIdResponse(
     safeId = "testSafeId",
     firstName = "testFirstName",
@@ -66,7 +67,7 @@ class RegistrationConnectorISpec
     middleName = Some("TestMiddleName"),
     address = addressResponse
   )
-  
+
   "individualWithNino" should {
     "successfully retrieve a name and address" in {
       stubFor(
@@ -81,6 +82,51 @@ class RegistrationConnectorISpec
       val result = connector.individualWithNino(validRequestBody).value.futureValue
 
       result shouldBe Right(validResponse)
+    }
+
+    "return a Json validation error if unexpected response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/nino"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson("invalid response").toString)
+          )
+      )
+
+      val result = connector.individualWithNino(validRequestBody).value.futureValue
+
+      result shouldBe Left(ApiError.JsonValidationError)
+    }
+
+    "return a not found error if 404 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/nino"))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+
+      val result = connector.individualWithNino(validRequestBody).value.futureValue
+
+      result shouldBe Left(ApiError.NotFoundError)
+    }
+
+    "return an internal server error if 500 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/nino"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+
+      val result = connector.individualWithNino(validRequestBody).value.futureValue
+
+      result shouldBe Left(ApiError.InternalServerError)
     }
   }
 }

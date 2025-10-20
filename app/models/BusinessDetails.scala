@@ -18,13 +18,13 @@ package models
 
 import play.api.libs.json._
 
-case class Business(
+case class BusinessDetails(
     name: String,
     address: Address
 ) {
   def isUkBased: Boolean = address.countryCode == "GB"
 }
 
-object Business {
-  implicit val format: OFormat[Business] = Json.format[Business]
+object BusinessDetails {
+  implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]
 }

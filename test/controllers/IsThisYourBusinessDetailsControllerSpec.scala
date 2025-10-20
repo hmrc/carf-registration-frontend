@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.IsThisYourBusinessFormProvider
-import models.{Address, Business, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -33,7 +33,7 @@ import views.html.IsThisYourBusinessView
 
 import scala.concurrent.Future
 
-class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
+class IsThisYourBusinessDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute             = Call("GET", "/foo")
   val formProvider            = new IsThisYourBusinessFormProvider()
@@ -41,7 +41,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
   val mockRegistrationService = mock[RegistrationService]
 
   val businessUtrString    = "1234567890"
-  val businessTestBusiness = Business(
+  val businessTestBusiness = BusinessDetails(
     name = "Test Business Ltd",
     address = Address(
       addressLine1 = "123 Test Street",

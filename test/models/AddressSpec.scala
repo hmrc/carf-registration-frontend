@@ -22,25 +22,25 @@ import org.scalatest.OptionValues
 
 class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
 
+  val ukAddress = Address(
+    addressLine1 = "123 Main Street",
+    addressLine2 = Some("Birmingham"),
+    addressLine3 = None,
+    addressLine4 = None,
+    postalCode = Some("B23 2AZ"),
+    countryCode = "GB"
+  )
+
+  val nonUkAddress = Address(
+    addressLine1 = "321 Pear",
+    addressLine2 = Some("New York"),
+    addressLine3 = Some("NY"),
+    addressLine4 = None,
+    postalCode = Some("10771"),
+    countryCode = "US"
+  )
+  
   "Address" - {
-
-    val ukAddress = Address(
-      addressLine1 = "123 Main Street",
-      addressLine2 = Some("Birmingham"),
-      addressLine3 = None,
-      addressLine4 = None,
-      postalCode = Some("B23 2AZ"),
-      countryCode = "GB"
-    )
-
-    val nonUkAddress = Address(
-      addressLine1 = "321 Pear",
-      addressLine2 = Some("New York"),
-      addressLine3 = Some("NY"),
-      addressLine4 = None,
-      postalCode = Some("10771"),
-      countryCode = "US"
-    )
 
     "renderHTML" - {
 

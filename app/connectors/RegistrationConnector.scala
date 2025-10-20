@@ -28,6 +28,7 @@ import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,12 +42,8 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
 
   def individualWithNino(
       request: RegisterIndividualWithIdRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] = {
-    val a = registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
-    println("YYYYYYYY")
-    println(a)
-    a
-  }
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
+    registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
 
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
@@ -57,24 +54,24 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         .post(endpoint)
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
-        .flatMap {
+        .map {
           case response if response.status == OK        =>
             Try(response.json.as[RegisterIndividualWithIdResponse]) match {
-              case Success(data)      => Future.successful(Right(data))
+              case Success(data)      => Right(data)
               case Failure(exception) =>
                 logger.warn(
                   s"Error parsing response as RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"
                 )
-                Future.successful(Left(ApiError.JsonValidationError))
+                Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>
             logger.warn(
               s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
-            Future.successful(Left(ApiError.NotFoundError))
+            Left(ApiError.NotFoundError)
           case response                                 =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
-            Future.successful(Left(ApiError.InternalServerError))
+            Left(ApiError.InternalServerError)
         }
     }
 

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.HaveNiNumberFormProvider
 
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.HaveNiNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -55,11 +55,8 @@ class HaveNiNumberController @Inject() (
 
       // TODO: Replace utr.get with NINO when doing CARF-164
       service
-        .getIndividualByNino(request.utr.get.uniqueTaxPayerReference)
-        .map(a =>
-          println("ZZZZZZZZZ")
-          println(a)
-        )
+        .getIndividualByNino(request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference)
+        .map(a => println(s"%%% LOOK HERE %%% \n-> $a"))
 
       val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
         case None        => form

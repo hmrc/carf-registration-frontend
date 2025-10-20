@@ -19,7 +19,7 @@ package controllers
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
-import models.{Business, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
+import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -115,7 +115,7 @@ class IsThisYourBusinessController @Inject() (
       mode: Mode
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
 
-    val business = Business(existingPageDetails.name, existingPageDetails.address)
+    val business = BusinessDetails(existingPageDetails.name, existingPageDetails.address)
 
     form
       .bindFromRequest()

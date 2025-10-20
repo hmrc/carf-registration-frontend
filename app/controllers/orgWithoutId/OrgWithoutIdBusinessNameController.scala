@@ -43,11 +43,12 @@ class OrgWithoutIdBusinessNameController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
+  val form = formProvider()
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val orgWithoutIdBusinessName = request.userAnswers.get(OrgWithoutIdBusinessNamePage)
-      val form                     = formProvider()
-      val preparedForm             = request.userAnswers.get(OrgWithoutIdBusinessNamePage) match {
+
+      val preparedForm = request.userAnswers.get(OrgWithoutIdBusinessNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -56,8 +57,6 @@ class OrgWithoutIdBusinessNameController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val orgWithoutIdBusinessName = request.userAnswers.get(OrgWithoutIdBusinessNamePage)
-      val form                     = formProvider()
       form
         .bindFromRequest()
         .fold(

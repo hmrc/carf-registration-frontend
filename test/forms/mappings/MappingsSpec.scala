@@ -334,6 +334,11 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       result.get mustBe validBusinessName105Chars
     }
 
+    "must bind a valid Business Name that is 105 characters long with spaces either side" in {
+      val result = testBusinessNameForm.bind(Map("value" -> s"     $validBusinessName105Chars    "))
+      result.get mustBe validBusinessName105Chars
+    }
+
     "must not bind an empty Business Name" in {
       val result = testBusinessNameForm.bind(Map("value" -> ""))
       result.errors must contain(

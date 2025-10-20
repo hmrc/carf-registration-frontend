@@ -15,6 +15,7 @@
  *@
 
 @import viewmodels.InputWidth.*
+@import viewmodels.LabelSize.Large
 
 @this(
         layout: templates.Layout,
@@ -37,7 +38,7 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages(s"$businessTypeMessageKey.heading")).asPageHeading()
+                label = LabelViewModel(messages(s"$businessTypeMessageKey.heading")).asPageHeading(Large)
             )
             .withWidth(ThreeQuarters)
             .withHint(HintViewModel(Text(messages(s"$businessTypeMessageKey.hint"))))

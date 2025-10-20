@@ -353,7 +353,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+          ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
         }
 
         "must navigate to contact details page when no organisation type is set" in {
@@ -373,7 +373,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+          ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
         }
       }
 

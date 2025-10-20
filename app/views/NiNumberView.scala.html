@@ -34,14 +34,14 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@messages("niNumber.heading")</h1>
+
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("niNumber.heading")).withCssClass("govuk-label--l")
-            )
+                label = LabelViewModel(messages("niNumber.heading")).withCssClass("govuk-visually-hidden"))
             .withWidth(Fixed10)
             .withHint(HintViewModel(messages("niNumber.hint")))
-
         )
 
         @govukButton(

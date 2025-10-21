@@ -21,6 +21,7 @@ import forms.HaveNiNumberFormProvider
 import models.{Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.HaveNiNumberPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -45,7 +46,8 @@ class HaveNiNumberController @Inject() (
     retrieveCtUTR: CtUtrRetrievalAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form = formProvider()
 
@@ -55,7 +57,7 @@ class HaveNiNumberController @Inject() (
       // TODO: Replace utr.get with NINO when doing CARF-164
       service
         .getIndividualByNino(request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference)
-        .map(a => println(s"%%% LOOK HERE %%% \n-> $a"))
+        .map(a => logger.info(s"%%% LOOK HERE %%% \n-> $a"))
 
       val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
         case None        => form

@@ -17,11 +17,10 @@
 package navigation
 
 import controllers.routes
-import models.orgWithoutId.OrgWithoutIdBusinessName
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {

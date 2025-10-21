@@ -167,30 +167,6 @@ trait Formatters {
 
     }
 
-  protected def validatedStringFormatter(
-      requiredKey: String,
-      invalidFormatKey: String,
-      maximumLengthErrorKey: String,
-      regex: String,
-      maximumLength: Int,
-      msgArg: String = ""
-  ): Formatter[String] =
-    new Formatter[String] {
-      def formatError(key: String, errorKey: String, msgArg: String): FormError =
-        if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
-
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val trimmedString = data.get(key).map(_.trim)
-        trimmedString match {
-          case None | Some("")                     => Left(Seq(formatError(key, requiredKey, msgArg)))
-          case Some(s) if !s.matches(regex)        => Left(Seq(formatError(key, invalidFormatKey, msgArg)))
-          case Some(s) if s.length > maximumLength => Left(Seq(formatError(key, maximumLengthErrorKey, msgArg)))
-          case Some(s)                             => Right(s)
-        }
-      }
-      override def unbind(key: String, value: String): Map[String, String]                      = Map(key -> value)
-    }
-
   private def removeNonBreakingSpaces(str: String) =
     str.replaceAll("\u00A0", " ")
 
@@ -244,6 +220,6 @@ trait Formatters {
 
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
-
     }
+
 }

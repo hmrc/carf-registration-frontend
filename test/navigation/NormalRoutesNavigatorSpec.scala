@@ -21,8 +21,7 @@ import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
-import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
-import pages.*
+import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 

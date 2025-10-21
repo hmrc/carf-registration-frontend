@@ -58,6 +58,11 @@ GET         /register/change-have-ni-number                        controllers.H
 POST        /register/change-have-ni-number                        controllers.HaveNiNumberController.onSubmit(mode: Mode = CheckMode)
 GET         /register/problem/agent-sign-in-problem                controllers.AgentSignInProblemController.onPageLoad()
 
+GET         /register/business-without-id/business-name               controllers.orgWithoutId.OrgWithoutIdBusinessNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-without-id/business-name               controllers.orgWithoutId.OrgWithoutIdBusinessNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/business-without-id/change-business-name        controllers.orgWithoutId.OrgWithoutIdBusinessNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/business-without-id/change-business-name        controllers.orgWithoutId.OrgWithoutIdBusinessNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/business-name                                controllers.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/business-name                                controllers.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-business-name                         controllers.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = CheckMode)

@@ -257,6 +257,6 @@ trait Formatters {
 
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
-
     }
+
 }

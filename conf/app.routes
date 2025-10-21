@@ -69,3 +69,8 @@ GET         /register/change-business-name                         controllers.W
 POST        /register/change-business-name                         controllers.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/your-contact-details                       controllers.OrgYourContactDetailsController.onPageLoad()
+
+GET        /register/ni-number                                                 controllers.NiNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/ni-number                                                 controllers.NiNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-ni-number                                          controllers.NiNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-ni-number                                          controllers.NiNumberController.onSubmit(mode: Mode = CheckMode)

@@ -20,7 +20,8 @@ import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.*
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -226,9 +227,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
-        )
+        ) mustBe controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
       }
 
       "must go to Journey Recovery when user answers 'No' to having UTR but no registration type is set" in {
@@ -278,7 +277,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
         }
       }
     }
@@ -489,6 +488,23 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "must go from OrgWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .success
+          .value
+          .set(OrgWithoutIdBusinessNamePage, "valid org name")
+          .success
+          .value
+      navigator.nextPage(
+        OrgWithoutIdBusinessNamePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"
+      )
+    }
     "must navigate from WhatIsTheNameOfYourBusiness to IsThisYourBusiness page" in {
 
       val updatedAnswers =

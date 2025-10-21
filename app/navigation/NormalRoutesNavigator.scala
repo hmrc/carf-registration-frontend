@@ -17,9 +17,10 @@
 package navigation
 
 import controllers.routes
-import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
+import models.OrganisationRegistrationType.*
 import pages.*
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.mvc.Call
 
 trait NormalRoutesNavigator {
@@ -49,6 +50,9 @@ trait NormalRoutesNavigator {
 
     case HaveNiNumberPage =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
+
+    case OrgWithoutIdBusinessNamePage =>
+      userAnswers => navigateFromOrgWithoutIdBusinessName(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -82,9 +86,7 @@ trait NormalRoutesNavigator {
         if (isSoleTrader(userAnswers)) {
           routes.HaveNiNumberController.onPageLoad(NormalMode)
         } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
-          routes.PlaceholderController.onPageLoad(
-            "redirect to - What is the name of your business? page /register/without-id/business-name (CARF-148)"
-          )
+          controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
         } else {
           routes.JourneyRecoveryController.onPageLoad()
         }
@@ -153,7 +155,16 @@ trait NormalRoutesNavigator {
       case Some(true)  =>
         routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /without-id/name (CARF-169)")
+        routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
       case None        => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromOrgWithoutIdBusinessName(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrgWithoutIdBusinessNamePage) match {
+      case Some(orgWithoutIdBusinessName) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"
+        )
+      case None                           => routes.JourneyRecoveryController.onPageLoad()
     }
 }

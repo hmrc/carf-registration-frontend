@@ -14,9 +14,10 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "uk.gov.hmrc"       %% "bootstrap-test-play-30"  % bootstrapVersion,
-    "uk.gov.hmrc.mongo" %% "hmrc-mongo-test-play-30" % hmrcMongoVersion,
-    "org.scalatestplus" %% "scalacheck-1-17"         % "3.2.17.0"
+    "uk.gov.hmrc"          %% "bootstrap-test-play-30"  % bootstrapVersion,
+    "uk.gov.hmrc.mongo"    %% "hmrc-mongo-test-play-30" % hmrcMongoVersion,
+    "org.scalatestplus"    %% "scalacheck-1-17"         % "3.2.17.0",
+    "io.github.wolfendale" %% "scalacheck-gen-regexp"   % "1.1.0"
   ).map(_ % Test)
 
   def apply(): Seq[ModuleID] = compile ++ test

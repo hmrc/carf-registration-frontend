@@ -53,7 +53,7 @@ trait NormalRoutesNavigator {
 
     case NiNumberPage =>
       _ => navigateFromNiNumber()
-    
+
     case OrgWithoutIdBusinessNamePage =>
       userAnswers => navigateFromOrgWithoutIdBusinessName(userAnswers)
 

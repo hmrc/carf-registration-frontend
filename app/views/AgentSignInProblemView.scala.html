@@ -32,5 +32,5 @@
     <p class="govuk-body">@messages("agentSignInProblem.paragraph")</p>
 
     <p class="govuk-body">@messages("agentSignInProblem.linkText")
-        @link(s"${appConfig.signOutUrl}?continue=${appConfig.loginContinueUrl}", messages("agentSignInProblem.link"), fullStop = true)</p>
+        @link(s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}", messages("agentSignInProblem.link"), fullStop = true)</p>
 }

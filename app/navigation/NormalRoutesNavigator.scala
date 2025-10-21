@@ -41,6 +41,9 @@ trait NormalRoutesNavigator {
     case YourUniqueTaxpayerReferencePage =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
 
+    case WhatIsTheNameOfYourBusinessPage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
 
@@ -99,7 +102,7 @@ trait NormalRoutesNavigator {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
         routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
       case _                                                                                                     =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /business-name (CARF-211)")
+        routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
   }
 
@@ -109,7 +112,7 @@ trait NormalRoutesNavigator {
         if (isSoleTrader(userAnswers)) {
           routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
         } else {
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/your-contact-details (CARF-177)")
+          routes.OrgYourContactDetailsController.onPageLoad()
         }
 
       case Some(false) =>

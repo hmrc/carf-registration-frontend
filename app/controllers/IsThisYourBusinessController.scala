@@ -21,7 +21,7 @@ import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
 import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -53,14 +53,14 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      val utrOpt = request.userAnswers
+      val utrOpt    = request.userAnswers
         .get(YourUniqueTaxpayerReferencePage)
         .orElse(request.userAnswers.get(IndexPage))
+      val maybeName = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
 
       utrOpt match {
         case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference).flatMap {
+          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference, maybeName).flatMap {
             case Some(business) =>
               val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
               val pageDetails         = IsThisYourBusinessPageDetails(
@@ -82,10 +82,18 @@ class IsThisYourBusinessController @Inject() (
               }
 
             case None =>
-              logger.warn(
-                s"Business not found for UTR. Redirecting to journey recovery."
-              )
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
+              if (isUserFromIndexPage) {
+                logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
+                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              } else {
+                Future.successful(
+                  Redirect(
+                    routes.PlaceholderController
+                      .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+                  )
+                )
+              }
           }
 
         case None =>

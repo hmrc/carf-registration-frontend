@@ -25,7 +25,7 @@ case class OptionalDataRequest[A](
     userId: String,
     affinityGroup: AffinityGroup,
     userAnswers: Option[UserAnswers],
-    utr: Option[UniqueTaxpayerReference] = None // TODO: Consider removing this when doing CARF-164
+    utr: Option[UniqueTaxpayerReference] = None // TODO: Consider removing this when doing CARF-166
 ) extends WrappedRequest[A](request)
 
 case class DataRequest[A](
@@ -33,7 +33,7 @@ case class DataRequest[A](
     userId: String,
     affinityGroup: AffinityGroup,
     userAnswers: UserAnswers,
-    utr: Option[UniqueTaxpayerReference] = None // TODO: Consider removing this when doing CARF-164
+    utr: Option[UniqueTaxpayerReference] = None // TODO: Consider removing this when doing CARF-166
 ) extends WrappedRequest[A](request)
 
 case class DataRequestWithUserAnswers[A](

@@ -118,3 +118,32 @@ agentSignInProblem.heading = You’re unable to use this service with this Gover
 agentSignInProblem.paragraph = You have signed in with an agent Government Gateway user ID.
 agentSignInProblem.linkText = To use this service as an agent, you must
 agentSignInProblem.link = sign in with an organisation or individual Government Gateway user ID
+
+whatIsTheNameOfYourBusiness.ltdLpLlp.title = What is the registered name of your business?
+whatIsTheNameOfYourBusiness.ltdLpLlp.heading = What is the registered name of your business?
+whatIsTheNameOfYourBusiness.ltdLpLlp.hint = This is the registered name on your incorporation certificate. Enter the name in full as it appears on the certificate.
+whatIsTheNameOfYourBusiness.ltdLpLlp.error.required = Enter the registered name of your business
+whatIsTheNameOfYourBusiness.ltdLpLlp.error.invalid = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+whatIsTheNameOfYourBusiness.ltdLpLlp.error.length = Business name must be 105 characters or less
+
+whatIsTheNameOfYourBusiness.partnership.title = What is the partnership name?
+whatIsTheNameOfYourBusiness.partnership.heading = What is the partnership name?
+whatIsTheNameOfYourBusiness.partnership.hint = This is the name that you registered with HMRC.
+whatIsTheNameOfYourBusiness.partnership.error.required = Enter the partnership name
+whatIsTheNameOfYourBusiness.partnership.error.invalid = Partnership name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+whatIsTheNameOfYourBusiness.partnership.error.length = Partnership name must be 105 characters or less
+
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.title = What is the name of your organisation?
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.heading = What is the name of your organisation?
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.hint = This is the name on your governing document.
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.required = Enter the name of your organisation
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.invalid = Organisation name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.length = Organisation name must be 105 characters or less
+
+whatIsTheNameOfYourBusiness.checkYourAnswersLabel = What is the name of your business?
+whatIsTheNameOfYourBusiness.change.hidden = Change What is the name of your business?
+
+orgYourContactDetails.title = Setting up contact details for cryptoasset reporting
+orgYourContactDetails.heading = Setting up contact details for cryptoasset reporting
+orgYourContactDetails.paragraph1 = Provide the name and contact details for one or two people or teams within your organisation who could answer questions about your reports.
+orgYourContactDetails.paragraph2 = You can change your contact names and details later, if you want to.

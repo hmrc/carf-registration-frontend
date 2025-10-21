@@ -54,11 +54,10 @@ class RegistrationServiceSpec extends SpecBase {
     super.beforeEach()
     reset(mockConnector)
   }
-
   "RegistrationService" - {
-    "getBusinessByUtr method" - {
+    "getBusinessByUtr method should" - {
       "return UK business for UTR starting with '1'" in {
-        val result = testService.getBusinessByUtr("1234567890")
+        val result = testService.getBusinessByUtr("1234567890", None)
 
         val business = result.futureValue
         business                          mustBe defined
@@ -71,7 +70,7 @@ class RegistrationServiceSpec extends SpecBase {
       }
 
       "return Non-UK business for UTR starting with '2'" in {
-        val result = testService.getBusinessByUtr("2987654321")
+        val result = testService.getBusinessByUtr("2987654321", Some("International Ltd"))
 
         val business = result.futureValue
         business                          mustBe defined
@@ -83,14 +82,27 @@ class RegistrationServiceSpec extends SpecBase {
         business.get.address.countryCode  mustBe "US"
       }
 
-      "return None for UTR starting with any other digit" in {
-        val result = testService.getBusinessByUtr("3123456789")
+      "return a business when UTR and businessName has been provided" in {
+        val result =
+          testService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
 
-        result.futureValue mustBe None
+        val business = result.futureValue
+
+        business                          mustBe defined
+        business.get.name                 mustBe "Agent ABC Ltd"
+        business.get.isUkBased            mustBe true
+        business.get.address.addressLine1 mustBe "2 High Street"
+        business.get.address.addressLine2 mustBe Some("Birmingham")
+      }
+
+      "return None when business cannot be found by UTR" in {
+        val result = testService.getBusinessByUtr("9999999999", None)
+
+        val business = result.futureValue
+        business mustBe None
       }
     }
-
-    "getIndividualByNino method" - {
+    "getIndividualByNino method should" - {
       "successfully return an individual's details when the connector returns them successfully" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithIdSuccessResponse))
@@ -115,7 +127,7 @@ class RegistrationServiceSpec extends SpecBase {
 
         result mustBe None
       }
-      // TODO: Change below test in CARF-164 to handle scenario gracefully (redirect to journey recovery)
+      // TODO: Change below test in CARF-166 to handle scenario gracefully (redirect to journey recovery)
       "throw an exception when the connector returns an error" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))

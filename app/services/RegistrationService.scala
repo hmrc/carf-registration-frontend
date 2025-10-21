@@ -22,6 +22,8 @@ import models.requests.RegisterIndividualWithIdRequest
 import models.{Address, BusinessDetails, IndividualDetails}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.http.HeaderCarrier
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,7 +35,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       .individualWithNino(
         request = RegisterIndividualWithIdRequest(
           requiresNameMatch = true,
-          // TODO: Replace it with actual NINO CARF-164
+          // TODO: Replace it with actual NINO CARF-166
           IDNumber = ninoProxy,
           IDType = "NINO",
           dateOfBirth = "test-dob",
@@ -59,14 +61,14 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         case Left(error)                  => Future.failed(new Exception("Unexpected Error!"))
       }
 
-  def getBusinessByUtr(utr: String): Future[Option[BusinessDetails]] =
+  def getBusinessByUtr(utr: String, name: Option[String]): Future[Option[BusinessDetails]] =
     Future.successful {
       // temp implementation as auto-matching not yet implemented
       if (utr.startsWith("1")) {
         // UK business
         Some(
           BusinessDetails(
-            name = "Agent ABC Ltd",
+            name = name.getOrElse("Agent ABC Ltd"),
             address = Address(
               addressLine1 = "2 High Street",
               addressLine2 = Some("Birmingham"),
@@ -81,7 +83,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         // Non-UK business
         Some(
           BusinessDetails(
-            name = "International Ltd",
+            name = name.getOrElse("International Ltd"),
             address = Address(
               addressLine1 = "3 Apple Street",
               addressLine2 = Some("New York"),
@@ -97,4 +99,5 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         None
       }
     }
+
 }

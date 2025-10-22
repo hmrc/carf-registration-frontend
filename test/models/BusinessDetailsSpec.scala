@@ -19,45 +19,45 @@ package models
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class BusinessSpec extends AnyFreeSpec with Matchers {
+class BusinessDetailsSpec extends AnyFreeSpec with Matchers {
 
-  "Business" - {
+  val ukAddress = Address(
+    addressLine1 = "123 Street",
+    addressLine2 = Some("London"),
+    addressLine3 = None,
+    addressLine4 = None,
+    postalCode = Some("SKKA 1BB"),
+    countryCode = "GB"
+  )
 
-    val ukAddress = Address(
-      addressLine1 = "123 Street",
-      addressLine2 = Some("London"),
-      addressLine3 = None,
-      addressLine4 = None,
-      postalCode = Some("SKKA 1BB"),
-      countryCode = "GB"
-    )
+  val nonUkAddress = Address(
+    addressLine1 = "321 Lane",
+    addressLine2 = Some("New York"),
+    addressLine3 = None,
+    addressLine4 = None,
+    postalCode = Some("18801"),
+    countryCode = "US"
+  )
 
-    val nonUkAddress = Address(
-      addressLine1 = "321 Lane",
-      addressLine2 = Some("New York"),
-      addressLine3 = None,
-      addressLine4 = None,
-      postalCode = Some("18801"),
-      countryCode = "US"
-    )
+  "BusinessDetails" - {
 
     "isUkBased" - {
       "must return true for GB country code" in {
-        Business("UMBRELLA", ukAddress).isUkBased mustEqual true
+        BusinessDetails("UMBRELLA", ukAddress).isUkBased mustEqual true
       }
 
       "must return false for non-GB country codes" in {
-        Business("INTER", nonUkAddress).isUkBased mustEqual false
+        BusinessDetails("INTER", nonUkAddress).isUkBased mustEqual false
       }
 
       "must return false for empty country code" in {
         val emptyCountryAddress = ukAddress.copy(countryCode = "")
-        Business("Test", emptyCountryAddress).isUkBased mustEqual false
+        BusinessDetails("Test", emptyCountryAddress).isUkBased mustEqual false
       }
 
       "must be case sensitive" in {
         val lowercaseAddress = ukAddress.copy(countryCode = "gb")
-        Business("Test", lowercaseAddress).isUkBased mustEqual false
+        BusinessDetails("Test", lowercaseAddress).isUkBased mustEqual false
       }
     }
   }

@@ -18,8 +18,6 @@ package controllers
 
 import controllers.actions.*
 import forms.OrganisationRegistrationTypeFormProvider
-
-import javax.inject.Inject
 import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.OrganisationRegistrationTypePage
@@ -29,6 +27,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.OrganisationRegistrationTypeView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class OrganisationRegistrationTypeController @Inject() (

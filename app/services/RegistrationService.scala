@@ -16,21 +16,58 @@
 
 package services
 
-import models.{Address, Business}
+import connectors.RegistrationConnector
+import models.error.ApiError
+import models.requests.RegisterIndividualWithIdRequest
+import models.{Address, BusinessDetails, IndividualDetails}
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() () {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
 
-  def getBusinessByUtr(utr: String, name: Option[String]): Future[Option[Business]] =
+  def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] =
+    connector
+      .individualWithNino(
+        request = RegisterIndividualWithIdRequest(
+          requiresNameMatch = true,
+          // TODO: Replace it with actual NINO CARF-166
+          IDNumber = ninoProxy,
+          IDType = "NINO",
+          dateOfBirth = "test-dob",
+          firstName = "john",
+          lastName = "doe"
+        )
+      )
+      .value
+      .flatMap {
+        case Right(response)              =>
+          Future.successful(
+            Some(
+              IndividualDetails(
+                safeId = response.safeId,
+                firstName = response.firstName,
+                lastName = response.lastName,
+                middleName = response.middleName,
+                address = response.address
+              )
+            )
+          )
+        case Left(ApiError.NotFoundError) => Future.successful(None)
+        case Left(error)                  => Future.failed(new Exception("Unexpected Error!"))
+      }
+
+  def getBusinessByUtr(utr: String, name: Option[String]): Future[Option[BusinessDetails]] =
     Future.successful {
       // temp implementation as auto-matching not yet implemented
       if (utr.startsWith("1")) {
         // UK business
         Some(
-          Business(
+          BusinessDetails(
             name = name.getOrElse("Agent ABC Ltd"),
             address = Address(
               addressLine1 = "2 High Street",
@@ -45,7 +82,7 @@ class RegistrationService @Inject() () {
       } else if (utr.startsWith("2")) {
         // Non-UK business
         Some(
-          Business(
+          BusinessDetails(
             name = name.getOrElse("International Ltd"),
             address = Address(
               addressLine1 = "3 Apple Street",

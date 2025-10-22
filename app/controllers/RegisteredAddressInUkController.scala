@@ -18,8 +18,6 @@ package controllers
 
 import controllers.actions.*
 import forms.RegisteredAddressInUkFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
 import pages.RegisteredAddressInUkPage
@@ -28,6 +26,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegisteredAddressInUkView
+
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegisteredAddressInUkController @Inject() (

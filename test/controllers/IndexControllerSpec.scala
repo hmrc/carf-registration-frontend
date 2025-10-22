@@ -18,16 +18,16 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
-import repositories.SessionRepository
 import models.{NormalMode, UserAnswers}
-import pages.IndexPage
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, verify, when}
+import pages.IndexPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 

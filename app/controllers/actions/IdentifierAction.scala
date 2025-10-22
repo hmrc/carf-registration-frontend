@@ -17,8 +17,12 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import play.api.mvc.Results.*
+import config.FrontendAppConfig
+import controllers.routes
+import models.requests.IdentifierRequest
+import play.api.Logging
 import play.api.mvc.*
+import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -26,10 +30,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, allEnrolment
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import controllers.routes
-import config.FrontendAppConfig
-import models.requests.IdentifierRequest
-import play.api.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 

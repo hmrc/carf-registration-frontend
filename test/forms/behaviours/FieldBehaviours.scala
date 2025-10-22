@@ -70,10 +70,12 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
     }
   }
 
-  def generateValidStringLongerThan(maxLength: Int, allowedChars: String): Gen[String] = for {
-    length <- Gen.chooseNum(maxLength + 1, maxLength * 2)
-    chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
-  } yield chars.mkString
+  def generateValidStringLongerThan(maxLength: Int, allowedChars: String): Gen[String] = {
+    for {
+      length <- Gen.chooseNum(maxLength + 1, maxLength * 2)
+      chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
+    } yield chars.mkString
+  }.suchThat(s => !s.startsWith(" ") && !s.endsWith(" "))
 
   def fieldWithValidCharsLongerThanMaxLength(
       form: Form[_],

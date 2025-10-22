@@ -164,5 +164,6 @@ niNumber.hint = It’s on your National Insurance card, benefit letter, payslip 
 niNumber.error.required = Enter your National Insurance number
 niNumber.error.invalidFormat = Enter your National Insurance number in the right format
 niNumber.error.invalid = Enter a real National Insurance number
-problemDifferentBusiness.title = problemDifferentBusiness
-problemDifferentBusiness.heading = problemDifferentBusiness
+
+problemDifferentBusiness.title = You’re unable to use this service with this Government Gateway user ID
+problemDifferentBusiness.heading = You’re unable to use this service with this Government Gateway user ID

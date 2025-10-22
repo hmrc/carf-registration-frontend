@@ -74,4 +74,5 @@ GET        /register/ni-number                                                 c
 POST       /register/ni-number                                                 controllers.NiNumberController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-ni-number                                          controllers.NiNumberController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-ni-number                                          controllers.NiNumberController.onSubmit(mode: Mode = CheckMode)
-GET        /problemDifferentBusiness                       controllers.ProblemDifferentBusinessController.onPageLoad()
+
+GET        /register/problem/different-business                  controllers.ProblemDifferentBusinessController.onPageLoad()

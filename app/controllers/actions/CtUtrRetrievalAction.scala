@@ -58,7 +58,7 @@ class CtUtrRetrievalActionProvider @Inject() (
       case (AffinityGroup.Organisation, Some(_)) =>
         block(request.copy(utr = ctUtr))
       case _                                     =>
-        // TODO: Adding CT-UTR to the request for individuals here for CARF-219. Remove at when doing CARF-164
+        // TODO: Adding CT-UTR to the request for individuals here for CARF-219. Remove at when doing CARF-166
         // TODO: and replace the actual NINO with what is currently in RegistrationService
         // block(request)
         block(request.copy(utr = ctUtr))

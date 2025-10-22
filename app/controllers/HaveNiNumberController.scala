@@ -54,7 +54,7 @@ class HaveNiNumberController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen retrieveCtUTR() andThen getData() andThen requireData) { implicit request =>
 
-      // TODO: Replace utr.get with NINO when doing CARF-164
+      // TODO: Replace utr.get with NINO when doing CARF-166
       service
         .getIndividualByNino(request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference)
         .map(a => logger.info(s"%%% LOOK HERE %%% \n-> $a"))

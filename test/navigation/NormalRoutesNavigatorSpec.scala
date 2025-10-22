@@ -264,7 +264,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-164)")
+          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /ni-number (CARF-166)")
         }
       }
       "when user answers 'false' (no, I don't have a National Insurance number)" - {

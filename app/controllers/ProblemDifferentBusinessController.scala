@@ -16,12 +16,15 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
+import pages.IsThisYourBusinessPage
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ProblemDifferentBusinessView
+import scala.concurrent.{ExecutionContext, Future}
 
 class ProblemDifferentBusinessController @Inject() (
     override val messagesApi: MessagesApi,
@@ -30,10 +33,22 @@ class ProblemDifferentBusinessController @Inject() (
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: ProblemDifferentBusinessView
-) extends FrontendBaseController
-    with I18nSupport {
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    Ok(view())
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
+    request.userAnswers.get(IsThisYourBusinessPage) match {
+      case Some(existingPageDetails) =>
+        val businessName = existingPageDetails.name
+        val address      = existingPageDetails.address
+        Future.successful(Ok(view(businessName, address)))
+      case None                      =>
+        logger.warn(
+          "No business details found in UserAnswers during form submission. " + "Redirecting to journey recovery."
+        )
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 }

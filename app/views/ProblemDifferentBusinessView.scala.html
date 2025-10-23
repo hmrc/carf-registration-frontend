@@ -14,34 +14,37 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        link: components.Link,
+        appConfig: FrontendAppConfig
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(businessName: String, address: Address)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("problemDifferentBusiness.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("problemDifferentBusiness.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("problemDifferentBusiness.heading")</h1>
 
     <p class="govuk-body">
         You have signed in with a Government Gateway user ID that is linked to the following business details:
     </p>
 
+    <p class="govuk-body govuk-!-margin-bottom-1">
+        @businessName
+        <br>
+    </p>
+
     <p class="govuk-body">
-        Agent ABC Ltd
-        <br>
-        2 High Street
-        <br>
-        Birmingham
-        <br>
-        B23 2AZ
+    @Html(address.renderHTML(isUkBased = true))
     </p>
 
     <p class="govuk-body">
         If you want to register a different organisation for the cryptoasset reporting framework service,
-        you must sign in with the Government Gateway user ID for the organisation you wish to register.
+        @link(appConfig.loginUrl, "problemDifferentBusiness.link", openInNewWindow = false).
     </p>
 
     <br>

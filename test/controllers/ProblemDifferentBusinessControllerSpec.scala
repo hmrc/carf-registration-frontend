@@ -17,8 +17,10 @@
 package controllers
 
 import base.SpecBase
+import models.{Address, IsThisYourBusinessPageDetails}
+import pages.IsThisYourBusinessPage
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.ProblemDifferentBusinessView
 
 class ProblemDifferentBusinessControllerSpec extends SpecBase {
@@ -26,18 +28,31 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
   "ProblemDifferentBusiness Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      val businessName = "Agent ABC Ltd"
+      val address      = Address(
+        addressLine1 = "2 High Street",
+        addressLine2 = Some("Birmingham"),
+        addressLine3 = None,
+        addressLine4 = None,
+        postalCode = Some("B23 2AZ"),
+        countryCode = "GB"
+      )
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val pageDetails = IsThisYourBusinessPageDetails(
+        name = businessName,
+        address = address,
+        pageAnswer = Some(true)
+      )
+
+      val userAnswers = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ProblemDifferentBusinessController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ProblemDifferentBusinessView]
-
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(businessName, address)(request, messages(application)).toString
       }
     }
   }

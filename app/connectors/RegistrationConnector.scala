@@ -77,7 +77,7 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   def organisationWithUtr(
       request: RegisterOrganisationWithIdRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
-    registerOrganisationWithId(request, url"$backendBaseUrl/organisation/nino")
+    registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr")
 
   private def registerOrganisationWithId(
       request: RegisterOrganisationWithIdRequest,

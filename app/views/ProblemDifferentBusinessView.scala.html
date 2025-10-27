@@ -29,21 +29,25 @@
 
     <h1 class="govuk-heading-l">@messages("problemDifferentBusiness.heading")</h1>
 
-    <p class="govuk-body">
-        You have signed in with a Government Gateway user ID that is linked to the following business details:
-    </p>
-
-    <p class="govuk-body govuk-!-margin-bottom-1">
-        @businessName
-        <br>
-    </p>
-
-    <p class="govuk-body">
-    @Html(address.renderHTML(isUkBased = true))
-    </p>
+    @if(businessName.trim.isEmpty & address.renderHTML(address.countryCode == "GB").isEmpty) {
+        <p class="govuk-body">
+        @messages("problemDifferentBusiness.differentBusinessDetails")
+        </p>
+    } else {
+        <p class="govuk-body">
+            You have signed in with a Government Gateway user ID that is linked to the following business details:
+        </p>
+        <p class="govuk-body govuk-!-margin-bottom-1">
+            @businessName
+            <br>
+        </p>
+        <p class="govuk-body">
+        @Html(address.renderHTML(isUkBased = true))
+        </p>
+    }
 
     <p class="govuk-body">
         If you want to register a different organisation for the cryptoasset reporting framework service, you must
-        @link(appConfig.loginUrl, "problemDifferentBusiness.link", openInNewWindow = false).
+        @link(appConfig.loginUrl, messages("problemDifferentBusiness.link")).
     </p>
 }

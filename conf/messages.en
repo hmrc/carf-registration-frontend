@@ -168,3 +168,4 @@ niNumber.error.invalid = Enter a real National Insurance number
 problemDifferentBusiness.title = You’re unable to use this service with this Government Gateway user ID
 problemDifferentBusiness.heading = You’re unable to use this service with this Government Gateway user ID
 problemDifferentBusiness.link = sign in with the Government Gateway user ID for the organisation you wish to register
+problemDifferentBusiness.differentBusinessDetails = You have signed in with a Government Gateway user ID that is linked to different business details.

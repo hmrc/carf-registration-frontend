@@ -23,7 +23,7 @@ import play.api.data.FormError
 class HaveTradingNameFormProviderSpec extends BooleanFieldBehaviours {
 
   val requiredKey = "haveTradingName.error.required"
-  val invalidKey = "error.boolean"
+  val invalidKey  = "error.boolean"
 
   val form = new HaveTradingNameFormProvider()()
 

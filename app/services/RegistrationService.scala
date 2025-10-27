@@ -18,10 +18,8 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
-import models.requests.RegisterIndividualWithIdRequest
-import models.{Address, BusinessDetails, IndividualDetails}
-import uk.gov.hmrc.http.HeaderCarrier
-
+import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.{BusinessDetails, IndividualDetails}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -61,43 +59,28 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         case Left(error)                  => Future.failed(new Exception("Unexpected Error!"))
       }
 
-  def getBusinessByUtr(utr: String, name: Option[String]): Future[Option[BusinessDetails]] =
-    Future.successful {
-      // temp implementation as auto-matching not yet implemented
-      if (utr.startsWith("1")) {
-        // UK business
-        Some(
-          BusinessDetails(
-            name = name.getOrElse("Agent ABC Ltd"),
-            address = Address(
-              addressLine1 = "2 High Street",
-              addressLine2 = Some("Birmingham"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("B23 2AZ"),
-              countryCode = "GB"
+  def getBusinessByUtr(utr: String, name: Option[String])(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] =
+    connector
+      .organisationWithUtr(
+        request = RegisterOrganisationWithIdRequest(
+          requiresNameMatch = true,
+          IDNumber = "1234567890",
+          organisationName = Some("Aliens Inc"),
+          organisationType = Some("0002")
+        )
+      )
+      .value
+      .flatMap {
+        case Right(response)              =>
+          Future.successful(
+            Some(
+              BusinessDetails(
+                name = response.organisationName,
+                address = response.address
+              )
             )
           )
-        )
-      } else if (utr.startsWith("2")) {
-        // Non-UK business
-        Some(
-          BusinessDetails(
-            name = name.getOrElse("International Ltd"),
-            address = Address(
-              addressLine1 = "3 Apple Street",
-              addressLine2 = Some("New York"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("11722"),
-              countryCode = "US"
-            )
-          )
-        )
-      } else {
-        // Business not found
-        None
+        case Left(ApiError.NotFoundError) => Future.successful(None)
+        case Left(error)                  => Future.failed(new Exception(s"Unexpected Error! Details: ${error.toString}"))
       }
-    }
-
 }

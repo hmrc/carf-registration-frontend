@@ -164,3 +164,9 @@ niNumber.hint = It’s on your National Insurance card, benefit letter, payslip 
 niNumber.error.required = Enter your National Insurance number
 niNumber.error.invalidFormat = Enter your National Insurance number in the right format
 niNumber.error.invalid = Enter a real National Insurance number
+
+haveTradingName.title = Does your business trade under a different name?
+haveTradingName.heading = Does your business trade under a different name?
+haveTradingName.checkYourAnswersLabel = Does your business trade under a different name?
+haveTradingName.error.required = Select yes if your business trades under a different name
+haveTradingName.change.hidden = Change if your business trades under a different name

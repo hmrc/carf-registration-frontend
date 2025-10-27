@@ -19,7 +19,8 @@ package controllers
 import base.SpecBase
 import forms.WhatIsTheNameOfYourBusinessFormProvider
 import models.OrganisationRegistrationType.*
-import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
+import models.{Address, BusinessDetails, NormalMode, UniqueTaxpayerReference, UserAnswers}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -50,6 +51,11 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode).url
 
   final val mockRegistrationService: RegistrationService = mock[RegistrationService]
+
+  val testBusinessDetails: BusinessDetails = BusinessDetails(
+    name = "Test Company Ltd",
+    address = Address("1 Test Road", None, None, None, Some("LU4 1ST"), "GB")
+  )
 
   "WhatIsTheNameOfYourBusiness Controller" - {
 
@@ -167,7 +173,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      val companyName = "ExampleValid Company Ltd"
+      val companyName = "Test Company Ltd"
 
       val userAnswers = emptyUserAnswers
         .set(OrganisationRegistrationTypePage, LimitedCompany)
@@ -178,7 +184,12 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
         .value
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockRegistrationService.getBusinessByUtr(any(), any())) thenReturn Future.successful(Some(companyName))
+      when(
+        mockRegistrationService.getBusinessByUtr(
+          eqTo(testUtr.uniqueTaxPayerReference),
+          eqTo(Some(companyName))
+        )(any())
+      ) thenReturn Future.successful(Some(testBusinessDetails))
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -206,9 +217,6 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
         .set(OrganisationRegistrationTypePage, LimitedCompany)
         .success
         .value
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockRegistrationService.getBusinessByUtr(any(), any())) thenReturn Future.successful(None)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(

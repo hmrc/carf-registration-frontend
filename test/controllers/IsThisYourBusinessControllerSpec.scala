@@ -20,10 +20,9 @@ import base.SpecBase
 import forms.IsThisYourBusinessFormProvider
 import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -31,6 +30,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.RegistrationService
 import views.html.IsThisYourBusinessView
+import uk.gov.hmrc.http.HeaderCarrier
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 
 import scala.concurrent.Future
 
@@ -72,7 +73,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
       when(
-        mockRegistrationService.getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
+        mockRegistrationService.getBusinessByUtr(eqTo(testUtr.uniqueTaxPayerReference), eqTo(None))(
+          any[HeaderCarrier]()
+        )
       ) thenReturn Future.successful(
         Some(businessTestBusiness)
       )
@@ -103,7 +106,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly when the question has previously been answered" in {
       when(
-        mockRegistrationService.getBusinessByUtr(businessUtrString, None)
+        mockRegistrationService.getBusinessByUtr(eqTo(testUtr.uniqueTaxPayerReference), eqTo(None))(
+          any[HeaderCarrier]()
+        )
       ) thenReturn Future.successful(
         Some(businessTestBusiness)
       )
@@ -159,7 +164,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Business not Identified when business is not found by UTR navigating through the Journey" in {
       when(
-        mockRegistrationService.getBusinessByUtr(businessUtrString, None)
+        mockRegistrationService.getBusinessByUtr(eqTo(testUtr.uniqueTaxPayerReference), eqTo(None))(
+          any[HeaderCarrier]()
+        )
       ) thenReturn Future.successful(None)
 
       val userAnswers = UserAnswers(userAnswersId)

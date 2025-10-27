@@ -21,7 +21,8 @@ import cats.data.EitherT
 import connectors.RegistrationConnector
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
-import models.responses.RegisterIndividualWithIdResponse
+import models.requests.RegisterOrganisationWithIdRequest
+import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{Address, BusinessDetails, IndividualDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -50,6 +51,34 @@ class RegistrationServiceSpec extends SpecBase {
     address = testAddress
   )
 
+  val orgUkBusinessResponse = RegisterOrganisationWithIdResponse(
+    safeId = "testSafeId",
+    code = "0000",
+    organisationName = "Agent ABC Ltd",
+    address = Address(
+      addressLine1 = "2 High Street",
+      addressLine2 = Some("Birmingham"),
+      addressLine3 = None,
+      addressLine4 = None,
+      postalCode = Some("B23 2AZ"),
+      countryCode = "GB"
+    )
+  )
+
+  val orgNonUkBusinessResponse = RegisterOrganisationWithIdResponse(
+    safeId = "testSafeId",
+    code = "0001",
+    organisationName = "International Ltd",
+    address = Address(
+      addressLine1 = "3 Apple Street",
+      addressLine2 = Some("New York"),
+      addressLine3 = None,
+      addressLine4 = None,
+      postalCode = Some("11722"),
+      countryCode = "US"
+    )
+  )
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConnector)
@@ -57,6 +86,10 @@ class RegistrationServiceSpec extends SpecBase {
   "RegistrationService" - {
     "getBusinessByUtr method should" - {
       "return UK business for UTR starting with '1'" in {
+
+        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
+
         val result = testService.getBusinessByUtr("1234567890", None)
 
         val business = result.futureValue
@@ -70,6 +103,10 @@ class RegistrationServiceSpec extends SpecBase {
       }
 
       "return Non-UK business for UTR starting with '2'" in {
+
+        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](orgNonUkBusinessResponse))
+
         val result = testService.getBusinessByUtr("2987654321", Some("International Ltd"))
 
         val business = result.futureValue
@@ -83,6 +120,10 @@ class RegistrationServiceSpec extends SpecBase {
       }
 
       "return a business when UTR and businessName has been provided" in {
+
+        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
+
         val result =
           testService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
 
@@ -96,6 +137,10 @@ class RegistrationServiceSpec extends SpecBase {
       }
 
       "return None when business cannot be found by UTR" in {
+
+        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](NotFoundError))
+
         val result = testService.getBusinessByUtr("9999999999", None)
 
         val business = result.futureValue

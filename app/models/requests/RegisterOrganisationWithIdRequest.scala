@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 case class RegisterOrganisationWithIdRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
-    IDType: String = "UTR",
+    IDType: String,
     organisationName: Option[String],
     organisationType: Option[String]
 )

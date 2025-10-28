@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.Business
+@import models.BusinessDetails
 
 @this(
     layout: templates.Layout,
@@ -24,7 +24,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, business: Business)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, business: BusinessDetails)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("isThisYourBusiness.title"))) {
 

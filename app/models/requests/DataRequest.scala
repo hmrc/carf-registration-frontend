@@ -16,19 +16,25 @@
 
 package models.requests
 
+import models.{SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import play.api.mvc.{Request, WrappedRequest}
-import models.{SubscriptionId, UserAnswers}
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 case class OptionalDataRequest[A](
     request: Request[A],
     userId: String,
     affinityGroup: AffinityGroup,
-    userAnswers: Option[UserAnswers]
+    userAnswers: Option[UserAnswers],
+    utr: Option[UniqueTaxpayerReference] = None // TODO: Consider removing this when doing CARF-166
 ) extends WrappedRequest[A](request)
 
-case class DataRequest[A](request: Request[A], userId: String, affinityGroup: AffinityGroup, userAnswers: UserAnswers)
-    extends WrappedRequest[A](request)
+case class DataRequest[A](
+    request: Request[A],
+    userId: String,
+    affinityGroup: AffinityGroup,
+    userAnswers: UserAnswers,
+    utr: Option[UniqueTaxpayerReference] = None // TODO: Consider removing this when doing CARF-166
+) extends WrappedRequest[A](request)
 
 case class DataRequestWithUserAnswers[A](
     request: Request[A],

@@ -20,9 +20,9 @@ import controllers.actions.*
 import forms.WhatIsYourNameFormProvider
 
 import javax.inject.Inject
-import models.{Address, IndividualRegistrationType, Mode, Name, OrganisationRegistrationType, UserAnswers}
+import models.{Mode, Name}
 import navigation.Navigator
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.{WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -40,7 +40,6 @@ class WhatIsYourNameController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    registrationService: RegistrationService,
     formProvider: WhatIsYourNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
     view: WhatIsYourNameView
@@ -60,27 +59,6 @@ class WhatIsYourNameController @Inject() (
       Ok(view(preparedForm, mode))
   }
 
-  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
-
-    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
-
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        true
-      case _                                                                                                     =>
-        false
-    }
-  }
-
-  private def validateIndividualDetails(answers: UserAnswers, name: Name): Future[Option[(Name, Address)]] =
-    answers.get(YourUniqueTaxpayerReferencePage) match {
-      case Some(utr) => registrationService.getIndividualDetails(utr.uniqueTaxPayerReference, name)
-      case None      => Future.successful(None)
-    }
-
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
       form
@@ -91,24 +69,7 @@ class WhatIsYourNameController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsYourNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-              maybeUtr        = updatedAnswers.get(YourUniqueTaxpayerReferencePage)
-              matchResult    <- validateIndividualDetails(updatedAnswers, value)
-            } yield matchResult match {
-              case Some((matchedName, _)) if matchedName == value =>
-                Redirect(navigator.nextPage(WhatIsYourNamePage, mode, updatedAnswers))
-              case _                                              =>
-                if (isSoleTrader(updatedAnswers)) {
-                  Redirect(
-                    routes.PlaceholderController
-                      .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-                  )
-                } else {
-                  Redirect(
-                    routes.PlaceholderController
-                      .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
-                  )
-                }
-            }
+            } yield Redirect(navigator.nextPage(WhatIsYourNamePage, mode, updatedAnswers))
         )
   }
 }

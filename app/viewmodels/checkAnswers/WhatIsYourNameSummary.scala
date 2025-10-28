@@ -26,21 +26,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object WhatIsYourNameSummary  {
+object WhatIsYourNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(WhatIsYourNamePage).map {
-      answer =>
+    answers.get(WhatIsYourNamePage).map { answer =>
 
       val value = HtmlFormat.escape(answer.firstName).toString + "<br/>" + HtmlFormat.escape(answer.lastName).toString
 
-        SummaryListRowViewModel(
-          key     = "whatIsYourName.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.WhatIsYourNameController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("whatIsYourName.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key = "whatIsYourName.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlContent(value)),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.WhatIsYourNameController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("whatIsYourName.change.hidden"))
         )
+      )
     }
 }

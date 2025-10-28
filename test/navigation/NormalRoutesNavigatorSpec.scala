@@ -22,6 +22,8 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.*
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, NiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -512,13 +514,12 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(OrgWithoutIdBusinessNamePage, "valid org name")
           .success
           .value
+
       navigator.nextPage(
         OrgWithoutIdBusinessNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/business-without-id/have-trading-name (CARF-160)"
-      )
+      ) mustBe controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode)
     }
     "must navigate from WhatIsTheNameOfYourBusiness to IsThisYourBusiness page" in {
 
@@ -536,6 +537,38 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         updatedAnswers
       ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+    }
+    "must navigate from HaveTradingNamePage to" - {
+      "business without id trading name, when Yes is selected" in {
+        val updatedAnswers =
+          emptyUserAnswers
+            .set(HaveTradingNamePage, true)
+            .success
+            .value
+
+        navigator.nextPage(
+          HaveTradingNamePage,
+          NormalMode,
+          updatedAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/business-without-id/trading-name (CARF-161)"
+        )
+      }
+      "business without id business address, when No is selected" in {
+        val updatedAnswers =
+          emptyUserAnswers
+            .set(HaveTradingNamePage, false)
+            .success
+            .value
+
+        navigator.nextPage(
+          HaveTradingNamePage,
+          NormalMode,
+          updatedAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/business-without-id/business-address (CARF-162)"
+        )
+      }
     }
 
     "must navigate from WhatIsYourName to IsThisYourBusiness page for matched Individual SoleTrader" in {

@@ -16,10 +16,10 @@
 
 package models
 
-import org.scalatest.{EitherValues, OptionValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json._
+import org.scalatest.{EitherValues, OptionValues}
+import play.api.libs.json.*
 
 object EnumerableSpec {
 
@@ -38,7 +38,7 @@ object EnumerableSpec {
 
 class EnumerableSpec extends AnyFreeSpec with Matchers with EitherValues with OptionValues with Enumerable.Implicits {
 
-  import EnumerableSpec._
+  import EnumerableSpec.*
 
   ".reads" - {
 

@@ -16,9 +16,8 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.HaveUTRFormProvider
-import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
 import pages.HaveUTRPage
@@ -28,6 +27,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.HaveUTRView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HaveUTRController @Inject() (

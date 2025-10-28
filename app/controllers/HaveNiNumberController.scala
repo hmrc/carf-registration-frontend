@@ -16,18 +16,20 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.HaveNiNumberFormProvider
-import javax.inject.Inject
-import models.Mode
+import models.{Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.HaveNiNumberPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.HaveNiNumberView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HaveNiNumberController @Inject() (
@@ -39,15 +41,23 @@ class HaveNiNumberController @Inject() (
     requireData: DataRequiredAction,
     formProvider: HaveNiNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: HaveNiNumberView
+    view: HaveNiNumberView,
+    service: RegistrationService,
+    retrieveCtUTR: CtUtrRetrievalAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen retrieveCtUTR() andThen getData() andThen requireData) { implicit request =>
+
+      // TODO: Replace utr.get with NINO when doing CARF-166
+      service
+        .getIndividualByNino(request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference)
+        .map(a => logger.info(s"%%% LOOK HERE %%% \n-> $a"))
 
       val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
         case None        => form
@@ -55,7 +65,7 @@ class HaveNiNumberController @Inject() (
       }
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

@@ -165,6 +165,12 @@ niNumber.error.required = Enter your National Insurance number
 niNumber.error.invalidFormat = Enter your National Insurance number in the right format
 niNumber.error.invalid = Enter a real National Insurance number
 
+haveTradingName.title = Does your business trade under a different name?
+haveTradingName.heading = Does your business trade under a different name?
+haveTradingName.checkYourAnswersLabel = Does your business trade under a different name?
+haveTradingName.error.required = Select yes if your business trades under a different name
+haveTradingName.change.hidden = Change if your business trades under a different name
+
 whatIsYourName.title = What is your name?
 whatIsYourName.heading = What is your name?
 whatIsYourName.hint = This is so we can match your details such as UTR and name to our records.

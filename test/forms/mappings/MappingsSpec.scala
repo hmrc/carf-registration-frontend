@@ -22,8 +22,8 @@ import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.data.{Form, FormError}
 import play.api.data.Forms.mapping
+import play.api.data.{Form, FormError}
 
 object MappingsSpec {
 
@@ -50,7 +50,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     "Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces"
   val invalidBusinessNameExceeds105CharsErrorMessage = "Business name must be 105 characters or less"
 
-  import MappingsSpec._
+  import MappingsSpec.*
 
   "text" - {
 

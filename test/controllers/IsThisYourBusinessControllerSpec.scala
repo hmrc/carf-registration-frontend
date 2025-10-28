@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.IsThisYourBusinessFormProvider
-import models.{Address, Business, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -41,8 +41,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[Boolean]                          = formProvider()
   val mockRegistrationService: RegistrationService = mock[RegistrationService]
 
-  val businessUtrString: String      = "1234567890"
-  val businessTestBusiness: Business = Business(
+  val businessUtrString: String             = "1234567890"
+  val businessTestBusiness: BusinessDetails = BusinessDetails(
     name = "Test Business Ltd",
     address = Address(
       addressLine1 = "123 Test Street",

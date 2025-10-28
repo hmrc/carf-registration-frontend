@@ -16,7 +16,7 @@
 
 package services
 
-import models.{Address, Business}
+import models.{Address, Business, Name}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
@@ -63,4 +63,25 @@ class RegistrationService @Inject() () {
       }
     }
 
+  def getIndividualDetails(utr: String, name: Name): Future[Option[(Name, Address)]] =
+    Future.successful {
+      if (name.firstName.equals("Timmy")) {
+        None
+      } else {
+        Some(
+          (
+            Name(firstName = name.firstName, lastName = name.lastName),
+            Address(
+              addressLine1 = "1 High Street",
+              addressLine2 = Some("London"),
+              addressLine3 = None,
+              addressLine4 = None,
+              postalCode = Some("E11AA"),
+              countryCode = "GB"
+            )
+          )
+        )
+      }
+
+    }
 }

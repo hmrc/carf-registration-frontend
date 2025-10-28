@@ -45,6 +45,9 @@ trait NormalRoutesNavigator {
     case WhatIsTheNameOfYourBusinessPage =>
       _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
 
+    case WhatIsYourNamePage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+
     case IsThisYourBusinessPage =>
       userAnswers => navigateFromIsThisYourBusiness(userAnswers)
 
@@ -105,7 +108,7 @@ trait NormalRoutesNavigator {
 
     (individualRegistrationType, organisationRegistrationType) match {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
+        routes.WhatIsYourNameController.onPageLoad(NormalMode)
       case _                                                                                                     =>
         routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }

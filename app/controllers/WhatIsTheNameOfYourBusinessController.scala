@@ -22,7 +22,6 @@ import models.OrganisationRegistrationType.*
 import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,8 +43,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
     view: WhatIsTheNameOfYourBusinessView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>

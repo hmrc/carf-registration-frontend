@@ -21,6 +21,11 @@ import generators.Generators
 import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.{Form, FormError}
+import forms.FormSpec
+import generators.Generators
+import org.scalacheck.Gen
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.data.{Form, FormError}
 
 trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Generators {
 
@@ -95,6 +100,20 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
       forAll(stringsLongerThanAlphaNumeric(maxLength) -> "longString") { string =>
         val result = form.bind(Map(fieldName -> string)).apply(fieldName)
         result.errors mustEqual Seq(lengthError)
+      }
+    }
+
+  def fieldThatBindsValidDataWithoutInvalidError(
+      form: Form[_],
+      fieldName: String,
+      validDataGenerator: Gen[String],
+      invalidErrorKey: String
+  ): Unit =
+    "must bind valid data" in {
+      forAll(validDataGenerator -> "validDataItem") { dataItem =>
+        val result = form.bind(Map(fieldName -> dataItem)).apply(fieldName)
+        result.value.value                                         mustBe dataItem
+        result.errors.filter(_.messages.contains(invalidErrorKey)) mustBe empty
       }
     }
 

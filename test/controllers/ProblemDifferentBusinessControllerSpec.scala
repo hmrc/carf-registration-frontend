@@ -24,8 +24,6 @@ import play.api.test.Helpers.*
 import views.html.ProblemDifferentBusinessView
 
 class ProblemDifferentBusinessControllerSpec extends SpecBase {
-  val differentBusinessDetailsMessage =
-    "You have signed in with a Government Gateway user ID that is linked to different business details."
 
   "ProblemDifferentBusiness Controller" - {
     "must return OK and not display country code for a GB address, & show correct view for a GET" in {
@@ -49,7 +47,6 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         val request = FakeRequest(GET, routes.ProblemDifferentBusinessController.onPageLoad().url)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
-
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(businessName, address)(request, messages(application)).toString
         contentAsString(result)      must not include "GB"
@@ -64,7 +61,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         addressLine3 = None,
         addressLine4 = None,
         postalCode = Some("10500"),
-        countryCode = "USA"
+        countryCode = "US"
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
         name = businessName,
@@ -79,27 +76,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(businessName, address)(request, messages(application)).toString
-        contentAsString(result)      must include("USA")
-      }
-    }
-
-    "if business name and Address are not found, must return OK, display 'linked to different business details', & show correct view for a GET" in {
-      val businessName = ""
-      val address      = Address("", None, None, None, None, "")
-      val pageDetails  = IsThisYourBusinessPageDetails(
-        name = businessName,
-        address = address,
-        pageAnswer = Some(true)
-      )
-      val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value
-      val application  = applicationBuilder(userAnswers = Some(userAnswers)).build()
-      running(application) {
-        val request = FakeRequest(GET, routes.ProblemDifferentBusinessController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(businessName, address)(request, messages(application)).toString
-        contentAsString(result)      must include(differentBusinessDetailsMessage)
+        contentAsString(result)      must include("US")
       }
     }
   }

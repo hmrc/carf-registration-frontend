@@ -18,12 +18,14 @@ package controllers
 
 import controllers.actions.*
 import forms.HaveUTRFormProvider
-import models.Mode
+import models.{Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.HaveUTRPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.HaveUTRView
 
@@ -37,18 +39,28 @@ class HaveUTRController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    service: RegistrationService,
+    retrieveCtUTR: CtUtrRetrievalAction,
     formProvider: HaveUTRFormProvider,
     val controllerComponents: MessagesControllerComponents,
     view: HaveUTRView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
 
     implicit request =>
+
+      val utrString                        = request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference
+      val organisationName: Option[String] = None
+
+      service
+        .getBusinessByUtr(utrString, organisationName)
+        .map(a => logger.info(s"%%% LOOK HERE (Organisation) %%% \n-> $a"))
 
       val preparedForm = request.userAnswers.get(HaveUTRPage) match {
         case None        => form

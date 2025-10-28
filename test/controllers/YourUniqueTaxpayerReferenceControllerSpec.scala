@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.YourUniqueTaxpayerReferenceFormProvider
+import models.OrganisationRegistrationType.*
 import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -29,7 +30,6 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourUniqueTaxpayerReferenceView
-import models.OrganisationRegistrationType.*
 
 import scala.concurrent.Future
 

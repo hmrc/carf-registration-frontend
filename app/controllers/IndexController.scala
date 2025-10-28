@@ -19,12 +19,13 @@ package controllers
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
 import models.{NormalMode, UserAnswers}
 import pages.IndexPage
-import play.api.i18n.I18nSupport
 import play.api.Logging
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 

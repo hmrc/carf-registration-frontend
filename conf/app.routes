@@ -76,3 +76,9 @@ GET        /register/change-ni-number                                          c
 POST       /register/change-ni-number                                          controllers.NiNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET        /register/problem/different-business                  controllers.ProblemDifferentBusinessController.onPageLoad()
+
+
+GET        /register/business-without-id/have-trading-name             controllers.orgWithoutId.HaveTradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/business-without-id/have-trading-name             controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /register/business-without-id/change-have-trading-name      controllers.orgWithoutId.HaveTradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/business-without-id/change-have-trading-name      controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = CheckMode)

@@ -16,61 +16,128 @@
 
 package services
 
-import models.Business
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import base.SpecBase
+import cats.data.EitherT
+import connectors.RegistrationConnector
+import models.error.ApiError
+import models.error.ApiError.{InternalServerError, NotFoundError}
+import models.responses.RegisterIndividualWithIdResponse
+import models.{Address, BusinessDetails, IndividualDetails}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 
-class RegistrationServiceSpec extends AnyWordSpec with Matchers with ScalaFutures {
+import scala.concurrent.Future
 
-  val businessService = new RegistrationService()
+class RegistrationServiceSpec extends SpecBase {
 
-  "BusinessService" should {
+  val mockConnector: RegistrationConnector = mock[RegistrationConnector]
+  val testService                          = new RegistrationService(mockConnector)
 
-    "return UK business for UTR starting with '1'" in {
-      val result = businessService.getBusinessByUtr("1234567890", None)
+  val testAddress = Address(
+    addressLine1 = "123 Main Street",
+    addressLine2 = Some("Birmingham"),
+    addressLine3 = None,
+    addressLine4 = None,
+    postalCode = Some("B23 2AZ"),
+    countryCode = "GB"
+  )
 
-      val business = result.futureValue
-      business                          shouldBe defined
-      business.get.name                 shouldBe "Agent ABC Ltd"
-      business.get.isUkBased            shouldBe true
-      business.get.address.addressLine1 shouldBe "2 High Street"
-      business.get.address.addressLine2 shouldBe Some("Birmingham")
-      business.get.address.postalCode   shouldBe Some("B23 2AZ")
-      business.get.address.countryCode  shouldBe "GB"
+  val testRegisterIndividualWithIdSuccessResponse: RegisterIndividualWithIdResponse = RegisterIndividualWithIdResponse(
+    safeId = "testSafeId",
+    firstName = "Floriane",
+    lastName = "Yammel",
+    middleName = Some("Exie"),
+    address = testAddress
+  )
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConnector)
+  }
+  "RegistrationService" - {
+    "getBusinessByUtr method should" - {
+      "return UK business for UTR starting with '1'" in {
+        val result = testService.getBusinessByUtr("1234567890", None)
+
+        val business = result.futureValue
+        business                          mustBe defined
+        business.get.name                 mustBe "Agent ABC Ltd"
+        business.get.isUkBased            mustBe true
+        business.get.address.addressLine1 mustBe "2 High Street"
+        business.get.address.addressLine2 mustBe Some("Birmingham")
+        business.get.address.postalCode   mustBe Some("B23 2AZ")
+        business.get.address.countryCode  mustBe "GB"
+      }
+
+      "return Non-UK business for UTR starting with '2'" in {
+        val result = testService.getBusinessByUtr("2987654321", Some("International Ltd"))
+
+        val business = result.futureValue
+        business                          mustBe defined
+        business.get.name                 mustBe "International Ltd"
+        business.get.isUkBased            mustBe false
+        business.get.address.addressLine1 mustBe "3 Apple Street"
+        business.get.address.addressLine2 mustBe Some("New York")
+        business.get.address.postalCode   mustBe Some("11722")
+        business.get.address.countryCode  mustBe "US"
+      }
+
+      "return a business when UTR and businessName has been provided" in {
+        val result =
+          testService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
+
+        val business = result.futureValue
+
+        business                          mustBe defined
+        business.get.name                 mustBe "Agent ABC Ltd"
+        business.get.isUkBased            mustBe true
+        business.get.address.addressLine1 mustBe "2 High Street"
+        business.get.address.addressLine2 mustBe Some("Birmingham")
+      }
+
+      "return None when business cannot be found by UTR" in {
+        val result = testService.getBusinessByUtr("9999999999", None)
+
+        val business = result.futureValue
+        business mustBe None
+      }
     }
+    "getIndividualByNino method should" - {
+      "successfully return an individual's details when the connector returns them successfully" in {
+        when(mockConnector.individualWithNino(any())(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithIdSuccessResponse))
 
-    "return Non-UK business for UTR starting with '2'" in {
-      val result = businessService.getBusinessByUtr("2987654321", Some("International Ltd"))
+        val expectedResult = IndividualDetails(
+          safeId = "testSafeId",
+          firstName = "Floriane",
+          lastName = "Yammel",
+          middleName = Some("Exie"),
+          address = testAddress
+        )
 
-      val business = result.futureValue
-      business                          shouldBe defined
-      business.get.name                 shouldBe "International Ltd"
-      business.get.isUkBased            shouldBe false
-      business.get.address.addressLine1 shouldBe "3 Apple Street"
-      business.get.address.addressLine2 shouldBe Some("New York")
-      business.get.address.postalCode   shouldBe Some("11722")
-      business.get.address.countryCode  shouldBe "US"
-    }
+        val result = testService.getIndividualByNino("testInput").futureValue
 
-    "return a business when UTR and businessName has been provided" in {
-      val result =
-        businessService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
+        result mustBe Some(expectedResult)
+      }
+      "return none when the connector could not get a business partner record match for this user" in {
+        when(mockConnector.individualWithNino(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
 
-      val business = result.futureValue
+        val result = testService.getIndividualByNino("testInput").futureValue
 
-      business                          shouldBe defined
-      business.get.name                 shouldBe "Agent ABC Ltd"
-      business.get.isUkBased            shouldBe true
-      business.get.address.addressLine1 shouldBe "2 High Street"
-      business.get.address.addressLine2 shouldBe Some("Birmingham")
-    }
+        result mustBe None
+      }
+      // TODO: Change below test in CARF-166 to handle scenario gracefully (redirect to journey recovery)
+      "throw an exception when the connector returns an error" in {
+        when(mockConnector.individualWithNino(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
 
-    "return None when business cannot be found by UTR" in {
-      val result = businessService.getBusinessByUtr("9999999999", None)
+        val exception = intercept[Exception] {
+          testService.getIndividualByNino("testInput").futureValue
+        }
 
-      val business = result.futureValue
-      business shouldBe None
+        exception.getMessage must include("Unexpected Error!")
+      }
     }
   }
 }

@@ -18,7 +18,7 @@ package controllers.actions
 
 import models.UniqueTaxpayerReference
 import models.requests.IdentifierRequest
-import play.api.mvc._
+import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
 

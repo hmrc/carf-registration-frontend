@@ -64,7 +64,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       .organisationWithUtr(
         request = RegisterOrganisationWithIdRequest(
           requiresNameMatch = true,
-          IDNumber = "utr",
+          IDNumber = utr,
           IDType = "UTR",
           organisationName = name,
           organisationType = Some("0002")

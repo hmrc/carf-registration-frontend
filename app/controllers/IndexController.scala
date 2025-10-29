@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
 import pages.IndexPage
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -42,31 +42,38 @@ class IndexController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen checkEnrolment andThen retrieveCtUTR()).async {
     implicit request =>
-      request.affinityGroup match {
-        case AffinityGroup.Individual =>
-          Future.successful(
-            Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
-          )
-        case _                        =>
-          request.utr match {
-            case Some(utr) =>
-              val maybeUserAnswersFutureOption = sessionRepository.get(request.userId)
-              for {
-                maybeUserAnswers       <- maybeUserAnswersFutureOption // unwrap the Future, to get an Option[UserAnswers].
-                autoMatchedUserAnswers <- Future.fromTry(
-                                            maybeUserAnswers
-                                              .getOrElse(UserAnswers(request.userId))
-                                              .set(IndexPage, utr)
-                                          )
-                _                      <- sessionRepository.set(autoMatchedUserAnswers)
-              } yield Redirect(
-                controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode)
-              )
-            case None      =>
-              Future.successful(
-                Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
-              )
-          }
+      val utrValue: UniqueTaxpayerReference   = request.utr.getOrElse(UniqueTaxpayerReference(""))
+      val saveUserAnswersFuture: Future[Unit] = {
+        val maybeUserAnswersFuture = sessionRepository.get(request.userId)
+        for {
+          maybeUserAnswers <- maybeUserAnswersFuture
+          userAnswers      <- Future.fromTry(
+                                maybeUserAnswers
+                                  .getOrElse(UserAnswers(request.userId))
+                                  .set(IndexPage, utrValue)
+                              )
+          _                <- sessionRepository.set(userAnswers)
+        } yield ()
+      }
+
+      saveUserAnswersFuture.flatMap { _ =>
+        request.affinityGroup match {
+          case AffinityGroup.Individual =>
+            Future.successful(
+              Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+            )
+          case _                        =>
+            request.utr match {
+              case Some(_) =>
+                Future.successful(
+                  Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
+                )
+              case None    =>
+                Future.successful(
+                  Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
+                )
+            }
+        }
       }
   }
 }

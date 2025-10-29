@@ -42,6 +42,6 @@
 
     <p class="govuk-body">
         @messages("problemDifferentBusiness.registerADifferentOrg")
-        @link(appConfig.loginUrl, messages("problemDifferentBusiness.link")).
+        @link(s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}", messages("problemDifferentBusiness.link"), fullStop = true)</p>
     </p>
 }

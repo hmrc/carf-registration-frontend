@@ -50,12 +50,19 @@ class IndexController @Inject() (
         case _                        =>
           request.utr match {
             case Some(utr) =>
+              val maybeUserAnswersFutureOption = sessionRepository.get(request.userId)
               for {
-                autoMatchedUserAnswers <- Future.fromTry(UserAnswers(request.userId).set(IndexPage, utr))
+                maybeUserAnswers       <- maybeUserAnswersFutureOption // unwrap the Future, to get an Option[UserAnswers].
+                autoMatchedUserAnswers <- Future.fromTry(
+                                            maybeUserAnswers
+                                              .getOrElse(UserAnswers(request.userId))
+                                              .set(IndexPage, utr)
+                                          )
                 _                      <- sessionRepository.set(autoMatchedUserAnswers)
-              } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
-
-            case None =>
+              } yield Redirect(
+                controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+              )
+            case None      =>
               Future.successful(
                 Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
               )

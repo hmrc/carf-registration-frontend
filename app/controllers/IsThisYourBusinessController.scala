@@ -19,9 +19,9 @@ package controllers
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
-import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
+import models.{BusinessDetails, IndividualRegistrationType, IsThisYourBusinessPageDetails, Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.Navigator
-import pages.{IndexPage, IsThisYourBusinessPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -50,6 +50,21 @@ class IsThisYourBusinessController @Inject() (
     with Logging {
 
   val form = formProvider()
+
+  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
+
+    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
+
+    val organisationRegistrationType: Option[OrganisationRegistrationType] =
+      userAnswers.get(OrganisationRegistrationTypePage)
+
+    (individualRegistrationType, organisationRegistrationType) match {
+      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
+        true
+      case _                                                                                                     =>
+        false
+    }
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
@@ -88,12 +103,21 @@ class IsThisYourBusinessController @Inject() (
                 logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
               } else {
-                Future.successful(
-                  Redirect(
-                    routes.PlaceholderController
-                      .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+                if (isSoleTrader(request.userAnswers)) {
+                  Future.successful(
+                    Redirect(
+                      routes.PlaceholderController
+                        .onPageLoad("Must redirect to /problem/sole-trader-not-identified ssssss(CARF-129)")
+                    )
                   )
-                )
+                } else {
+                  Future.successful(
+                    Redirect(
+                      routes.PlaceholderController
+                        .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+                    )
+                  )
+                }
               }
           }
 

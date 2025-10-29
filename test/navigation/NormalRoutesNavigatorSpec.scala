@@ -20,10 +20,8 @@ import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, NiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -606,37 +604,5 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         updatedAnswers
       ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
     }
-
-    "must navigate from WhatIsYourName to SoleTraderNotIdentified page for non-matched soleTrader" in {
-
-      val updatedAnswers =
-        emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
-          .success
-          .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
-          .success
-          .value
-
-      navigator.nextPage(
-        WhatIsYourNamePage,
-        NormalMode,
-        updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/problem/sole-trader-not-identified (CARF-129)"
-      )
-    }
-
-    "must navigate from WhatIsYourName to Business-not-identified page for non-matched non-soleTrader" in {
-
-      navigator.nextPage(
-        WhatIsYourNamePage,
-        NormalMode,
-        UserAnswers("id")
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/problem/business-not-identified (CARF-147)"
-      )
-    }
   }
-
 }

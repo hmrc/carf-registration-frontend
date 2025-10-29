@@ -34,12 +34,12 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
     val invalidKey  = "whatIsYourName.error.firstName.invalid"
     val maxLength   = 35
 
-//    behave like fieldThatBindsValidDataWithoutInvalidError(
-//      form,
-//      fieldName,
-//      RegexpGen.from(individualNameRegex),
-//      invalidKey
-//    )
+    behave like fieldThatBindsValidDataWithoutInvalidError(
+      form,
+      fieldName,
+      RegexpGen.from(individualNameRegex),
+      invalidKey
+    )
 
     behave like fieldWithMaxLengthAlphanumeric(
       form,
@@ -47,13 +47,6 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
       maxLength = maxLength,
       lengthError = FormError(fieldName, lengthKey, Seq())
     )
-
-//    behave like fieldWithMaxLength(
-//      form,
-//      fieldName,
-//      maxLength = maxLength,
-//      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-//    )
 
     behave like mandatoryField(
       form,
@@ -70,12 +63,12 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
     val lengthKey   = "whatIsYourName.error.lastName.length"
     val maxLength   = 35
 
-//    behave like fieldThatBindsValidDataWithoutInvalidError(
-//      form,
-//      fieldName,
-//      RegexpGen.from(individualNameRegex),
-//      invalidKey
-//    )
+    behave like fieldThatBindsValidDataWithoutInvalidError(
+      form,
+      fieldName,
+      RegexpGen.from(individualNameRegex),
+      invalidKey
+    )
 
     behave like fieldWithMaxLengthAlphanumeric(
       form,
@@ -83,13 +76,6 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
       maxLength = maxLength,
       lengthError = FormError(fieldName, lengthKey, Seq())
     )
-
-//    behave like fieldWithMaxLength(
-//      form,
-//      fieldName,
-//      maxLength = maxLength,
-//      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-//    )
 
     behave like mandatoryField(
       form,

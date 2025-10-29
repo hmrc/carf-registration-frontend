@@ -98,7 +98,7 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
       requiredError = FormError(fieldName, requiredKey)
     )
 
-    "must return an error when firstName is invalid" in {
+    "must return an error when lastName is invalid" in {
       val invalidLastNames: Seq[String] = Seq("Smith@", "Timmey!", "@Smith", "O'Corner#", " Do@e")
 
       invalidLastNames.foreach { invalidLastName =>

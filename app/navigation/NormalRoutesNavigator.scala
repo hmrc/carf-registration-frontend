@@ -17,13 +17,14 @@
 package navigation
 
 import controllers.routes
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import play.api.mvc.Call
+import utils.UserAnswersHelper
 
-trait NormalRoutesNavigator {
+trait NormalRoutesNavigator extends UserAnswersHelper {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
@@ -140,21 +141,6 @@ trait NormalRoutesNavigator {
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
-
-    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
-
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        true
-      case _                                                                                                     =>
-        false
-    }
-  }
 
   private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
     userAnswers.get(IndexPage).isDefined

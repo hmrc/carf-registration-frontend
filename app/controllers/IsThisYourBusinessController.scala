@@ -19,15 +19,17 @@ package controllers
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
-import models.{BusinessDetails, IndividualRegistrationType, IsThisYourBusinessPageDetails, Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.UserAnswersHelper
 import views.html.IsThisYourBusinessView
 
 import javax.inject.Inject
@@ -47,24 +49,10 @@ class IsThisYourBusinessController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
+    with UserAnswersHelper
     with Logging {
 
-  val form = formProvider()
-
-  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
-
-    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
-
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        true
-      case _                                                                                                     =>
-        false
-    }
-  }
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
@@ -98,27 +86,7 @@ class IsThisYourBusinessController @Inject() (
               }
 
             case None =>
-              val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
-              if (isUserFromIndexPage) {
-                logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
-                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-              } else {
-                if (isSoleTrader(request.userAnswers)) {
-                  Future.successful(
-                    Redirect(
-                      routes.PlaceholderController
-                        .onPageLoad("Must redirect to /problem/sole-trader-not-identified ssssss(CARF-129)")
-                    )
-                  )
-                } else {
-                  Future.successful(
-                    Redirect(
-                      routes.PlaceholderController
-                        .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
-                    )
-                  )
-                }
-              }
+              handleBusinessNotFound(request)
           }
 
         case None =>
@@ -169,5 +137,29 @@ class IsThisYourBusinessController @Inject() (
           }
         }
       )
+  }
+
+  private def handleBusinessNotFound(request: DataRequest[_]): Future[Result] = {
+    val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
+    if (isUserFromIndexPage) {
+      logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
+      Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    } else {
+      if (isSoleTrader(request.userAnswers)) {
+        Future.successful(
+          Redirect(
+            routes.PlaceholderController
+              .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+          )
+        )
+      } else {
+        Future.successful(
+          Redirect(
+            routes.PlaceholderController
+              .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+          )
+        )
+      }
+    }
   }
 }

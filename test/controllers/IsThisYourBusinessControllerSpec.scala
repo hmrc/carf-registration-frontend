@@ -21,7 +21,7 @@ import forms.IsThisYourBusinessFormProvider
 import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{IndexPage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
@@ -209,6 +209,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockRegistrationService, times(1)).getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
       }
     }
 
@@ -315,6 +316,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.PlaceholderController
           .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
           .url
+        verify(mockRegistrationService, times(1)).getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
+
       }
     }
 

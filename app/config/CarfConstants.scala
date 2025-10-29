@@ -22,6 +22,4 @@ object CarfConstants {
 
   final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
   final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
-  final val RegexString         = "^[a-zA-Z &`\\-\\'^]{1,35}$"
-
 }

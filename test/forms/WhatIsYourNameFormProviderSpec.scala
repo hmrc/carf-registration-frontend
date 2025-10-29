@@ -53,6 +53,21 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "must return an error when firstName is invalid" in {
+      val invalidFirstNames: Seq[String] = Seq("John@", "John!", "John@Smith")
+
+      invalidFirstNames.foreach { invalidFirstName =>
+        val result = form.bind(
+          Map(
+            "firstName" -> invalidFirstName,
+            "lastName"  -> "Smith"
+          )
+        )
+        result.errors.size mustBe 1
+        result.errors.head.message mustBe "whatIsYourName.error.firstName.invalid"
+      }
+    }
   }
 
   ".lastName" - {
@@ -82,5 +97,20 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "must return an error when firstName is invalid" in {
+      val invalidLastNames: Seq[String] = Seq("Smith@", "Timmey!", "@Smith", "O'Corner#", " Do@e")
+
+      invalidLastNames.foreach { invalidLastName =>
+        val result = form.bind(
+          Map(
+            "firstName" -> "John",
+            "lastName"  -> invalidLastName
+          )
+        )
+        result.errors.size mustBe 1
+        result.errors.head.message mustBe "whatIsYourName.error.lastName.invalid"
+      }
+    }
   }
 }

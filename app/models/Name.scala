@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class Name(firstName: String, lastName: String) {
 
@@ -25,7 +25,5 @@ case class Name(firstName: String, lastName: String) {
 }
 
 object Name {
-
-  val RegexString                    = "^[a-zA-Z &`\\-\\'^]{1,35}$"
   implicit val format: OFormat[Name] = Json.format[Name]
 }

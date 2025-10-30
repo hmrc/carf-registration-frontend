@@ -55,13 +55,6 @@ class HaveUTRController @Inject() (
 
     implicit request =>
 
-      val utrString                        = request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference
-      val organisationName: Option[String] = None
-
-      service
-        .getBusinessByUtr(utrString, organisationName)
-        .map(a => logger.info(s"%%% LOOK HERE (Organisation) %%% \n-> $a"))
-
       val preparedForm = request.userAnswers.get(HaveUTRPage) match {
         case None        => form
         case Some(value) => form.fill(value)

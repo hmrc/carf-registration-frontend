@@ -21,12 +21,13 @@ import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.{BusinessDetails, IndividualDetails}
 import uk.gov.hmrc.http.HeaderCarrier
+import play.api.Logging
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging{
 
   def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] =
     connector
@@ -44,6 +45,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       .value
       .flatMap {
         case Right(response)              =>
+          logger.info("Successfully retrieved individual details.")
           Future.successful(
             Some(
               IndividualDetails(
@@ -55,8 +57,11 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
               )
             )
           )
-        case Left(ApiError.NotFoundError) => Future.successful(None)
-        case Left(error)                  => Future.failed(new Exception("Unexpected Error!"))
+        case Left(ApiError.NotFoundError) =>
+          logger.warn("Not Found (404) for individual details.")
+          Future.successful(None)
+        case Left(error)                  =>
+          Future.failed(new Exception("Unexpected Error!"))
       }
 
   def getBusinessByUtr(utr: String, name: Option[String])(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] =
@@ -73,6 +78,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       .value
       .flatMap {
         case Right(response)              =>
+          logger.info("Successfully retrieved organisation details.")
           Future.successful(
             Some(
               BusinessDetails(
@@ -81,7 +87,11 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
               )
             )
           )
-        case Left(ApiError.NotFoundError) => Future.successful(None)
-        case Left(error)                  => Future.failed(new Exception(s"Unexpected Error! Details: ${error.toString}"))
+        case Left(ApiError.NotFoundError) =>
+          logger.warn("Not Found (404) for organisation details.")
+          Future.successful(None)
+
+        case Left(error)                  =>
+          Future.failed(new Exception(s"Unexpected Error!"))
       }
 }

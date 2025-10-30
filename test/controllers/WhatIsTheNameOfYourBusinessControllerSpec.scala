@@ -175,7 +175,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must redirect to the next page when valid data is submitted" in {
       val companyName = "Test Company Ltd"
 
-      val userAnswers = emptyUserAnswers
+      val initialUserAnswers = emptyUserAnswers
         .set(OrganisationRegistrationTypePage, LimitedCompany)
         .success
         .value
@@ -183,16 +183,21 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
         .success
         .value
 
+      val finalUserAnswers = initialUserAnswers
+        .set(WhatIsTheNameOfYourBusinessPage, companyName)
+        .success
+        .value
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
       when(
-        mockRegistrationService.getBusinessByUtr(
-          eqTo(testUtr.uniqueTaxPayerReference),
-          eqTo(Some(companyName))
+        mockRegistrationService.getBusinessWithUserInput(
+          eqTo(finalUserAnswers)
         )(any())
       ) thenReturn Future.successful(Some(testBusinessDetails))
 
       val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
+        applicationBuilder(userAnswers = Some(initialUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[RegistrationService].toInstance(mockRegistrationService)

@@ -19,9 +19,11 @@ package services
 import connectors.RegistrationConnector
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
-import models.{BusinessDetails, IndividualDetails}
+import models.responses.RegisterOrganisationWithIdResponse
+import models.{BusinessDetails, IndividualDetails, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.Logging
+import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,34 +66,64 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           Future.failed(new Exception("Unexpected Error!"))
       }
 
-  def getBusinessByUtr(utr: String, name: Option[String])(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] =
-    connector
-      .organisationWithUtr(
-        request = RegisterOrganisationWithIdRequest(
+  def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
+    val request = RegisterOrganisationWithIdRequest(
+      requiresNameMatch = false,
+      IDNumber = utr,
+      IDType = "UTR",
+      organisationName = None,
+      organisationType = None
+    )
+
+    handleRegistrationResponse(connector.organisationWithUtr(request).value)
+  }
+
+  def getBusinessWithUserInput(
+      userAnswers: UserAnswers
+  )(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
+    val registrationData = for {
+      utr          <- userAnswers.get(YourUniqueTaxpayerReferencePage)
+      businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+      orgType      <- userAnswers.get(OrganisationRegistrationTypePage)
+    } yield (utr, businessName, orgType)
+
+    registrationData match {
+      case Some((utr, businessName, orgType)) =>
+        val request = RegisterOrganisationWithIdRequest(
           requiresNameMatch = true,
-          IDNumber = utr,
+          IDNumber = utr.uniqueTaxPayerReference,
           IDType = "UTR",
-          organisationName = name,
-          organisationType = Some("0002")
+          organisationName = Some(businessName),
+          organisationType = Some(orgType.code)
         )
-      )
-      .value
-      .flatMap {
-        case Right(response)              =>
-          logger.info("Successfully retrieved organisation details.")
-          Future.successful(
-            Some(
-              BusinessDetails(
-                name = response.organisationName,
-                address = response.address
-              )
+        handleRegistrationResponse(connector.organisationWithUtr(request).value)
+
+      case None =>
+        logger.warn("Required data was missing from UserAnswers.")
+        Future.successful(None)
+    }
+  }
+
+  private def handleRegistrationResponse(
+      responseFuture: Future[Either[ApiError, RegisterOrganisationWithIdResponse]]
+  ): Future[Option[BusinessDetails]] =
+    responseFuture.flatMap {
+      case Right(response)              =>
+        logger.info("Successfully retrieved organisation details.")
+        Future.successful(
+          Some(
+            BusinessDetails(
+              name = response.organisationName,
+              address = response.address
             )
           )
-        case Left(ApiError.NotFoundError) =>
-          logger.warn("Not Found (404) for organisation details.")
-          Future.successful(None)
+        )
+      case Left(ApiError.NotFoundError) =>
+        logger.warn("Not Found (404) for organisation details.")
+        Future.successful(None)
 
-        case Left(error) =>
-          Future.failed(new Exception(s"Unexpected Error!"))
-      }
+      case Left(error) =>
+        logger.error(s"Failed to retrieve organisation details: $error")
+        Future.failed(new Exception("Unexpected error!"))
+    }
 }

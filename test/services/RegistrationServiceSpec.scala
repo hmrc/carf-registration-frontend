@@ -23,9 +23,11 @@ import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.requests.RegisterOrganisationWithIdRequest
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{Address, BusinessDetails, IndividualDetails}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import models.{Address, BusinessDetails, IndividualDetails, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{reset, verify, when}
+import org.scalactic.Prettifier.default
+import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 import scala.concurrent.Future
 
@@ -33,6 +35,8 @@ class RegistrationServiceSpec extends SpecBase {
 
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
   val testService                          = new RegistrationService(mockConnector)
+
+  val testOrgType = OrganisationRegistrationType.LimitedCompany
 
   val testAddress = Address(
     addressLine1 = "123 Main Street",
@@ -84,69 +88,112 @@ class RegistrationServiceSpec extends SpecBase {
     reset(mockConnector)
   }
   "RegistrationService" - {
-    "getBusinessByUtr method should" - {
-      "return UK business for UTR starting with '1'" in {
-
-        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
+    "getBusinessWithEnrolmentCtUtr should" - {
+      "return business details when the connector finds a match" in {
+        val expectedRequest = RegisterOrganisationWithIdRequest(
+          requiresNameMatch = false,
+          IDNumber = testUtr.uniqueTaxPayerReference,
+          IDType = "UTR",
+          organisationName = None,
+          organisationType = None
+        )
+        when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
 
-        val result = testService.getBusinessByUtr("1234567890", None)
-
-        val business = result.futureValue
-        business                          mustBe defined
-        business.get.name                 mustBe "Agent ABC Ltd"
-        business.get.isUkBased            mustBe true
-        business.get.address.addressLine1 mustBe "2 High Street"
-        business.get.address.addressLine2 mustBe Some("Birmingham")
-        business.get.address.postalCode   mustBe Some("B23 2AZ")
-        business.get.address.countryCode  mustBe "GB"
-      }
-
-      "return Non-UK business for UTR starting with '2'" in {
-
-        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
-          .thenReturn(EitherT.rightT[Future, ApiError](orgNonUkBusinessResponse))
-
-        val result = testService.getBusinessByUtr("2987654321", Some("International Ltd"))
-
-        val business = result.futureValue
-        business                          mustBe defined
-        business.get.name                 mustBe "International Ltd"
-        business.get.isUkBased            mustBe false
-        business.get.address.addressLine1 mustBe "3 Apple Street"
-        business.get.address.addressLine2 mustBe Some("New York")
-        business.get.address.postalCode   mustBe Some("11722")
-        business.get.address.countryCode  mustBe "US"
-      }
-
-      "return a business when UTR and businessName has been provided" in {
-
-        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
-          .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
-
-        val result =
-          testService.getBusinessByUtr(utr = "1234567890", name = Some("Agent ABC Ltd"))
-
+        val result   = testService.getBusinessWithEnrolmentCtUtr(testUtr.uniqueTaxPayerReference)
         val business = result.futureValue
 
-        business                          mustBe defined
-        business.get.name                 mustBe "Agent ABC Ltd"
-        business.get.isUkBased            mustBe true
-        business.get.address.addressLine1 mustBe "2 High Street"
-        business.get.address.addressLine2 mustBe Some("Birmingham")
+        business          mustBe defined
+        business.get.name mustBe orgUkBusinessResponse.organisationName
+        verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
       }
 
-      "return None when business cannot be found by UTR" in {
-
-        when(mockConnector.organisationWithUtr(any[RegisterOrganisationWithIdRequest]())(any()))
+      "return None when the connector does not find a match" in {
+        when(mockConnector.organisationWithUtr(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](NotFoundError))
 
-        val result = testService.getBusinessByUtr("9999999999", None)
-
+        val result   = testService.getBusinessWithEnrolmentCtUtr(testUtr.uniqueTaxPayerReference)
         val business = result.futureValue
+
         business mustBe None
       }
+
+      "throw an exception when the connector returns an error" in {
+        when(mockConnector.organisationWithUtr(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](InternalServerError))
+
+        val exception = intercept[Exception] {
+          testService.getBusinessWithEnrolmentCtUtr(testUtr.uniqueTaxPayerReference).futureValue
+        }
+
+        exception.getMessage must include("Unexpected error!")
+      }
     }
+
+    "getBusinessWithUserInput should" - {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
+        .success
+        .value
+        .set(OrganisationRegistrationTypePage, testOrgType)
+        .success
+        .value
+
+      "return business details when UserAnswers is complete and connector finds a match" in {
+        val expectedRequest = RegisterOrganisationWithIdRequest(
+          requiresNameMatch = true,
+          IDNumber = testUtr.uniqueTaxPayerReference,
+          IDType = "UTR",
+          organisationName = Some(orgUkBusinessResponse.organisationName),
+          organisationType = Some(testOrgType.code)
+        )
+        when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
+
+        val result   = testService.getBusinessWithUserInput(userAnswers)
+        val business = result.futureValue
+
+        business          mustBe defined
+        business.get.name mustBe orgUkBusinessResponse.organisationName
+        verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
+      }
+
+      "return None when UserAnswers is missing data" in {
+        val incompleteUserAnswers = UserAnswers(userAnswersId)
+
+        val result   = testService.getBusinessWithUserInput(incompleteUserAnswers)
+        val business = result.futureValue
+
+        business mustBe None
+      }
+
+      "throw an exception when the connector returns an error" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
+          .success
+          .value
+          .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
+          .success
+          .value
+          .set(OrganisationRegistrationTypePage, testOrgType)
+          .success
+          .value
+
+        when(mockConnector.organisationWithUtr(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](InternalServerError))
+
+        val exception = intercept[Exception] {
+          testService.getBusinessWithUserInput(userAnswers).futureValue
+        }
+
+        exception.getMessage must include("Unexpected error!")
+      }
+    }
+
     "getIndividualByNino method should" - {
       "successfully return an individual's details when the connector returns them successfully" in {
         when(mockConnector.individualWithNino(any())(any()))

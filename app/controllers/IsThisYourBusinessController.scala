@@ -53,54 +53,25 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val utrOpt    = request.userAnswers
-        .get(YourUniqueTaxpayerReferencePage)
-        .orElse(request.userAnswers.get(IndexPage))
-      val maybeName = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+      val isAutoMatchedJourney = request.userAnswers.get(IndexPage).isDefined
+      val isManualEntryJourney = request.userAnswers.get(YourUniqueTaxpayerReferencePage).isDefined
 
-      utrOpt match {
-        case Some(utr) =>
-          businessService.getBusinessByUtr(utr.uniqueTaxPayerReference, maybeName).flatMap {
-            case Some(business) =>
-              val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
-              val pageDetails         = IsThisYourBusinessPageDetails(
-                name = business.name,
-                address = business.address,
-                pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
-              )
+      if (isAutoMatchedJourney) {
+        val utr = request.userAnswers.get(IndexPage).get.uniqueTaxPayerReference
+        handleBusinessLookup(businessService.getBusinessWithEnrolmentCtUtr(utr), utr, mode, isAutoMatch = true)
 
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield {
-                val preparedForm = pageDetails.pageAnswer match {
-                  case None        => form
-                  case Some(value) => form.fill(value)
-                }
-                logger.info(s"Fresh business data cached for UTR: ${utr.uniqueTaxPayerReference}")
-                Ok(view(preparedForm, mode, business))
-              }
+      } else if (isManualEntryJourney) {
+        val utr = request.userAnswers.get(YourUniqueTaxpayerReferencePage).get.uniqueTaxPayerReference
+        handleBusinessLookup(
+          businessService.getBusinessWithUserInput(request.userAnswers),
+          utr,
+          mode,
+          isAutoMatch = false
+        )
 
-            case None =>
-              val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
-              if (isUserFromIndexPage) {
-                logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
-                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-              } else {
-                Future.successful(
-                  Redirect(
-                    routes.PlaceholderController
-                      .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
-                  )
-                )
-              }
-          }
-
-        case None =>
-          logger.warn(
-            "No UTR found in user answers (YourUniqueTaxpayerReferencePage or IndexPage). Redirecting to journey recovery."
-          )
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      } else {
+        logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
 
@@ -117,6 +88,43 @@ class IsThisYourBusinessController @Inject() (
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
+
+  private def handleBusinessLookup(
+      lookupFuture: Future[Option[BusinessDetails]],
+      utr: String,
+      mode: Mode,
+      isAutoMatch: Boolean
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    lookupFuture.flatMap {
+      case Some(business) =>
+        val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
+        val pageDetails         = IsThisYourBusinessPageDetails(
+          name = business.name,
+          address = business.address,
+          pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
+        )
+
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield {
+          val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
+          logger.info(s"Business data found and cached for UTR: $utr.")
+          Ok(view(preparedForm, mode, business))
+        }
+
+      case None =>
+        logger.warn(s"Business not found")
+        if (isAutoMatch) {
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        } else {
+          Future.successful(
+            Redirect(
+              routes.PlaceholderController.onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+            )
+          )
+        }
+    }
 
   private def processFormSubmission(
       existingPageDetails: IsThisYourBusinessPageDetails,

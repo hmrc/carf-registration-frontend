@@ -27,7 +27,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging{
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
   def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] =
     connector
@@ -91,7 +91,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           logger.warn("Not Found (404) for organisation details.")
           Future.successful(None)
 
-        case Left(error)                  =>
+        case Left(error) =>
           Future.failed(new Exception(s"Unexpected Error!"))
       }
 }

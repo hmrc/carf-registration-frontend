@@ -18,11 +18,12 @@ package controllers
 
 import base.SpecBase
 import forms.IsThisYourBusinessFormProvider
-import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, UniqueTaxpayerReference, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import uk.gov.hmrc.http.InternalServerException
+import pages.{IsThisYourBusinessPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -163,14 +164,21 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Business not Identified when business is not found by UTR navigating through the Journey" in {
+
+      val userProvidedBusinessName = "Not Identified Business Name"
+
       when(
-        mockRegistrationService.getBusinessByUtr(eqTo(testUtr.uniqueTaxPayerReference), eqTo(None))(
-          any[HeaderCarrier]()
-        )
+        mockRegistrationService
+          .getBusinessByUtr(eqTo(testUtr.uniqueTaxPayerReference), eqTo(Some(userProvidedBusinessName)))(
+            any[HeaderCarrier]()
+          )
       ) thenReturn Future.successful(None)
 
       val userAnswers = UserAnswers(userAnswersId)
         .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, userProvidedBusinessName)
         .success
         .value
 
@@ -287,5 +295,38 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must return an Internal Server Error when the downstream service fails" in {
+      val utr9 = UniqueTaxpayerReference("9876543210")
+
+      when(
+        mockRegistrationService.getBusinessByUtr(eqTo(utr9.uniqueTaxPayerReference), eqTo(None))(
+          any()
+        )
+      ) thenReturn Future.failed(new InternalServerException("500 Internal Server Error"))
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, utr9)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result = route(application, request).value
+        val pageContent = contentAsString(result)
+
+        status(result) mustEqual INTERNAL_SERVER_ERROR
+
+        pageContent must include("Sorry, there is a problem with the service")
+        pageContent must include("Try again later.")
+      }
+    }
+
   }
 }

@@ -296,7 +296,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return an Internal Server Error when the downstream service fails" in {
+    "must return an Internal Server Error when service fails" in {
       val utr9 = UniqueTaxpayerReference("9876543210")
 
       when(
@@ -317,8 +317,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
-        val result = route(application, request).value
+        val request     = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result      = route(application, request).value
         val pageContent = contentAsString(result)
 
         status(result) mustEqual INTERNAL_SERVER_ERROR

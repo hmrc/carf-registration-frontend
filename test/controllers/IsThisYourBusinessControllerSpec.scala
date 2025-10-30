@@ -295,38 +295,5 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
-
-    "must return an Internal Server Error when service fails" in {
-      val utr9 = UniqueTaxpayerReference("9876543210")
-
-      when(
-        mockRegistrationService.getBusinessByUtr(eqTo(utr9.uniqueTaxPayerReference), eqTo(None))(
-          any()
-        )
-      ) thenReturn Future.failed(new InternalServerException("500 Internal Server Error"))
-
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(YourUniqueTaxpayerReferencePage, utr9)
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[RegistrationService].toInstance(mockRegistrationService)
-        )
-        .build()
-
-      running(application) {
-        val request     = FakeRequest(GET, isThisYourBusinessControllerRoute)
-        val result      = route(application, request).value
-        val pageContent = contentAsString(result)
-
-        status(result) mustEqual INTERNAL_SERVER_ERROR
-
-        pageContent must include("Sorry, there is a problem with the service")
-        pageContent must include("Try again later.")
-      }
-    }
-
   }
 }

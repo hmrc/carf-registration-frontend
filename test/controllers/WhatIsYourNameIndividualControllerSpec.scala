@@ -18,17 +18,18 @@ package controllers
 
 import base.SpecBase
 import forms.WhatIsYourNameIndividualFormProvider
-import models.{NormalMode, UserAnswers, WhatIsYourNameIndividual}
+import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatIsYourNameIndividualPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.WhatIsYourNameIndividualView
 
@@ -38,17 +39,17 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new WhatIsYourNameIndividualFormProvider()
-  val form         = formProvider()
+  val formProvider     = new WhatIsYourNameIndividualFormProvider()
+  val form: Form[Name] = formProvider()
 
-  lazy val whatIsYourNameIndividualRoute = routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode).url
+  lazy val whatIsYourNameIndividualRoute: String = routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode).url
 
   val userAnswers = UserAnswers(
     userAnswersId,
     Json.obj(
       WhatIsYourNameIndividualPage.toString -> Json.obj(
-        "firstName" -> "value 1",
-        "lastName"  -> "value 2"
+        "firstName" -> "firstName example",
+        "lastName"  -> "lastName example"
       )
     )
   )
@@ -73,6 +74,9 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
+      val userAnswers: UserAnswers =
+        emptyUserAnswers.set(WhatIsYourNameIndividualPage, Name("firstName", "lastName")).success.value
+
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -83,7 +87,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
         val result = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(WhatIsYourNameIndividual("value 1", "value 2")), NormalMode)(
+        contentAsString(result) mustEqual view(form.fill(Name("firstName", "lastName")), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -91,6 +95,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
     }
 
     "must redirect to the next page when valid data is submitted" in {
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -103,7 +108,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
       running(application) {
         val request =
           FakeRequest(POST, whatIsYourNameIndividualRoute)
-            .withFormUrlEncodedBody(("firstName", "value 1"), ("lastName", "value 2"))
+            .withFormUrlEncodedBody(("firstName", "firstName timmy"), ("lastName", "lastName timmerson"))
 
         val result = route(application, request).value
 

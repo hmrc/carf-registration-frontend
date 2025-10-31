@@ -16,21 +16,35 @@
 
 package forms
 
+import config.CarfConstants
+import config.CarfConstants.individualNameRegex
 import forms.mappings.Mappings
-import models.WhatIsYourNameIndividual
+import models.Name
 import play.api.data.Form
 import play.api.data.Forms.*
 
 import javax.inject.Inject
-
 class WhatIsYourNameIndividualFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[WhatIsYourNameIndividual] = Form(
+  private val maxLength = 35
+
+  def apply(): Form[Name] = Form(
     mapping(
-      "firstName" -> text("whatIsYourNameIndividual.error.firstName.required")
-        .verifying(maxLength(35, "whatIsYourNameIndividual.error.firstName.length")),
-      "lastName"  -> text("whatIsYourNameIndividual.error.lastName.required")
-        .verifying(maxLength(35, "whatIsYourNameIndividual.error.lastName.length"))
-    )(WhatIsYourNameIndividual.apply)(x => Some((x.firstName, x.lastName)))
+      "firstName" -> validatedText(
+        "whatIsYourNameIndividual.error.firstName.required",
+        "whatIsYourNameIndividual.error.firstName.invalid",
+        "whatIsYourNameIndividual.error.firstName.length",
+        individualNameRegex,
+        maxLength
+      ),
+      "lastName"  -> validatedText(
+        "whatIsYourNameIndividual.error.lastName.required",
+        "whatIsYourNameIndividual.error.lastName.invalid",
+        "whatIsYourNameIndividual.error.lastName.length",
+        individualNameRegex,
+        maxLength
+      )
+    )(Name.apply)(name => Some((name.firstName, name.lastName)))
   )
+
 }

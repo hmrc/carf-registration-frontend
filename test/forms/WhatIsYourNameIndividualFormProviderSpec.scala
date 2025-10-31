@@ -16,8 +16,10 @@
 
 package forms
 
+import config.CarfConstants.individualNameRegex
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.FormError
+import wolfendale.scalacheck.regexp.RegexpGen
 
 class WhatIsYourNameIndividualFormProviderSpec extends StringFieldBehaviours {
 
@@ -27,20 +29,22 @@ class WhatIsYourNameIndividualFormProviderSpec extends StringFieldBehaviours {
 
     val fieldName   = "firstName"
     val requiredKey = "whatIsYourNameIndividual.error.firstName.required"
+    val invalidKey  = "whatIsYourNameIndividual.error.firstName.invalid"
     val lengthKey   = "whatIsYourNameIndividual.error.firstName.length"
     val maxLength   = 35
 
-    behave like fieldThatBindsValidData(
+    behave like fieldThatBindsValidDataWithoutInvalidError(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      RegexpGen.from(individualNameRegex),
+      invalidKey
     )
 
-    behave like fieldWithMaxLength(
+    behave like fieldWithMaxLengthAlphanumeric(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq())
     )
 
     behave like mandatoryField(
@@ -48,26 +52,43 @@ class WhatIsYourNameIndividualFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "must return an error when firstName is invalid" in {
+      val invalidFirstNames: Seq[String] = Seq("John@", "John!", "John@Smith")
+
+      invalidFirstNames.foreach { invalidFirstName =>
+        val result = form.bind(
+          Map(
+            "firstName" -> invalidFirstName,
+            "lastName"  -> "Smith"
+          )
+        )
+        result.errors.size mustBe 1
+        result.errors.head.message mustBe "whatIsYourNameIndividual.error.firstName.invalid"
+      }
+    }
   }
 
   ".lastName" - {
 
     val fieldName   = "lastName"
     val requiredKey = "whatIsYourNameIndividual.error.lastName.required"
+    val invalidKey  = "whatIsYourNameIndividual.error.lastName.invalid"
     val lengthKey   = "whatIsYourNameIndividual.error.lastName.length"
-    val maxLength   = 34
+    val maxLength   = 35
 
-    behave like fieldThatBindsValidData(
+    behave like fieldThatBindsValidDataWithoutInvalidError(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      RegexpGen.from(individualNameRegex),
+      invalidKey
     )
 
-    behave like fieldWithMaxLength(
+    behave like fieldWithMaxLengthAlphanumeric(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq())
     )
 
     behave like mandatoryField(
@@ -75,5 +96,20 @@ class WhatIsYourNameIndividualFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "must return an error when lastName is invalid" in {
+      val invalidLastNames: Seq[String] = Seq("Smith@", "Timmey!", "@Smith", "O'Corner#", " Do@e")
+
+      invalidLastNames.foreach { invalidLastName =>
+        val result = form.bind(
+          Map(
+            "firstName" -> "John",
+            "lastName"  -> invalidLastName
+          )
+        )
+        result.errors.size mustBe 1
+        result.errors.head.message mustBe "whatIsYourNameIndividual.error.lastName.invalid"
+      }
+    }
   }
 }

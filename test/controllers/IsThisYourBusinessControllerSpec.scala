@@ -109,7 +109,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "on a manual-entry journey" - {
-      "must return OK and the correct view when UTR and Name are provided" in {
+      "must return OK and the correct view when UTR and Business name are provided" in {
         val userAnswers = UserAnswers(userAnswersId)
           .set(YourUniqueTaxpayerReferencePage, testUtr)
           .success

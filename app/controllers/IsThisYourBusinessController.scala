@@ -114,7 +114,9 @@ class IsThisYourBusinessController @Inject() (
         }
 
       case None =>
-        logger.warn(s"Business not found")
+        val journeyType = if (isAutoMatch) "Auto-Match" else "Manual-Entry"
+        logger.warn(s"IsThisYourBusinessController: Business not found. Journey type: $journeyType.")
+
         if (isAutoMatch) {
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {

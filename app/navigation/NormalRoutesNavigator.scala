@@ -129,7 +129,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
       case Some(false) =>
         if (isCTAutomatched(userAnswers)) {
-          routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+          routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
             routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")

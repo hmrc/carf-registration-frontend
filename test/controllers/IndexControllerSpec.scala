@@ -61,8 +61,10 @@ class IndexControllerSpec extends SpecBase {
       )
     }
 
-    "must handle an organisation user with utr correctly" in new Setup(Organisation) {
-
+    "must handle an organisation user with utr correctly" in new Setup(
+      Organisation,
+      Some(testUtr.uniqueTaxPayerReference)
+    ) {
       when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
 
       val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
@@ -92,8 +94,8 @@ class IndexControllerSpec extends SpecBase {
     }
   }
 
-  class Setup(affinityGroup: AffinityGroup) {
-    val application: Application = applicationBuilder(affinityGroup = affinityGroup)
+  class Setup(affinityGroup: AffinityGroup, requestUtr: Option[String] = None) {
+    val application: Application = applicationBuilder(affinityGroup = affinityGroup, requestUtr)
       .overrides(
         bind[CtUtrRetrievalAction].toInstance(mockCtUtrRetrievalAction)
       )

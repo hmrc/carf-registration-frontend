@@ -133,7 +133,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
           ).toString
         }
       }
-      "must redirect to Business Not Identified when the service finds no business" in {
+      "must redirect to Business not Identified when business is not found by UTR navigating through the Journey" in {
         val userAnswers = UserAnswers(userAnswersId)
           .set(YourUniqueTaxpayerReferencePage, testUtr)
           .success

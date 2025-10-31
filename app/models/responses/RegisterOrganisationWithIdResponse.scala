@@ -21,7 +21,7 @@ import models.Address
 
 case class RegisterOrganisationWithIdResponse(
     safeId: String,
-    code: String,
+    code: Option[String],
     organisationName: String,
     address: Address
 )

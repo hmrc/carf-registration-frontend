@@ -75,7 +75,7 @@ class RegistrationConnectorISpec
 
   val validOrganisationResponse: RegisterOrganisationWithIdResponse = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
-    code = "0001",
+    code = Some("0001"),
     organisationName = "Monsters Inc",
     address = addressResponse
   )

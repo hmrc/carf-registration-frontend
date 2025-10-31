@@ -57,7 +57,7 @@ class RegistrationServiceSpec extends SpecBase {
 
   val orgUkBusinessResponse = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
-    code = "0000",
+    code = Some("0000"),
     organisationName = "Agent ABC Ltd",
     address = Address(
       addressLine1 = "2 High Street",
@@ -71,7 +71,7 @@ class RegistrationServiceSpec extends SpecBase {
 
   val orgNonUkBusinessResponse = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
-    code = "0001",
+    code = Some("0001"),
     organisationName = "International Ltd",
     address = Address(
       addressLine1 = "3 Apple Street",

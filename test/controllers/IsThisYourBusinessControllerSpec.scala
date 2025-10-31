@@ -167,6 +167,35 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return an Internal Server Error when the registration service fails" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, "some name")
+        .success
+        .value
+
+      val serviceException = new InternalServerException("500 Internal server error")
+      when(mockRegistrationService.getBusinessWithUserInput(any())(any()))
+        .thenReturn(Future.failed(serviceException))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+
+        val futureResult = route(application, request).get
+
+        whenReady(futureResult.failed) { exception =>
+          exception            mustBe a[InternalServerException]
+          exception.getMessage mustBe "500 Internal server error"
+        }
+      }
+    }
+
     "onSubmit" - {
       "must redirect to the next page when valid data is submitted" in {
         val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value

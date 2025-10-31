@@ -53,25 +53,28 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val isAutoMatchedJourney = request.userAnswers.get(IndexPage).isDefined
-      val isManualEntryJourney = request.userAnswers.get(YourUniqueTaxpayerReferencePage).isDefined
 
-      if (isAutoMatchedJourney) {
-        val utr = request.userAnswers.get(IndexPage).get.uniqueTaxPayerReference
-        handleBusinessLookup(businessService.getBusinessWithEnrolmentCtUtr(utr), utr, mode, isAutoMatch = true)
+      val maybeIndexPage   = request.userAnswers.get(IndexPage)
+      val maybeYourUtrPage = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
 
-      } else if (isManualEntryJourney) {
-        val utr = request.userAnswers.get(YourUniqueTaxpayerReferencePage).get.uniqueTaxPayerReference
-        handleBusinessLookup(
-          businessService.getBusinessWithUserInput(request.userAnswers),
-          utr,
-          mode,
-          isAutoMatch = false
-        )
-
-      } else {
-        logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      (maybeIndexPage, maybeYourUtrPage) match {
+        case (Some(autoMatchUtr), _) =>
+          handleBusinessLookup(
+            businessService.getBusinessWithEnrolmentCtUtr(autoMatchUtr.uniqueTaxPayerReference),
+            autoMatchUtr.uniqueTaxPayerReference,
+            mode,
+            isAutoMatch = true
+          )
+        case (_, Some(userInputUtr)) =>
+          handleBusinessLookup(
+            businessService.getBusinessWithUserInput(request.userAnswers),
+            userInputUtr.uniqueTaxPayerReference,
+            mode,
+            isAutoMatch = false
+          )
+        case (_, _)                  =>
+          logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
 

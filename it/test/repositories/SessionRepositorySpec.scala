@@ -19,6 +19,7 @@ package repositories
 import config.FrontendAppConfig
 import models.UserAnswers
 import org.mockito.Mockito.when
+import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
 import org.scalatest.OptionValues
@@ -80,10 +81,11 @@ class SessionRepositorySpec
 
       "must update the lastUpdated time and get the record" in {
 
-        insert(userAnswers).futureValue
+        val collection = repository.collection
+        collection.insertOne(userAnswers).toFuture().futureValue
 
-        val result         = repository.get(userAnswers.id).futureValue
-        val expectedResult = userAnswers copy (lastUpdated = instant)
+        val result = repository.get(userAnswers.id).futureValue
+        val expectedResult = userAnswers.copy(lastUpdated = instant)
 
         result.value mustEqual expectedResult
       }

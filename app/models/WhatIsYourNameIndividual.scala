@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json._
 
-case class WhatIsYourNameIndividual (firstName: String, lastName: String)
+case class WhatIsYourNameIndividual(firstName: String, lastName: String)
 
 object WhatIsYourNameIndividual {
 

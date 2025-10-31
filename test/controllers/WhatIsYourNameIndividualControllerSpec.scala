@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.WhatIsYourNameIndividualFormProvider
-import models.{NormalMode, WhatIsYourNameIndividual, UserAnswers}
+import models.{NormalMode, UserAnswers, WhatIsYourNameIndividual}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -39,7 +39,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
   def onwardRoute = Call("GET", "/foo")
 
   val formProvider = new WhatIsYourNameIndividualFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   lazy val whatIsYourNameIndividualRoute = routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode).url
 
@@ -48,7 +48,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
     Json.obj(
       WhatIsYourNameIndividualPage.toString -> Json.obj(
         "firstName" -> "value 1",
-        "lastName" -> "value 2"
+        "lastName"  -> "value 2"
       )
     )
   )
@@ -66,7 +66,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
@@ -82,8 +82,11 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(WhatIsYourNameIndividual("value 1", "value 2")), NormalMode)(request, messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(WhatIsYourNameIndividual("value 1", "value 2")), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -104,7 +107,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -124,7 +127,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
@@ -138,7 +141,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -154,7 +157,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

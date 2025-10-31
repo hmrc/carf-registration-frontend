@@ -14,69 +14,60 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.orgWithoutId
 
 import controllers.actions.*
-import forms.WhatIsTheNameOfYourBusinessFormProvider
-import models.OrganisationRegistrationType.*
-import models.{Mode, UserAnswers}
+import forms.orgWithoutId.HaveTradingNameFormProvider
+import models.Mode
 import navigation.Navigator
-import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
+import pages.orgWithoutId.HaveTradingNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.WhatIsTheNameOfYourBusinessView
+import views.html.orgWithoutId.HaveTradingNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatIsTheNameOfYourBusinessController @Inject() (
+class HaveTradingNameController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: WhatIsTheNameOfYourBusinessFormProvider,
+    formProvider: HaveTradingNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: WhatIsTheNameOfYourBusinessView
+    view: HaveTradingNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
+  val form = formProvider()
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val taxType      = getBusinessTypeMessageKey(request.userAnswers)
-      val form         = formProvider(taxType)
-      val preparedForm = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage) match {
+
+      val preparedForm = request.userAnswers.get(HaveTradingNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-      Ok(view(preparedForm, mode, taxType))
+
+      Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val taxType = getBusinessTypeMessageKey(request.userAnswers)
-      val form    = formProvider(taxType)
-
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, taxType))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheNameOfYourBusinessPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveTradingNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(HaveTradingNamePage, mode, updatedAnswers))
         )
   }
-
-  private def getBusinessTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
-      case Some(LimitedCompany) | Some(LLP) => "whatIsTheNameOfYourBusiness.ltdLpLlp"
-      case Some(Partnership)                => "whatIsTheNameOfYourBusiness.partnership"
-      case _                                => "whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust"
-    }
 }

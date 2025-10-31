@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
-import config.CarfConstants
 import forms.mappings.Mappings
 import play.api.data.Form
-import config.CarfConstants.orgNameRegex
+
 import javax.inject.Inject
 
-class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {
+class HaveTradingNameFormProvider @Inject() extends Mappings {
 
-  private val maxLength = 105
-
-  def apply(businessType: String): Form[String] =
+  def apply(): Form[Boolean] =
     Form(
-      "value" -> validatedText(
-        s"$businessType.error.required",
-        s"$businessType.error.invalid",
-        s"$businessType.error.length",
-        orgNameRegex,
-        maxLength = maxLength
-      )
+      "value" -> boolean("haveTradingName.error.required")
     )
 }

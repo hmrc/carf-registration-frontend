@@ -69,13 +69,14 @@ trait SpecBase
 
   protected def applicationBuilder(
       userAnswers: Option[UserAnswers] = None,
-      affinityGroup: AffinityGroup = AffinityGroup.Individual
+      affinityGroup: AffinityGroup = AffinityGroup.Individual,
+      requestUtr: Option[String] = None
   ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers, affinityGroup)),
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers, requestUtr)),
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
 

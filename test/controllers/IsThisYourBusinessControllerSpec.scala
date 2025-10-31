@@ -106,6 +106,29 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
+
+      "must return an Internal Server Error on an auto-match journey when the registration service fails" in {
+        val userAnswers = UserAnswers(userAnswersId).set(IndexPage, testUtr).success.value
+
+        when(mockRegistrationService.getBusinessWithEnrolmentCtUtr(any())(any()))
+          .thenReturn(Future.failed(new Exception("bang")))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          val failedFuture = result.failed
+          whenReady(failedFuture) { exception =>
+            exception            mustBe a[Exception]
+            exception.getMessage mustBe "bang"
+          }
+        }
+      }
+
     }
 
     "on a manual-entry journey" - {
@@ -157,11 +180,28 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when no UTR is found in either journey" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+      val application = applicationBuilder(userAnswers = None).build()
+
       running(application) {
         val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
         val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, postRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

@@ -22,8 +22,6 @@ import models.requests.RegisterIndividualWithIdRequest
 import models.{Address, BusinessDetails, IndividualDetails}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.http.HeaderCarrier
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 

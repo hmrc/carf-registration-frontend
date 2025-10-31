@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package forms
+package models
 
-import config.CarfConstants
-import forms.mappings.Mappings
-import play.api.data.Form
-import config.CarfConstants.orgNameRegex
-import javax.inject.Inject
+import play.api.libs.json.*
 
-class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {
+case class Name(firstName: String, lastName: String) {
 
-  private val maxLength = 105
+  val fullName: String = s"$firstName $lastName"
 
-  def apply(businessType: String): Form[String] =
-    Form(
-      "value" -> validatedText(
-        s"$businessType.error.required",
-        s"$businessType.error.invalid",
-        s"$businessType.error.length",
-        orgNameRegex,
-        maxLength = maxLength
-      )
-    )
+}
+
+object Name {
+  implicit val format: OFormat[Name] = Json.format[Name]
 }

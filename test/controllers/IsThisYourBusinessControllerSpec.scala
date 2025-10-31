@@ -18,12 +18,12 @@ package controllers
 
 import base.SpecBase
 import forms.IsThisYourBusinessFormProvider
-import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, UserAnswers}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndexPage, IsThisYourBusinessPage, OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -189,7 +189,15 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         mockRegistrationService.getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
       ) thenReturn Future.successful(None)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+        .set(IndexPage, testUtr)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           bind[RegistrationService].toInstance(mockRegistrationService)
         )
@@ -201,6 +209,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockRegistrationService, times(1)).getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
       }
     }
 
@@ -280,5 +289,37 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to Sole Trader not Identified when business is not found by UTR for sole trader" in {
+      when(mockRegistrationService.getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)) thenReturn Future
+        .successful(None)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(YourUniqueTaxpayerReferencePage, testUtr)
+        .success
+        .value
+        .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+        val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.PlaceholderController
+          .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+          .url
+        verify(mockRegistrationService, times(1)).getBusinessByUtr(testUtr.uniqueTaxPayerReference, None)
+
+      }
+    }
+
   }
 }

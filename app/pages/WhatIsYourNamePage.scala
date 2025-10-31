@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import config.CarfConstants
-import forms.mappings.Mappings
-import play.api.data.Form
-import config.CarfConstants.orgNameRegex
-import javax.inject.Inject
+import models.Name
+import play.api.libs.json.JsPath
 
-class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {
+case object WhatIsYourNamePage extends QuestionPage[Name] {
 
-  private val maxLength = 105
+  override def path: JsPath = JsPath \ toString
 
-  def apply(businessType: String): Form[String] =
-    Form(
-      "value" -> validatedText(
-        s"$businessType.error.required",
-        s"$businessType.error.invalid",
-        s"$businessType.error.length",
-        orgNameRegex,
-        maxLength = maxLength
-      )
-    )
+  override def toString: String = "whatIsYourName"
 }

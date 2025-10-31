@@ -19,4 +19,7 @@ object CarfConstants {
   val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
   val validBusinessNameMaxLength: Int = 105
   val validBusinessNameMinLength: Int = 1
+
+  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
+  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
 }

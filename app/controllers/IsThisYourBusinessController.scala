@@ -23,11 +23,13 @@ import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpa
 import navigation.Navigator
 import pages.{IndexPage, IsThisYourBusinessPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.UserAnswersHelper
 import views.html.IsThisYourBusinessView
 
 import javax.inject.Inject
@@ -47,12 +49,14 @@ class IsThisYourBusinessController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
+    with UserAnswersHelper
     with Logging {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
+
       val utrOpt    = request.userAnswers
         .get(YourUniqueTaxpayerReferencePage)
         .orElse(request.userAnswers.get(IndexPage))
@@ -82,18 +86,7 @@ class IsThisYourBusinessController @Inject() (
               }
 
             case None =>
-              val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
-              if (isUserFromIndexPage) {
-                logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
-                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-              } else {
-                Future.successful(
-                  Redirect(
-                    routes.PlaceholderController
-                      .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
-                  )
-                )
-              }
+              handleBusinessNotFound(request)
           }
 
         case None =>
@@ -145,4 +138,30 @@ class IsThisYourBusinessController @Inject() (
         }
       )
   }
+
+  private def handleBusinessNotFound(request: DataRequest[_]): Future[Result] = {
+    val isUserFromIndexPage = request.userAnswers.get(IndexPage).isDefined
+
+    (isUserFromIndexPage, isSoleTrader(request.userAnswers)) match {
+      case (true, _) =>
+        logger.warn(s"Business not found for UTR. Redirecting to journey recovery.")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+
+      case (_, true)  =>
+        Future.successful(
+          Redirect(
+            routes.PlaceholderController
+              .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+          )
+        )
+      case (_, false) =>
+        Future.successful(
+          Redirect(
+            routes.PlaceholderController
+              .onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+          )
+        )
+    }
+  }
+
 }

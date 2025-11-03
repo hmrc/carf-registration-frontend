@@ -29,6 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.UserAnswersHelper
 import views.html.IsThisYourBusinessView
 
 import javax.inject.Inject
@@ -48,12 +49,10 @@ class IsThisYourBusinessController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
-    with Logging {
+    with Logging
+    with UserAnswersHelper {
 
   val form: Form[Boolean] = formProvider()
-
-  private def isSoleTrader(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(OrganisationRegistrationTypePage).contains(OrganisationRegistrationType.SoleTrader)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import pages.IsThisYourBusinessPage
 
@@ -33,6 +34,7 @@ class ProblemDifferentBusinessController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    appConfig: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     view: ProblemDifferentBusinessView
 )(implicit ec: ExecutionContext)
@@ -43,13 +45,13 @@ class ProblemDifferentBusinessController @Inject() (
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
     request.userAnswers.get(IsThisYourBusinessPage) match {
       case Some(existingPageDetails) =>
-        val businessName = existingPageDetails.name
-        val address      = existingPageDetails.address
-        Future.successful(Ok(view(businessName, address)))
+        val businessName       = existingPageDetails.name
+        val address            = existingPageDetails.address
+        val signOutUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
+
+        Future.successful(Ok(view(businessName, address, signOutUrl)))
       case None                      =>
-        logger.warn(
-          "No business details found in UserAnswers during form submission. " + "Redirecting to journey recovery."
-        )
+        logger.warn("Business details expected but not found. Redirecting to journey recovery.")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }

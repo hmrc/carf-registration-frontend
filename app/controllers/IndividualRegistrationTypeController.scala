@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.IndividualRegistrationTypeFormProvider
-import models.{Mode, UserAnswers}
+import models.Mode
 import navigation.Navigator
 import pages.IndividualRegistrationTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -46,30 +46,29 @@ class IndividualRegistrationTypeController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData()) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+    implicit request =>
 
-    val preparedForm = request.userAnswers.flatMap(_.get(IndividualRegistrationTypePage)) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-    Ok(view(preparedForm, mode))
+      val preparedForm = request.userAnswers.get(IndividualRegistrationTypePage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+
+      Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData()).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        individualRegistrationType =>
-          for {
-            updatedAnswers <-
-              Future.fromTry(
-                request.userAnswers
-                  .getOrElse(UserAnswers(id = request.userId))
-                  .set(IndividualRegistrationTypePage, individualRegistrationType)
-              )
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(IndividualRegistrationTypePage, mode, updatedAnswers))
-      )
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+    implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          individualRegistrationType =>
+            for {
+              updatedAnswers <-
+                Future.fromTry(request.userAnswers.set(IndividualRegistrationTypePage, individualRegistrationType))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(IndividualRegistrationTypePage, mode, updatedAnswers))
+        )
   }
 }

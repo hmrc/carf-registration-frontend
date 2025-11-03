@@ -45,10 +45,11 @@ class IndexController @Inject() (
     (identify() andThen checkEnrolment andThen retrieveCtUTR() andThen getData()).async { implicit request =>
       request.affinityGroup match {
         case AffinityGroup.Individual =>
-          Future.successful(
-            Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
-          )
-        case _                        =>
+          for {
+            _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+          } yield Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+
+        case _ =>
           request.utr match {
             case Some(utr) =>
               for {
@@ -60,9 +61,10 @@ class IndexController @Inject() (
                 _                      <- sessionRepository.set(autoMatchedUserAnswers)
               } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
             case None      =>
-              Future.successful(
-                Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
-              )
+              for {
+                _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+              } yield Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
+
           }
       }
     }

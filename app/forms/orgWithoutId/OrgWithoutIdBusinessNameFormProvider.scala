@@ -16,7 +16,7 @@
 
 package forms.orgWithoutId
 
-import config.CarfConstants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
+import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
 import forms.mappings.Mappings
 import play.api.data.Form
 

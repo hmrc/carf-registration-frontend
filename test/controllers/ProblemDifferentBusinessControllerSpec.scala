@@ -25,6 +25,11 @@ import views.html.ProblemDifferentBusinessView
 
 class ProblemDifferentBusinessControllerSpec extends SpecBase {
 
+  val testSignOutUrl: String =
+    "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:17000/register-for-carf"
+
+  val controllerRoute: String = routes.ProblemDifferentBusinessController.onPageLoad().url
+
   "ProblemDifferentBusiness Controller" - {
     "must return OK and not display country code for a GB address, & show correct view for a GET" in {
       val businessName = "Agent ABC Ltd"
@@ -43,12 +48,17 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
       )
       val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value
       val application  = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
       running(application) {
-        val request = FakeRequest(GET, routes.ProblemDifferentBusinessController.onPageLoad().url)
+        val request = FakeRequest(GET, controllerRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
+
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(businessName, address)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(businessName, address, testSignOutUrl)(
+          request,
+          messages(application)
+        ).toString
         contentAsString(result)      must not include "GB"
       }
     }
@@ -70,13 +80,28 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
       )
       val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value
       val application  = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
       running(application) {
-        val request = FakeRequest(GET, routes.ProblemDifferentBusinessController.onPageLoad().url)
+        val request = FakeRequest(GET, controllerRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
+
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(businessName, address)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(businessName, address, testSignOutUrl)(
+          request,
+          messages(application)
+        ).toString
         contentAsString(result)      must include("US")
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+      val application = applicationBuilder(userAnswers = None).build()
+      running(application) {
+        val request = FakeRequest(GET, controllerRoute)
+        val result  = route(application, request).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

@@ -16,8 +16,10 @@
 
 package base
 
+import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import models.{UniqueTaxpayerReference, UserAnswers}
+import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -67,6 +69,10 @@ trait SpecBase
   final val mockDataRetrievalAction: DataRetrievalAction   = mock[DataRetrievalAction]
   final val mockCtUtrRetrievalAction: CtUtrRetrievalAction = mock[CtUtrRetrievalAction]
 
+  override def beforeEach(): Unit = {
+    reset(mockSessionRepository, mockDataRetrievalAction, mockCtUtrRetrievalAction)
+    super.beforeEach()
+  }
   protected def applicationBuilder(
       userAnswers: Option[UserAnswers] = None,
       affinityGroup: AffinityGroup = AffinityGroup.Individual,
@@ -83,4 +89,5 @@ trait SpecBase
   implicit val hc: HeaderCarrier    = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
+  val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
 }

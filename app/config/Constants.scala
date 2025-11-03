@@ -15,8 +15,12 @@
  */
 
 package config
-object CarfConstants {
+
+object Constants {
+
   val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
   val validBusinessNameMaxLength: Int = 105
   val validBusinessNameMinLength: Int = 1
+
+  val ukTimeZoneStringId = "Europe/London"
 }

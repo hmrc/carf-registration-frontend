@@ -18,8 +18,6 @@ package controllers
 
 import controllers.actions.*
 import forms.WhatIsYourNameIndividualFormProvider
-
-import javax.inject.Inject
 import models.{Mode, Name}
 import navigation.Navigator
 import pages.WhatIsYourNameIndividualPage
@@ -30,6 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.WhatIsYourNameIndividualView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatIsYourNameIndividualController @Inject() (

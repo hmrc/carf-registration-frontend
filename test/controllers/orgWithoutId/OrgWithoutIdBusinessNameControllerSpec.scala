@@ -17,7 +17,7 @@
 package controllers.orgWithoutId
 
 import base.SpecBase
-import base.TestConstants.{invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
+import base.TestConstants.{businessNameWithInvalidChars, invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
 import controllers.routes
 import forms.orgWithoutId.OrgWithoutIdBusinessNameFormProvider
 import models.{NormalMode, UserAnswers}
@@ -27,37 +27,22 @@ import org.mockito.Mockito.when
 import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
-import play.api.i18n.{Lang, MessagesApi}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.orgWithoutId.OrgWithoutIdBusinessNameView
-import javax.inject.Inject
+
 import scala.concurrent.Future
 
-class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi) extends SpecBase with MockitoSugar {
-  def onwardRoute                        = Call("GET", "/foo")
-  val formProvider                       = new OrgWithoutIdBusinessNameFormProvider()
-  val form                               = formProvider()
-  val invalidCharacterErrorMessage       = messagesApi("businessName.error.invalidFormat")(Lang("en"))
-  lazy val orgWithoutIdBusinessNameRoute =
+class OrgWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoSugar {
+  def onwardRoute                                = Call("GET", "/foo")
+  val formProvider                               = new OrgWithoutIdBusinessNameFormProvider()
+  val form: Form[String]                         = formProvider()
+  lazy val orgWithoutIdBusinessNameRoute: String =
     controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode).url
-
-  def testInvalidCharacterInBusinessName(badOrgWithoutIdBusinessName: String): Unit = {
-    val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    running(application) {
-      val request   = FakeRequest(POST, orgWithoutIdBusinessNameRoute)
-        .withFormUrlEncodedBody("value" -> badOrgWithoutIdBusinessName)
-      val boundForm = form.bind(Map("value" -> badOrgWithoutIdBusinessName))
-      val view      = application.injector.instanceOf[OrgWithoutIdBusinessNameView]
-      val result    = route(application, request).value
-      status(result)          mustEqual BAD_REQUEST
-      contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      contentAsString(result)      must include(invalidCharacterErrorMessage)
-    }
-  }
 
   "OrgWithoutIdBusinessName Controller" - {
     "must return OK and the correct view for a GET" in {
@@ -80,14 +65,15 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
       when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
       running(application) {
         val request = FakeRequest(GET, orgWithoutIdBusinessNameRoute)
+        val result  = route(application, request).value
         val form    = new OrgWithoutIdBusinessNameFormProvider().apply()
         val view    = application.injector.instanceOf[OrgWithoutIdBusinessNameView]
-        val result  = route(application, request).value
+
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(
           form.fill("valid answer organisation"),
           NormalMode
-        )(request, messages(application))
+        )(request, messages(application)).toString
       }
     }
 
@@ -147,10 +133,10 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
         val result    = route(application, request).value
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-        contentAsString(result)      must include("Enter the name of your business")
+        contentAsString(result)      must include(messages(application)("businessName.error.required"))
       }
     }
-    "must return Bad Request & invalidFormat error when OrgWithoutIdBusinessName is longer than 105 chars]" in {
+    "must return Bad Request & maxLength Error error when OrgWithoutIdBusinessName is longer than 105 chars]" in {
       val badOrgWithoutIdBusinessName = invalidBusinessNameExceeds105Chars
       val application                 = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
@@ -162,12 +148,25 @@ class OrgWithoutIdBusinessNameControllerSpec @Inject() (messagesApi: MessagesApi
         val result    = route(application, request).value
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-        contentAsString(result)      must include("Business name must be 105 characters or less")
+        contentAsString(result)      must include(messages(application)("businessName.error.maximumLength"))
       }
     }
 
-    "must return Bad Request & invalidFormat error when BusinessName contains a curly bracket" in {
-      testInvalidCharacterInBusinessName("Business Name contains {curly brackets}")
+    "must return Bad Request & invalidFormat error when BusinessName contains an invalid character" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request   = FakeRequest(POST, orgWithoutIdBusinessNameRoute)
+          .withFormUrlEncodedBody("value" -> businessNameWithInvalidChars)
+        val boundForm = form.bind(Map("value" -> businessNameWithInvalidChars))
+        val view      = application.injector.instanceOf[OrgWithoutIdBusinessNameView]
+        val result    = route(application, request).value
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+
+        // don't use error message String '(messages(application)("businessName.error.invalidFormat"))' here -
+        // the special non-alphanumeric characters are escaped when inserted into html, so can't be directly compared.
+        contentAsString(result) must include("Business name must only include letters a to z, numbers 0 to 9")
+      }
     }
   }
 }

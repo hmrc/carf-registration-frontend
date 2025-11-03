@@ -20,8 +20,8 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
-import models.requests.RegisterIndividualWithIdRequest
-import models.responses.RegisterIndividualWithIdResponse
+import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
@@ -44,7 +44,6 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
       request: RegisterIndividualWithIdRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
-
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
       endpoint: URL
@@ -75,4 +74,38 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         }
     }
 
+  def organisationWithUtr(
+      request: RegisterOrganisationWithIdRequest
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
+    registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr")
+
+  private def registerOrganisationWithId(
+      request: RegisterOrganisationWithIdRequest,
+      endpoint: URL
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
+    EitherT {
+      http
+        .post(endpoint)
+        .withBody(Json.toJson(request))
+        .execute[HttpResponse]
+        .map {
+          case response if response.status == OK        =>
+            Try(response.json.as[RegisterOrganisationWithIdResponse]) match {
+              case Success(data)      => Right(data)
+              case Failure(exception) =>
+                logger.warn(s"Error parsing RegisterOrganisationWithIdResponse with endpoint: ${endpoint.toURI}")
+                Left(ApiError.JsonValidationError)
+            }
+          case response if response.status == NOT_FOUND =>
+            logger.warn(
+              s"No match found for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Left(ApiError.NotFoundError)
+          case response                                 =>
+            logger.warn(
+              s"Unexpected response for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
+            Left(ApiError.InternalServerError)
+        }
+    }
 }

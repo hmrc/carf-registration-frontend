@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package forms.orgWithoutId
+package config
 
-import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
-import forms.mappings.Mappings
-import play.api.data.Form
+object Constants {
 
-class OrgWithoutIdBusinessNameFormProvider extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> validatedText(
-        "businessName.error.required",
-        "businessName.error.invalidFormat",
-        "businessName.error.maximumLength",
-        businessNameRegex,
-        validBusinessNameMaxLength,
-        validBusinessNameMinLength
-      )
-    )
+  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
+  val validBusinessNameMaxLength: Int = 105
+  val validBusinessNameMinLength: Int = 1
+
+  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
+  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+
+  val ukTimeZoneStringId = "Europe/London"
 }

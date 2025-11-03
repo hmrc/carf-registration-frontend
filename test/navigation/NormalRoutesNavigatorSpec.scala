@@ -418,7 +418,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+          ) mustBe routes.ProblemDifferentBusinessController.onPageLoad()
         }
 
         "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {

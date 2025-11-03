@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package config
-object CarfConstants {
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+package models.responses
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+import play.api.libs.json.{Json, OFormat}
+import models.Address
+
+case class RegisterOrganisationWithIdResponse(
+    safeId: String,
+    code: Option[String],
+    organisationName: String,
+    address: Address
+)
+
+object RegisterOrganisationWithIdResponse {
+  implicit val format: OFormat[RegisterOrganisationWithIdResponse] = Json.format[RegisterOrganisationWithIdResponse]
 }

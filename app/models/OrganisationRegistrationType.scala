@@ -20,15 +20,31 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait OrganisationRegistrationType
+sealed trait OrganisationRegistrationType {
+  val code: String
+}
 
 object OrganisationRegistrationType extends Enumerable.Implicits {
 
-  case object LimitedCompany extends WithName("limitedCompany") with OrganisationRegistrationType
-  case object Partnership extends WithName("partnership") with OrganisationRegistrationType
-  case object LLP extends WithName("llp") with OrganisationRegistrationType
-  case object Trust extends WithName("trust") with OrganisationRegistrationType
-  case object SoleTrader extends WithName("soleTrader") with OrganisationRegistrationType
+  case object LimitedCompany extends WithName("limitedCompany") with OrganisationRegistrationType {
+    override val code: String = "0000"
+  }
+  case object Partnership extends WithName("partnership") with OrganisationRegistrationType {
+    override val code: String = "0001"
+
+  }
+  case object LLP extends WithName("llp") with OrganisationRegistrationType {
+    override val code: String = "0002"
+
+  }
+  case object Trust extends WithName("trust") with OrganisationRegistrationType {
+    override val code: String = "0003"
+
+  }
+  case object SoleTrader extends WithName("soleTrader") with OrganisationRegistrationType {
+    override val code: String = "0004"
+
+  }
 
   val values: Seq[OrganisationRegistrationType] = Seq(
     LimitedCompany,

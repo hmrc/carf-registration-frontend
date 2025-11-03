@@ -27,8 +27,8 @@ object IndividualRegistrationType extends Enumerable.Implicits {
   case object SoleTrader extends WithName("soleTrader") with IndividualRegistrationType {
     override val code: String = "0004"
   }
-  
-  //update in CARF-322
+
+  // update in CARF-322
   case object Individual extends WithName("individual") with IndividualRegistrationType {
     override val code: String = "Individual code not needed"
   }

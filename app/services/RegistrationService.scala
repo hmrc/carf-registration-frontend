@@ -78,7 +78,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     handleRegistrationResponse(connector.organisationWithUtr(request).value)
   }
 
-  //update in CARF-322
+  // update in CARF-322
   def getBusinessWithUserInput(
       userAnswers: UserAnswers
   )(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
@@ -110,7 +110,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         handleRegistrationResponse(connector.organisationWithUtr(request).value)
       case None                               =>
         logger.warn("Required data was missing from UserAnswers.")
-        Future.failed(new Exception("Unexpected error!"))
+        Future.successful(None)
     }
   }
 

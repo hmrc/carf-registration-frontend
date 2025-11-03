@@ -48,6 +48,11 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     address = Address("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB")
   )
 
+  val soleTraderTestBusiness: BusinessDetails = BusinessDetails(
+    name = "Test Name Sole Trader",
+    address = Address("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB")
+  )
+
   val testPageDetails: IsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(
     name = businessTestBusiness.name,
     address = businessTestBusiness.address,
@@ -76,6 +81,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .success
           .value
 
+        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Some(soleTraderTestBusiness)))
+
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
           .build()
@@ -88,8 +96,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           status(result)     mustEqual OK
           contentAsString(result) must include("Test Name Sole Trader")
 
-          verify(mockRegistrationService, never()).getBusinessWithEnrolmentCtUtr(any())(any())
-          verify(mockRegistrationService, never()).getBusinessWithUserInput(any())(any())
+          verify(mockRegistrationService).getBusinessWithUserInput(eqTo(userAnswers))(any())
+
         }
       }
 
@@ -102,6 +110,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
           .success
           .value
+
+        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(None))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[RegistrationService].toInstance(mockRegistrationService))

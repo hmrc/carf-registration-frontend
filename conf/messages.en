@@ -182,6 +182,6 @@ whatIsYourName.error.firstName.invalid = The first name must only include letter
 whatIsYourName.error.firstName.length = The first name must be 35 characters or less
 whatIsYourName.error.lastName.required = Enter your last name
 whatIsYourName.error.lastName.invalid = The last name must only include letters a to z, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
-whatIsYourName.error.lastName.length = The first name must be 35 characters or less
+whatIsYourName.error.lastName.length = The last name must be 35 characters or less
 whatIsYourName.firstName.change.hidden = Change What is your first name?
 whatIsYourName.lastName.change.hidden = Change What is your last name?

@@ -17,56 +17,78 @@
 package controllers
 
 import base.SpecBase
-import forms.IndividualRegistrationTypeFormProvider
-import models.{IndividualRegistrationType, NormalMode, UserAnswers}
+import forms.WhatIsYourNameFormProvider
+import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IndividualRegistrationTypePage
+import pages.WhatIsYourNamePage
+import play.api.Application
+import play.api.data.Form
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-import views.html.IndividualRegistrationTypeView
+import repositories.SessionRepository
+import views.html.WhatIsYourNameView
 
 import scala.concurrent.Future
 
-class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSugar {
+class WhatIsYourNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val individualRegistrationTypeRoute = routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+  val formProvider     = new WhatIsYourNameFormProvider()
+  val form: Form[Name] = formProvider()
 
-  val formProvider = new IndividualRegistrationTypeFormProvider()
-  val form         = formProvider()
+  lazy val whatIsYourNameRoute: String = routes.WhatIsYourNameController.onPageLoad(NormalMode).url
 
-  "IndividualRegistrationType Controller" - {
+  val userAnswers = UserAnswers(
+    userAnswersId,
+    Json.obj(
+      WhatIsYourNamePage.toString -> Json.obj(
+        "firstName" -> "testerFirstName",
+        "lastName"  -> "testerLastName"
+      )
+    )
+  )
+
+  "WhatIsYourName Controller" - {
 
     "must return OK and the correct view for a GET" in {
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
       running(application) {
-        val request = FakeRequest(GET, individualRegistrationTypeRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[IndividualRegistrationTypeView]
+        val request = FakeRequest(GET, whatIsYourNameRoute)
+
+        val view = application.injector.instanceOf[WhatIsYourNameView]
+
+        val result = route(application, request).value
+
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(IndividualRegistrationTypePage, IndividualRegistrationType.values.head)
-        .success
-        .value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      val userAnswers: UserAnswers =
+        emptyUserAnswers.set(WhatIsYourNamePage, Name("firstName", "lastName")).success.value
+
+      val application: Application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
       running(application) {
-        val request = FakeRequest(GET, individualRegistrationTypeRoute)
-        val view    = application.injector.instanceOf[IndividualRegistrationTypeView]
-        val result  = route(application, request).value
+        val request = FakeRequest(GET, whatIsYourNameRoute)
+
+        val view = application.injector.instanceOf[WhatIsYourNameView]
+
+        val result = route(application, request).value
+
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(IndividualRegistrationType.values.head), NormalMode)(
+        contentAsString(result) mustEqual view(form.fill(Name("firstName", "lastName")), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -74,54 +96,73 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
     }
 
     "must redirect to the next page when valid data is submitted" in {
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Individual)
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
           )
           .build()
+
       running(application) {
         val request =
-          FakeRequest(POST, individualRegistrationTypeRoute)
-            .withFormUrlEncodedBody(("individualRegistrationType", IndividualRegistrationType.values.head.toString))
-        val result  = route(application, request).value
+          FakeRequest(POST, whatIsYourNameRoute)
+            .withFormUrlEncodedBody(("firstName", "firstName value"), ("lastName", "lastName value"))
+
+        val result = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
       running(application) {
-        val request   =
-          FakeRequest(POST, individualRegistrationTypeRoute)
-            .withFormUrlEncodedBody(("individualRegistrationType", "invalid value"))
-        val boundForm = form.bind(Map("individualRegistrationType" -> "invalid value"))
-        val view      = application.injector.instanceOf[IndividualRegistrationTypeView]
-        val result    = route(application, request).value
+        val request =
+          FakeRequest(POST, whatIsYourNameRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
+
+        val boundForm = form.bind(Map("value" -> "invalid value"))
+
+        val view = application.injector.instanceOf[WhatIsYourNameView]
+
+        val result = route(application, request).value
+
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
       val application = applicationBuilder(userAnswers = None).build()
+
       running(application) {
-        val request = FakeRequest(GET, individualRegistrationTypeRoute)
-        val result  = route(application, request).value
+        val request = FakeRequest(GET, whatIsYourNameRoute)
+
+        val result = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
+
       val application = applicationBuilder(userAnswers = None).build()
+
       running(application) {
         val request =
-          FakeRequest(POST, individualRegistrationTypeRoute)
-            .withFormUrlEncodedBody(("value", IndividualRegistrationType.values.head.toString))
-        val result  = route(application, request).value
+          FakeRequest(POST, whatIsYourNameRoute)
+            .withFormUrlEncodedBody(("firstName", "value 1"), ("lastName", "value 2"))
+
+        val result = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

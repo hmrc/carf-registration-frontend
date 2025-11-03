@@ -16,15 +16,15 @@
 
 package forms
 
-import javax.inject.Inject
-
+import config.Constants.orgNameRegex
 import forms.mappings.Mappings
 import play.api.data.Form
 
+import javax.inject.Inject
+
 class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {
 
-  private val maxLength          = 105
-  private final val orgNameRegex = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+  private val maxLength = 105
 
   def apply(businessType: String): Form[String] =
     Form(

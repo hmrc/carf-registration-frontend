@@ -34,32 +34,38 @@ class IndexController @Inject() (
     identify: IdentifierAction,
     checkEnrolment: CheckEnrolledToServiceAction,
     retrieveCtUTR: CtUtrRetrievalAction,
+    getData: DataRetrievalAction,
     sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen checkEnrolment andThen retrieveCtUTR()).async {
-    implicit request =>
+  def onPageLoad(): Action[AnyContent] =
+    (identify() andThen checkEnrolment andThen retrieveCtUTR() andThen getData()).async { implicit request =>
       request.affinityGroup match {
         case AffinityGroup.Individual =>
-          Future.successful(
-            Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
-          )
-        case _                        =>
+          for {
+            _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+          } yield Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+
+        case _ =>
           request.utr match {
             case Some(utr) =>
               for {
-                autoMatchedUserAnswers <- Future.fromTry(UserAnswers(request.userId).set(IndexPage, utr))
+                autoMatchedUserAnswers <- Future.fromTry(
+                                            request.userAnswers
+                                              .getOrElse(UserAnswers(id = request.userId))
+                                              .set(IndexPage, utr)
+                                          )
                 _                      <- sessionRepository.set(autoMatchedUserAnswers)
               } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
+            case None      =>
+              for {
+                _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+              } yield Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
 
-            case None =>
-              Future.successful(
-                Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
-              )
           }
       }
-  }
+    }
 }

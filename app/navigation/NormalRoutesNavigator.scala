@@ -17,13 +17,14 @@
 package navigation
 
 import controllers.routes
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import models.OrganisationRegistrationType.*
+import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import play.api.mvc.Call
+import utils.UserAnswersHelper
 
-trait NormalRoutesNavigator {
+trait NormalRoutesNavigator extends UserAnswersHelper {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
@@ -43,6 +44,9 @@ trait NormalRoutesNavigator {
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
 
     case WhatIsTheNameOfYourBusinessPage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+
+    case WhatIsYourNamePage =>
       _ => routes.IsThisYourBusinessController.onPageLoad(NormalMode)
 
     case IsThisYourBusinessPage =>
@@ -114,7 +118,7 @@ trait NormalRoutesNavigator {
 
     (individualRegistrationType, organisationRegistrationType) match {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
+        routes.WhatIsYourNameController.onPageLoad(NormalMode)
       case _                                                                                                     =>
         routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
@@ -131,7 +135,7 @@ trait NormalRoutesNavigator {
 
       case Some(false) =>
         if (isCTAutomatched(userAnswers)) {
-          routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+          routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
             routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
@@ -143,21 +147,6 @@ trait NormalRoutesNavigator {
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def isSoleTrader(userAnswers: UserAnswers): Boolean = {
-
-    val individualRegistrationType: Option[IndividualRegistrationType] = userAnswers.get(IndividualRegistrationTypePage)
-
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        true
-      case _                                                                                                     =>
-        false
-    }
-  }
 
   private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
     userAnswers.get(IndexPage).isDefined

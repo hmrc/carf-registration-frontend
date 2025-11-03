@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package forms.orgWithoutId
+package pages
 
-import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
-import forms.mappings.Mappings
-import play.api.data.Form
+import models.Name
+import play.api.libs.json.JsPath
 
-class OrgWithoutIdBusinessNameFormProvider extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> validatedText(
-        "businessName.error.required",
-        "businessName.error.invalidFormat",
-        "businessName.error.maximumLength",
-        businessNameRegex,
-        validBusinessNameMaxLength,
-        validBusinessNameMinLength
-      )
-    )
+case object WhatIsYourNamePage extends QuestionPage[Name] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "whatIsYourName"
 }

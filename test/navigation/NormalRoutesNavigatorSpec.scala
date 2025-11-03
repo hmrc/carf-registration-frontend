@@ -20,8 +20,8 @@ import base.SpecBase
 import controllers.routes
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.{HaveNiNumberPage, HaveUTRPage, IndexPage, IndividualRegistrationTypePage, IsThisYourBusinessPage, NiNumberPage, OrganisationRegistrationTypePage, Page, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 class NormalRoutesNavigatorSpec extends SpecBase {
 
@@ -98,7 +98,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
+      ) mustBe routes.WhatIsYourNameController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an individual" in {
@@ -116,7 +116,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /your-name (CARF-125)")
+      ) mustBe routes.WhatIsYourNameController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your business name page for anything other than soleTrader" in {
@@ -416,7 +416,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /problem/different-business (CARF-127)")
+          ) mustBe routes.ProblemDifferentBusinessController.onPageLoad()
         }
 
         "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {
@@ -566,6 +566,42 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           "Must redirect to /register/business-without-id/business-address (CARF-162)"
         )
       }
+    }
+
+    "must navigate from WhatIsYourName to IsThisYourBusiness page for matched Individual SoleTrader" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        WhatIsYourNamePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+    }
+
+    "must navigate from WhatIsYourName to IsThisYourBusiness page for Organisation SoleTrader" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
+
+      navigator.nextPage(
+        WhatIsYourNamePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
     }
   }
 }

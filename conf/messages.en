@@ -165,6 +165,12 @@ niNumber.error.required = Enter your National Insurance number
 niNumber.error.invalidFormat = Enter your National Insurance number in the right format
 niNumber.error.invalid = Enter a real National Insurance number
 
+problemDifferentBusiness.title = You’re unable to use this service with this Government Gateway user ID
+problemDifferentBusiness.heading = You’re unable to use this service with this Government Gateway user ID
+problemDifferentBusiness.link = sign in with the Government Gateway user ID for the organisation you wish to register
+problemDifferentBusiness.businessDetailsFound = You have signed in with a Government Gateway user ID that is linked to the following business details:
+problemDifferentBusiness.registerADifferentOrg = If you want to register a different organisation for the cryptoasset reporting framework service, you must
+
 haveTradingName.title = Does your business trade under a different name?
 haveTradingName.heading = Does your business trade under a different name?
 haveTradingName.checkYourAnswersLabel = Does your business trade under a different name?
@@ -178,3 +184,18 @@ tradingName.change.hidden = Change the trading name of your business
 tradingName.error.required = Enter the trading name of your business
 tradingName.error.invalid = Trading name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 tradingName.error.length = Trading name must be 80 characters or less
+
+whatIsYourName.title = What is your name?
+whatIsYourName.heading = What is your name?
+whatIsYourName.hint = This is so we can match your details such as UTR and name to our records.
+whatIsYourName.firstName = First name
+whatIsYourName.lastName = Last name
+whatIsYourName.checkYourAnswersLabel = What is your name?
+whatIsYourName.error.firstName.required = Enter your first name
+whatIsYourName.error.firstName.invalid = The first name must only include letters a to z, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+whatIsYourName.error.firstName.length = The first name must be 35 characters or less
+whatIsYourName.error.lastName.required = Enter your last name
+whatIsYourName.error.lastName.invalid = The last name must only include letters a to z, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+whatIsYourName.error.lastName.length = The last name must be 35 characters or less
+whatIsYourName.firstName.change.hidden = Change What is your first name?
+whatIsYourName.lastName.change.hidden = Change What is your last name?

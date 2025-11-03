@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package forms.orgWithoutId
+package models
 
-import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
-import forms.mappings.Mappings
-import play.api.data.Form
+import play.api.libs.json.*
 
-class OrgWithoutIdBusinessNameFormProvider extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> validatedText(
-        "businessName.error.required",
-        "businessName.error.invalidFormat",
-        "businessName.error.maximumLength",
-        businessNameRegex,
-        validBusinessNameMaxLength,
-        validBusinessNameMinLength
-      )
-    )
+case class Name(firstName: String, lastName: String) {
+
+  val fullName: String = s"$firstName $lastName"
+
+}
+
+object Name {
+  implicit val format: OFormat[Name] = Json.format[Name]
 }

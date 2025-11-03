@@ -18,17 +18,18 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
-import models.requests.RegisterIndividualWithIdRequest
-import models.{Address, BusinessDetails, IndividualDetails}
+import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.responses.RegisterOrganisationWithIdResponse
+import models.{Address, BusinessDetails, IndividualDetails, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
-
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.Logging
+import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
   def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] =
     connector
@@ -46,6 +47,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       .value
       .flatMap {
         case Right(response)              =>
+          logger.info("Successfully retrieved individual details.")
           Future.successful(
             Some(
               IndividualDetails(
@@ -57,47 +59,71 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
               )
             )
           )
-        case Left(ApiError.NotFoundError) => Future.successful(None)
-        case Left(error)                  => Future.failed(new Exception("Unexpected Error!"))
+        case Left(ApiError.NotFoundError) =>
+          logger.warn("Not Found (404) for individual details.")
+          Future.successful(None)
+        case Left(error)                  =>
+          Future.failed(new Exception("Unexpected Error!"))
       }
 
-  def getBusinessByUtr(utr: String, name: Option[String]): Future[Option[BusinessDetails]] =
-    Future.successful {
-      // temp implementation as auto-matching not yet implemented
-      if (utr.startsWith("1")) {
-        // UK business
-        Some(
-          BusinessDetails(
-            name = name.getOrElse("Agent ABC Ltd"),
-            address = Address(
-              addressLine1 = "2 High Street",
-              addressLine2 = Some("Birmingham"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("B23 2AZ"),
-              countryCode = "GB"
-            )
-          )
+  def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
+    val request = RegisterOrganisationWithIdRequest(
+      requiresNameMatch = false,
+      IDNumber = utr,
+      IDType = "UTR",
+      organisationName = None,
+      organisationType = None
+    )
+
+    handleRegistrationResponse(connector.organisationWithUtr(request).value)
+  }
+
+  def getBusinessWithUserInput(
+      userAnswers: UserAnswers
+  )(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
+    val registrationData = for {
+      utr          <- userAnswers.get(YourUniqueTaxpayerReferencePage)
+      businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+      orgType      <- userAnswers.get(OrganisationRegistrationTypePage)
+    } yield (utr, businessName, orgType)
+
+    registrationData match {
+      case Some((utr, businessName, orgType)) =>
+        val request = RegisterOrganisationWithIdRequest(
+          requiresNameMatch = true,
+          IDNumber = utr.uniqueTaxPayerReference,
+          IDType = "UTR",
+          organisationName = Some(businessName),
+          organisationType = Some(orgType.code)
         )
-      } else if (utr.startsWith("2")) {
-        // Non-UK business
-        Some(
-          BusinessDetails(
-            name = name.getOrElse("International Ltd"),
-            address = Address(
-              addressLine1 = "3 Apple Street",
-              addressLine2 = Some("New York"),
-              addressLine3 = None,
-              addressLine4 = None,
-              postalCode = Some("11722"),
-              countryCode = "US"
-            )
-          )
-        )
-      } else {
-        // Business not found
-        None
-      }
+        handleRegistrationResponse(connector.organisationWithUtr(request).value)
+
+      case None =>
+        logger.warn("Required data was missing from UserAnswers.")
+        Future.successful(None)
     }
+  }
 
+  private def handleRegistrationResponse(
+      responseFuture: Future[Either[ApiError, RegisterOrganisationWithIdResponse]]
+  ): Future[Option[BusinessDetails]] =
+    responseFuture.flatMap {
+      case Right(response)              =>
+        logger.info("Successfully retrieved organisation details.")
+        Future.successful(
+          Some(
+            BusinessDetails(
+              name = response.organisationName,
+              address = response.address
+            )
+          )
+        )
+      case Left(ApiError.NotFoundError) =>
+        logger.warn("Not Found (404) for organisation details.")
+        Future.successful(None)
+
+      case Left(error) =>
+        logger.error(s"Failed to retrieve organisation details: $error")
+        Future.failed(new Exception("Unexpected error!"))
+    }
 }

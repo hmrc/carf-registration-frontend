@@ -19,7 +19,7 @@ package config
 import com.google.inject.AbstractModule
 import controllers.actions.*
 
-import java.time.{Clock, ZoneOffset}
+import java.time.{Clock, ZoneId, ZoneOffset}
 
 class Module extends AbstractModule {
 
@@ -33,6 +33,6 @@ class Module extends AbstractModule {
     // For session based storage instead of cred based, change to SessionIdentifierAction
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
 
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+    bind(classOf[Clock]).toInstance(Clock.system(ZoneId.of(Constants.ukTimeZoneStringId)))
   }
 }

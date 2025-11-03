@@ -17,43 +17,45 @@
 package controllers
 
 import controllers.actions.*
-import forms.IndividualRegistrationTypeFormProvider
-import models.Mode
+import forms.WhatIsYourNameFormProvider
+
+import javax.inject.Inject
+import models.{Mode, Name}
 import navigation.Navigator
-import pages.IndividualRegistrationTypePage
+import pages.{WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndividualRegistrationTypeView
+import views.html.WhatIsYourNameView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class IndividualRegistrationTypeController @Inject() (
+class WhatIsYourNameController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: IndividualRegistrationTypeFormProvider,
+    formProvider: WhatIsYourNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: IndividualRegistrationTypeView
+    view: WhatIsYourNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Name] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(IndividualRegistrationTypePage) match {
+      val preparedForm = request.userAnswers.get(WhatIsYourNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-
       Ok(view(preparedForm, mode))
   }
 
@@ -63,12 +65,11 @@ class IndividualRegistrationTypeController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          individualRegistrationType =>
+          value =>
             for {
-              updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(IndividualRegistrationTypePage, individualRegistrationType))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsYourNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(IndividualRegistrationTypePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(WhatIsYourNamePage, mode, updatedAnswers))
         )
   }
 }

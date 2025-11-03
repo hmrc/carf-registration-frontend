@@ -35,18 +35,18 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IsThisYourBusinessController @Inject() (
-                                               override val messagesApi: MessagesApi,
-                                               sessionRepository: SessionRepository,
-                                               navigator: Navigator,
-                                               identify: IdentifierAction,
-                                               getData: DataRetrievalAction,
-                                               requireData: DataRequiredAction,
-                                               formProvider: IsThisYourBusinessFormProvider,
-                                               businessService: RegistrationService,
-                                               val controllerComponents: MessagesControllerComponents,
-                                               view: IsThisYourBusinessView
-                                             )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: IsThisYourBusinessFormProvider,
+    businessService: RegistrationService,
+    val controllerComponents: MessagesControllerComponents,
+    view: IsThisYourBusinessView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
 
@@ -161,11 +161,11 @@ class IsThisYourBusinessController @Inject() (
   }
 
   private def handleBusinessLookup(
-                                    lookupFuture: Future[Option[BusinessDetails]],
-                                    utr: String,
-                                    mode: Mode,
-                                    isAutoMatch: Boolean
-                                  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+      lookupFuture: Future[Option[BusinessDetails]],
+      utr: String,
+      mode: Mode,
+      isAutoMatch: Boolean
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
       case Some(business) =>
         val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)

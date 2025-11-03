@@ -142,7 +142,6 @@ class IsThisYourBusinessController @Inject() (
         }
     }
 
-
   private def processFormSubmission(
       existingPageDetails: IsThisYourBusinessPageDetails,
       mode: Mode

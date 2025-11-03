@@ -20,10 +20,10 @@ import connectors.RegistrationConnector
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
-import models.{Address, BusinessDetails, IndividualDetails, OrganisationRegistrationType, UserAnswers}
+import models.{Address, BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.Logging
-import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -78,13 +78,24 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     handleRegistrationResponse(connector.organisationWithUtr(request).value)
   }
 
+  //update in CARF-322
   def getBusinessWithUserInput(
       userAnswers: UserAnswers
   )(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val registrationData = for {
       utr          <- userAnswers.get(YourUniqueTaxpayerReferencePage)
-      businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
-      orgType      <- userAnswers.get(OrganisationRegistrationTypePage)
+      businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage) match {
+                        case Some(value) => Some(value)
+                        case None        => userAnswers.get(WhatIsYourNamePage).map(_.fullName)
+                      }
+      orgType      <- (userAnswers.get(OrganisationRegistrationTypePage) match {
+                        case Some(value) => Some(value)
+                        case None        => userAnswers.get(IndividualRegistrationTypePage)
+                      }) match {
+                        case Some(value: OrganisationRegistrationType) => Some(value.code)
+                        case Some(value: IndividualRegistrationType)   => Some(value.code)
+                        case None                                      => None
+                      }
     } yield (utr, businessName, orgType)
 
     registrationData match {
@@ -94,13 +105,12 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           IDNumber = utr.uniqueTaxPayerReference,
           IDType = "UTR",
           organisationName = Some(businessName),
-          organisationType = Some(orgType.code)
+          organisationType = Some(orgType)
         )
         handleRegistrationResponse(connector.organisationWithUtr(request).value)
-
-      case None =>
+      case None                               =>
         logger.warn("Required data was missing from UserAnswers.")
-        Future.successful(None)
+        Future.failed(new Exception("Unexpected error!"))
     }
   }
 

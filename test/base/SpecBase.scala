@@ -16,8 +16,10 @@
 
 package base
 
+import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import models.{UniqueTaxpayerReference, UserAnswers}
+import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -67,19 +69,25 @@ trait SpecBase
   final val mockDataRetrievalAction: DataRetrievalAction   = mock[DataRetrievalAction]
   final val mockCtUtrRetrievalAction: CtUtrRetrievalAction = mock[CtUtrRetrievalAction]
 
+  override def beforeEach(): Unit = {
+    reset(mockSessionRepository, mockDataRetrievalAction, mockCtUtrRetrievalAction)
+    super.beforeEach()
+  }
   protected def applicationBuilder(
       userAnswers: Option[UserAnswers] = None,
-      affinityGroup: AffinityGroup = AffinityGroup.Individual
+      affinityGroup: AffinityGroup = AffinityGroup.Individual,
+      requestUtr: Option[String] = None
   ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers, affinityGroup)),
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers, requestUtr)),
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
 
   implicit val hc: HeaderCarrier    = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
+  val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
 }

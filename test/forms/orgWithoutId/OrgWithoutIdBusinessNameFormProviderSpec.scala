@@ -17,7 +17,7 @@
 package forms.orgWithoutId
 
 import base.TestConstants.{businessNameWithInvalidChars, validBusinessNameChars}
-import config.CarfConstants.validBusinessNameMaxLength
+import config.Constants.validBusinessNameMaxLength
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError

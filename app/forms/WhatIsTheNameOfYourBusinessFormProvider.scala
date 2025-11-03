@@ -16,10 +16,10 @@
 
 package forms
 
-import config.CarfConstants
+import config.Constants.orgNameRegex
 import forms.mappings.Mappings
 import play.api.data.Form
-import config.CarfConstants.orgNameRegex
+
 import javax.inject.Inject
 
 class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {

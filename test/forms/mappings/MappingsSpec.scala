@@ -17,7 +17,7 @@
 package forms.mappings
 
 import base.TestConstants.{invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
-import config.CarfConstants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
+import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
 import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec

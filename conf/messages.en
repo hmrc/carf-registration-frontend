@@ -170,3 +170,11 @@ haveTradingName.heading = Does your business trade under a different name?
 haveTradingName.checkYourAnswersLabel = Does your business trade under a different name?
 haveTradingName.error.required = Select yes if your business trades under a different name
 haveTradingName.change.hidden = Change if your business trades under a different name
+
+tradingName.title = What is the trading name of your business?
+tradingName.heading = What is the trading name of your business?
+tradingName.checkYourAnswersLabel = What is the trading name of your business?
+tradingName.change.hidden = Change the trading name of your business
+tradingName.error.required = Enter the trading name of your business
+tradingName.error.invalid = Trading name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+tradingName.error.length = Trading name must be 80 characters or less

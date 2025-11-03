@@ -79,3 +79,8 @@ GET        /register/business-without-id/have-trading-name             controlle
 POST       /register/business-without-id/have-trading-name             controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = NormalMode)
 GET        /register/business-without-id/change-have-trading-name      controllers.orgWithoutId.HaveTradingNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/business-without-id/change-have-trading-name      controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/business-without-id/trading-name                           controllers.TradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/business-without-id/trading-name                           controllers.TradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /register/business-without-id/change-trading-name                    controllers.TradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/business-without-id/change-trading-name                    controllers.TradingNameController.onSubmit(mode: Mode = CheckMode)

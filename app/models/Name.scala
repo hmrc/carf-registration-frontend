@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package config
+package models
 
-object Constants {
+import play.api.libs.json.*
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+case class Name(firstName: String, lastName: String) {
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+  val fullName: String = s"$firstName $lastName"
 
-  val ukTimeZoneStringId = "Europe/London"
+}
+
+object Name {
+  implicit val format: OFormat[Name] = Json.format[Name]
 }

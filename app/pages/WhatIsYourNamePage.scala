@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package config
+package pages
 
-object Constants {
+import models.Name
+import play.api.libs.json.JsPath
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+case object WhatIsYourNamePage extends QuestionPage[Name] {
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+  override def path: JsPath = JsPath \ toString
 
-  val ukTimeZoneStringId = "Europe/London"
+  override def toString: String = "whatIsYourName"
 }

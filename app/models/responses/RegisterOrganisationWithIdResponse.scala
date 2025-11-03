@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package config
+package models.responses
 
-object Constants {
+import play.api.libs.json.{Json, OFormat}
+import models.Address
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+case class RegisterOrganisationWithIdResponse(
+    safeId: String,
+    code: Option[String],
+    organisationName: String,
+    address: Address
+)
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
-
-  val ukTimeZoneStringId = "Europe/London"
+object RegisterOrganisationWithIdResponse {
+  implicit val format: OFormat[RegisterOrganisationWithIdResponse] = Json.format[RegisterOrganisationWithIdResponse]
 }

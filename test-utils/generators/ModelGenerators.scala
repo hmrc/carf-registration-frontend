@@ -30,6 +30,14 @@ implicit lazy val arbitraryWhatIsYourName: Arbitrary[Name] =
     } yield Name(firstName, lastName)
   }
 
+implicit lazy val arbitraryWhatIsYourNameIndividual: Arbitrary[Name] =
+  Arbitrary {
+    for {
+      firstName <- arbitrary[String]
+      lastName  <- arbitrary[String]
+    } yield Name(firstName, lastName)
+  }
+
 implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
   Arbitrary {
     Gen.oneOf(OrganisationRegistrationType.values.toSeq)

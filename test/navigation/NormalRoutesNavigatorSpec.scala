@@ -18,8 +18,10 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
+import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.*
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 
@@ -293,7 +295,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NiNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/name (CARF-165)")
+        ) mustBe routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
       }
     }
 
@@ -602,6 +604,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         updatedAnswers
       ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
+    }
+
+    "must go from WhatIsYourNamePageIndividual page to WhatIsYourDateOfBirth page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+
+      navigator.nextPage(
+        WhatIsYourNameIndividualPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
     }
   }
 }

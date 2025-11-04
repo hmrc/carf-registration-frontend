@@ -550,9 +550,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/trading-name (CARF-161)"
-        )
+        ) mustBe routes.TradingNameController.onPageLoad(NormalMode)
+
       }
       "business without id business address, when No is selected" in {
         val updatedAnswers =

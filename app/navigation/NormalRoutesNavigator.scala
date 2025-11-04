@@ -20,7 +20,7 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -66,6 +66,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     case HaveTradingNamePage =>
       userAnswers => navigateFromHaveTradingName(userAnswers)
+
+    case TradingNamePage =>
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/business-without-id/business-address (CARF-162)"
+        )
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -160,9 +166,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromHaveTradingName(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveTradingNamePage) match {
       case Some(true) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/trading-name (CARF-161)"
-        )
+        routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/business-address (CARF-162)"

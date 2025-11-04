@@ -93,5 +93,4 @@ trait Mappings extends Formatters with Constraints {
       args: Seq[Any] = Seq.empty
   ): FieldMapping[String] =
     of(nationalInsuranceNumberFormatter(requiredKey, invalidFormatKey, invalidKey, args))
-
 }

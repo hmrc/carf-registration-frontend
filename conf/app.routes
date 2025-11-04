@@ -87,6 +87,16 @@ POST        /register/your-name                                           contro
 GET         /register/change-your-name                                    controllers.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-your-name                                    controllers.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
 
+GET        /register/business-without-id/trading-name                           controllers.TradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/business-without-id/trading-name                           controllers.TradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /register/business-without-id/change-trading-name                    controllers.TradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/business-without-id/change-trading-name                    controllers.TradingNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/your-name                                       controllers.WhatIsYourNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/your-name                                       controllers.WhatIsYourNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-your-name                                controllers.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-your-name                                controllers.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/name                                                controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/name                                                controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-name                                         controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)

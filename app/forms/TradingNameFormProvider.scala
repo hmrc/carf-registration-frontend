@@ -28,12 +28,12 @@ class TradingNameFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "value" -> validatedTradingName(
+      "value" -> validatedText(
         requiredKey = "tradingName.error.required",
         invalidKey = "tradingName.error.invalid",
         lengthKey = "tradingName.error.length",
         regex = tradingNameRegex,
-        maxTradingNameLength = maxTradingNameLength
+        maxLength = maxTradingNameLength
       )
     )
 }

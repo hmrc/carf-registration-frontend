@@ -258,35 +258,4 @@ trait Formatters {
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
     }
-
-  protected def validatedTradingNameFormatter(
-      requiredKey: String,
-      invalidKey: String,
-      lengthKey: String,
-      tradingNameRegex: String,
-      maxTradingNameLength: Int
-  ): Formatter[String] = new Formatter[String] {
-
-    override def bind(
-        key: String,
-        data: Map[String, String]
-    ): Either[Seq[FormError], String] =
-      data.get(key).map(_.trim) match {
-
-        case None | Some("") =>
-          Left(Seq(FormError(key, requiredKey)))
-
-        case Some(s) if s.length > maxTradingNameLength =>
-          Left(Seq(FormError(key, lengthKey, Seq(maxTradingNameLength))))
-
-        case Some(s) if !s.matches(tradingNameRegex) =>
-          Left(Seq(FormError(key, invalidKey)))
-
-        case Some(s) =>
-          Right(s)
-      }
-
-    override def unbind(key: String, value: String): Map[String, String] =
-      Map(key -> value)
-  }
 }

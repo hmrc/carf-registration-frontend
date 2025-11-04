@@ -93,13 +93,4 @@ trait Mappings extends Formatters with Constraints {
       args: Seq[Any] = Seq.empty
   ): FieldMapping[String] =
     of(nationalInsuranceNumberFormatter(requiredKey, invalidFormatKey, invalidKey, args))
-
-  protected def validatedTradingName(
-      requiredKey: String,
-      invalidKey: String,
-      lengthKey: String,
-      regex: String,
-      maxTradingNameLength: Int
-  ): FieldMapping[String] =
-    of(validatedTradingNameFormatter(requiredKey, invalidKey, lengthKey, regex, maxTradingNameLength))
 }

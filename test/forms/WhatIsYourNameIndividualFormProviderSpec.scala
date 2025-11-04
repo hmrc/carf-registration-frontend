@@ -16,7 +16,7 @@
 
 package forms
 
-import config.CarfConstants.individualNameRegex
+import config.Constants.individualNameRegex
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.FormError
 import wolfendale.scalacheck.regexp.RegexpGen

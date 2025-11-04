@@ -16,8 +16,8 @@
 
 package forms
 
-import config.CarfConstants
-import config.CarfConstants.individualNameRegex
+import config.Constants
+import config.Constants.individualNameRegex
 import forms.mappings.Mappings
 import models.Name
 import play.api.data.Form

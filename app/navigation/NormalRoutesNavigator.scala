@@ -56,7 +56,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveNiNumber(userAnswers)
 
     case NiNumberPage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/name (CARF-165)")
+      _ => routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
+
+    case WhatIsYourNameIndividualPage =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
 
     case OrgWithoutIdBusinessNamePage =>
       _ => controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode)

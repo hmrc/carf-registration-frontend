@@ -67,7 +67,8 @@ class TradingNameFormProviderSpec extends StringFieldBehaviours {
       val longString = "a" * (maxLength + 1)
 
       val result = form.bind(Map(fieldName -> longString))
-      result.errors must contain only FormError(fieldName, lengthKey, Seq(maxLength))
+      result.errors must contain only FormError(fieldName, lengthKey, Seq.empty)
+
     }
   }
 }

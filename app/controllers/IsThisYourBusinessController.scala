@@ -104,7 +104,8 @@ class IsThisYourBusinessController @Inject() (
     lookupFuture.flatMap {
       case Some(business) =>
         val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
-        val pageDetails         = IsThisYourBusinessPageDetails(
+
+        val pageDetails = IsThisYourBusinessPageDetails(
           name = business.name,
           address = business.address,
           pageAnswer = existingPageDetails.flatMap(_.pageAnswer)

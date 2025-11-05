@@ -17,44 +17,46 @@
 package controllers
 
 import controllers.actions.*
-import forms.WhatIsYourNameFormProvider
-import models.{Mode, Name}
+import forms.ContactEmailFormProvider
+
+import javax.inject.Inject
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.WhatIsYourNamePage
+import pages.ContactEmailPage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.WhatIsYourNameView
+import views.html.ContactEmailView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatIsYourNameController @Inject() (
+class ContactEmailController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: WhatIsYourNameFormProvider,
+    formProvider: ContactEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: WhatIsYourNameView
+    view: ContactEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[Name] = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(WhatIsYourNamePage) match {
+      val preparedForm = request.userAnswers.get(ContactEmailPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-      Ok(view(preparedForm, mode))
+
+      Ok(view(preparedForm, mode, getContactName(request.userAnswers)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -62,12 +64,18 @@ class WhatIsYourNameController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            Future.successful(BadRequest(view(formWithErrors, mode, getContactName(request.userAnswers)))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsYourNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(WhatIsYourNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(ContactEmailPage, mode, updatedAnswers))
         )
   }
+
+  private def getContactName(userAnswers: UserAnswers)(implicit messages: Messages): String =
+    "Timmy"
+  // userAnswers.get(NamePage).getOrElse(messages("default.firstContact.name"))
+
 }

@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package config
+package forms
 
-object Constants {
+import config.Constants.emailRegex
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+import javax.inject.Inject
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+class ContactEmailFormProvider @Inject() extends Mappings {
 
-  final val emailRegex = "^(?:[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+)*)" +
-    "@(?:[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+)*)$"
+  private val maxLength = 132
 
-  val ukTimeZoneStringId = "Europe/London"
+  def apply(): Form[String] =
+    Form(
+      "value" -> validatedText(
+        "contactEmail.error.required",
+        "contactEmail.error.invalid",
+        "contactEmail.error.length",
+        emailRegex,
+        maxLength
+      )
+    )
+
 }

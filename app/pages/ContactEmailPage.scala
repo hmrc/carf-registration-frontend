@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package config
+package pages
 
-object Constants {
+import play.api.libs.json.JsPath
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+case object ContactEmailPage extends QuestionPage[String] {
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+  override def path: JsPath = JsPath \ toString
 
-  final val emailRegex = "^(?:[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+)*)" +
-    "@(?:[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&*+\\/=?^_`{|}~-]+)*)$"
-
-  val ukTimeZoneStringId = "Europe/London"
+  override def toString: String = "contactEmail"
 }

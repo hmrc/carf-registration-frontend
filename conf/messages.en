@@ -205,3 +205,8 @@ whatIsYourNameIndividual.error.lastName.invalid = The last name must only includ
 whatIsYourNameIndividual.error.lastName.length = The last name must be 35 characters or less
 whatIsYourNameIndividual.firstName.change.hidden = Change What is your first name?
 whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
+
+registerIdentityConfirmed.title = We have confirmed your identity
+registerIdentityConfirmed.heading = We have confirmed your identity
+
+

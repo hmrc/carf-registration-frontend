@@ -23,14 +23,17 @@ govukButton: GovukButton,
 appConfig: FrontendAppConfig
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(continueUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("registerIdentityConfirmed.title"))) {
 
 <h1 class="govuk-heading-l">@messages("registerIdentityConfirmed.heading")</h1>
 
-@govukButton(
-ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
-)
+    @govukButton(
+        ButtonViewModel(messages("site.continue"))
+            .asLink(continueUrl)
+            .withAttribute("id" -> "continue")
+    )
 
+    <br>
 }

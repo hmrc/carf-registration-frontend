@@ -38,7 +38,7 @@ class RegisterIdentityConfirmedController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+  def onPageLoad: Action[AnyContent] = identify() { implicit request =>
     val continueUrl =
       routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)").url
 

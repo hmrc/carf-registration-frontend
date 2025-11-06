@@ -67,9 +67,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case HaveTradingNamePage =>
       userAnswers => navigateFromHaveTradingName(userAnswers)
 
-    case RegisterIdentityConfirmedPage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
-
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }

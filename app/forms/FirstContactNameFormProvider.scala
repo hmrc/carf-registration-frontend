@@ -16,15 +16,15 @@
 
 package forms
 
-import javax.inject.Inject
+import config.Constants.contactNameRegex
 
+import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
 class FirstContactNameFormProvider @Inject() extends Mappings {
 
-  private final val contactNameRegex = """^[a-zA-Z0-9 &'\\`^\-]*$"""
-  private val maxContactNameLength   = 35
+  private val maxContactNameLength = 35
 
   def apply(): Form[String] =
     Form(

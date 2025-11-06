@@ -16,7 +16,9 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
+import models.NormalMode
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,8 +34,7 @@ class OrgYourContactDetailsController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify() { implicit request =>
-    val continueUrl: String =
-      routes.PlaceholderController.onPageLoad("Must redirect to /register/contact-name (CARF-178)").url
+    val continueUrl: String = routes.FirstContactNameController.onPageLoad(NormalMode).url
 
     Ok(view(continueUrl))
   }

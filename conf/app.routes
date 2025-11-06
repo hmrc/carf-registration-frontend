@@ -92,14 +92,14 @@ POST       /register/business-without-id/trading-name                           
 GET        /register/business-without-id/change-trading-name                    controllers.TradingNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/business-without-id/change-trading-name                    controllers.TradingNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/your-name                                       controllers.WhatIsYourNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/your-name                                       controllers.WhatIsYourNameController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-your-name                                controllers.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-your-name                                controllers.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
-
 GET         /register/name                                                controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/name                                                controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-name                                         controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-name                                         controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/contact-name                        controllers.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/contact-name                        controllers.FirstContactNameController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-contact-name                  controllers.FirstContactNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-contact-name                  controllers.FirstContactNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/could-not-confirm-identity         controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()

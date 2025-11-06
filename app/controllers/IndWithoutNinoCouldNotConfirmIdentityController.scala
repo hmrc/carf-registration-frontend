@@ -35,7 +35,7 @@ class IndWithoutNinoCouldNotConfirmIdentityController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
     val tryAgainLink: String = routes.IndexController.onPageLoad().url
-    
+
     Ok(view(tryAgainLink))
   }
 }

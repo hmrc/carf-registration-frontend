@@ -28,6 +28,8 @@ private[mappings] class LocalDateFormatter(
     allRequiredKey: String,
     twoRequiredKey: String,
     requiredKey: String,
+    notRealDateKey: String,
+    dateMustBeRangeKey: String,
     args: Seq[String] = Seq.empty
 )(implicit messages: Messages)
     extends Formatter[LocalDate]

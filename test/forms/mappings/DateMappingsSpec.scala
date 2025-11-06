@@ -43,7 +43,9 @@ class DateMappingsSpec
       requiredKey = "error.required",
       allRequiredKey = "error.required.all",
       twoRequiredKey = "error.required.two",
-      invalidKey = "error.invalid"
+      invalidKey = "error.invalid",
+      notRealDateKey = "error.not.real.date",
+      dateMustBeRangeKey = "error.date.range"
     )
   )
 

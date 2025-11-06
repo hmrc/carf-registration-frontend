@@ -213,3 +213,15 @@ whatIsYourNameIndividual.error.lastName.invalid = The last name must only includ
 whatIsYourNameIndividual.error.lastName.length = The last name must be 35 characters or less
 whatIsYourNameIndividual.firstName.change.hidden = Change What is your first name?
 whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
+
+registerDateOfBirth.title = What is your date of birth?
+registerDateOfBirth.heading = What is your date of birth?
+registerDateOfBirth.hint = For example, 31 3 1980.
+registerDateOfBirth.checkYourAnswersLabel = What is your date of birth?
+registerDateOfBirth.error.required.all = Enter your date of birth
+registerDateOfBirth.error.required.two = Enter the {0} and {1} you were born
+registerDateOfBirth.error.required = Enter the {0} you were born
+registerDateOfBirth.error.invalid = Date of birth must only include numbers 0 to 9
+registerDateOfBirth.error.not.real.date = Enter a real date of birth
+registerDateOfBirth.date.range = Date of birth must be {0} {1}
+registerDateOfBirth.change.hidden = Change What is your date of birth?

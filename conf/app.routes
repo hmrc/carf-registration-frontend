@@ -97,7 +97,12 @@ POST        /register/your-name                                       controller
 GET         /register/change-your-name                                controllers.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-your-name                                controllers.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/name                                                controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/name                                                controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-name                                         controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-name                                         controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
+GET         /register/name                                            controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/name                                            controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-name                                     controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-name                                     controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/date-of-birth                                    controllers.RegisterDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/date-of-birth                                    controllers.RegisterDateOfBirthController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-date-of-birth                             controllers.RegisterDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-date-of-birth                             controllers.RegisterDateOfBirthController.onSubmit(mode: Mode = CheckMode)

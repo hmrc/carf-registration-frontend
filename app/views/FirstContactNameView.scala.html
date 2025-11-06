@@ -15,6 +15,7 @@
  *@
 
 @import viewmodels.InputWidth._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
     layout: templates.Layout,
@@ -39,7 +40,9 @@
                 field = form("value"),
                 label = LabelViewModel(messages("firstContactName.heading")).asPageHeading()
             )
-            .withWidth(Full)
+            .withHint(HintViewModel(HtmlContent(messages("firstContactName.hint"))))
+            .withWidth(ThreeQuarters)
+            .withAutocomplete("name")
         )
 
         @govukButton(

@@ -23,9 +23,17 @@ import play.api.data.Form
 
 class FirstContactNameFormProvider @Inject() extends Mappings {
 
+  private final val contactNameRegex = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+  private val maxContactNameLength   = 35
+
   def apply(): Form[String] =
     Form(
-      "value" -> text("firstContactName.error.required")
-        .verifying(maxLength(35, "firstContactName.error.length"))
+      "value" -> validatedText(
+        requiredKey = "firstContactName.error.required",
+        invalidKey = "firstContactName.error.invalid",
+        lengthKey = "firstContactName.error.length",
+        regex = contactNameRegex,
+        maxLength = maxContactNameLength
+      )
     )
 }

@@ -25,19 +25,17 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object FirstContactNameSummary  {
+object FirstContactNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(FirstContactNamePage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "firstContactName.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.FirstContactNameController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("firstContactName.change.hidden"))
-          )
+    answers.get(FirstContactNamePage).map { answer =>
+      SummaryListRowViewModel(
+        key = "firstContactName.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.FirstContactNameController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("firstContactName.change.hidden"))
         )
+      )
     }
 }

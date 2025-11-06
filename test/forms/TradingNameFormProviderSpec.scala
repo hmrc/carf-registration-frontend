@@ -56,7 +56,7 @@ class TradingNameFormProviderSpec extends StringFieldBehaviours {
     )
 
     "not bind strings with invalid characters" in {
-      val invalidCharGen = Gen.oneOf("!@£$%_=+<>,./?~#").map(_.toString)
+      val invalidCharGen = Gen.oneOf("!\"#$%()*+,./:;<=>?@[]_{|}~").map(_.toString)
       forAll(invalidCharGen) { invalidChar =>
         val result = form.bind(Map(fieldName -> s"invalid${invalidChar}char")).apply(fieldName)
         result.errors must contain(FormError(fieldName, invalidKey))
@@ -68,7 +68,6 @@ class TradingNameFormProviderSpec extends StringFieldBehaviours {
 
       val result = form.bind(Map(fieldName -> longString))
       result.errors must contain only FormError(fieldName, lengthKey, Seq.empty)
-
     }
   }
 }

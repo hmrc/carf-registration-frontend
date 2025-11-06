@@ -40,7 +40,7 @@ class ContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider        = new ContactEmailFormProvider()
   val form: Form[String]  = formProvider()
-  val contactName: String = "Timothy"
+  val contactName: String = "Timmy"
 
   lazy val contactEmailRoute: String = routes.ContactEmailController.onPageLoad(NormalMode).url
 
@@ -64,7 +64,13 @@ class ContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(ContactEmailPage, "answer").success.value
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(ContactNamePage, contactName)
+        .success
+        .value
+        .set(ContactEmailPage, "anexampleevalidemail@email.com")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

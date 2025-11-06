@@ -76,6 +76,6 @@ class ContactEmailController @Inject() (
 
   private def getContactName(userAnswers: UserAnswers)(implicit messages: Messages): String =
     "Timmy"
-  // userAnswers.get(NamePage).getOrElse(messages("default.firstContact.name"))
+  // userAnswers.get(FirstContactNamePage).getOrElse(messages("contactEmail.default.firstContact.name"))
 
 }

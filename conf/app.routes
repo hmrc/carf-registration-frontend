@@ -101,3 +101,5 @@ GET         /register/name                                                contro
 POST        /register/name                                                controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-name                                         controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-name                                         controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/problem/could-not-confirm-identity         controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()

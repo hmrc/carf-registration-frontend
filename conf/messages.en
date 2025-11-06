@@ -6,6 +6,7 @@ site.change = Change
 site.no = No
 site.yes = Yes
 site.continue = Continue
+site.tryAgain = Try again
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -213,3 +214,7 @@ whatIsYourNameIndividual.error.lastName.invalid = The last name must only includ
 whatIsYourNameIndividual.error.lastName.length = The last name must be 35 characters or less
 whatIsYourNameIndividual.firstName.change.hidden = Change What is your first name?
 whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
+
+indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.

@@ -17,8 +17,9 @@
 package controllers
 
 import base.SpecBase
+import models.NormalMode
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.OrgYourContactDetailsView
 
 class OrgYourContactDetailsControllerSpec extends SpecBase {
@@ -35,8 +36,7 @@ class OrgYourContactDetailsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view                        = application.injector.instanceOf[OrgYourContactDetailsView]
-        val expectedContinueUrl: String =
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/contact-name (CARF-178)").url
+        val expectedContinueUrl: String = routes.FirstContactNameController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(expectedContinueUrl)(request, messages(application)).toString

@@ -73,6 +73,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
           "Must redirect to /register/business-without-id/business-address (CARF-162)"
         )
 
+    case FirstContactNamePage =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/email (CARF-179)")
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }

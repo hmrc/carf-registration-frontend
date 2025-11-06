@@ -17,26 +17,28 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import play.api.data.FormError
 import org.scalacheck.Gen
+import play.api.data.FormError
 
-class TradingNameFormProviderSpec extends StringFieldBehaviours {
+class FirstContactNameFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "tradingName.error.required"
-  val lengthKey   = "tradingName.error.length"
-  val invalidKey  = "tradingName.error.invalid"
-  val maxLength   = 80
+  val requiredKey = "firstContactName.error.required"
+  val lengthKey   = "firstContactName.error.length"
+  val invalidKey  = "firstContactName.error.invalid"
+  val maxLength   = 35
 
-  val form = new TradingNameFormProvider()()
+  val form = new FirstContactNameFormProvider()()
 
-  val validTradingNameChars: Gen[Char] = Gen.oneOf(
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 &'\\`^-".toSeq
-  )
+  val validTradingNameChars: Seq[Char] =
+    ('a' to 'z') ++
+      ('A' to 'Z') ++
+      ('0' to '9') ++
+      Seq(' ', '&', '\'', '\\', '`', '^', '-')
 
   val tradingNameGen: Gen[String] =
     for {
       length <- Gen.choose(1, maxLength)
-      chars  <- Gen.listOfN(length, validTradingNameChars)
+      chars  <- Gen.listOfN(length, Gen.oneOf(validTradingNameChars))
     } yield chars.mkString
 
   ".value" - {

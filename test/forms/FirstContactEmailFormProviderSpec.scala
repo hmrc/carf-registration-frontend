@@ -20,14 +20,14 @@ import config.Constants.emailRegex
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.{Form, FormError}
 
-class ContactEmailFormProviderSpec extends StringFieldBehaviours {
+class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey: String = "contactEmail.error.required"
-  val lengthKey: String   = "contactEmail.error.length"
-  val invalidKey: String  = "contactEmail.error.invalid"
+  val requiredKey: String = "firstContactEmail.error.required"
+  val lengthKey: String   = "firstContactEmail.error.length"
+  val invalidKey: String  = "firstContactEmail.error.invalid"
   val maxLength: Int      = 132
 
-  val form: Form[String] = new ContactEmailFormProvider()()
+  val form: Form[String] = new FirstContactEmailFormProvider()()
 
   ".value" - {
 

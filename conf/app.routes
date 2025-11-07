@@ -105,7 +105,7 @@ POST        /register/contact-name                                        contro
 GET         /register/change-contact-name                                 controllers.FirstContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-contact-name                                 controllers.FirstContactNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/email                                               controllers.ContactEmailController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/email                                               controllers.ContactEmailController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-email                                        controllers.ContactEmailController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-email                                        controllers.ContactEmailController.onSubmit(mode: Mode = CheckMode)
+GET         /register/email                                               controllers.FirstContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/email                                               controllers.FirstContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-email                                        controllers.FirstContactEmailController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-email                                        controllers.FirstContactEmailController.onSubmit(mode: Mode = CheckMode)

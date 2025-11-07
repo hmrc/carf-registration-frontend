@@ -619,7 +619,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
     }
 
-    "must go from FirstContactName page to ContactEmail page" in {
+    "must go from FirstContactName page to FirstContactEmail page" in {
 
       val updatedAnswers =
         emptyUserAnswers
@@ -631,19 +631,19 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.ContactEmailController.onPageLoad(NormalMode)
+      ) mustBe routes.FirstContactEmailController.onPageLoad(NormalMode)
     }
 
-    "must go from ContactEmail page to HavePhone page" in {
+    "must go from FirstContactEmail page to HavePhone page" in {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(ContactEmailPage, "an@email.com")
+          .set(FirstContactEmailPage, "an@email.com")
           .success
           .value
 
       navigator.nextPage(
-        ContactEmailPage,
+        FirstContactEmailPage,
         NormalMode,
         updatedAnswers
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/have-phone (CARF-180)")

@@ -222,3 +222,12 @@ firstContactName.error.length = The name must be 35 characters or less
 firstContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 firstContactName.change.hidden = Change first contact name
 firstContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
+
+firstContactPhoneNumber.title = What is the phone number for the first contact?
+firstContactPhoneNumber.heading = What is the phone number for {0}?
+firstContactPhoneNumber.checkYourAnswersLabel = First contact phone number
+firstContactPhoneNumber.error.required = Enter a phone number for the first contact
+firstContactPhoneNumber.error.length = The phone number must be 24 characters or less
+firstContactPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+firstContactPhoneNumber.change.hidden = Change first contact phone number
+firstContactPhoneNumber.hint = For international numbers, include the country code.

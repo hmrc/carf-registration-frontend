@@ -239,4 +239,3 @@ firstContactEmail.error.required = Enter an email address for the first contact
 firstContactEmail.error.length = The email address must be 132 characters or less
 firstContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
 firstContactEmail.change.hidden = Change first contact email address
-firstContactEmail.default.firstContact.name = your first contact

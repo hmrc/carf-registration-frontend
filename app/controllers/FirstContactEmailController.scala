@@ -18,11 +18,11 @@ package controllers
 
 import controllers.actions.*
 import forms.FirstContactEmailFormProvider
-import models.{Mode, UserAnswers}
+import models.Mode
 import navigation.Navigator
 import pages.{FirstContactEmailPage, FirstContactNamePage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -55,7 +55,10 @@ class FirstContactEmailController @Inject() (
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode, getContactName(request.userAnswers)))
+      request.userAnswers.get(FirstContactNamePage) match {
+        case Some(contactName) => Ok(view(preparedForm, mode, contactName))
+        case None              => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -64,7 +67,11 @@ class FirstContactEmailController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, mode, getContactName(request.userAnswers)))),
+            request.userAnswers.get(FirstContactNamePage) match {
+              case Some(contactName) =>
+                Future.successful(BadRequest(view(formWithErrors, mode, contactName)))
+              case None              => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            },
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(FirstContactEmailPage, value))
@@ -72,8 +79,5 @@ class FirstContactEmailController @Inject() (
             } yield Redirect(navigator.nextPage(FirstContactEmailPage, mode, updatedAnswers))
         )
   }
-
-  private def getContactName(userAnswers: UserAnswers)(implicit messages: Messages): String =
-    userAnswers.get(FirstContactNamePage).getOrElse(messages("firstContactEmail.default.firstContact.name"))
 
 }

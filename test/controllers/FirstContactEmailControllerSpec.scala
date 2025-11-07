@@ -38,35 +38,15 @@ class FirstContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider         = new FirstContactEmailFormProvider()
-  val form: Form[String]   = formProvider()
-  val contactName: String  = "name"
-  val fallbackName: String = "your first contact"
+  val formProvider        = new FirstContactEmailFormProvider()
+  val form: Form[String]  = formProvider()
+  val contactName: String = "name"
 
   lazy val firstContactEmailRoute: String = routes.FirstContactEmailController.onPageLoad(NormalMode).url
 
   "FirstContactEmail Controller" - {
 
-    "must return OK and the correct view for a GET with a default value" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, firstContactEmailRoute)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[FirstContactEmailView]
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, fallbackName)(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
-    "must return OK and the correct view for a GET with the name provided" in {
+    "must return OK and the correct view for a GET" in {
 
       val userAnswers = UserAnswers(userAnswersId)
         .set(FirstContactNamePage, contactName)

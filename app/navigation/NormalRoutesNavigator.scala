@@ -76,6 +76,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case FirstContactNamePage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/email (CARF-179)")
 
+    case FirstContactPhonePage =>
+      userAnswers => navigateFromFirstContactPhonePage(userAnswers)
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
@@ -173,6 +176,18 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case _          =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/business-address (CARF-162)"
+        )
+    }
+
+  private def navigateFromFirstContactPhonePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(FirstContactPhonePage) match {
+      case Some(true) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/phone (CARF-181)"
+        )
+      case _          =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/have-second-contact (CARF-182)"
         )
     }
 }

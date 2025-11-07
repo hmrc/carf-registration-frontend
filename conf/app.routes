@@ -101,3 +101,5 @@ GET        /register/contact-name                        controllers.FirstContac
 POST       /register/contact-name                        controllers.FirstContactNameController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-contact-name                  controllers.FirstContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-contact-name                  controllers.FirstContactNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/problem/could-not-confirm-identity         controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()

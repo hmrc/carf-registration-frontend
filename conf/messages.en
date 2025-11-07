@@ -215,6 +215,10 @@ whatIsYourNameIndividual.error.lastName.length = The last name must be 35 charac
 whatIsYourNameIndividual.firstName.change.hidden = Change What is your first name?
 whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
 
+registerIdentityConfirmed.title = We have confirmed your identity
+registerIdentityConfirmed.heading = We have confirmed your identity
+
+
 firstContactName.title = What is the name of the person or team we should contact?
 firstContactName.heading = What is the name of the person or team we should contact?
 firstContactName.checkYourAnswersLabel = First Contact Name

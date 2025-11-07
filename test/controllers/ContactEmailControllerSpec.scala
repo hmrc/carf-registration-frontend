@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ContactEmailPage
+import pages.{ContactEmailPage, FirstContactNamePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -38,17 +38,42 @@ class ContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider        = new ContactEmailFormProvider()
-  val form: Form[String]  = formProvider()
-  val contactName: String = "Timmy"
+  val formProvider         = new ContactEmailFormProvider()
+  val form: Form[String]   = formProvider()
+  val contactName: String  = "name"
+  val fallbackName: String = "your first contact"
 
   lazy val contactEmailRoute: String = routes.ContactEmailController.onPageLoad(NormalMode).url
 
   "ContactEmail Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET with a default value" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, contactEmailRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[ContactEmailView]
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, fallbackName)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET with the name provided" in {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(FirstContactNamePage, contactName)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, contactEmailRoute)
@@ -102,7 +127,7 @@ class ContactEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, contactEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "answer@email.com"))
 
         val result = route(application, request).value
 
@@ -113,8 +138,12 @@ class ContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(FirstContactNamePage, contactName)
+        .success
+        .value
 
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
       running(application) {
         val request =
           FakeRequest(POST, contactEmailRoute)

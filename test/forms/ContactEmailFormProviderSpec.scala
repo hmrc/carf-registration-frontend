@@ -16,6 +16,7 @@
 
 package forms
 
+import config.Constants.emailRegex
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.{Form, FormError}
 
@@ -35,7 +36,7 @@ class ContactEmailFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      emailMatchingRegexAndLength(emailRegex, maxLength)
     )
 
     behave like fieldWithInvalidData(
@@ -45,11 +46,11 @@ class ContactEmailFormProviderSpec extends StringFieldBehaviours {
       error = FormError(fieldName, invalidKey)
     )
 
-    behave like fieldWithMaxLength(
+    behave like fieldWithMaxLengthEmail(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey)
     )
 
     behave like mandatoryField(

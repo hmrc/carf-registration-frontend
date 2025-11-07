@@ -6,6 +6,7 @@ site.change = Change
 site.no = No
 site.yes = Yes
 site.continue = Continue
+site.tryAgain = Try again
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -214,6 +215,9 @@ whatIsYourNameIndividual.error.lastName.length = The last name must be 35 charac
 whatIsYourNameIndividual.firstName.change.hidden = Change What is your first name?
 whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
 
+registerIdentityConfirmed.title = We have confirmed your identity
+registerIdentityConfirmed.heading = We have confirmed your identity
+
 firstContactName.title = What is the name of the person or team we should contact?
 firstContactName.heading = What is the name of the person or team we should contact?
 firstContactName.checkYourAnswersLabel = First Contact Name
@@ -222,6 +226,10 @@ firstContactName.error.length = The name must be 35 characters or less
 firstContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 firstContactName.change.hidden = Change first contact name
 firstContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
+
+indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
 
 firstContactPhoneNumber.title = What is the phone number for the first contact?
 firstContactPhoneNumber.heading = What is the phone number for {0}?

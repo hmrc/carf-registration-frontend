@@ -25,6 +25,7 @@ object Constants {
   final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
   final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
   final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+  final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
   final val phoneNumberRegex    = """^[A-Z0-9 )/(\-*#+]*$""".stripMargin
 
   final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""

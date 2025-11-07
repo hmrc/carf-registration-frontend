@@ -17,29 +17,29 @@
 package controllers
 
 import base.SpecBase
-import models.NormalMode
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import views.html.OrgYourContactDetailsView
+import play.api.test.Helpers._
+import views.html.IndWithoutNinoCouldNotConfirmIdentityView
 
-class OrgYourContactDetailsControllerSpec extends SpecBase {
+class IndWithoutNinoCouldNotConfirmIdentityControllerSpec extends SpecBase {
 
-  "OrgYourContactDetails Controller" - {
+  val tryAgainUrl: String = routes.IndexController.onPageLoad().url
+
+  "IndWithoutNinoCouldNotConfirmIdentity Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.OrgYourContactDetailsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view                        = application.injector.instanceOf[OrgYourContactDetailsView]
-        val expectedContinueUrl: String = routes.FirstContactNameController.onPageLoad(NormalMode).url
+        val view = application.injector.instanceOf[IndWithoutNinoCouldNotConfirmIdentityView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(expectedContinueUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(tryAgainUrl)(request, messages(application)).toString
       }
     }
   }

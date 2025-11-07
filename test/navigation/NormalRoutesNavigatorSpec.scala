@@ -550,9 +550,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/trading-name (CARF-161)"
-        )
+        ) mustBe routes.TradingNameController.onPageLoad(NormalMode)
+
       }
       "business without id business address, when No is selected" in {
         val updatedAnswers =
@@ -620,6 +619,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         updatedAnswers
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
+    }
+
+    "must go from FirstContactName page to FirstEmail page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(FirstContactNamePage, "Graham")
+          .success
+          .value
+
+      navigator.nextPage(
+        FirstContactNamePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/email (CARF-179)")
     }
   }
 }

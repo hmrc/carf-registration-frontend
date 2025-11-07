@@ -6,6 +6,7 @@ site.change = Change
 site.no = No
 site.yes = Yes
 site.continue = Continue
+site.tryAgain = Try again
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -177,6 +178,14 @@ haveTradingName.checkYourAnswersLabel = Does your business trade under a differe
 haveTradingName.error.required = Select yes if your business trades under a different name
 haveTradingName.change.hidden = Change if your business trades under a different name
 
+tradingName.title = What is the trading name of your business?
+tradingName.heading = What is the trading name of your business?
+tradingName.checkYourAnswersLabel = What is the trading name of your business?
+tradingName.change.hidden = Change the trading name of your business
+tradingName.error.required = Enter the trading name of your business
+tradingName.error.invalid = Trading name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+tradingName.error.length = Trading name must be 80 characters or less
+
 whatIsYourName.title = What is your name?
 whatIsYourName.heading = What is your name?
 whatIsYourName.hint = This is so we can match your details such as UTR and name to our records.
@@ -210,3 +219,15 @@ registerIdentityConfirmed.title = We have confirmed your identity
 registerIdentityConfirmed.heading = We have confirmed your identity
 
 
+firstContactName.title = What is the name of the person or team we should contact?
+firstContactName.heading = What is the name of the person or team we should contact?
+firstContactName.checkYourAnswersLabel = First Contact Name
+firstContactName.error.required = Enter a name for the first contact
+firstContactName.error.length = The name must be 35 characters or less
+firstContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+firstContactName.change.hidden = Change first contact name
+firstContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
+
+indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.

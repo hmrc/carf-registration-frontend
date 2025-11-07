@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package config
+package forms
 
-object Constants {
+import javax.inject.Inject
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
-  final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+class TradingNameFormProvider @Inject() extends Mappings {
 
-  val ukTimeZoneStringId = "Europe/London"
+  private val maxTradingNameLength   = 80
+  private final val tradingNameRegex = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> validatedText(
+        requiredKey = "tradingName.error.required",
+        invalidKey = "tradingName.error.invalid",
+        lengthKey = "tradingName.error.length",
+        regex = tradingNameRegex,
+        maxLength = maxTradingNameLength
+      )
+    )
 }

@@ -41,7 +41,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
 
   private val formProvider = new RegisterDateOfBirthFormProvider()
-  private def form = formProvider()
+  private def form         = formProvider()
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -73,7 +73,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[RegisterDateOfBirthView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(getRequest(), messages(application)).toString
       }
     }
@@ -89,8 +89,11 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, getRequest()).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode)(getRequest(), messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode)(
+          getRequest(),
+          messages(application)
+        ).toString
       }
     }
 
@@ -107,7 +110,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val result = route(application, postRequest()).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -127,7 +130,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
@@ -139,7 +142,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val result = route(application, getRequest()).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -151,7 +154,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val result = route(application, postRequest()).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

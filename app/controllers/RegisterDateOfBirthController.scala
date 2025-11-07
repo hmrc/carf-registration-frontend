@@ -30,17 +30,19 @@ import views.html.RegisterDateOfBirthView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegisterDateOfBirthController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: RegisterDateOfBirthFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: RegisterDateOfBirthView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class RegisterDateOfBirthController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: RegisterDateOfBirthFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: RegisterDateOfBirthView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
@@ -48,7 +50,7 @@ class RegisterDateOfBirthController @Inject()(
       val form = formProvider()
 
       val preparedForm = request.userAnswers.get(RegisterDateOfBirthPage) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
@@ -60,15 +62,15 @@ class RegisterDateOfBirthController @Inject()(
 
       val form = formProvider()
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisterDateOfBirthPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisterDateOfBirthPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
+        )
   }
 }

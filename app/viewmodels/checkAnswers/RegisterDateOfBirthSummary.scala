@@ -25,21 +25,20 @@ import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object RegisterDateOfBirthSummary  {
+object RegisterDateOfBirthSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RegisterDateOfBirthPage).map {
-      answer =>
+    answers.get(RegisterDateOfBirthPage).map { answer =>
 
-        implicit val lang: Lang = messages.lang
+      implicit val lang: Lang = messages.lang
 
-        SummaryListRowViewModel(
-          key     = "registerDateOfBirth.checkYourAnswersLabel",
-          value   = ValueViewModel(answer.format(dateTimeFormat())),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.RegisterDateOfBirthController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key = "registerDateOfBirth.checkYourAnswersLabel",
+        value = ValueViewModel(answer.format(dateTimeFormat())),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RegisterDateOfBirthController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
         )
+      )
     }
 }

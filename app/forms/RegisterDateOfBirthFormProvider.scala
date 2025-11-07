@@ -17,6 +17,7 @@
 package forms
 
 import forms.mappings.Mappings
+import models.DateHelper.today
 import play.api.data.Form
 import play.api.i18n.Messages
 
@@ -28,12 +29,19 @@ class RegisterDateOfBirthFormProvider @Inject() extends Mappings {
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
       "value" -> localDate(
-        invalidKey         = "registerDateOfBirth.error.invalid",
-        allRequiredKey     = "registerDateOfBirth.error.required.all",
-        twoRequiredKey     = "registerDateOfBirth.error.required.two",
-        requiredKey        = "registerDateOfBirth.error.required",
-        notRealDateKey     = "registerDateOfBirth.error.not.real.date",
-        dateMustBeRangeKey = "registerDateOfBirth.date.range"
+        invalidKey = "registerDateOfBirth.error.invalid",
+        notRealDateKey = "registerDateOfBirth.error.not.real.date",
+        allRequiredKey = "registerDateOfBirth.error.required.all",
+        dayRequiredKey = "registerDateOfBirth.error.required.day",
+        monthRequiredKey = "registerDateOfBirth.error.required.month",
+        yearRequiredKey = "registerDateOfBirth.error.required.year",
+        dayAndMonthRequiredKey = "registerDateOfBirth.error.required.day.and.month",
+        dayAndYearRequiredKey = "registerDateOfBirth.error.required.day.and.year",
+        monthAndYearRequiredKey = "registerDateOfBirth.error.required.month.and.year",
+        futureDateKey = "registerDateOfBirth.error.future.date",
+        pastDateKey = "registerDateOfBirth.error.past.date",
+        maxDate = today,
+        minDate = LocalDate.of(1900, 1, 1)
       )
     )
 }

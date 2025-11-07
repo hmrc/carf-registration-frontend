@@ -24,7 +24,7 @@ import play.api.test.Helpers.stubMessages
 class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
-  private val form = new RegisterDateOfBirthFormProvider()()
+  private val form                        = new RegisterDateOfBirthFormProvider()()
 
   ".value" - {
 

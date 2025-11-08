@@ -20,7 +20,7 @@ import java.time.{LocalDate, Month}
 import models.DateHelper.formatDateToString
 import play.api.data.FormError
 import play.api.data.format.Formatter
-
+import play.api.i18n.Messages
 import scala.util.{Failure, Success, Try}
 
 private[mappings] class LocalDateFormatter(
@@ -38,17 +38,137 @@ private[mappings] class LocalDateFormatter(
     maxDate: LocalDate,
     minDate: LocalDate,
     args: Seq[String] = Seq.empty
-) extends Formatter[LocalDate]
+)(implicit messages: Messages)
+    extends Formatter[LocalDate]
     with Formatters {
-
   private val fieldKeys: List[String] = List("day", "month", "year")
+  private val monthFormatter          = new MonthFormatter(invalidKey, args)
+
+  override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
+    val cleanedData = data.map { case (k, v) => k -> v.replaceAll("[\\s-]", "") }
+    val boundFields = bindFields(key, cleanedData)
+    val errors      = collectErrors(key, cleanedData, boundFields)
+
+    if (errors.nonEmpty) {
+      Left(Seq(buildFinalError(key, errors)))
+    } else {
+      for {
+        year  <- boundFields.year
+        month <- boundFields.month
+        day   <- boundFields.day
+      } yield LocalDate.of(year, month, day)
+    }
+  }
+
+  private case class BoundDateFields(
+      day: Either[Seq[FormError], Int],
+      month: Either[Seq[FormError], Int],
+      year: Either[Seq[FormError], Int]
+  )
+
+  private def bindFields(key: String, data: Map[String, String]): BoundDateFields = {
+    val intFmttr    = intFormatter(requiredKey = invalidKey, wholeNumberKey = invalidKey, nonNumericKey = invalidKey, args)
+    val dayResult   = intFmttr.bind(s"$key.day", data)
+    val monthResult = intFmttr.bind(s"$key.month", data).left.flatMap(_ => monthFormatter.bind(s"$key.month", data))
+    val yearResult  = intFmttr.bind(s"$key.year", data)
+
+    BoundDateFields(dayResult, monthResult, yearResult)
+  }
+
+  private def collectErrors(key: String, cleanedData: Map[String, String], fields: BoundDateFields): Seq[FormError] = {
+    val missingFieldErrors = findMissingFieldErrors(key, cleanedData)
+    val validationErrors   = findValidationErrors(fields)
+    val realDateError      = findRealDateError(key, fields)
+
+    missingFieldErrors ++ validationErrors ++ realDateError
+  }
+
+  private def buildFinalError(key: String, allErrors: Seq[FormError]): FormError = {
+    val primaryError        = selectPrimaryError(allErrors)
+    val primaryMessageArgs  = primaryError.args.filterNot(isHighlightingArg)
+    val allHighlightingArgs = allErrors.flatMap(_.args).distinct.filter(isHighlightingArg)
+    FormError(key, primaryError.message, primaryMessageArgs ++ allHighlightingArgs)
+  }
+
+  private def findMissingFieldErrors(key: String, cleanedData: Map[String, String]): Seq[FormError] = {
+    val missing = fieldKeys.filter(field => cleanedData.get(s"$key.$field").forall(_.isEmpty))
+    if (missing.isEmpty) Seq.empty else Seq(handleMissingFields(key, missing))
+  }
+
+  private def findValidationErrors(fields: BoundDateFields): Seq[FormError] =
+    fields.day.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.day"))) ++
+      fields.month.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.month"))) ++
+      fields.year.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.year")))
+
+  private def findRealDateError(key: String, fields: BoundDateFields): Seq[FormError] =
+    (for {
+      day   <- fields.day.toOption
+      month <- fields.month.toOption
+      year  <- fields.year.toOption
+    } yield Try(LocalDate.of(year, month, day)) match {
+      case Failure(_)    =>
+        Seq(FormError(key, notRealDateKey, Seq("date.error.day", "date.error.month", "date.error.year") ++ args))
+      case Success(date) =>
+        if (date.isAfter(maxDate)) {
+          Seq(
+            FormError(
+              key,
+              futureDateKey,
+              Seq(formatDateToString(maxDate), "date.error.day", "date.error.month", "date.error.year") ++ args
+            )
+          )
+        } else if (date.isBefore(minDate)) {
+          Seq(FormError(key, pastDateKey, Seq("date.error.year") ++ args))
+        } else {
+          Seq.empty
+        }
+    }).getOrElse(Seq.empty)
+
+  private def selectPrimaryError(allErrors: Seq[FormError]): FormError = {
+    def findErrorForField(errors: Seq[FormError], field: String): Option[FormError] =
+      errors.find(_.args.contains(s"date.error.$field"))
+
+    val categoryAErrors =
+      allErrors.filter(e => e.message != notRealDateKey && e.message != futureDateKey && e.message != pastDateKey)
+
+    val realDate = allErrors.find(_.message == notRealDateKey)
+    val range    = allErrors.find(e => e.message == futureDateKey || e.message == pastDateKey)
+
+    findErrorForField(categoryAErrors, "day")
+      .orElse(findErrorForField(categoryAErrors, "month"))
+      .orElse(findErrorForField(categoryAErrors, "year"))
+      .orElse(categoryAErrors.headOption) // Fallback for combined missing errors
+      .orElse(realDate)
+      .orElse(range)
+      .getOrElse(allErrors.head) // Safe fallback
+  }
+
+  private def isHighlightingArg(arg: Any): Boolean = arg match {
+    case s: String => s.startsWith("date.error.")
+    case _         => false
+  }
+
+  private def handleMissingFields(key: String, missingFields: List[String]): FormError = {
+    val errorArgs = missingFields.map(field => s"date.error.$field")
+    val message   = missingFields.sorted match {
+      case "day" :: "month" :: "year" :: Nil => allRequiredKey
+      case "day" :: "month" :: Nil           => dayAndMonthRequiredKey
+      case "day" :: "year" :: Nil            => dayAndYearRequiredKey
+      case "month" :: "year" :: Nil          => monthAndYearRequiredKey
+      case "day" :: Nil                      => dayRequiredKey
+      case "month" :: Nil                    => monthRequiredKey
+      case "year" :: Nil                     => yearRequiredKey
+      case _                                 => allRequiredKey // Fallback
+    }
+    FormError(key, message, errorArgs ++ args)
+  }
 
   private def toDate(key: String, day: Int, month: Int, year: Int): Either[Seq[FormError], LocalDate] =
     Try(LocalDate.of(year, month, day)) match {
       case Success(date) =>
         Right(date)
       case Failure(_)    =>
-        Left(Seq(FormError(key, notRealDateKey, getErrorArgs(day, month))))
+        Left(Seq(FormError(key, notRealDateKey, args)))
     }
 
   private def getErrorArgs(day: Int, month: Int): Seq[String] = {
@@ -62,58 +182,18 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  private def formatDate(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
-    val monthVal = s"$key.month"
-    val int      = intFormatter(
-      requiredKey = invalidKey,
-      wholeNumberKey = invalidKey,
-      nonNumericKey = invalidKey,
-      args
-    )
-    val month    = new MonthFormatter(invalidKey, args)
-    for {
-      day   <- int.bind(s"$key.day", data)
-      month <- data(monthVal).toIntOption match {
-                 case Some(_) => int.bind(monthVal, data)
-                 case _       => month.bind(monthVal, data)
-               }
-      year  <- int.bind(s"$key.year", data)
-      date  <- toDate(key, day, month, year)
-    } yield date
-  }
-
-  override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
-    val cleanedData = data.map { case (k, v) =>
-      k -> v.replaceAll("[\\s-]", "")
-    }
-
-    val fields = fieldKeys
-      .map(field => field -> cleanedData.get(s"$key.$field").filter(_.nonEmpty))
-      .toMap
-
-    lazy val missingFields = fields
-      .withFilter(_._2.isEmpty)
-      .map(_._1)
-      .toList
-
-    fields.count(_._2.isDefined) match {
-      case 3 => noMissingField(key, cleanedData)
-      case 2 => singleFieldMissing(key, missingFields)
-      case 1 => twoFieldsMissing(key, missingFields)
-      case _ => Left(List(FormError(key, allRequiredKey, args)))
-    }
-  }
-
-  private def noMissingField(key: String, data: Map[String, String]) =
-    formatDate(key, data).left
-      .map(_.map(e => e.copy(key = key, args = e.args ++ args)))
-      .flatMap {
-        case validDate if validDate.isAfter(maxDate)  =>
-          Left(List(FormError(key, futureDateKey, List(formatDateToString(maxDate)) ++ args)))
-        case validDate if validDate.isBefore(minDate) =>
-          Left(List(FormError(key, pastDateKey, args)))
-        case validDate                                => Right(validDate)
+  private def formatDate(key: String, day: Int, month: Int, year: Int): Either[Seq[FormError], LocalDate] =
+    toDate(key, day, month, year).flatMap { date =>
+      if (date.isAfter(maxDate)) {
+        val errorArgs = Seq(formatDateToString(maxDate), "date.error.year") ++ args
+        Left(List(FormError(key, futureDateKey, errorArgs)))
+      } else if (date.isBefore(minDate)) {
+        val errorArgs = Seq("date.error.year") ++ args
+        Left(List(FormError(key, pastDateKey, errorArgs)))
+      } else {
+        Right(date)
       }
+    }
 
   private def twoFieldsMissing(key: String, missingFields: => List[String]) =
     if (!missingFields.exists(_.toLowerCase.contains("day"))) {
@@ -124,13 +204,13 @@ private[mappings] class LocalDateFormatter(
       Left(List(FormError(key, dayAndMonthRequiredKey, missingFields ++ args)))
     }
 
-  private def singleFieldMissing(key: String, missingFields: => List[String]) =
+  private def singleFieldMissing(key: String, missingFields: List[String]): Either[Seq[FormError], LocalDate] =
     if (missingFields.exists(_.toLowerCase.contains("day"))) {
-      Left(List(FormError(key, dayRequiredKey, missingFields ++ args)))
+      Left(List(FormError(key, dayRequiredKey, Seq(messages("date.error.day")) ++ args)))
     } else if (missingFields.exists(_.toLowerCase.contains("month"))) {
-      Left(List(FormError(key, monthRequiredKey, missingFields ++ args)))
+      Left(List(FormError(key, monthRequiredKey, Seq(messages("date.error.month")) ++ args)))
     } else {
-      Left(List(FormError(key, yearRequiredKey, missingFields ++ args)))
+      Left(List(FormError(key, yearRequiredKey, Seq(messages("date.error.year")) ++ args)))
     }
 
   override def unbind(key: String, value: LocalDate): Map[String, String] =
@@ -143,8 +223,7 @@ private[mappings] class LocalDateFormatter(
   private class MonthFormatter(invalidKey: String, args: Seq[String] = Seq.empty)
       extends Formatter[Int]
       with Formatters {
-    private val baseFormatter = stringFormatter(invalidKey, args)
-
+    private val baseFormatter                                                              = stringFormatter(invalidKey, args)
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] = {
       val months = Month.values.toList
       baseFormatter
@@ -160,9 +239,7 @@ private[mappings] class LocalDateFormatter(
             .getOrElse(Left(List(FormError(key, invalidKey, args))))
         }
     }
-
-    override def unbind(key: String, value: Int): Map[String, String] =
+    override def unbind(key: String, value: Int): Map[String, String]                      =
       Map(key -> value.toString)
-
   }
 }

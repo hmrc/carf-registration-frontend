@@ -25,9 +25,7 @@
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("registerDateOfBirth.title"))) {
-
     @formHelper(action = routes.RegisterDateOfBirthController.onSubmit(mode), Symbol("autoComplete") -> "off") {
-
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
@@ -38,6 +36,7 @@
                 legend = LegendViewModel(messages("registerDateOfBirth.heading")).asPageHeading()
             )
             .withHint(HintViewModel(messages("registerDateOfBirth.hint")))
+            .asDateOfBirth()
         )
 
         @govukButton(

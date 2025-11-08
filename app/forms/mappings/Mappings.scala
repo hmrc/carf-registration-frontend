@@ -64,7 +64,7 @@ trait Mappings extends Formatters with Constraints {
       maxDate: LocalDate,
       minDate: LocalDate,
       args: Seq[String] = Seq.empty
-  ): FieldMapping[LocalDate] =
+  )(implicit messages: Messages): FieldMapping[LocalDate] =
     of(
       new LocalDateFormatter(
         invalidKey,
@@ -81,7 +81,7 @@ trait Mappings extends Formatters with Constraints {
         maxDate,
         minDate,
         args
-      )
+      )(messages)
     )
 
   protected def currency(

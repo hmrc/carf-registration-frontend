@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package config
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton
+)
 
-object Constants {
+@(tryAgainLink: String)(implicit request: Request[_], messages: Messages)
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+@layout(pageTitle = titleNoForm(messages("indWithoutNinoCouldNotConfirmIdentity.title"))) {
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
-  final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+    <h1 class="govuk-heading-l">@messages("indWithoutNinoCouldNotConfirmIdentity.heading")</h1>
 
-  val ukTimeZoneStringId = "Europe/London"
+    <p class="govuk-body">@messages("indWithoutNinoCouldNotConfirmIdentity.para1")</p>
+
+    @govukButton(
+        ButtonViewModel(messages("site.tryAgain")).withAttribute("id" -> "tryAgain").asLink(tryAgainLink)
+    )
+
+    <br>
+
 }

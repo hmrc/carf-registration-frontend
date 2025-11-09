@@ -78,6 +78,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
 
+    case FirstContactNamePage =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/email (CARF-179)")
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }

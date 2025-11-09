@@ -17,24 +17,30 @@
 package controllers
 
 import controllers.actions.*
-import models.NormalMode
 
 import javax.inject.Inject
+import navigation.Navigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrgYourContactDetailsView
+import views.html.RegisterIdentityConfirmedView
+import scala.concurrent.ExecutionContext
 
-class OrgYourContactDetailsController @Inject() (
-    override val messagesApi: MessagesApi,
+class RegisterIdentityConfirmedController @Inject() (
+    navigator: Navigator,
     identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    override val messagesApi: MessagesApi,
     val controllerComponents: MessagesControllerComponents,
-    view: OrgYourContactDetailsView
-) extends FrontendBaseController
+    view: RegisterIdentityConfirmedView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify() { implicit request =>
-    val continueUrl: String = routes.FirstContactNameController.onPageLoad(NormalMode).url
+    val continueUrl =
+      routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)").url
 
     Ok(view(continueUrl))
   }

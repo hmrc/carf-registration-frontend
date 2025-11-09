@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package config
+@import viewmodels.InputWidth._
+@import config.FrontendAppConfig
 
-object Constants {
+@this(
+layout: templates.Layout,
+govukButton: GovukButton,
+appConfig: FrontendAppConfig
+)
 
-  val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
-  val validBusinessNameMaxLength: Int = 105
-  val validBusinessNameMinLength: Int = 1
+@(continueUrl: String)(implicit request: Request[_], messages: Messages)
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
-  final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+@layout(pageTitle = titleNoForm(messages("registerIdentityConfirmed.title"))) {
 
-  val ukTimeZoneStringId = "Europe/London"
+<h1 class="govuk-heading-l">@messages("registerIdentityConfirmed.heading")</h1>
+
+    @govukButton(
+        ButtonViewModel(messages("site.continue"))
+            .asLink(continueUrl)
+            .withAttribute("id" -> "continue")
+    )
+
+    <br>
 }

@@ -23,7 +23,7 @@ import models.responses.RegisterOrganisationWithIdResponse
 import models.{Address, BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.Logging
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, RegisterDateOfBirthPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNameIndividualPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,40 +31,54 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] =
-    connector
-      .individualWithNino(
-        request = RegisterIndividualWithIdRequest(
+  def getIndividualByNino(ninoProxy: String, userAnswers: UserAnswers)(implicit
+      hc: HeaderCarrier
+  ): Future[Option[IndividualDetails]] = {
+    val maybeDob  = userAnswers.get(RegisterDateOfBirthPage)
+    val maybeName = userAnswers.get(WhatIsYourNameIndividualPage)
+
+    (maybeDob, maybeName) match {
+      case (Some(dateOfBirth), Some(name)) =>
+        val request = RegisterIndividualWithIdRequest(
           requiresNameMatch = true,
-          // TODO: Replace it with actual NINO CARF-166
           IDNumber = ninoProxy,
           IDType = "NINO",
-          dateOfBirth = "test-dob",
-          firstName = "john",
-          lastName = "doe"
+          dateOfBirth = dateOfBirth.toString,
+          firstName = name.firstName,
+          lastName = name.lastName
         )
-      )
-      .value
-      .flatMap {
-        case Right(response)              =>
-          logger.info("Successfully retrieved individual details.")
-          Future.successful(
-            Some(
-              IndividualDetails(
-                safeId = response.safeId,
-                firstName = response.firstName,
-                lastName = response.lastName,
-                middleName = response.middleName,
-                address = response.address
+        connector
+          .individualWithNino(request)
+          .value
+          .flatMap {
+            case Right(response)              =>
+              logger.info(
+                "RegistrationConnector Successfully retrieved individual details for=" + response.firstName + ", " + response.lastName + "."
               )
-            )
-          )
-        case Left(ApiError.NotFoundError) =>
-          logger.warn("Not Found (404) for individual details.")
-          Future.successful(None)
-        case Left(error)                  =>
-          Future.failed(new Exception("Unexpected Error!"))
-      }
+              Future.successful(
+                Some(
+                  IndividualDetails(
+                    safeId = response.safeId,
+                    firstName = response.firstName,
+                    lastName = response.lastName,
+                    middleName = response.middleName,
+                    address = response.address
+                  )
+                )
+              )
+            case Left(ApiError.NotFoundError) =>
+              logger.warn("Not Found (404) for individual details.")
+              Future.successful(None)
+
+            case Left(error) =>
+              logger.error(s"Failed to retrieve individual details: $error")
+              Future.failed(new Exception("Unexpected Error!"))
+          }
+      case _                               =>
+        logger.warn("Missing required user details (dateOfBirth or name).")
+        Future.successful(None)
+    }
+  }
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val request = RegisterOrganisationWithIdRequest(

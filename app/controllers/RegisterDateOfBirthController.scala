@@ -16,15 +16,17 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.RegisterDateOfBirthFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.RegisterDateOfBirthPage
+import pages.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegisterDateOfBirthView
 
@@ -39,38 +41,59 @@ class RegisterDateOfBirthController @Inject() (
     requireData: DataRequiredAction,
     formProvider: RegisterDateOfBirthFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: RegisterDateOfBirthView
+    view: RegisterDateOfBirthView,
+    service: RegistrationService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-
-      val form = formProvider()
-
+      val form         = formProvider()
       val preparedForm = request.userAnswers.get(RegisterDateOfBirthPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-
       Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
       val form = formProvider()
-
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisterDateOfBirthPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
+          value => { // Save the date of birth to userAnswers
+            val updatedAnswersTry = request.userAnswers.set(RegisterDateOfBirthPage, value)
+            updatedAnswersTry.fold(
+              _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())),
+              updatedAnswers => { // Retrieve other fields from UserAnswers
+                val maybeNino = updatedAnswers.get(NiNumberPage)
+                val maybeName = updatedAnswers.get(WhatIsYourNameIndividualPage)
+                (maybeNino, maybeName) match {
+                  case (Some(nino), Some(name)) => // Call the registration service
+                    service
+                      .getIndividualByNino(nino, updatedAnswers)
+                      .flatMap {
+                        case Some(details) => // Response 200 - user matched
+                          for {
+                            matchedAnswers <- Future.fromTry(updatedAnswers.set(RegisterDateOfBirthPage, value))
+                            _              <- sessionRepository.set(matchedAnswers)
+                          } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, matchedAnswers))
+                        case None          => // Response 404 - user not matched
+                          Future
+                            .successful(Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()))
+                      }
+                      .recover { case ex => // Response 500 or other unexpected error
+                        Redirect(routes.JourneyRecoveryController.onPageLoad())
+                      }
+                  case _                        => // Missing data → journey recovery
+                    Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+                }
+              }
+            )
+          }
         )
   }
 }

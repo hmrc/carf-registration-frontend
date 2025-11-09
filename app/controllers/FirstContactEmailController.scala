@@ -56,8 +56,8 @@ class FirstContactEmailController @Inject() (
       }
 
       request.userAnswers.get(FirstContactNamePage) match {
-        case Some(contactName) => Ok(view(preparedForm, mode, contactName))
-        case None              => Redirect(routes.JourneyRecoveryController.onPageLoad())
+        case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
+        case None                   => Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
   }
 
@@ -68,9 +68,9 @@ class FirstContactEmailController @Inject() (
         .fold(
           formWithErrors =>
             request.userAnswers.get(FirstContactNamePage) match {
-              case Some(contactName) =>
-                Future.successful(BadRequest(view(formWithErrors, mode, contactName)))
-              case None              => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              case Some(firstContactName) =>
+                Future.successful(BadRequest(view(formWithErrors, mode, firstContactName)))
+              case None                   => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>
             for {

@@ -157,14 +157,18 @@ class FirstContactEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+    "must redirect to Journey Recovery for a GET if no first contact name is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(FirstContactEmailPage, "test@example.com")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, firstContactEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+          FakeRequest(GET, firstContactEmailRoute)
 
         val result = route(application, request).value
 
@@ -172,5 +176,38 @@ class FirstContactEmailControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to Journey Recovery for a POST if no existing firstContactName is found in formWithErrors" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, firstContactEmailRoute)
+            .withFormUrlEncodedBody(("value", "wrong email format@"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no firstContactName is found" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, firstContactEmailRoute)
+            .withFormUrlEncodedBody(("value", "email.com"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
   }
 }

@@ -18,6 +18,7 @@ package forms
 
 import config.Constants.emailRegex
 import forms.behaviours.StringFieldBehaviours
+import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
 class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
@@ -42,7 +43,7 @@ class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
     behave like fieldWithInvalidData(
       form,
       fieldName,
-      invalidString = "this is not a valid email address",
+      invalidString = "not validemail@ @ test",
       error = FormError(fieldName, invalidKey)
     )
 
@@ -58,5 +59,30 @@ class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "not bind invalid email formats" in {
+      val invalidEmails = Gen.oneOf(
+        "testemail",
+        "@example.com",
+        "test@",
+        "test @example.com",
+        "test@exam ple.com",
+        "test@@example.com",
+        "test@.com",
+        "test@example",
+        ".user@example.com",
+        "user.@example.com",
+        "user..name@example.com",
+        "user@example..com",
+        "user@-example.com",
+        "user@example.com-"
+      )
+
+      forAll(invalidEmails) { email =>
+        val result = form.bind(Map(fieldName -> email))
+        result.errors must contain(FormError(fieldName, invalidKey))
+      }
+    }
+
   }
 }

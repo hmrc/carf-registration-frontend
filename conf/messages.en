@@ -218,6 +218,9 @@ whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
 registerIdentityConfirmed.title = We have confirmed your identity
 registerIdentityConfirmed.heading = We have confirmed your identity
 
+indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
 
 firstContactName.title = What is the name of the person or team we should contact?
 firstContactName.heading = What is the name of the person or team we should contact?
@@ -228,6 +231,11 @@ firstContactName.error.invalid = The name must only include letters a to z, numb
 firstContactName.change.hidden = Change first contact name
 firstContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
 
-indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
-indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
-indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
+firstContactEmail.title = What is the email address for the first contact?
+firstContactEmail.heading = What is the email address for {0}?
+firstContactEmail.checkYourAnswersLabel = First contact email address
+firstContactEmail.paragraph = We will use this email address to send confirmation of your reports or if we have any questions about them.
+firstContactEmail.error.required = Enter an email address for the first contact
+firstContactEmail.error.length = The email address must be 132 characters or less
+firstContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
+firstContactEmail.change.hidden = Change first contact email address

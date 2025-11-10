@@ -20,10 +20,10 @@ import connectors.RegistrationConnector
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
-import models.{Address, BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
-import uk.gov.hmrc.http.HeaderCarrier
+import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
+import pages.*
 import play.api.Logging
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

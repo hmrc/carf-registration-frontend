@@ -17,21 +17,22 @@
 package controllers
 
 import java.time.{LocalDate, ZoneOffset}
-
 import base.SpecBase
 import forms.RegisterDateOfBirthFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RegisterDateOfBirthPage
+import pages.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import repositories.SessionRepository
+import play.api.test.Helpers.*
+import services.RegistrationService
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.RegisterDateOfBirthView
 
 import scala.concurrent.Future
@@ -45,11 +46,37 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = LocalDate.now(ZoneOffset.UTC)
+  val validDateAnswer  = LocalDate.now(ZoneOffset.UTC)
+  val validNino        = "JX123456D"
+  val validName        = Name("firstName example", "lastName example")
+  val validUserAnswers = UserAnswers(userAnswersId)
+    .set(NiNumberPage, validNino)
+    .success
+    .value
+    .set(WhatIsYourNameIndividualPage, validName)
+    .success
+    .value
+    .set(RegisterDateOfBirthPage, validDateAnswer)
+    .success
+    .value
+
+  val validIndividualDetails = IndividualDetails(
+    safeId = "X12345",
+    firstName = "John",
+    lastName = "Doe",
+    middleName = None,
+    address = Address(
+      addressLine1 = "123 Main Street",
+      addressLine2 = Some("Birmingham"),
+      addressLine3 = None,
+      addressLine4 = None,
+      postalCode = Some("B23 2AZ"),
+      countryCode = "GB"
+    )
+  )
 
   lazy val registerDateOfBirthRoute = routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
-
-  override val emptyUserAnswers = UserAnswers(userAnswersId)
+  override val emptyUserAnswers     = UserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, registerDateOfBirthRoute)
@@ -57,21 +84,18 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   def postRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
     FakeRequest(POST, registerDateOfBirthRoute)
       .withFormUrlEncodedBody(
-        "value.day"   -> validAnswer.getDayOfMonth.toString,
-        "value.month" -> validAnswer.getMonthValue.toString,
-        "value.year"  -> validAnswer.getYear.toString
+        "value.day"   -> validDateAnswer.getDayOfMonth.toString,
+        "value.month" -> validDateAnswer.getMonthValue.toString,
+        "value.year"  -> validDateAnswer.getYear.toString
       )
 
   "RegisterDateOfBirth Controller" - {
-
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val result = route(application, getRequest()).value
-
-        val view = application.injector.instanceOf[RegisterDateOfBirthView]
+        val view   = application.injector.instanceOf[RegisterDateOfBirthView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(getRequest(), messages(application)).toString
@@ -79,18 +103,13 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      val userAnswers = UserAnswers(userAnswersId).set(RegisterDateOfBirthPage, validAnswer).success.value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(validUserAnswers)).build()
 
       running(application) {
-        val view = application.injector.instanceOf[RegisterDateOfBirthView]
-
+        val view   = application.injector.instanceOf[RegisterDateOfBirthView]
         val result = route(application, getRequest()).value
-
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode)(
+        contentAsString(result) mustEqual view(form.fill(validDateAnswer), NormalMode)(
           getRequest(),
           messages(application)
         ).toString
@@ -100,60 +119,56 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(any[String], any[UserAnswers])(any[HeaderCarrier])
+      ).thenReturn(Future.successful(Some(validIndividualDetails)))
+
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(validUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[RegistrationService].toInstance(mockRegistrationService)
           )
           .build()
 
       running(application) {
         val result = route(application, postRequest()).value
-
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      val request =
+      val request     =
         FakeRequest(POST, registerDateOfBirthRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
       running(application) {
         val boundForm = form.bind(Map("value" -> "invalid value"))
-
-        val view = application.injector.instanceOf[RegisterDateOfBirthView]
-
-        val result = route(application, request).value
-
+        val view      = application.injector.instanceOf[RegisterDateOfBirthView]
+        val result    = route(application, request).value
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val result = route(application, getRequest()).value
-
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val result = route(application, postRequest()).value
-
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

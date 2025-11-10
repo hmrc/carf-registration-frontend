@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getIndividualByNino(ninoProxy: String, userAnswers: UserAnswers)(implicit
+  def getIndividualByNino(nino: String, userAnswers: UserAnswers)(implicit
       hc: HeaderCarrier
   ): Future[Option[IndividualDetails]] = {
     val maybeDob  = userAnswers.get(RegisterDateOfBirthPage)
@@ -41,7 +41,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       case (Some(dateOfBirth), Some(name)) =>
         val request = RegisterIndividualWithIdRequest(
           requiresNameMatch = true,
-          IDNumber = ninoProxy,
+          IDNumber = nino,
           IDType = "NINO",
           dateOfBirth = dateOfBirth.toString,
           firstName = name.firstName,
@@ -53,7 +53,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           .flatMap {
             case Right(response)              =>
               logger.info(
-                "RegistrationConnector Successfully retrieved individual details for=" + response.firstName + ", " + response.lastName + "."
+                "RegistrationConnector Successfully retrieved individual details for=" + response.firstName + ", " + response.lastName
+                  + " SafeId=" + response.safeId
               )
               Future.successful(
                 Some(

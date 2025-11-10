@@ -23,20 +23,21 @@ import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.requests.RegisterOrganisationWithIdRequest
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{Address, BusinessDetails, IndividualDetails, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{NiNumberPage, OrganisationRegistrationTypePage, RegisterDateOfBirthPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class RegistrationServiceSpec extends SpecBase {
-
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
   val testService                          = new RegistrationService(mockConnector)
-
-  val testOrgType = OrganisationRegistrationType.LimitedCompany
+  val testOrgType                          = OrganisationRegistrationType.LimitedCompany
+  val testNino                             = "JX123456D"
+  val birthDate: LocalDate                 = LocalDate.of(2000, 1, 1)
 
   val testAddress = Address(
     addressLine1 = "123 Main Street",
@@ -54,6 +55,19 @@ class RegistrationServiceSpec extends SpecBase {
     middleName = Some("Exie"),
     address = testAddress
   )
+  val userAnswersIndividualWithNino                                                 = UserAnswers(userAnswersId)
+    .set(
+      WhatIsYourNamePage,
+      Name(testRegisterIndividualWithIdSuccessResponse.firstName, testRegisterIndividualWithIdSuccessResponse.lastName)
+    )
+    .success
+    .value
+    .set(NiNumberPage, testNino)
+    .success
+    .value
+    .set(RegisterDateOfBirthPage, birthDate)
+    .success
+    .value
 
   val orgUkBusinessResponse = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
@@ -194,8 +208,11 @@ class RegistrationServiceSpec extends SpecBase {
       }
     }
 
+    // zxc
+
     "getIndividualByNino method should" - {
       "successfully return an individual's details when the connector returns them successfully" in {
+
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithIdSuccessResponse))
 
@@ -207,15 +224,15 @@ class RegistrationServiceSpec extends SpecBase {
           address = testAddress
         )
 
-        val result = testService.getIndividualByNino("testInput").futureValue
-
+        val result = testService.getIndividualByNino("testInput", userAnswersIndividualWithNino).futureValue
         result mustBe Some(expectedResult)
       }
+
       "return none when the connector could not get a business partner record match for this user" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
 
-        val result = testService.getIndividualByNino("testInput").futureValue
+        val result = testService.getIndividualByNino("testInput", userAnswersIndividualWithNino).futureValue
 
         result mustBe None
       }
@@ -225,7 +242,7 @@ class RegistrationServiceSpec extends SpecBase {
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
 
         val exception = intercept[Exception] {
-          testService.getIndividualByNino("testInput").futureValue
+          testService.getIndividualByNino("testInput", userAnswersIndividualWithNino).futureValue
         }
 
         exception.getMessage must include("Unexpected Error!")

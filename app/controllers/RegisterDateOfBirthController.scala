@@ -64,31 +64,31 @@ class RegisterDateOfBirthController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value => { // Save the date of birth to userAnswers
+          value => {
             val updatedAnswersTry = request.userAnswers.set(RegisterDateOfBirthPage, value)
             updatedAnswersTry.fold(
               _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())),
-              updatedAnswers => { // Retrieve other fields from UserAnswers
+              updatedAnswers => {
                 val maybeNino = updatedAnswers.get(NiNumberPage)
                 val maybeName = updatedAnswers.get(WhatIsYourNameIndividualPage)
                 (maybeNino, maybeName) match {
-                  case (Some(nino), Some(name)) => // Call the registration service
+                  case (Some(nino), Some(name)) =>
                     service
                       .getIndividualByNino(nino, updatedAnswers)
                       .flatMap {
-                        case Some(details) => // Response 200 - user matched
+                        case Some(details) =>
                           for {
                             matchedAnswers <- Future.fromTry(updatedAnswers.set(RegisterDateOfBirthPage, value))
                             _              <- sessionRepository.set(matchedAnswers)
                           } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, matchedAnswers))
-                        case None          => // Response 404 - user not matched
+                        case None          =>
                           Future
                             .successful(Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()))
                       }
-                      .recover { case ex => // Response 500 or other unexpected error
+                      .recover { case ex =>
                         Redirect(routes.JourneyRecoveryController.onPageLoad())
                       }
-                  case _                        => // Missing data → journey recovery
+                  case _                        =>
                     Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
                 }
               }

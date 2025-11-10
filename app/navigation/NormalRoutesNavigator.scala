@@ -185,7 +185,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(RegisterDateOfBirthPage) match {
       case Some(_: LocalDate) =>
         routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/date-of-birth (CARF-168)"
+          "Must redirect to /register/identity-confirmed (CARF-168)"
         )
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }

@@ -16,7 +16,6 @@
 
 package forms
 
-import config.Constants.emailRegex
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
@@ -27,6 +26,7 @@ class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
   val lengthKey: String   = "firstContactEmail.error.length"
   val invalidKey: String  = "firstContactEmail.error.invalid"
   val maxLength: Int      = 132
+  val validEmailAddress   = "avalid@email.com"
 
   val form: Form[String] = new FirstContactEmailFormProvider()()
 
@@ -37,7 +37,7 @@ class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      emailMatchingRegexAndLength(emailRegex, maxLength)
+      validEmailAddress
     )
 
     behave like fieldWithInvalidData(
@@ -51,7 +51,7 @@ class FirstContactEmailFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey)
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
     )
 
     behave like mandatoryField(

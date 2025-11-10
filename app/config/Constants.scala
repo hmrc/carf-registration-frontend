@@ -26,8 +26,5 @@ object Constants {
   final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
   final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
 
-  final val emailRegex =
-    """^(?!\.)("([^"\r\\]|\\["\r\\])*"|([-a-zA-Z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)+)(?<!\.)@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$"""
-
   val ukTimeZoneStringId = "Europe/London"
 }

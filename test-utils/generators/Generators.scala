@@ -131,23 +131,6 @@ trait Generators extends ModelGenerators {
       .suchThat(value => value.trim.nonEmpty)
       .map(_.take(length))
 
-  def emailMatchingRegexAndLength(emailRegex: String, length: Int): Gen[String] = {
-
-    val atSymbolLength      = 1
-    val localPartMaxLength  = 63
-    val dotLength           = 1
-    val tldLength           = 2
-    val domainPartMaxLength = length - localPartMaxLength - atSymbolLength - dotLength - tldLength
-
-    val emailGen = for {
-      localPart  <- Gen.listOfN(localPartMaxLength, Gen.alphaNumChar).map(_.mkString)
-      domainPart <- Gen.listOfN(domainPartMaxLength, Gen.alphaNumChar).map(_.mkString)
-      tldPart    <- Gen.listOfN(tldLength, Gen.alphaChar).map(_.mkString)
-    } yield s"$localPart@$domainPart.$tldPart"
-
-    emailGen suchThat (_.matches(emailRegex))
-  }
-
   def validEmailAddressTooLong(maxLength: Int): Gen[String] =
     for {
       part <- listOfN(maxLength, Gen.alphaChar).map(_.mkString)

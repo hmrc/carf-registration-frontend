@@ -16,7 +16,6 @@
 
 package forms
 
-import config.Constants.emailRegex
 import forms.mappings.Mappings
 import play.api.data.Form
 
@@ -28,13 +27,13 @@ class FirstContactEmailFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "value" -> validatedText(
-        "firstContactEmail.error.required",
-        "firstContactEmail.error.invalid",
-        "firstContactEmail.error.length",
-        emailRegex,
-        maxLength
-      )
+      "value" -> text("firstContactEmail.error.required")
+        .verifying(
+          firstError(
+            maxLength(maxLength, "firstContactEmail.error.length"),
+            validEmailAddress("firstContactEmail.error.invalid")
+          )
+        )
     )
 
 }

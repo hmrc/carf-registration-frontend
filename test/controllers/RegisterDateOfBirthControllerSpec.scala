@@ -38,11 +38,9 @@ import views.html.RegisterDateOfBirthView
 import scala.concurrent.Future
 
 class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
-
   private implicit val messages: Messages = stubMessages()
-
-  private val formProvider = new RegisterDateOfBirthFormProvider()
-  private def form         = formProvider()
+  private val formProvider                = new RegisterDateOfBirthFormProvider()
+  private def form                        = formProvider()
 
   def onwardRoute = Call("GET", "/foo")
 

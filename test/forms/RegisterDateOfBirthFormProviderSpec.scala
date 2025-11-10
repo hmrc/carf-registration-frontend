@@ -29,12 +29,17 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
   ".value" - {
 
     val validData = datesBetween(
-      min = LocalDate.of(2000, 1, 1),
+      min = LocalDate.of(1900, 1, 1),
       max = LocalDate.now(ZoneOffset.UTC)
     )
 
     behave like dateField(form, "value", validData)
 
-    behave like mandatoryDateField(form, "value", "registerDateOfBirth.error.required.all")
+    behave like mandatoryDateField(
+      form,
+      "value",
+      "registerDateOfBirth.error.required.all",
+      List("date.error.day", "date.error.month", "date.error.year")
+    )
   }
 }

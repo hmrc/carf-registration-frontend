@@ -618,7 +618,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         WhatIsYourNameIndividualPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
+      ) mustBe routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
     }
 
     "must go from FirstContactName page to FirstEmail page" in {

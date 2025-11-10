@@ -27,7 +27,7 @@ import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRe
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.{NiNumberPage, OrganisationRegistrationTypePage, RegisterDateOfBirthPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.{NiNumberPage, OrganisationRegistrationTypePage, RegisterDateOfBirthPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNameIndividualPage, YourUniqueTaxpayerReferencePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -36,7 +36,10 @@ class RegistrationServiceSpec extends SpecBase {
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
   val testService                          = new RegistrationService(mockConnector)
   val testOrgType                          = OrganisationRegistrationType.LimitedCompany
-  val testNino                             = "JX123456D"
+  val ninoOkFullIndividualResponse         = "JX123456D"
+  val ninoOkEmptyIndividualResponse        = "WX123456D"
+  val ninoNotFound                         = "XX123456D"
+  val ninoInternalServerError              = "YX123456D"
   val birthDate: LocalDate                 = LocalDate.of(2000, 1, 1)
 
   val testAddress = Address(
@@ -55,19 +58,6 @@ class RegistrationServiceSpec extends SpecBase {
     middleName = Some("Exie"),
     address = testAddress
   )
-  val userAnswersIndividualWithNino                                                 = UserAnswers(userAnswersId)
-    .set(
-      WhatIsYourNamePage,
-      Name(testRegisterIndividualWithIdSuccessResponse.firstName, testRegisterIndividualWithIdSuccessResponse.lastName)
-    )
-    .success
-    .value
-    .set(NiNumberPage, testNino)
-    .success
-    .value
-    .set(RegisterDateOfBirthPage, birthDate)
-    .success
-    .value
 
   val orgUkBusinessResponse = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
@@ -96,6 +86,76 @@ class RegistrationServiceSpec extends SpecBase {
       countryCode = "US"
     )
   )
+
+  val userAnswersNinoOkFullIndividualResponse  = createUserAnswersForNino(ninoOkFullIndividualResponse)
+  val userAnswersNinoOkEmptyIndividualResponse = createUserAnswersForNino(ninoOkEmptyIndividualResponse)
+  val userAnswersNinoNotFound                  = createUserAnswersForNino(ninoNotFound)
+  val userAnswersNinoInternalServerError       = createUserAnswersForNino(ninoInternalServerError)
+
+  val userAnswersUtr = UserAnswers(userAnswersId)
+    .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
+    .success
+    .value
+    .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
+    .success
+    .value
+    .set(OrganisationRegistrationTypePage, testOrgType)
+    .success
+    .value
+
+  val userAnswersNoDateOfBirth = UserAnswers(userAnswersId)
+    .set(
+      WhatIsYourNameIndividualPage,
+      Name(
+        testRegisterIndividualWithIdSuccessResponse.firstName,
+        testRegisterIndividualWithIdSuccessResponse.lastName
+      )
+    )
+    .success
+    .value
+    .set(NiNumberPage, ninoOkFullIndividualResponse)
+    .success
+    .value
+
+  val userAnswersNoName = UserAnswers(userAnswersId)
+    .set(NiNumberPage, ninoOkFullIndividualResponse)
+    .success
+    .value
+    .set(RegisterDateOfBirthPage, birthDate)
+    .success
+    .value
+
+  val userAnswersNoNino = UserAnswers(userAnswersId)
+    .set(
+      WhatIsYourNameIndividualPage,
+      Name(
+        testRegisterIndividualWithIdSuccessResponse.firstName,
+        testRegisterIndividualWithIdSuccessResponse.lastName
+      )
+    )
+    .success
+    .value
+    .set(RegisterDateOfBirthPage, birthDate)
+    .success
+    .value
+
+  def createUserAnswersForNino(nino: String): UserAnswers =
+    UserAnswers(userAnswersId)
+      .set(
+        WhatIsYourNameIndividualPage,
+        Name(
+          testRegisterIndividualWithIdSuccessResponse.firstName,
+          testRegisterIndividualWithIdSuccessResponse.lastName
+        )
+      )
+      .success
+      .value
+      .set(NiNumberPage, nino)
+      .success
+      .value
+      .set(RegisterDateOfBirthPage, birthDate)
+      .success
+      .value
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -145,8 +205,7 @@ class RegistrationServiceSpec extends SpecBase {
     }
 
     "getBusinessWithUserInput should" - {
-
-      val userAnswers = UserAnswers(userAnswersId)
+      val userAnswersBusinessWithUtr = UserAnswers(userAnswersId)
         .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
         .success
         .value
@@ -168,7 +227,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
 
-        val result   = testService.getBusinessWithUserInput(userAnswers)
+        val result   = testService.getBusinessWithUserInput(userAnswersBusinessWithUtr)
         val business = result.futureValue
 
         business          mustBe defined
@@ -178,41 +237,26 @@ class RegistrationServiceSpec extends SpecBase {
 
       "return None when UserAnswers is missing data" in {
         val incompleteUserAnswers = UserAnswers(userAnswersId)
-
-        val result   = testService.getBusinessWithUserInput(incompleteUserAnswers)
-        val business = result.futureValue
+        val result                = testService.getBusinessWithUserInput(incompleteUserAnswers)
+        val business              = result.futureValue
 
         business mustBe None
       }
 
       "throw an exception when the connector returns an error" in {
-        val userAnswers = UserAnswers(userAnswersId)
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
-          .success
-          .value
-          .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
-          .success
-          .value
-          .set(OrganisationRegistrationTypePage, testOrgType)
-          .success
-          .value
-
         when(mockConnector.organisationWithUtr(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](InternalServerError))
 
         val exception = intercept[Exception] {
-          testService.getBusinessWithUserInput(userAnswers).futureValue
+          testService.getBusinessWithUserInput(userAnswersUtr).futureValue
         }
 
         exception.getMessage must include("Unexpected error!")
       }
     }
 
-    // zxc
-
     "getIndividualByNino method should" - {
       "successfully return an individual's details when the connector returns them successfully" in {
-
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithIdSuccessResponse))
 
@@ -224,27 +268,51 @@ class RegistrationServiceSpec extends SpecBase {
           address = testAddress
         )
 
-        val result = testService.getIndividualByNino("testInput", userAnswersIndividualWithNino).futureValue
+        val result = testService
+          .getIndividualByNino(ninoOkFullIndividualResponse, userAnswersNinoOkFullIndividualResponse)
+          .futureValue
         result mustBe Some(expectedResult)
       }
 
-      "return none when the connector could not get a business partner record match for this user" in {
+      "return None when the connector could not get a record match for this user" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
 
-        val result = testService.getIndividualByNino("testInput", userAnswersIndividualWithNino).futureValue
-
+        val result = testService.getIndividualByNino(ninoNotFound, userAnswersNinoNotFound).futureValue
         result mustBe None
       }
-      // TODO: Change below test in CARF-166 to handle scenario gracefully (redirect to journey recovery)
+
+      "return None when the userAnswers does not contain a Name" in {
+        when(mockConnector.individualWithNino(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
+
+        val result = testService.getIndividualByNino(ninoOkFullIndividualResponse, userAnswersNoName).futureValue
+        result mustBe None
+      }
+
+      "return None when the userAnswers does not contain a Nino" in {
+        when(mockConnector.individualWithNino(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
+
+        val result = testService.getIndividualByNino(ninoOkFullIndividualResponse, userAnswersNoNino).futureValue
+        result mustBe None
+      }
+
+      "return None when the userAnswers does not contain a DateOfBirth" in {
+        when(mockConnector.individualWithNino(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
+
+        val result = testService.getIndividualByNino(ninoOkFullIndividualResponse, userAnswersNoDateOfBirth).futureValue
+        result mustBe None
+      }
+
       "throw an exception when the connector returns an error" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
 
         val exception = intercept[Exception] {
-          testService.getIndividualByNino("testInput", userAnswersIndividualWithNino).futureValue
+          testService.getIndividualByNino(ninoInternalServerError, userAnswersNinoOkFullIndividualResponse).futureValue
         }
-
         exception.getMessage must include("Unexpected Error!")
       }
     }

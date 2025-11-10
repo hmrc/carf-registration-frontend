@@ -20,7 +20,7 @@ import connectors.RegistrationConnector
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
-import models.{Address, BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.Logging
 import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, RegisterDateOfBirthPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNameIndividualPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}

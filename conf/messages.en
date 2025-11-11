@@ -232,8 +232,9 @@ indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
 indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
 indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
 
-firstContactPhone.title = Can we contact [first contact name] by phone?
+firstContactPhone.title = Can we contact your first contact by phone?
 firstContactPhone.heading = Can we contact {0} by phone?
-firstContactPhone.checkYourAnswersLabel = Can we contact [first contact name] by phone?
+firstContactPhone.p1 = We will call if we have any questions about your reports.
+firstContactPhone.checkYourAnswersLabel = Can we contact your first contact by phone?
 firstContactPhone.error.required = Select yes if the first contact can be contacted by phone
 firstContactPhone.change.hidden = Change if the first contact can be contacted by phone

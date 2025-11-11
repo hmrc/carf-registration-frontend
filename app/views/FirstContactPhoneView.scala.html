@@ -32,12 +32,25 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @govukRadios(
-            RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("firstContactPhone.heading", usersName)).asPageHeading()
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    @messages("firstContactPhone.heading", usersName)
+                </h1>
+            </legend>
+
+            <p class="govuk-body govuk-!-margin-top-4">
+                @messages("firstContactPhone.p1")
+            </p>
+
+            @govukRadios(
+                RadiosViewModel.yesNo(
+                    field = form("value"),
+                    legend = LegendViewModel(messages("firstContactPhone.heading", usersName))
+                        .withCssClass("govuk-visually-hidden")
             ).copy(classes = "")
-        )
+            )
+        </fieldset>
 
         @govukButton(
             ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")

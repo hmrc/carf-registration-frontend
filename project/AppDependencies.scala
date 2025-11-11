@@ -7,6 +7,7 @@ object AppDependencies {
   private val playFrontendHmrcVersion = "12.20.0"
   private val catsCoreVersion         = "2.13.0"
   private val commonsValidatorVersion = "1.10.0"
+  private val libphonenumberVersion = "8.13.47"
 
   val compile = Seq(
     "commons-validator"  % "commons-validator"          % commonsValidatorVersion,
@@ -14,6 +15,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30" % playFrontendHmrcVersion,
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-30" % bootstrapVersion,
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"         % hmrcMongoVersion,
+    "com.googlecode.libphonenumber" % "libphonenumber"  % libphonenumberVersion,
     "org.typelevel"     %% "cats-core"                  % catsCoreVersion
   )
 

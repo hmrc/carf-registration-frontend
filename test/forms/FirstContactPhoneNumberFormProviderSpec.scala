@@ -30,26 +30,32 @@ class FirstContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
   val form = new FirstContactPhoneNumberFormProvider()()
 
-  val validPhoneChars: Seq[Char] =
-    ('A' to 'Z') ++
-      ('0' to '9') ++
-      Seq(' ', ')', '/', '(', '-', '*', '#', '+')
+  val validNumbers = Seq(
+    "07123456789",
+    "+447123456789",
+    "02079460000",
+    "+1 650 253 0000",
+    "+33 1 42 68 53 00",
+    "+49 30 123456",
+    "+91 98765 43210",
+    "07400111222 ext 5",
+    "++447123456789", // google lib tries to recover extra punctuation where possible, like parsing ++44 as +44
+    "+1 (650) 253-0000 x123"
+  )
 
-  val tradingNameGen: Gen[String] =
-    for {
-      length <- Gen.choose(1, maxLength)
-      chars  <- Gen.listOfN(length, Gen.oneOf(validPhoneChars))
-    } yield chars.mkString
+  val invalidNumbers = Seq(
+    "abcdefg",
+    "12345",
+    "+999999999",
+    "+44",
+    "071234567890", // too long
+    "0712345678", // too short
+    "+44 123"
+  )
 
   ".value" - {
 
     val fieldName = "value"
-
-    behave like fieldThatBindsValidData(
-      form,
-      fieldName,
-      tradingNameGen
-    )
 
     behave like mandatoryField(
       form,
@@ -58,10 +64,23 @@ class FirstContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
     )
 
     "not bind strings with invalid characters" in {
-      val invalidCharGen = Gen.oneOf("!\"$%&'.,:;<>?@[\\]_`{|}~abcdefghijklmnopqrstuvwxyz").map(_.toString)
-      forAll(invalidCharGen) { invalidChar =>
-        val result = form.bind(Map(fieldName -> s"invalid${invalidChar}char")).apply(fieldName)
-        result.errors must contain(FormError(fieldName, invalidKey))
+      invalidNumbers.foreach { invalidPhoneNumber =>
+        val result = form.bind(Map(fieldName -> invalidPhoneNumber)).apply(fieldName)
+
+        withClue(s"Expected error for invalid phone number: '$invalidPhoneNumber'") {
+          result.errors must contain(FormError(fieldName, invalidKey))
+        }
+      }
+    }
+
+    "bind valid phone numbers" in {
+      validNumbers.foreach { validPhoneNumber =>
+        val testValue = validPhoneNumber
+        val result    = form.bind(Map(fieldName -> testValue)).apply(fieldName)
+
+        withClue(s"Expected no errors for valid phone number: '$testValue'") {
+          result.errors.isEmpty mustBe true
+        }
       }
     }
 

@@ -218,6 +218,9 @@ whatIsYourNameIndividual.lastName.change.hidden = Change What is your last name?
 registerIdentityConfirmed.title = We have confirmed your identity
 registerIdentityConfirmed.heading = We have confirmed your identity
 
+indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
 
 firstContactName.title = What is the name of the person or team we should contact?
 firstContactName.heading = What is the name of the person or team we should contact?
@@ -238,3 +241,21 @@ firstContactPhone.p1 = We will call if we have any questions about your reports.
 firstContactPhone.checkYourAnswersLabel = Can we contact your first contact by phone?
 firstContactPhone.error.required = Select yes if the first contact can be contacted by phone
 firstContactPhone.change.hidden = Change if the first contact can be contacted by phone
+
+firstContactPhoneNumber.title = What is the phone number for the first contact?
+firstContactPhoneNumber.heading = What is the phone number for {0}?
+firstContactPhoneNumber.checkYourAnswersLabel = First contact phone number
+firstContactPhoneNumber.error.required = Enter a phone number for the first contact
+firstContactPhoneNumber.error.length = The phone number must be 24 characters or less
+firstContactPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+firstContactPhoneNumber.change.hidden = Change first contact phone number
+firstContactPhoneNumber.hint = For international numbers, include the country code.
+
+firstContactEmail.title = What is the email address for the first contact?
+firstContactEmail.heading = What is the email address for {0}?
+firstContactEmail.checkYourAnswersLabel = First contact email address
+firstContactEmail.paragraph = We will use this email address to send confirmation of your reports or if we have any questions about them.
+firstContactEmail.error.required = Enter an email address for the first contact
+firstContactEmail.error.length = The email address must be 132 characters or less
+firstContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
+firstContactEmail.change.hidden = Change first contact email address

@@ -17,44 +17,48 @@
 package controllers
 
 import controllers.actions.*
-import forms.WhatIsYourNameFormProvider
-import models.{Mode, Name}
+import forms.FirstContactPhoneNumberFormProvider
+
+import javax.inject.Inject
+import models.Mode
 import navigation.Navigator
-import pages.WhatIsYourNamePage
-import play.api.data.Form
+import pages.{FirstContactNamePage, FirstContactPhoneNumberPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.WhatIsYourNameView
+import views.html.FirstContactPhoneNumberView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatIsYourNameController @Inject() (
+class FirstContactPhoneNumberController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: WhatIsYourNameFormProvider,
+    formProvider: FirstContactPhoneNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: WhatIsYourNameView
+    view: FirstContactPhoneNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[Name] = formProvider()
+  val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(WhatIsYourNamePage) match {
+      val preparedForm = request.userAnswers.get(FirstContactPhoneNumberPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
-      Ok(view(preparedForm, mode))
+
+      request.userAnswers.get(FirstContactNamePage) match {
+        case Some(usersName) => Ok(view(preparedForm, mode, usersName))
+        case None            => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -62,12 +66,16 @@ class WhatIsYourNameController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            request.userAnswers.get(FirstContactNamePage) match {
+              case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
+              case None            => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsYourNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(FirstContactPhoneNumberPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(WhatIsYourNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(FirstContactPhoneNumberPage, mode, updatedAnswers))
         )
   }
 }

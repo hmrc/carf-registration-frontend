@@ -20,8 +20,6 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
-import models.{Address, IndividualRegistrationType, IsThisYourBusinessPageDetails, NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.*
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 
@@ -621,7 +619,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
     }
 
-    "must go from FirstContactName page to FirstEmail page" in {
+    "must go from FirstContactName page to FirstContactEmail page" in {
 
       val updatedAnswers =
         emptyUserAnswers
@@ -633,7 +631,22 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/email (CARF-179)")
+      ) mustBe routes.FirstContactEmailController.onPageLoad(NormalMode)
+    }
+
+    "must go from FirstContactEmail page to HavePhone page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(FirstContactEmailPage, "an@email.com")
+          .success
+          .value
+
+      navigator.nextPage(
+        FirstContactEmailPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/have-phone (CARF-180)")
     }
   }
 }

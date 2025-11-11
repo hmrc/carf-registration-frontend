@@ -16,11 +16,12 @@
 
 package generators
 
-import java.time.{Instant, LocalDate, ZoneOffset}
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.*
 import org.scalacheck.{Gen, Shrink}
 import wolfendale.scalacheck.regexp.RegexpGen
+
+import java.time.{Instant, LocalDate, ZoneOffset}
 
 trait Generators extends ModelGenerators {
 
@@ -130,4 +131,9 @@ trait Generators extends ModelGenerators {
       .suchThat(value => value.trim.nonEmpty)
       .map(_.take(length))
 
+  def validEmailAddressTooLong(maxLength: Int): Gen[String] =
+    for {
+      part <- listOfN(maxLength, Gen.alphaChar).map(_.mkString)
+
+    } yield s"$part.$part@$part.$part"
 }

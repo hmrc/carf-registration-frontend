@@ -74,7 +74,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         )
 
     case FirstContactNamePage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/email (CARF-179)")
+      _ => routes.FirstContactEmailController.onPageLoad(NormalMode)
+
+    case FirstContactEmailPage =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/have-phone (CARF-180)")
 
     case FirstContactPhoneNumberPage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/have-second-contact (CARF-182)")

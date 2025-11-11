@@ -21,8 +21,8 @@ import base.SpecBase
 import forms.RegisterDateOfBirthFormProvider
 import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
@@ -41,13 +41,12 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
   private val formProvider                = new RegisterDateOfBirthFormProvider()
   private def form                        = formProvider()
-
   def onwardRoute = Call("GET", "/foo")
 
-  val validDateAnswer  = LocalDate.now(ZoneOffset.UTC)
-  val validNino        = "JX123456D"
-  val validName        = Name("firstName example", "lastName example")
-  val validUserAnswers = UserAnswers(userAnswersId)
+  private val validDateAnswer: LocalDate = LocalDate.of(2000, 1, 1)
+  private val validNino        = "JX123456D"
+  private val validName        = Name("firstName example", "lastName example")
+  private val validUserAnswers = UserAnswers(userAnswersId)
     .set(NiNumberPage, validNino)
     .success
     .value
@@ -73,7 +72,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     )
   )
 
-  lazy val registerDateOfBirthRoute = routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
+  private lazy val registerDateOfBirthRoute = routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
   override val emptyUserAnswers     = UserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
@@ -114,26 +113,74 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when valid data is submitted and the service returns 200 OK" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
       val mockRegistrationService = mock[RegistrationService]
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[UserAnswers])(any[HeaderCarrier])
       ).thenReturn(Future.successful(Some(validIndividualDetails)))
 
+      val userAnswersWithValidNino = UserAnswers(userAnswersId)
+        .set(NiNumberPage, "JX123456D")
+        .success
+        .value
+        .set(WhatIsYourNameIndividualPage, validName)
+        .success
+        .value
+
       val application =
-        applicationBuilder(userAnswers = Some(validUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswersWithValidNino))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[RegistrationService].toInstance(mockRegistrationService)
           )
           .build()
 
+      val request =
+        FakeRequest(POST, registerDateOfBirthRoute)
+          .withFormUrlEncodedBody(
+            "value.day"   -> validDateAnswer.getDayOfMonth.toString,
+            "value.month" -> validDateAnswer.getMonthValue.toString,
+            "value.year"  -> validDateAnswer.getYear.toString
+          )
       running(application) {
-        val result = route(application, postRequest()).value
+        val result = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to CouldNotConfirmIdentity page when the service returns 400 (no individual found)" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(eqTo("XX123456D"), any())(any[HeaderCarrier])
+      ).thenReturn(Future.successful(None))
+
+      val userAnswersWithInvalidNino = validUserAnswers.set(NiNumberPage, "XX123456D").success.value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswersWithInvalidNino))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[RegistrationService].toInstance(mockRegistrationService)
+          )
+          .build()
+
+      val request =
+        FakeRequest(POST, registerDateOfBirthRoute)
+          .withFormUrlEncodedBody(
+            "value.day"   -> validDateAnswer.getDayOfMonth.toString,
+            "value.month" -> validDateAnswer.getMonthValue.toString,
+            "value.year"  -> validDateAnswer.getYear.toString
+          )
+
+      running(application) {
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad().url
       }
     }
 

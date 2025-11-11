@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import models.DateHelper.formatDateToString
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.i18n.Messages
+
+import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
 private[mappings] class LocalDateFormatter(
@@ -100,29 +102,74 @@ private[mappings] class LocalDateFormatter(
       fields.month.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.month"))) ++
       fields.year.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.year")))
 
-  private def findRealDateError(key: String, fields: BoundDateFields): Seq[FormError] =
-    (for {
-      day   <- fields.day.toOption
-      month <- fields.month.toOption
-      year  <- fields.year.toOption
-    } yield Try(LocalDate.of(year, month, day)) match {
-      case Failure(_)    =>
-        Seq(FormError(key, notRealDateKey, Seq("date.error.day", "date.error.month", "date.error.year") ++ args))
-      case Success(date) =>
-        if (date.isAfter(maxDate)) {
+  private def findRealDateError(key: String, fields: BoundDateFields): Seq[FormError] = {
+    val maybeDay   = fields.day.toOption
+    val maybeMonth = fields.month.toOption
+    val maybeYear  = fields.year.toOption
+
+    (maybeDay, maybeMonth, maybeYear) match {
+      case (Some(day), Some(month), Some(year))                 =>
+        validateRealDate(key, day, month, year)
+      case (Some(day), Some(month), None)                       =>
+        if (!isPotentiallyValidDayMonth(day, month))
+          Seq(FormError(key, notRealDateKey, Seq("date.error.day", "date.error.month") ++ args))
+        else Seq.empty
+      case (Some(day), None, Some(year))                        =>
+        if (day < 1 || day > 31)
+          Seq(FormError(key, notRealDateKey, Seq("date.error.day") ++ args))
+        else Seq.empty
+      case (None, Some(month), Some(year))                      =>
+        if (month < 1 || month > 12)
+          Seq(FormError(key, notRealDateKey, Seq("date.error.month") ++ args))
+        else Seq.empty
+      case (Some(day), None, None) if day < 1 || day > 31       =>
+        Seq(FormError(key, notRealDateKey, Seq("date.error.day") ++ args))
+      case (None, Some(month), None) if month < 1 || month > 12 =>
+        Seq(FormError(key, notRealDateKey, Seq("date.error.month") ++ args))
+      case _                                                    =>
+        Seq.empty
+    }
+  }
+
+  /** Validates that a fully numeric date is real and within range. */
+  private def validateRealDate(key: String, day: Int, month: Int, year: Int): Seq[FormError] =
+    Try(LocalDate.of(year, month, day)) match {
+      case Failure(_)                               =>
+        // Determine which parts are invalid
+        val invalidFields =
           Seq(
-            FormError(
-              key,
-              futureDateKey,
-              Seq(formatDateToString(maxDate), "date.error.day", "date.error.month", "date.error.year") ++ args
-            )
+            if (day < 1 || day > 31) Some("date.error.day") else None,
+            if (month < 1 || month > 12) Some("date.error.month") else None,
+            if (year < minDate.getYear || year > maxDate.getYear + 1000) Some("date.error.year") else None
+          ).flatten match {
+            case Nil => Seq("date.error.day", "date.error.month", "date.error.year") // fallback
+            case s   => s
+          }
+        Seq(FormError(key, notRealDateKey, invalidFields ++ args))
+      case Success(date) if !date.isBefore(maxDate) =>
+        Seq(
+          FormError(
+            key,
+            futureDateKey,
+            Seq(formatDateToString(maxDate)) ++
+              Seq("date.error.day", "date.error.month", "date.error.year") ++ args
           )
-        } else if (date.isBefore(minDate)) {
-          Seq(FormError(key, pastDateKey, Seq("date.error.year") ++ args))
-        } else {
-          Seq.empty
-        }
-    }).getOrElse(Seq.empty)
+        )
+      case Success(date) if date.isBefore(minDate)  =>
+        Seq(
+          FormError(
+            key,
+            pastDateKey,
+            Seq("date.error.day", "date.error.month", "date.error.year") ++ args
+          )
+        )
+      case _                                        =>
+        Seq.empty
+    }
+
+  /** Simple helper: checks that numeric day/month combination is within plausible ranges. */
+  private def isPotentiallyValidDayMonth(day: Int, month: Int): Boolean =
+    month >= 1 && month <= 12 && day >= 1 && day <= 31
 
   private def selectPrimaryError(allErrors: Seq[FormError]): FormError = {
     def findErrorForField(errors: Seq[FormError], field: String): Option[FormError] =

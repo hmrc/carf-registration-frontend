@@ -322,7 +322,8 @@ class DateMappingsSpec
     )
     val result = form.bind(data)
     result.errors must contain(
-      FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
+      // FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
+      FormError("value", "error.notRealDate", List("date.error.month"))
     )
   }
 
@@ -334,7 +335,8 @@ class DateMappingsSpec
     )
     val result = form.bind(data)
     result.errors must contain(
-      FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
+      // FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
+      FormError("value", "error.notRealDate", List("date.error.day"))
     )
   }
 
@@ -366,7 +368,8 @@ class DateMappingsSpec
     )
     val result   = form.bind(data)
     result.errors must contain(
-      FormError("value", "error.tooEarlyDate", List("date.error.year"))
+      FormError("value", "error.tooEarlyDate", List("date.error.day", "date.error.month", "date.error.year"))
+      // zxc FormError("value", "error.tooEarlyDate", List("date.error.year"))
     )
   }
 

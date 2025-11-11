@@ -48,7 +48,7 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
       endpoint: URL
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] = {
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     EitherT {
       http
         .post(endpoint)
@@ -75,7 +75,6 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
             Left(ApiError.InternalServerError)
         }
     }
-  }
 
   def organisationWithUtr(
       request: RegisterOrganisationWithIdRequest

@@ -231,6 +231,18 @@ firstContactName.error.invalid = The name must only include letters a to z, numb
 firstContactName.change.hidden = Change first contact name
 firstContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
 
+indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
+indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
+
+firstContactPhoneNumber.title = What is the phone number for the first contact?
+firstContactPhoneNumber.heading = What is the phone number for {0}?
+firstContactPhoneNumber.checkYourAnswersLabel = First contact phone number
+firstContactPhoneNumber.error.required = Enter a phone number for the first contact
+firstContactPhoneNumber.error.length = The phone number must be 24 characters or less
+firstContactPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+firstContactPhoneNumber.change.hidden = Change first contact phone number
+firstContactPhoneNumber.hint = For international numbers, include the country code.
 firstContactEmail.title = What is the email address for the first contact?
 firstContactEmail.heading = What is the email address for {0}?
 firstContactEmail.checkYourAnswersLabel = First contact email address

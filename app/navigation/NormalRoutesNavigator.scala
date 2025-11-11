@@ -77,8 +77,8 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => routes.FirstContactEmailController.onPageLoad(NormalMode)
 
     case FirstContactEmailPage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/have-phone (CARF-180)")
-
+      _ => routes.FirstContactPhoneController.onPageLoad(NormalMode)
+      
     case FirstContactPhoneNumberPage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/have-second-contact (CARF-182)")
 
@@ -188,9 +188,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromFirstContactPhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(FirstContactPhonePage) match {
       case Some(true) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/phone (CARF-181)"
-        )
+        routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
       case _          =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/have-second-contact (CARF-182)"

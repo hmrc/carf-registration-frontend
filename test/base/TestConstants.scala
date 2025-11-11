@@ -25,4 +25,6 @@ object TestConstants {
   val invalidBusinessNameExceeds105Chars: String =
     "invalid Business Name 106 chars long-&'^`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVQXYZ-567890123456"
 
+  val validPhoneNumber24Chars: String   = "07111111111 ext 12345678"
+  val invalidPhoneNumber25Chars: String = s"${validPhoneNumber24Chars}9"
 }

@@ -41,12 +41,12 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
   private val formProvider                = new RegisterDateOfBirthFormProvider()
   private def form                        = formProvider()
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute                         = Call("GET", "/foo")
 
   private val validDateAnswer: LocalDate = LocalDate.of(2000, 1, 1)
-  private val validNino        = "JX123456D"
-  private val validName        = Name("firstName example", "lastName example")
-  private val validUserAnswers = UserAnswers(userAnswersId)
+  private val validNino                  = "JX123456D"
+  private val validName                  = Name("firstName example", "lastName example")
+  private val validUserAnswers           = UserAnswers(userAnswersId)
     .set(NiNumberPage, validNino)
     .success
     .value
@@ -73,7 +73,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   )
 
   private lazy val registerDateOfBirthRoute = routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
-  override val emptyUserAnswers     = UserAnswers(userAnswersId)
+  override val emptyUserAnswers             = UserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, registerDateOfBirthRoute)

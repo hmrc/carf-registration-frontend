@@ -30,26 +30,9 @@ class FirstContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
   val form = new FirstContactPhoneNumberFormProvider()()
 
-  val validPhoneChars: Seq[Char] =
-    ('A' to 'Z') ++
-      ('0' to '9') ++
-      Seq(' ', ')', '/', '(', '-', '*', '#', '+')
-
-  val tradingNameGen: Gen[String] =
-    for {
-      length <- Gen.choose(1, maxLength)
-      chars  <- Gen.listOfN(length, Gen.oneOf(validPhoneChars))
-    } yield chars.mkString
-
   ".value" - {
 
     val fieldName = "value"
-
-    behave like fieldThatBindsValidData(
-      form,
-      fieldName,
-      tradingNameGen
-    )
 
     behave like mandatoryField(
       form,
@@ -57,12 +40,16 @@ class FirstContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
       requiredError = FormError(fieldName, requiredKey)
     )
 
-    "not bind strings with invalid characters" in {
-      val invalidCharGen = Gen.oneOf("!\"$%&'.,:;<>?@[\\]_`{|}~abcdefghijklmnopqrstuvwxyz").map(_.toString)
-      forAll(invalidCharGen) { invalidChar =>
-        val result = form.bind(Map(fieldName -> s"invalid${invalidChar}char")).apply(fieldName)
-        result.errors must contain(FormError(fieldName, invalidKey))
-      }
+    "not bind an invalid phone number" in {
+      val result = form.bind(Map(fieldName -> "abcde")).apply(fieldName)
+
+      result.errors must contain(FormError(fieldName, invalidKey))
+    }
+
+    "bind valid phone numbers" in {
+      val result = form.bind(Map(fieldName -> "07111111111")).apply(fieldName)
+
+      result.errors.isEmpty mustBe true
     }
 
     "not bind strings longer than the max length" in {

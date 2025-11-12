@@ -17,10 +17,11 @@
 package forms.mappings
 
 import config.Constants
-import config.Constants.{ninoFormatRegex, ninoRegex}
+import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 
 import scala.util.control.Exception.nonFatalCatch
 
@@ -225,6 +226,41 @@ trait Formatters {
               Left(Seq(FormError(key, invalidKey, args)))
             } else {
               Right(normalized)
+            }
+        }
+
+      override def unbind(key: String, value: String): Map[String, String] =
+        Map(key -> value)
+
+    }
+
+  protected def phoneNumberFormatter(
+      requiredKey: String,
+      invalidKey: String,
+      lengthKey: String,
+      args: Seq[Any] = Seq.empty
+  ): Formatter[String] =
+    new Formatter[String] {
+
+      private val phoneUtil = PhoneNumberUtil.getInstance()
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+        data.get(key).map(_.trim) match {
+          case None                         =>
+            Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.isEmpty =>
+            Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value)                  =>
+            if (value.length > maxPhoneLength) {
+              Left(Seq(FormError(key, lengthKey, args)))
+            } else {
+              try {
+                // Using "GB" tells libphonenumber to assume GB if no country code is added
+                val number = phoneUtil.parse(value, "GB")
+                if (phoneUtil.isValidNumber(number)) Right(value) else Left(Seq(FormError(key, invalidKey, args)))
+              } catch {
+                case _: NumberParseException => Left(Seq(FormError(key, invalidKey, args)))
+              }
             }
         }
 

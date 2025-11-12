@@ -33,6 +33,7 @@ object Constants {
 
   private val utrLengthTen: Int      = 10
   private val utrLengthThirteen: Int = 13
+  val maxPhoneLength: Int            = 24
 
   final val acceptedUtrLengths = Seq(utrLengthTen, utrLengthThirteen)
 

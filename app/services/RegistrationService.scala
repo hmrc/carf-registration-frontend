@@ -20,28 +20,26 @@ import connectors.RegistrationConnector
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
-import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.Logging
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, RegisterDateOfBirthPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNameIndividualPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getIndividualByNino(nino: String, userAnswers: UserAnswers)(implicit
+  def getIndividualByNino(maybeNino: Option[String], maybeName: Option[Name], maybeDob: Option[LocalDate])(implicit
       hc: HeaderCarrier
-  ): Future[Option[IndividualDetails]] = {
-    val maybeDob  = userAnswers.get(RegisterDateOfBirthPage)
-    val maybeName = userAnswers.get(WhatIsYourNameIndividualPage)
-
-    (maybeDob, maybeName) match {
-      case (Some(dateOfBirth), Some(name)) =>
+  ): Future[Either[ApiError, IndividualDetails]] =
+    (maybeNino, maybeName, maybeDob) match
+      case (Some(nino), Some(name), Some(dateOfBirth)) =>
         val request = RegisterIndividualWithIdRequest(
           requiresNameMatch = true,
-          IDNumber = nino,
+          IDNumber = maybeNino.get,
           IDType = "NINO",
           dateOfBirth = dateOfBirth.toString,
           firstName = name.firstName,
@@ -51,13 +49,12 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           .individualWithNino(request)
           .value
           .flatMap {
-            case Right(response)              =>
+            case Right(response) =>
               logger.info(
-                "RegistrationConnector Successfully retrieved individual details for=" + response.firstName + ", " + response.lastName
-                  + " SafeId=" + response.safeId
+                s"RegistrationConnector Successfully retrieved individual details for: $response.firstName, $response.lastName, safeId=$response.safeId"
               )
               Future.successful(
-                Some(
+                Right(
                   IndividualDetails(
                     safeId = response.safeId,
                     firstName = response.firstName,
@@ -67,19 +64,13 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
                   )
                 )
               )
-            case Left(ApiError.NotFoundError) =>
-              logger.warn("Not Found (404) for individual details.")
-              Future.successful(None)
-
-            case Left(error) =>
-              logger.error(s"Failed to retrieve individual details: $error")
-              Future.failed(new Exception("Unexpected Error!"))
+            case Left(error)     =>
+              logger.warn(s"Failed to retrieve individual details: $error")
+              Future.successful(Left(error))
           }
-      case _                               =>
-        logger.warn("Missing required user details (dateOfBirth or name).")
-        Future.successful(None)
-    }
-  }
+      case _                                           =>
+        logger.warn("Missing required user details (nino or name or dateOfBirth).")
+        Future.successful(Left(ApiError.BadRequestError))
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val request = RegisterOrganisationWithIdRequest(

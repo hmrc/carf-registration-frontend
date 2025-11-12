@@ -18,18 +18,19 @@ package controllers
 
 import controllers.actions.*
 import forms.RegisterDateOfBirthFormProvider
-
+import models.error.ApiError
+import models.requests.DataRequest
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegisterDateOfBirthView
-
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegisterDateOfBirthController @Inject() (
@@ -57,43 +58,45 @@ class RegisterDateOfBirthController @Inject() (
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
-      val form = formProvider()
-      form
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen requireData).async { implicit request =>
+      formProvider()
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value => {
-            val updatedAnswersTry = request.userAnswers.set(RegisterDateOfBirthPage, value)
-            updatedAnswersTry.fold(
-              _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())),
-              updatedAnswers => {
-                val maybeNino = updatedAnswers.get(NiNumberPage)
-                val maybeName = updatedAnswers.get(WhatIsYourNameIndividualPage)
-                (maybeNino, maybeName) match {
-                  case (Some(nino), Some(name)) =>
-                    service
-                      .getIndividualByNino(nino, updatedAnswers)
-                      .flatMap {
-                        case Some(details) =>
-                          for {
-                            matchedAnswers <- Future.fromTry(updatedAnswers.set(RegisterDateOfBirthPage, value))
-                            _              <- sessionRepository.set(matchedAnswers)
-                          } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, matchedAnswers))
-                        case None          =>
-                          Future
-                            .successful(Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()))
-                      }
-                      .recover { case ex =>
-                        Redirect(routes.JourneyRecoveryController.onPageLoad())
-                      }
-                  case _                        =>
-                    Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-                }
-              }
-            )
-          }
+          value =>
+            {
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisterDateOfBirthPage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+                result         <- handleValidFormSubmission(updatedAnswers, mode)
+              } yield result
+            }.recover { case _ =>
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+            }
         )
+    }
+
+  private def handleValidFormSubmission(
+      updatedAnswers: UserAnswers,
+      mode: Mode
+  )(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    val maybeNino = updatedAnswers.get(NiNumberPage)
+    val maybeName = updatedAnswers.get(WhatIsYourNameIndividualPage)
+    val maybeDob  = updatedAnswers.get(RegisterDateOfBirthPage)
+
+    (maybeNino, maybeName) match {
+      case (Some(_), Some(_)) =>
+        service.getIndividualByNino(maybeNino, maybeName, maybeDob).map {
+          case Right(_)                     =>
+            Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
+          case Left(ApiError.NotFoundError) =>
+            Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad())
+          case Left(_)                      =>
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+        }
+      case _                  =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 }

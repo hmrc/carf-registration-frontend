@@ -646,7 +646,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactEmailPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/have-phone (CARF-180)")
+      ) mustBe routes.FirstContactPhoneController.onPageLoad(NormalMode)
     }
   }
 }

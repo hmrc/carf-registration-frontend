@@ -106,12 +106,17 @@ POST       /register/change-contact-name                  controllers.FirstConta
 
 GET         /register/problem/could-not-confirm-identity         controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
 
-GET        /register/phone                        controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/phone                        controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-phone                 controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-phone                 controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
-GET         /register/identity-confirmed                                  controllers.RegisterIdentityConfirmedController.onPageLoad()
-GET         /register/problem/could-not-confirm-identity                  controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
+GET        /register/have-phone                                     controllers.FirstContactPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/have-phone                                     controllers.FirstContactPhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-have-phone                              controllers.FirstContactPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-have-phone                              controllers.FirstContactPhoneController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/phone                                          controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/phone                                          controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-phone                                   controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-phone                                   controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /register/identity-confirmed                             controllers.RegisterIdentityConfirmedController.onPageLoad()
+GET        /register/problem/could-not-confirm-identity             controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
 
 GET         /register/contact-name                                        controllers.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/contact-name                                        controllers.FirstContactNameController.onSubmit(mode: Mode = NormalMode)

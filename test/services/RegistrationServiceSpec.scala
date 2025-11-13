@@ -119,8 +119,8 @@ class RegistrationServiceSpec extends SpecBase {
         )
         when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
-        val result   = testService.getBusinessWithEnrolmentCtUtr(testUtr.uniqueTaxPayerReference)
-        val business = result.futureValue
+        val result          = testService.getBusinessWithEnrolmentCtUtr(testUtr.uniqueTaxPayerReference)
+        val business        = result.futureValue
         business          mustBe defined
         business.get.name mustBe orgUkBusinessResponse.organisationName
         verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
@@ -166,8 +166,8 @@ class RegistrationServiceSpec extends SpecBase {
         )
         when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
-        val result   = testService.getBusinessWithUserInput(userAnswersBusinessWithUtr)
-        val business = result.futureValue
+        val result          = testService.getBusinessWithUserInput(userAnswersBusinessWithUtr)
+        val business        = result.futureValue
         business          mustBe defined
         business.get.name mustBe orgUkBusinessResponse.organisationName
         verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
@@ -201,7 +201,7 @@ class RegistrationServiceSpec extends SpecBase {
           middleName = Some("Exie"),
           address = testAddress
         )
-        val result = testService
+        val result         = testService
           .getIndividualByNino(Option(ninoOkFullIndividualResponse), Option(validName), Option(validBirthDate))
           .futureValue
         result mustBe Right(expectedResult)

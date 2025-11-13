@@ -58,10 +58,15 @@ class DateMappingsSpec
 
   private val validData                 = datesBetween(
     min = minDate,
-    max = today
+    max = today.minusDays(1)
   )
   val invalidField: Gen[String]         = Gen.alphaStr.suchThat(_.nonEmpty)
   val missingField: Gen[Option[String]] = Gen.option(Gen.const(""))
+
+  def toMixedCase(s: String): String =
+    s.map { c =>
+      if (scala.util.Random.nextBoolean()) c.toUpper else c.toLower
+    }
 
   "must bind valid data" in {
     forAll(validData -> "valid date") { date =>
@@ -111,11 +116,47 @@ class DateMappingsSpec
     }
   }
 
-  "must bind valid dates with months provided by name" in {
+  "must bind valid dates with months provided as three characters in randomly mixed case" in {
+    forAll(validData -> "valid date") { date =>
+      val data   = Map(
+        "value.day"   -> date.getDayOfMonth.toString,
+        "value.month" -> toMixedCase(date.getMonth.toString.take(3)),
+        "value.year"  -> date.getYear.toString
+      )
+      val result = form.bind(data)
+      result.value.value mustEqual date
+    }
+  }
+
+  "must bind valid dates with months provided by name in uppercase" in {
     forAll(validData -> "valid date") { date =>
       val data   = Map(
         "value.day"   -> date.getDayOfMonth.toString,
         "value.month" -> date.getMonth.toString,
+        "value.year"  -> date.getYear.toString
+      )
+      val result = form.bind(data)
+      result.value.value mustEqual date
+    }
+  }
+
+  "must bind valid dates with months provided by name in lowercase" in {
+    forAll(validData -> "valid date") { date =>
+      val data   = Map(
+        "value.day"   -> date.getDayOfMonth.toString,
+        "value.month" -> date.getMonth.toString.toLowerCase,
+        "value.year"  -> date.getYear.toString
+      )
+      val result = form.bind(data)
+      result.value.value mustEqual date
+    }
+  }
+
+  "must bind valid dates with months provided by name in randomly mixed case" in {
+    forAll(validData -> "valid date") { date =>
+      val data   = Map(
+        "value.day"   -> date.getDayOfMonth.toString,
+        "value.month" -> toMixedCase(date.getMonth.toString),
         "value.year"  -> date.getYear.toString
       )
       val result = form.bind(data)
@@ -308,7 +349,6 @@ class DateMappingsSpec
       "value.year"  -> "2018"
     )
     val result = form.bind(data)
-
     result.errors must contain(
       FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
     )
@@ -322,7 +362,6 @@ class DateMappingsSpec
     )
     val result = form.bind(data)
     result.errors must contain(
-      // FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
       FormError("value", "error.notRealDate", List("date.error.month"))
     )
   }
@@ -335,7 +374,6 @@ class DateMappingsSpec
     )
     val result = form.bind(data)
     result.errors must contain(
-      // FormError("value", "error.notRealDate", List("date.error.day", "date.error.month", "date.error.year"))
       FormError("value", "error.notRealDate", List("date.error.day"))
     )
   }
@@ -347,9 +385,7 @@ class DateMappingsSpec
       "value.month" -> futureDate.getMonthValue.toString,
       "value.year"  -> futureDate.getYear.toString
     )
-    println("data=" + data)
     val result     = form.bind(data)
-    println("result=" + result)
     result.errors must contain(
       FormError(
         "value",
@@ -369,7 +405,6 @@ class DateMappingsSpec
     val result   = form.bind(data)
     result.errors must contain(
       FormError("value", "error.tooEarlyDate", List("date.error.day", "date.error.month", "date.error.year"))
-      // zxc FormError("value", "error.tooEarlyDate", List("date.error.year"))
     )
   }
 

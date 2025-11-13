@@ -127,7 +127,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted and the service returns Right" in {
+    "must redirect to the next page when valid data is submitted, service must return valid IndividualDetails)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val mockRegistrationService = mock[RegistrationService]
       when(
@@ -151,7 +151,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to CouldNotConfirmIdentity page when the service returns Left(NotFoundError)" in {
+    "must redirect to CouldNotConfirmIdentity page when the service returns NotFoundError (404)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val mockRegistrationService = mock[RegistrationService]
       when(
@@ -173,6 +173,31 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, buildPostRequest()).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad().url
+      }
+    }
+
+    "must redirect to CouldNotConfirmIdentity page when the service returns InternalServerError (500)" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(any[Option[String]], any[Option[Name]], any[Option[LocalDate]])(
+          any[HeaderCarrier]
+        )
+      ).thenReturn(Future.successful(Left(ApiError.InternalServerError)))
+
+      val application = applicationBuilder(userAnswers =
+        Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))
+      )
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[RegistrationService].toInstance(mockRegistrationService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, buildPostRequest()).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

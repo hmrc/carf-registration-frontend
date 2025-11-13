@@ -131,18 +131,16 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  /** Validates that a fully numeric date is real and within range. */
   private def validateRealDate(key: String, day: Int, month: Int, year: Int): Seq[FormError] =
     Try(LocalDate.of(year, month, day)) match {
       case Failure(_)                               =>
-        // Determine which parts are invalid
         val invalidFields =
           Seq(
             if (day < 1 || day > 31) Some("date.error.day") else None,
             if (month < 1 || month > 12) Some("date.error.month") else None,
             if (year < minDate.getYear || year > maxDate.getYear + 1000) Some("date.error.year") else None
           ).flatten match {
-            case Nil => Seq("date.error.day", "date.error.month", "date.error.year") // fallback
+            case Nil => Seq("date.error.day", "date.error.month", "date.error.year")
             case s   => s
           }
         Seq(FormError(key, notRealDateKey, invalidFields ++ args))
@@ -167,7 +165,6 @@ private[mappings] class LocalDateFormatter(
         Seq.empty
     }
 
-  /** Simple helper: checks that numeric day/month combination is within plausible ranges. */
   private def isPotentiallyValidDayMonth(day: Int, month: Int): Boolean =
     month >= 1 && month <= 12 && day >= 1 && day <= 31
 
@@ -184,10 +181,10 @@ private[mappings] class LocalDateFormatter(
     findErrorForField(categoryAErrors, "day")
       .orElse(findErrorForField(categoryAErrors, "month"))
       .orElse(findErrorForField(categoryAErrors, "year"))
-      .orElse(categoryAErrors.headOption) // Fallback for combined missing errors
+      .orElse(categoryAErrors.headOption)
       .orElse(realDate)
       .orElse(range)
-      .getOrElse(allErrors.head) // Safe fallback
+      .getOrElse(allErrors.head)
   }
 
   private def isHighlightingArg(arg: Any): Boolean = arg match {
@@ -205,7 +202,7 @@ private[mappings] class LocalDateFormatter(
       case "day" :: Nil                      => dayRequiredKey
       case "month" :: Nil                    => monthRequiredKey
       case "year" :: Nil                     => yearRequiredKey
-      case _                                 => allRequiredKey // Fallback
+      case _                                 => allRequiredKey
     }
     FormError(key, message, errorArgs ++ args)
   }

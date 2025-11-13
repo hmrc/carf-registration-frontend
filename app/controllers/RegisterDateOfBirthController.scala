@@ -85,9 +85,9 @@ class RegisterDateOfBirthController @Inject() (
     val maybeName = updatedAnswers.get(WhatIsYourNameIndividualPage)
     val maybeDob  = updatedAnswers.get(RegisterDateOfBirthPage)
 
-    (maybeNino, maybeName) match {
-      case (Some(_), Some(_)) =>
-        service.getIndividualByNino(maybeNino, maybeName, maybeDob).map {
+    (maybeNino, maybeName, maybeDob) match {
+      case (Some(nino), Some(name), Some(dob)) =>
+        service.getIndividualByNino(nino, name, dob).map {
           case Right(_)                     =>
             Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
           case Left(ApiError.NotFoundError) =>
@@ -95,7 +95,7 @@ class RegisterDateOfBirthController @Inject() (
           case Left(_)                      =>
             Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
-      case _                  =>
+      case _                                   =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }

@@ -131,9 +131,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val mockRegistrationService = mock[RegistrationService]
       when(
-        mockRegistrationService.getIndividualByNino(any[Option[String]], any[Option[Name]], any[Option[LocalDate]])(
-          any[HeaderCarrier]
-        )
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
       ).thenReturn(Future.successful(Right(validIndividualDetails)))
 
       val application =
@@ -155,9 +153,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val mockRegistrationService = mock[RegistrationService]
       when(
-        mockRegistrationService.getIndividualByNino(any[Option[String]], any[Option[Name]], any[Option[LocalDate]])(
-          any[HeaderCarrier]
-        )
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
       ).thenReturn(Future.successful(Left(ApiError.NotFoundError)))
 
       val application = applicationBuilder(userAnswers =
@@ -176,14 +172,96 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to CouldNotConfirmIdentity page when the service returns InternalServerError (500)" in {
+    "must redirect to Journey Recovery when the service returns InternalServerError (500)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val mockRegistrationService = mock[RegistrationService]
       when(
-        mockRegistrationService.getIndividualByNino(any[Option[String]], any[Option[Name]], any[Option[LocalDate]])(
-          any[HeaderCarrier]
-        )
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
       ).thenReturn(Future.successful(Left(ApiError.InternalServerError)))
+
+      val application = applicationBuilder(userAnswers =
+        Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))
+      ).overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[RegistrationService].toInstance(mockRegistrationService)
+      ).build()
+
+      running(application) {
+        val result = route(application, buildPostRequest()).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when user answers exists, but nino is missing" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
+      ).thenReturn(Future.successful(Left(ApiError.InternalServerError)))
+
+      val application = applicationBuilder(userAnswers =
+        Some(buildUserAnswers(nino = None, name = Some(validName), dob = Some(validBirthDate)))
+      ).overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[RegistrationService].toInstance(mockRegistrationService)
+      ).build()
+
+      running(application) {
+        val result = route(application, buildPostRequest()).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when user answers exists, but name is missing" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
+      ).thenReturn(Future.successful(Left(ApiError.InternalServerError)))
+
+      val application = applicationBuilder(userAnswers =
+        Some(buildUserAnswers(nino = Some(validNino), name = None, dob = Some(validBirthDate)))
+      ).overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[RegistrationService].toInstance(mockRegistrationService)
+      ).build()
+
+      running(application) {
+        val result = route(application, buildPostRequest()).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when user answers exists, but DoB is missing" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
+      ).thenReturn(Future.successful(Left(ApiError.InternalServerError)))
+
+      val application = applicationBuilder(userAnswers =
+        Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = None))
+      ).overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[RegistrationService].toInstance(mockRegistrationService)
+      ).build()
+
+      running(application) {
+        val result = route(application, buildPostRequest()).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when the service returns Future.failed" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val mockRegistrationService = mock[RegistrationService]
+      when(
+        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
+      ).thenReturn(Future.failed(new Exception("Unexpected error!")))
 
       val application = applicationBuilder(userAnswers =
         Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))

@@ -37,7 +37,7 @@ class DateMappingsSpec
     with Mappings {
 
   private implicit val messages: Messages = stubMessages()
-  val minDate: LocalDate                  = LocalDate.of(1900, 1, 1)
+  val minDate: LocalDate                  = LocalDate.of(1901, 1, 1)
   val form                                = Form(
     "value" -> localDate(
       invalidKey = "error.invalid",
@@ -395,7 +395,7 @@ class DateMappingsSpec
     )
   }
 
-  "must fail to bind a date < minDate [year < 1900]" in {
+  "must fail to bind a date < minDate [year < 1901]" in {
     val pastDate = minDate.minusDays(1)
     val data     = Map(
       "value.day"   -> pastDate.getDayOfMonth.toString,

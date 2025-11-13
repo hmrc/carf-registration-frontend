@@ -41,7 +41,7 @@ class RegisterDateOfBirthFormProvider @Inject() extends Mappings {
         futureDateKey = "registerDateOfBirth.error.future.date",
         pastDateKey = "registerDateOfBirth.error.past.date",
         maxDate = today,
-        minDate = LocalDate.of(1900, 1, 1)
+        minDate = LocalDate.of(1901, 1, 1)
       )
     )
 }

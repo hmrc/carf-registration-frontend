@@ -27,7 +27,7 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
   private implicit val messages: Messages = stubMessages()
   private val form                        = new RegisterDateOfBirthFormProvider()()
 
-  private val minDate      = LocalDate.of(1900, 1, 1)
+  private val minDate      = LocalDate.of(1901, 1, 1)
   private val today        = LocalDate.now(ZoneOffset.UTC)
   private val maxValidDate = today.minusDays(1)
   val displayFormat        = DateTimeFormatter.ofPattern("d MMMM yyyy")
@@ -42,14 +42,14 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       List("date.error.day", "date.error.month", "date.error.year")
     )
 
-    "must bind the minimum allowed date (1900-01-01)" in {
+    "must bind the minimum allowed date (1901-01-01)" in {
       val data   = Map(
         "value.day"   -> "1",
         "value.month" -> "1",
-        "value.year"  -> "1900"
+        "value.year"  -> "1901"
       )
       val result = form.bind(data)
-      result.value.value mustEqual LocalDate.of(1900, 1, 1)
+      result.value.value mustEqual LocalDate.of(1901, 1, 1)
     }
 
     "must bind the maximum allowed date (today’s date minus 1 day)" in {
@@ -208,7 +208,7 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       )
     }
 
-    "must reject a date before the minimum (before 1900-01-01)" in {
+    "must reject a date before the minimum (before 1901-01-01)" in {
       val tooOld = minDate.minusDays(1)
       val data   = Map(
         "value.day"   -> tooOld.getDayOfMonth.toString,

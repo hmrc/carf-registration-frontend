@@ -32,45 +32,40 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getIndividualByNino(maybeNino: Option[String], maybeName: Option[Name], maybeDob: Option[LocalDate])(implicit
+  def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
   ): Future[Either[ApiError, IndividualDetails]] =
-    (maybeNino, maybeName, maybeDob) match
-      case (Some(nino), Some(name), Some(dateOfBirth)) =>
-        val request = RegisterIndividualWithIdRequest(
-          requiresNameMatch = true,
-          IDNumber = maybeNino.get,
-          IDType = "NINO",
-          dateOfBirth = dateOfBirth.toString,
-          firstName = name.firstName,
-          lastName = name.lastName
-        )
-        connector
-          .individualWithNino(request)
-          .value
-          .flatMap {
-            case Right(response) =>
-              logger.info(
-                s"RegistrationConnector Successfully retrieved individual details for: $response.firstName, $response.lastName, safeId=$response.safeId"
+    val request = RegisterIndividualWithIdRequest(
+      requiresNameMatch = true,
+      IDNumber = nino,
+      IDType = "NINO",
+      dateOfBirth = dob.toString,
+      firstName = name.firstName,
+      lastName = name.lastName
+    )
+    connector
+      .individualWithNino(request)
+      .value
+      .flatMap {
+        case Right(response) =>
+          logger.info(
+            s"RegistrationConnector Successfully retrieved individual details for: $response.firstName, $response.lastName, safeId=$response.safeId"
+          )
+          Future.successful(
+            Right(
+              IndividualDetails(
+                safeId = response.safeId,
+                firstName = response.firstName,
+                lastName = response.lastName,
+                middleName = response.middleName,
+                address = response.address
               )
-              Future.successful(
-                Right(
-                  IndividualDetails(
-                    safeId = response.safeId,
-                    firstName = response.firstName,
-                    lastName = response.lastName,
-                    middleName = response.middleName,
-                    address = response.address
-                  )
-                )
-              )
-            case Left(error)     =>
-              logger.warn(s"Failed to retrieve individual details: $error")
-              Future.successful(Left(error))
-          }
-      case _                                           =>
-        logger.warn("Missing required user details (nino or name or dateOfBirth).")
-        Future.successful(Left(ApiError.BadRequestError))
+            )
+          )
+        case Left(error)     =>
+          logger.warn(s"Failed to retrieve individual details: $error")
+          Future.successful(Left(error))
+      }
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val request = RegisterOrganisationWithIdRequest(

@@ -202,7 +202,7 @@ class RegistrationServiceSpec extends SpecBase {
           address = testAddress
         )
         val result         = testService
-          .getIndividualByNino(Option(ninoOkFullIndividualResponse), Option(validName), Option(validBirthDate))
+          .getIndividualByNino(ninoOkFullIndividualResponse, validName, validBirthDate)
           .futureValue
         result mustBe Right(expectedResult)
       }
@@ -211,36 +211,16 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
         val result =
-          testService.getIndividualByNino(Option(ninoNotFound), Option(validName), Option(validBirthDate)).futureValue
+          testService.getIndividualByNino(ninoNotFound, validName, validBirthDate).futureValue
         result mustBe Left(NotFoundError)
       }
 
-      "return Left(BadRequestError)  when the call to the RegistrationService does not contain a Nino" in {
+      "return Left(NotFoundError) when the call to the RegistrationService does not contain a Nino" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
         val result =
-          testService.getIndividualByNino(None, Option(validName), Option(validBirthDate)).futureValue
-        result mustBe Left(ApiError.BadRequestError)
-      }
-
-      "return Left(BadRequestError) when the call to the RegistrationService does not contain a user Name" in {
-        when(mockConnector.individualWithNino(any())(any()))
-          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
-        val result =
-          testService
-            .getIndividualByNino(Option(ninoOkFullIndividualResponse), Option.empty[Name], Option(validBirthDate))
-            .futureValue
-        result mustBe Left(ApiError.BadRequestError)
-      }
-
-      "return Left(BadRequestError) when the call to the RegistrationService does not contain a DateOfBirth" in {
-        when(mockConnector.individualWithNino(any())(any()))
-          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
-        val result =
-          testService
-            .getIndividualByNino(Option(ninoOkFullIndividualResponse), Option(validName), Option.empty[LocalDate])
-            .futureValue
-        result mustBe Left(ApiError.BadRequestError)
+          testService.getIndividualByNino("", validName, validBirthDate).futureValue
+        result mustBe Left(NotFoundError)
       }
 
       "return Left(InternalServerError) when the connector returns an error" in {
@@ -248,7 +228,7 @@ class RegistrationServiceSpec extends SpecBase {
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
         val result =
           testService
-            .getIndividualByNino(Some(ninoInternalServerError), Some(validName), Some(validBirthDate))
+            .getIndividualByNino(ninoInternalServerError, validName, validBirthDate)
             .futureValue
         result mustBe Left(InternalServerError)
       }

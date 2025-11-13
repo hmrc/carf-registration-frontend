@@ -33,7 +33,7 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
   ".apply" - {
     implicit val messages: Messages = stubMessages()
     val fieldset                    = FieldsetViewModel(LegendViewModel("foo"))
-    val minDate: LocalDate          = LocalDate.of(1900, Month.JANUARY, 1)
+    val minDate: LocalDate          = LocalDate.of(1901, Month.JANUARY, 1)
 
     val form: Form[LocalDate] =
       Form(

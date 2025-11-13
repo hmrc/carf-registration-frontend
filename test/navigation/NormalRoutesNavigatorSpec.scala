@@ -23,6 +23,8 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 
+import java.time.LocalDate
+
 class NormalRoutesNavigatorSpec extends SpecBase {
 
   val navigator = new Navigator
@@ -647,6 +649,159 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         updatedAnswers
       ) mustBe routes.FirstContactPhoneController.onPageLoad(NormalMode)
+    }
+
+    "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(NiNumberPage, "JX123456D")
+          .success
+          .value
+          .set(WhatIsYourNameIndividualPage, Name("firstName example", "lastName example"))
+          .success
+          .value
+          .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+          .success
+          .value
+      navigator.nextPage(
+        RegisterDateOfBirthPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/identity-confirmed (CARF-168)"
+      )
+    }
+
+    "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR, EmptyIndividualResponse returned" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(NiNumberPage, "WX123456D")
+          .success
+          .value
+          .set(WhatIsYourNameIndividualPage, Name("firstName example", "lastName example"))
+          .success
+          .value
+          .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+          .success
+          .value
+      navigator.nextPage(
+        RegisterDateOfBirthPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/identity-confirmed (CARF-168)"
+      )
+    }
+
+    "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for Individual with valid IndividualDetails" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(IndividualRegistrationTypePage, Individual)
+          .success
+          .value
+          .set(NiNumberPage, "JX123456D")
+          .success
+          .value
+          .set(WhatIsYourNameIndividualPage, Name("firstName example", "lastName example"))
+          .success
+          .value
+          .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+          .success
+          .value
+      navigator.nextPage(
+        RegisterDateOfBirthPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/identity-confirmed (CARF-168)"
+      )
+    }
+
+    "must navigate from RegisterDateOfBirth to We Could Not Confirm Identity for SoleTrader without UTR and not found NINO" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .success
+          .value
+          .set(HaveUTRPage, false)
+          .success
+          .value
+          .set(NiNumberPage, "XX123456D")
+          .success
+          .value
+          .set(WhatIsYourNameIndividualPage, Name("firstName example", "lastName example"))
+          .success
+          .value
+          .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+          .success
+          .value
+      navigator.nextPage(
+        RegisterDateOfBirthPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/identity-confirmed (CARF-168)"
+      )
+    }
+
+    "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for Individual with not found NINO" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(IndividualRegistrationTypePage, Individual)
+          .success
+          .value
+          .set(NiNumberPage, "XX123456D")
+          .success
+          .value
+          .set(WhatIsYourNameIndividualPage, Name("firstName example", "lastName example"))
+          .success
+          .value
+          .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+          .success
+          .value
+      navigator.nextPage(
+        RegisterDateOfBirthPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/identity-confirmed (CARF-168)"
+      )
+    }
+
+    "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for Individual, EmptyIndividualResponse returned " in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(IndividualRegistrationTypePage, Individual)
+          .success
+          .value
+          .set(NiNumberPage, "WX123456D")
+          .success
+          .value
+          .set(WhatIsYourNameIndividualPage, Name("firstName example", "lastName example"))
+          .success
+          .value
+          .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+          .success
+          .value
+      navigator.nextPage(
+        RegisterDateOfBirthPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/identity-confirmed (CARF-168)"
+      )
     }
   }
 }

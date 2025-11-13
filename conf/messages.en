@@ -235,6 +235,24 @@ indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
 indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
 indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
 
+
+registerDateOfBirth.title = What is your date of birth?
+registerDateOfBirth.heading = What is your date of birth?
+registerDateOfBirth.hint = For example, 31 3 1980.
+registerDateOfBirth.checkYourAnswersLabel = What is your date of birth?
+registerDateOfBirth.error.required.all = Enter your date of birth
+registerDateOfBirth.error.required.day = Enter the day you were born
+registerDateOfBirth.error.required.month = Enter the month you were born
+registerDateOfBirth.error.required.year = Enter the year you were born
+registerDateOfBirth.error.required.day.and.month = Enter the day and month you were born
+registerDateOfBirth.error.required.day.and.year = Enter the day and year you were born
+registerDateOfBirth.error.required.month.and.year = Enter the month and year you were born
+registerDateOfBirth.error.invalid = Date of birth must only include numbers 0 to 9
+registerDateOfBirth.error.not.real.date = Enter a real date of birth
+registerDateOfBirth.error.future.date = Date of birth must be before {0}
+registerDateOfBirth.error.past.date = Date of birth must be after 1900
+registerDateOfBirth.change.hidden = Change What is your date of birth?
+
 firstContactPhone.title = Can we contact your first contact by phone?
 firstContactPhone.heading = Can we contact {0} by phone?
 firstContactPhone.p1 = We will call if we have any questions about your reports.

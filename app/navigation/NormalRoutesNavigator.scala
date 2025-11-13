@@ -24,6 +24,8 @@ import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, Tr
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
+import java.time.LocalDate
+
 trait NormalRoutesNavigator extends UserAnswersHelper {
 
   val normalRoutes: Page => UserAnswers => Call = {
@@ -59,7 +61,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
 
     case WhatIsYourNameIndividualPage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
+      _ => routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
 
     case OrgWithoutIdBusinessNamePage =>
       _ => controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode)
@@ -72,6 +74,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/business-address (CARF-162)"
         )
+
+    case RegisterDateOfBirthPage =>
+      userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
 
     case FirstContactNamePage =>
       _ => routes.FirstContactEmailController.onPageLoad(NormalMode)
@@ -183,6 +188,15 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/business-address (CARF-162)"
         )
+    }
+
+  private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
+    userAnswers.get(RegisterDateOfBirthPage) match {
+      case Some(_: LocalDate) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/identity-confirmed (CARF-168)"
+        )
+      case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromFirstContactPhonePage(userAnswers: UserAnswers): Call =

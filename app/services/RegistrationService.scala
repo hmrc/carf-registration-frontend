@@ -20,36 +20,39 @@ import connectors.RegistrationConnector
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
-import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getIndividualByNino(ninoProxy: String)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] =
+  def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
+      hc: HeaderCarrier
+  ): Future[Either[ApiError, IndividualDetails]] =
+    val request = RegisterIndividualWithIdRequest(
+      requiresNameMatch = true,
+      IDNumber = nino,
+      IDType = "NINO",
+      dateOfBirth = dob.toString,
+      firstName = name.firstName,
+      lastName = name.lastName
+    )
     connector
-      .individualWithNino(
-        request = RegisterIndividualWithIdRequest(
-          requiresNameMatch = true,
-          // TODO: Replace it with actual NINO CARF-166
-          IDNumber = ninoProxy,
-          IDType = "NINO",
-          dateOfBirth = "test-dob",
-          firstName = "john",
-          lastName = "doe"
-        )
-      )
+      .individualWithNino(request)
       .value
       .flatMap {
-        case Right(response)              =>
-          logger.info("Successfully retrieved individual details.")
+        case Right(response) =>
+          logger.info(
+            s"RegistrationConnector Successfully retrieved individual details for: $response.firstName, $response.lastName, safeId=$response.safeId"
+          )
           Future.successful(
-            Some(
+            Right(
               IndividualDetails(
                 safeId = response.safeId,
                 firstName = response.firstName,
@@ -59,11 +62,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
               )
             )
           )
-        case Left(ApiError.NotFoundError) =>
-          logger.warn("Not Found (404) for individual details.")
-          Future.successful(None)
-        case Left(error)                  =>
-          Future.failed(new Exception("Unexpected Error!"))
+        case Left(error)     =>
+          logger.warn(s"Failed to retrieve individual details: $error")
+          Future.successful(Left(error))
       }
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {

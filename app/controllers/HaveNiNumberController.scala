@@ -54,11 +54,6 @@ class HaveNiNumberController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen retrieveCtUTR() andThen getData() andThen requireData) { implicit request =>
 
-      // TODO: Replace utr.get with NINO when doing CARF-166
-      service
-        .getIndividualByNino(request.utr.getOrElse(UniqueTaxpayerReference("123")).uniqueTaxPayerReference)
-        .map(a => logger.info(s"%%% LOOK HERE %%% \n-> $a"))
-
       val preparedForm = request.userAnswers.get(HaveNiNumberPage) match {
         case None        => form
         case Some(value) => form.fill(value)

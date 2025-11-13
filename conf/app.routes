@@ -75,7 +75,7 @@ POST        /register/ni-number                                           contro
 GET         /register/change-ni-number                                    controllers.NiNumberController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-ni-number                                    controllers.NiNumberController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/problem/different-business                           controllers.ProblemDifferentBusinessController.onPageLoad()
+GET         /register/problem/different-business                          controllers.ProblemDifferentBusinessController.onPageLoad()
 
 GET         /register/business-without-id/have-trading-name               controllers.orgWithoutId.HaveTradingNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/business-without-id/have-trading-name               controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = NormalMode)
@@ -87,10 +87,10 @@ POST        /register/your-name                                           contro
 GET         /register/change-your-name                                    controllers.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-your-name                                    controllers.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/business-without-id/trading-name                           controllers.TradingNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/business-without-id/trading-name                           controllers.TradingNameController.onSubmit(mode: Mode = NormalMode)
-GET        /register/business-without-id/change-trading-name                    controllers.TradingNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/business-without-id/change-trading-name                    controllers.TradingNameController.onSubmit(mode: Mode = CheckMode)
+GET         /register/business-without-id/trading-name                    controllers.TradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-without-id/trading-name                    controllers.TradingNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/business-without-id/change-trading-name             controllers.TradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/business-without-id/change-trading-name             controllers.TradingNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/name                                                controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/name                                                controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
@@ -103,9 +103,32 @@ GET        /register/change-date-of-birth                                 contro
 POST       /register/change-date-of-birth                                 controllers.RegisterDateOfBirthController.onSubmit(mode: Mode = CheckMode)
 
 GET        /register/identity-confirmed                                   controllers.RegisterIdentityConfirmedController.onPageLoad()
+
 GET        /register/contact-name                        controllers.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /register/contact-name                        controllers.FirstContactNameController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-contact-name                  controllers.FirstContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-contact-name                  controllers.FirstContactNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/could-not-confirm-identity         controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
+
+GET        /register/have-phone                                     controllers.FirstContactPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/have-phone                                     controllers.FirstContactPhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-have-phone                              controllers.FirstContactPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-have-phone                              controllers.FirstContactPhoneController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/phone                                          controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/phone                                          controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-phone                                   controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-phone                                   controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /register/identity-confirmed                             controllers.RegisterIdentityConfirmedController.onPageLoad()
+GET        /register/problem/could-not-confirm-identity             controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
+
+GET         /register/contact-name                                        controllers.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/contact-name                                        controllers.FirstContactNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-contact-name                                 controllers.FirstContactNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-contact-name                                 controllers.FirstContactNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/email                                               controllers.FirstContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/email                                               controllers.FirstContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-email                                        controllers.FirstContactEmailController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-email                                        controllers.FirstContactEmailController.onSubmit(mode: Mode = CheckMode)

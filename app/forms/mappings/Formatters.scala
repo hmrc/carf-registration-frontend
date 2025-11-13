@@ -16,9 +16,12 @@
 
 package forms.mappings
 
+import config.Constants
+import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 
 import scala.util.control.Exception.nonFatalCatch
 
@@ -47,7 +50,7 @@ trait Formatters {
 
       private val baseFormatter = stringFormatter(requiredKey, args)
 
-      override def bind(key: String, data: Map[String, String]) =
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Boolean] =
         baseFormatter
           .bind(key, data)
           .flatMap {
@@ -71,7 +74,7 @@ trait Formatters {
 
       private val baseFormatter = stringFormatter(requiredKey, args)
 
-      override def bind(key: String, data: Map[String, String]) =
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] =
         baseFormatter
           .bind(key, data)
           .map(_.replace(",", ""))
@@ -85,7 +88,7 @@ trait Formatters {
                 .map(_ => Seq(FormError(key, nonNumericKey, args)))
           }
 
-      override def unbind(key: String, value: Int) =
+      override def unbind(key: String, value: Int): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
     }
 
@@ -144,10 +147,11 @@ trait Formatters {
       invalidKey: String,
       invalidFormatKey: String,
       regex: String,
-      msgArg: String = "",
-      acceptedLengths: Seq[Int] = Seq(10, 13)
+      msgArg: String = ""
   ): Formatter[String] =
     new Formatter[String] {
+
+      val acceptedLengths: Seq[Int] = Constants.acceptedUtrLengths
 
       def formatError(key: String, errorKey: String, msgArg: String): FormError =
         if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
@@ -176,19 +180,20 @@ trait Formatters {
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
         data.get(key) match {
           case None    =>
-            msgArg.isEmpty match {
-              case true  => Left(Seq(FormError(key, errorKey)))
-              case false => Left(Seq(FormError(key, errorKey, Seq(msgArg))))
-            }
+            handleEmptyInput(key)
           case Some(s) =>
             s.trim match {
               case "" =>
-                msgArg.isEmpty match {
-                  case true  => Left(Seq(FormError(key, errorKey)))
-                  case false => Left(Seq(FormError(key, errorKey, Seq(msgArg))))
-                }
+                handleEmptyInput(key)
               case s1 => Right(removeNonBreakingSpaces(s1))
             }
+        }
+
+      private def handleEmptyInput(key: String) =
+        if (msgArg.isEmpty) {
+          Left(Seq(FormError(key, errorKey)))
+        } else {
+          Left(Seq(FormError(key, errorKey, Seq(msgArg))))
         }
 
       override def unbind(key: String, value: String): Map[String, String] =
@@ -203,10 +208,6 @@ trait Formatters {
       args: Seq[Any] = Seq.empty
   ): Formatter[String] =
     new Formatter[String] {
-
-      final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""
-      final val ninoRegex       =
-        "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
         data.get(key) match {
@@ -233,6 +234,41 @@ trait Formatters {
 
     }
 
+  protected def phoneNumberFormatter(
+      requiredKey: String,
+      invalidKey: String,
+      lengthKey: String,
+      args: Seq[Any] = Seq.empty
+  ): Formatter[String] =
+    new Formatter[String] {
+
+      private val phoneUtil = PhoneNumberUtil.getInstance()
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+        data.get(key).map(_.trim) match {
+          case None                         =>
+            Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.isEmpty =>
+            Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value)                  =>
+            if (value.length > maxPhoneLength) {
+              Left(Seq(FormError(key, lengthKey, args)))
+            } else {
+              try {
+                // Using "GB" tells libphonenumber to assume GB if no country code is added
+                val number = phoneUtil.parse(value, "GB")
+                if (phoneUtil.isValidNumber(number)) Right(value) else Left(Seq(FormError(key, invalidKey, args)))
+              } catch {
+                case _: NumberParseException => Left(Seq(FormError(key, invalidKey, args)))
+              }
+            }
+        }
+
+      override def unbind(key: String, value: String): Map[String, String] =
+        Map(key -> value)
+
+    }
+
   protected def validatedTextFormatter(
       requiredKey: String,
       invalidKey: String,
@@ -249,9 +285,9 @@ trait Formatters {
         dataFormatter
           .bind(key, data)
           .flatMap {
-            case str if !str.matches(regex)    => Left(Seq(FormError(key, invalidKey)))
             case str if str.length > maxLength => Left(Seq(FormError(key, lengthKey)))
             case str if str.length < minLength => Left(Seq(FormError(key, lengthKey)))
+            case str if !str.matches(regex)    => Left(Seq(FormError(key, invalidKey)))
             case str                           => Right(str)
           }
 

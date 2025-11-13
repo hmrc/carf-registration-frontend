@@ -22,8 +22,10 @@ import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWit
 import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import uk.gov.hmrc.http.HeaderCarrier
+import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
+import pages.*
 import play.api.Logging
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}

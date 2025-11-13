@@ -199,7 +199,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-
   private def navigateFromFirstContactPhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(FirstContactPhonePage) match {
       case Some(true) =>

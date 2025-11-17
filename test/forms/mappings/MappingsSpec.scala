@@ -441,16 +441,21 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       "+91 98765 43210",
       "07400111222 ext 5",
       "++447123456789", // google lib tries to recover extra punctuation where possible, like parsing ++44 as +44
-      "+1 (650) 253-0000 x123"
+      "+1 (650) 253-0000 x123",
+      "01632 960 001", // test only local area number
+      "07700 900 982", // test only number
+      "07700 990 982", // unallocated number valid format
+      "07700 899 999", // one below test numbers
+      "12345", // allowed in some countries internationally
+      "777a7a7a7", // allowed as library does aggressive number stripping,
+      "0712345678" // allowed as valid in some jurisdictions
     )
 
     val invalidNumbers = Seq(
       "abcdefg",
-      "12345",
       "+999999999",
       "+44",
       "071234567890", // too long
-      "0712345678", // too short
       "+44 123"
     )
 

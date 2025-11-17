@@ -257,7 +257,7 @@ trait Formatters {
               try {
                 // Using "GB" tells libphonenumber to assume GB if no country code is added
                 val number = phoneUtil.parse(value, "GB")
-                if (phoneUtil.isValidNumber(number)) Right(value) else Left(Seq(FormError(key, invalidKey, args)))
+                if (phoneUtil.isPossibleNumber(number)) Right(value) else Left(Seq(FormError(key, invalidKey, args)))
               } catch {
                 case _: NumberParseException => Left(Seq(FormError(key, invalidKey, args)))
               }

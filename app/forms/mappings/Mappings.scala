@@ -51,12 +51,38 @@ trait Mappings extends Formatters with Constraints {
 
   protected def localDate(
       invalidKey: String,
+      notRealDateKey: String,
       allRequiredKey: String,
-      twoRequiredKey: String,
-      requiredKey: String,
+      dayRequiredKey: String,
+      monthRequiredKey: String,
+      yearRequiredKey: String,
+      dayAndMonthRequiredKey: String,
+      dayAndYearRequiredKey: String,
+      monthAndYearRequiredKey: String,
+      futureDateKey: String,
+      pastDateKey: String,
+      maxDate: LocalDate,
+      minDate: LocalDate,
       args: Seq[String] = Seq.empty
   )(implicit messages: Messages): FieldMapping[LocalDate] =
-    of(new LocalDateFormatter(invalidKey, allRequiredKey, twoRequiredKey, requiredKey, args))
+    of(
+      new LocalDateFormatter(
+        invalidKey,
+        notRealDateKey,
+        allRequiredKey,
+        dayRequiredKey,
+        monthRequiredKey,
+        yearRequiredKey,
+        dayAndMonthRequiredKey,
+        dayAndYearRequiredKey,
+        monthAndYearRequiredKey,
+        futureDateKey,
+        pastDateKey,
+        maxDate,
+        minDate,
+        args
+      )(messages)
+    )
 
   protected def currency(
       requiredKey: String = "error.required",

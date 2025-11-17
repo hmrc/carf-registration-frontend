@@ -23,6 +23,8 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 
+import java.time.LocalDate
+
 class NormalRoutesNavigatorSpec extends SpecBase {
 
   val navigator = new Navigator
@@ -616,7 +618,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         WhatIsYourNameIndividualPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/date-of-birth (CARF-166)")
+      ) mustBe routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
     }
 
     "must go from FirstContactName page to FirstContactEmail page" in {
@@ -647,6 +649,32 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         NormalMode,
         updatedAnswers
       ) mustBe routes.FirstContactPhoneController.onPageLoad(NormalMode)
+    }
+
+    "RegisterDateOfBirth navigation" - {
+      "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+            .success
+            .value
+        navigator.nextPage(
+          RegisterDateOfBirthPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/identity-confirmed (CARF-168)"
+        )
+      }
+
+      "must navigate to Journey Recovery when no answer is provided" in {
+        val userAnswers = UserAnswers("id")
+        navigator.nextPage(
+          RegisterDateOfBirthPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
   }
 }

@@ -44,6 +44,7 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
       request: RegisterIndividualWithIdRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
+
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
       endpoint: URL
@@ -56,7 +57,8 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         .map {
           case response if response.status == OK        =>
             Try(response.json.as[RegisterIndividualWithIdResponse]) match {
-              case Success(data)      => Right(data)
+              case Success(data)      =>
+                Right(data)
               case Failure(exception) =>
                 logger.warn(
                   s"Error parsing response as RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"

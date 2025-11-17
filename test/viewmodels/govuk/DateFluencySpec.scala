@@ -17,6 +17,7 @@
 package viewmodels.govuk
 
 import forms.mappings.Mappings
+import models.DateHelper.today
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -25,23 +26,31 @@ import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.govuk.all.*
 
-import java.time.LocalDate
+import java.time.{LocalDate, Month}
 
 class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
 
   ".apply" - {
-
     implicit val messages: Messages = stubMessages()
-
-    val fieldset = FieldsetViewModel(LegendViewModel("foo"))
+    val fieldset                    = FieldsetViewModel(LegendViewModel("foo"))
+    val minDate: LocalDate          = LocalDate.of(1901, Month.JANUARY, 1)
 
     val form: Form[LocalDate] =
       Form(
         "value" -> localDate(
-          invalidKey = "fieldName.error.invalid",
-          allRequiredKey = "fieldName.error.required.all",
-          twoRequiredKey = "fieldName.error.required.two",
-          requiredKey = "fieldName.error.required"
+          invalidKey = "error.invalid",
+          notRealDateKey = "error.notRealDate",
+          allRequiredKey = "error.required.all",
+          dayRequiredKey = "error.required.day",
+          monthRequiredKey = "error.required.month",
+          yearRequiredKey = "error.required.year",
+          dayAndMonthRequiredKey = "error.required.dayAndMonth",
+          dayAndYearRequiredKey = "error.required.dayAndYear",
+          monthAndYearRequiredKey = "error.required.monthAndYear",
+          futureDateKey = "error.future",
+          pastDateKey = "error.tooEarlyDate",
+          maxDate = today,
+          minDate = minDate
         )
       )
 

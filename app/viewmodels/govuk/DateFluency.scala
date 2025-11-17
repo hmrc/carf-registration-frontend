@@ -27,9 +27,7 @@ import viewmodels.ErrorMessageAwareness
 object date extends DateFluency
 
 trait DateFluency {
-
   object DateViewModel extends ErrorMessageAwareness {
-
     def apply(
         field: Field,
         legend: Legend
@@ -43,12 +41,10 @@ trait DateFluency {
         field: Field,
         fieldset: Fieldset
     )(implicit messages: Messages): DateInput = {
-
-      val errorClass = "govuk-input--error"
-
-      val dayError         = field.error.exists(_.args.contains(messages("date.error.day")))
-      val monthError       = field.error.exists(_.args.contains(messages("date.error.month")))
-      val yearError        = field.error.exists(_.args.contains(messages("date.error.year")))
+      val errorClass       = "govuk-input--error"
+      val dayError         = field.error.exists(_.args.contains("date.error.day"))
+      val monthError       = field.error.exists(_.args.contains("date.error.month"))
+      val yearError        = field.error.exists(_.args.contains("date.error.year"))
       val anySpecificError = dayError || monthError || yearError
       val allFieldsError   = field.error.isDefined && !anySpecificError
 
@@ -79,7 +75,6 @@ trait DateFluency {
           classes = s"govuk-input--width-4 $yearErrorClass".trim
         )
       )
-
       DateInput(
         fieldset = Some(fieldset),
         items = items,
@@ -90,7 +85,6 @@ trait DateFluency {
   }
 
   implicit class FluentDate(date: DateInput) {
-
     def withNamePrefix(prefix: String): DateInput =
       date.copy(namePrefix = Some(prefix))
 

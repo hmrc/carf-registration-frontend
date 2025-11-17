@@ -56,6 +56,9 @@ class CtUtrRetrievalActionSpec extends SpecBase {
   val identifierRequestOrganisationNoEnrolment: IdentifierRequest[AnyContentAsEmpty.type] =
     IdentifierRequest(request = FakeRequest(), userId = testInternalId, affinityGroup = Organisation)
 
+  val identifierRequestIndividualNoEnrolment: IdentifierRequest[AnyContentAsEmpty.type] =
+    IdentifierRequest(request = FakeRequest(), userId = testInternalId, affinityGroup = Individual)
+
   val identifierRequestIndividualWithEnrolment: IdentifierRequest[AnyContentAsEmpty.type] =
     IdentifierRequest(request = FakeRequest(), userId = testInternalId, affinityGroup = Individual)
 
@@ -80,6 +83,14 @@ class CtUtrRetrievalActionSpec extends SpecBase {
 
       val result: Future[Result] =
         testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestIndividualWithEnrolment, testAction)
+
+      status(result)          mustBe OK
+      contentAsString(result) mustBe "Test Content No UTR"
+    }
+
+    "must not add utr to the request if affinity group is Individual" in {
+      val result: Future[Result] =
+        testCtUtrRetrievalActionProvider.invokeBlock(identifierRequestIndividualNoEnrolment, testAction)
 
       status(result)          mustBe OK
       contentAsString(result) mustBe "Test Content No UTR"

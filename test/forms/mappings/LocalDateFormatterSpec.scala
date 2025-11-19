@@ -87,6 +87,19 @@ class LocalDateFormatterSpec
       result.toOption.get mustBe LocalDate.of(2020, 3, 5)
     }
 
+    "remove internal hyphens and bind correctly" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "0-5",
+          "date.month" -> "0-3",
+          "date.year"  -> "2-0-2-0"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.value mustBe LocalDate.of(2020, 3, 5)
+    }
+
     "return error when all fields are missing" in {
       val result = formatter.bind("date", Map.empty)
       result mustBe Left(
@@ -166,12 +179,63 @@ class LocalDateFormatterSpec
       result mustBe Left(Seq(FormError("date", "required.month.year", Seq("date.error.month", "date.error.year"))))
     }
 
-    "return real-date error when invalid date e.g. 31 Feb" in {
+    "return notRealDate error  when invalid date e.g. 31 Feb" in {
       val result = formatter.bind(
         "date",
         Map("date.day" -> "31", "date.month" -> "02", "date.year" -> "2020")
       )
-      result mustBe Left(Seq(FormError("date", "notReal", Seq("date.error.day", "date.error.month", "date.error.year"))))
+      result mustBe Left(
+        Seq(FormError("date", "notReal", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
+    }
+    "return notRealDate error  when day is within 1–31 but month is invalid (e.g. 13)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "10",
+          "date.month" -> "13",
+          "date.year"  -> "2020"
+        )
+      )
+      result mustBe Left(Seq(FormError("date", "notReal", Seq("date.error.month") ++ Seq.empty)))
+    }
+    "return future date error when year is numeric but out of allowed range (too large but < max+1000)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "10",
+          "date.month" -> "10",
+          "date.year"  -> (maxDate.getYear + 2).toString
+        )
+      )
+      result mustBe Left(
+        Seq(
+          FormError(
+            "date",
+            "error.future",
+            List(maxDate.format(displayFormat), "date.error.day", "date.error.month", "date.error.year")
+          )
+        )
+      )
+    }
+    "return future date error when year is more than maxDate.getYear + 1000" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "10",
+          "date.month" -> "10",
+          "date.year"  -> (maxDate.getYear + 2000).toString
+        )
+      )
+      result mustBe Left(
+        Seq(
+          FormError(
+            "date",
+            "error.future",
+            List(maxDate.format(displayFormat), "date.error.day", "date.error.month", "date.error.year")
+          )
+        )
+      )
     }
 
     "return invalidKey day error when day is non-numeric" in {
@@ -246,6 +310,18 @@ class LocalDateFormatterSpec
       result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.month", "date.error.year"))))
     }
 
+    "correctly prioritise day error over month error when both invalid" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "xx",
+          "date.month" -> "99",
+          "date.year"  -> "2020"
+        )
+      )
+      result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month"))))
+    }
+
     "return futureDateKey when date is after maxDate" in {
       val result = formatter.bind(
         "date",
@@ -275,7 +351,11 @@ class LocalDateFormatterSpec
           "date.year"  -> "1899"
         )
       )
-      result mustBe Left(Seq( FormError("date", List("error.tooEarlyDate"), List("date.error.day", "date.error.month", "date.error.year"))))
+      result mustBe Left(
+        Seq(
+          FormError("date", List("error.tooEarlyDate"), List("date.error.day", "date.error.month", "date.error.year"))
+        )
+      )
     }
 
     "handle 3-char alphabetic month names (eg: Jan)" in {
@@ -328,6 +408,18 @@ class LocalDateFormatterSpec
       )
       result.isRight mustBe true
       result.toOption.get mustBe LocalDate.of(1999, 1, 15)
+    }
+
+    "return invalid month error when month text does not match any pattern" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "5",
+          "date.month" -> "Jax",
+          "date.year"  -> "2020"
+        )
+      )
+      result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.month"))))
     }
 
     "correctly unbind into day/month/year fields" in {

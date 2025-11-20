@@ -17,6 +17,7 @@
 package forms.mappings
 
 import generators.Generators
+import models.DateHelper.today
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -40,6 +41,7 @@ class LocalDateFormatterSpec
   implicit val messages: Messages = stubMessages()
   val minDate                     = LocalDate.of(1901, 1, 1)
   val maxDate                     = LocalDate.of(2099, 12, 31)
+  val maxValidDateOfBirth         = today.minusDays(1)
 
   def displayFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
@@ -74,6 +76,54 @@ class LocalDateFormatterSpec
       result.toOption.get mustBe LocalDate.of(2020, 3, 5)
     }
 
+    "correctly unbind into day/month/year fields" in {
+      val date = LocalDate.of(2020, 7, 15)
+      formatter.unbind("date", date) mustBe Map(
+        "date.day"   -> "15",
+        "date.month" -> "7",
+        "date.year"  -> "2020"
+      )
+    }
+
+    "accept date at the minimum date boundary of 1901-01-01" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "1",
+          "date.month" -> "1",
+          "date.year"  -> "1901"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe minDate
+    }
+
+    "accept the most recent valid date (today's date minus 1 day)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> maxValidDateOfBirth.getDayOfMonth.toString,
+          "date.month" -> maxValidDateOfBirth.getMonth.toString,
+          "date.year"  -> maxValidDateOfBirth.getYear.toString
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe maxValidDateOfBirth
+    }
+
+    "handle leap year correctly" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "29",
+          "date.month" -> "February",
+          "date.year"  -> "2020"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe LocalDate.of(2020, 2, 29)
+    }
+
     "remove leading zeroes, spaces and hyphens before parsing" in {
       val result = formatter.bind(
         "date",
@@ -98,6 +148,55 @@ class LocalDateFormatterSpec
       )
       result.isRight mustBe true
       result.toOption.value mustBe LocalDate.of(2020, 3, 5)
+    }
+
+    "handle 3-char alphabetic month names (eg: Jan)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "5",
+          "date.month" -> "Jan",
+          "date.year"  -> "2020"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe LocalDate.of(2020, 1, 5)
+    }
+    "handle mixed-case 3-char alphabetic month names (eg: mAr)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "5",
+          "date.month" -> "mAr",
+          "date.year"  -> "2000"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe LocalDate.of(2000, 3, 5)
+    }
+    "handle full alphabetic month names (eg: January)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "31",
+          "date.month" -> "January",
+          "date.year"  -> "2001"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe LocalDate.of(2001, 1, 31)
+    }
+    "handle mixed-case full alphabetic month names (eg: JaNuaRy)" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "15",
+          "date.month" -> "JaNuaRy",
+          "date.year"  -> "1999"
+        )
+      )
+      result.isRight mustBe true
+      result.toOption.get mustBe LocalDate.of(1999, 1, 15)
     }
 
     "return error when all fields are missing" in {
@@ -199,6 +298,35 @@ class LocalDateFormatterSpec
       )
       result mustBe Left(Seq(FormError("date", "notReal", Seq("date.error.month") ++ Seq.empty)))
     }
+    "return notRealDate error for invalid day with alphabetic month" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "31",
+          "date.month" -> "February",
+          "date.year"  -> "2020"
+        )
+      )
+      result.isLeft mustBe true
+      result mustBe Left(
+        Seq(FormError("date", "notReal", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
+    }
+    "return notRealDate error for invalid day with 3-char alphabetic month" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "31",
+          "date.month" -> "Apr",
+          "date.year"  -> "2020"
+        )
+      )
+      result.isLeft mustBe true
+      result mustBe Left(
+        Seq(FormError("date", "notReal", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
+    }
+
     "return future date error when year is numeric but out of allowed range (too large but < max+1000)" in {
       val result = formatter.bind(
         "date",
@@ -310,6 +438,20 @@ class LocalDateFormatterSpec
       result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.month", "date.error.year"))))
     }
 
+    "return invalidKey error when all fields are non-numeric" in {
+      val result = formatter.bind(
+        "date",
+        Map(
+          "date.day"   -> "x",
+          "date.month" -> "y",
+          "date.year"  -> "z"
+        )
+      )
+      result mustBe Left(
+        Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
+    }
+
     "correctly prioritise day error over month error when both invalid" in {
       val result = formatter.bind(
         "date",
@@ -322,7 +464,7 @@ class LocalDateFormatterSpec
       result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month"))))
     }
 
-    "return futureDateKey when date is after maxDate" in {
+    "return futureDate error when date is after maxDate" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -342,7 +484,7 @@ class LocalDateFormatterSpec
       )
     }
 
-    "return pastDateKey when date is before minDate" in {
+    "return too early date error when date is before minDate" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -358,58 +500,6 @@ class LocalDateFormatterSpec
       )
     }
 
-    "handle 3-char alphabetic month names (eg: Jan)" in {
-      val result = formatter.bind(
-        "date",
-        Map(
-          "date.day"   -> "5",
-          "date.month" -> "Jan",
-          "date.year"  -> "2020"
-        )
-      )
-      result.isRight mustBe true
-      result.toOption.get mustBe LocalDate.of(2020, 1, 5)
-    }
-
-    "handle mixed-case 3-char alphabetic month names (eg: mAr)" in {
-      val result = formatter.bind(
-        "date",
-        Map(
-          "date.day"   -> "5",
-          "date.month" -> "mAr",
-          "date.year"  -> "2000"
-        )
-      )
-      result.isRight mustBe true
-      result.toOption.get mustBe LocalDate.of(2000, 3, 5)
-    }
-
-    "handle full alphabetic month names (eg: January)" in {
-      val result = formatter.bind(
-        "date",
-        Map(
-          "date.day"   -> "31",
-          "date.month" -> "January",
-          "date.year"  -> "2001"
-        )
-      )
-      result.isRight mustBe true
-      result.toOption.get mustBe LocalDate.of(2001, 1, 31)
-    }
-
-    "handle mixed-case full alphabetic month names (eg: JaNuaRy)" in {
-      val result = formatter.bind(
-        "date",
-        Map(
-          "date.day"   -> "15",
-          "date.month" -> "JaNuaRy",
-          "date.year"  -> "1999"
-        )
-      )
-      result.isRight mustBe true
-      result.toOption.get mustBe LocalDate.of(1999, 1, 15)
-    }
-
     "return invalid month error when month text does not match any pattern" in {
       val result = formatter.bind(
         "date",
@@ -420,15 +510,6 @@ class LocalDateFormatterSpec
         )
       )
       result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.month"))))
-    }
-
-    "correctly unbind into day/month/year fields" in {
-      val date = LocalDate.of(2020, 7, 15)
-      formatter.unbind("date", date) mustBe Map(
-        "date.day"   -> "15",
-        "date.month" -> "7",
-        "date.year"  -> "2020"
-      )
     }
   }
 }

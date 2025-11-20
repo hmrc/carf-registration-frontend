@@ -23,12 +23,14 @@ import play.api.data.Form
 
 class IndividualEmailFormProvider @Inject() extends Mappings {
 
+  private val maxLengthChars = 132
+
   def apply(): Form[String] =
     Form(
       "value" -> text("individualEmail.error.required")
         .verifying(
-          firstError(maxLength(132, "individualEmail.error.length")),
-          validEmailAddress("firstContactEmail.error.invalid")
+          firstError(maxLength(maxLengthChars, "individualEmail.error.length")),
+          validEmailAddress("individualEmail.error.invalid")
         )
     )
 }

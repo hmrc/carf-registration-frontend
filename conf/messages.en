@@ -281,6 +281,7 @@ firstContactEmail.change.hidden = Change first contact email address
 individualEmail.title = What is your email address?
 individualEmail.heading = What is your email address?
 individualEmail.checkYourAnswersLabel = Individual email address
+individualEmail.paragraph = We will use this email address to send confirmation of your reports or if we have any questions about them.
 individualEmail.error.required = Enter your email address
 individualEmail.error.length = The email address must be 132 characters or less
 individualEmail.error.invalid = Enter an email address in the right format, like yourname@example.com

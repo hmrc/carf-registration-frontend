@@ -16,8 +16,9 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.IndividualEmailFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
@@ -30,17 +31,19 @@ import views.html.IndividualEmailView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class IndividualEmailController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: IndividualEmailFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: IndividualEmailView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class IndividualEmailController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: IndividualEmailFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: IndividualEmailView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
@@ -48,7 +51,7 @@ class IndividualEmailController @Inject()(
     implicit request =>
 
       val preparedForm = request.userAnswers.get(IndividualEmailPage) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
@@ -57,16 +60,15 @@ class IndividualEmailController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualEmailPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(IndividualEmailPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualEmailPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(IndividualEmailPage, mode, updatedAnswers))
+        )
   }
 }

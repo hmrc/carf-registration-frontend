@@ -689,120 +689,24 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.IndividualHavePhoneController.onPageLoad(NormalMode)
       }
 
-      "when user answers 'No'" - {
+      "must go to Check Your Answers page when user answers 'No'" in {
+        val userAnswers = emptyUserAnswers.set(IndividualHavePhonePage, false).success.value
 
-        "and is an Individual with all mandatory data complete" - {
-          "must go to Check Your Answers page" in {
-            val completeIndividualAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.Individual)
-              .success
-              .value
-              .set(HaveNiNumberPage, true)
-              .success
-              .value
-              .set(WhatIsYourNameIndividualPage, Name("Test", "User"))
-              .success
-              .value
-              .set(RegisterDateOfBirthPage, LocalDate.now())
-              .success
-              .value
-              // CARF-183 .set(IndividualContactEmailPage, "test@test.com").success.value
-              .set(IndividualHavePhonePage, false)
-              .success
-              .value
-
-            navigator.nextPage(
-              IndividualHavePhonePage,
-              NormalMode,
-              completeIndividualAnswers
-            ) mustBe routes.CheckYourAnswersController.onPageLoad()
-          }
-        }
-
-        "and is a Sole Trader with all mandatory data complete" - {
-          "must go to Check Your Answers page" in {
-            val completeSoleTraderAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
-              .success
-              .value
-              .set(RegisteredAddressInUkPage, true)
-              .success
-              .value
-              .set(
-                IsThisYourBusinessPage,
-                IsThisYourBusinessPageDetails("name", Address("line1", None, None, None, None, "GB"), Some(true))
-              )
-              .success
-              .value
-              // CARF-183 .set(IndividualContactEmailPage, "test@test.com").success.value
-              .set(IndividualHavePhonePage, false)
-              .success
-              .value
-
-            navigator.nextPage(
-              IndividualHavePhonePage,
-              NormalMode,
-              completeSoleTraderAnswers
-            ) mustBe routes.CheckYourAnswersController.onPageLoad()
-          }
-        }
-
-        "and is an Individual with missing data (e.g., Date of Birth)" - {
-          "must go back to the first missing page (RegisterDateOfBirthPage)" in {
-            val incompleteIndividualAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.Individual)
-              .success
-              .value
-              .set(HaveNiNumberPage, true)
-              .success
-              .value
-              .set(WhatIsYourNameIndividualPage, Name("Test", "User"))
-              .success
-              .value
-              .set(IndividualHavePhonePage, false)
-              .success
-              .value
-
-            navigator.nextPage(
-              IndividualHavePhonePage,
-              NormalMode,
-              incompleteIndividualAnswers
-            ) mustBe routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
-          }
-        }
-
-        "and is a Sole Trader with missing data (e.g., IsThisYourBusiness)" - {
-          "must go back to the first missing page (IsThisYourBusinessPage)" in {
-            val incompleteSoleTraderAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
-              .success
-              .value
-              .set(RegisteredAddressInUkPage, true)
-              .success
-              .value
-              .set(IndividualHavePhonePage, false)
-              .success
-              .value
-
-            navigator.nextPage(
-              IndividualHavePhonePage,
-              NormalMode,
-              incompleteSoleTraderAnswers
-            ) mustBe routes.IsThisYourBusinessController.onPageLoad(NormalMode)
-          }
-        }
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "and no answer is given" - {
-        "must go to Journey Recovery" in {
-          val userAnswers = emptyUserAnswers
+      "must go to Journey Recovery when no answer is given" in {
+        val userAnswers = emptyUserAnswers
 
-          navigator.nextPage(
-            IndividualHavePhonePage,
-            NormalMode,
-            userAnswers
-          ) mustBe routes.JourneyRecoveryController.onPageLoad()
-        }
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

@@ -686,7 +686,9 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualHavePhonePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-phone (CARF-185)"
+        )
       }
 
       "must go to Check Your Answers page when user answers 'No'" in {

@@ -215,7 +215,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualHavePhonePage) match {
       case Some(true)  =>
-        routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-phone (CARF-185)"
+        )
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        =>

@@ -84,6 +84,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case FirstContactEmailPage =>
       _ => routes.FirstContactPhoneController.onPageLoad(NormalMode)
 
+    case IndividualHavePhonePage =>
+      userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
+
     case FirstContactPhoneNumberPage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/have-second-contact (CARF-182)")
 
@@ -208,4 +211,41 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
           "Must redirect to /register/have-second-contact (CARF-182)"
         )
     }
+
+  private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualHavePhonePage) match {
+      case Some(true) =>
+        routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+      case Some(false) =>
+        findFirstMissingPageForIndividualOrSoleTrader(userAnswers)
+      case None =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def findFirstMissingPageForIndividualOrSoleTrader(userAnswers: UserAnswers): Call = {
+
+    val missingPageChecks: List[Option[Call]] =
+      if (isSoleTrader(userAnswers)) {
+        List(
+          if (userAnswers.get(IndividualRegistrationTypePage).isEmpty) Some(routes.IndividualRegistrationTypeController.onPageLoad(NormalMode)) else None,
+          if (userAnswers.get(RegisteredAddressInUkPage).isEmpty) Some(routes.RegisteredAddressInUkController.onPageLoad(NormalMode)) else None,
+          if (userAnswers.get(IsThisYourBusinessPage).isEmpty) Some(routes.IsThisYourBusinessController.onPageLoad(NormalMode)) else None
+          // CARF-183 if (userAnswers.get(IndividualContactEmailPage).isEmpty) Some(routes.IndividualContactEmailController.onPageLoad(NormalMode)) else None
+        )
+      } else {
+        List(
+          if (userAnswers.get(IndividualRegistrationTypePage).isEmpty) Some(routes.IndividualRegistrationTypeController.onPageLoad(NormalMode)) else None,
+          if (userAnswers.get(HaveNiNumberPage).isEmpty) Some(routes.HaveNiNumberController.onPageLoad(NormalMode)) else None,
+          if (userAnswers.get(WhatIsYourNameIndividualPage).isEmpty) Some(routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)) else None,
+          if (userAnswers.get(RegisterDateOfBirthPage).isEmpty) Some(routes.RegisterDateOfBirthController.onPageLoad(NormalMode)) else None
+          // CARF-183  if (userAnswers.get(IndividualContactEmailPage).isEmpty) Some(routes.IndividualContactEmailController.onPageLoad(NormalMode)) else None
+        )
+      }
+
+    val firstMissingPageRoute: Option[Call] = missingPageChecks.flatten.headOption
+
+    firstMissingPageRoute.getOrElse {
+      routes.CheckYourAnswersController.onPageLoad()
+    }
+  }
 }

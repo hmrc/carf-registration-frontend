@@ -222,35 +222,54 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
+
+  @SuppressWarnings(Array("org.wartremover.warts.CyclomaticComplexity", "org.wartremover.warts.Any"))
+
   private def findFirstMissingPageForIndividualOrSoleTrader(userAnswers: UserAnswers): Call = {
 
     val missingPageChecks: List[Option[Call]] =
       if (isSoleTrader(userAnswers)) {
         List(
-          if (userAnswers.get(IndividualRegistrationTypePage).isEmpty)
+          if (userAnswers.get(IndividualRegistrationTypePage).isEmpty) {
             Some(routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
-          else None,
-          if (userAnswers.get(RegisteredAddressInUkPage).isEmpty)
+          } else {
+            None
+          },
+          if (userAnswers.get(RegisteredAddressInUkPage).isEmpty) {
             Some(routes.RegisteredAddressInUkController.onPageLoad(NormalMode))
-          else None,
-          if (userAnswers.get(IsThisYourBusinessPage).isEmpty)
+          } else {
+            None
+          },
+          if (userAnswers.get(IsThisYourBusinessPage).isEmpty) {
             Some(routes.IsThisYourBusinessController.onPageLoad(NormalMode))
-          else None
+          } else {
+            None
+          }
           // CARF-183 if (userAnswers.get(IndividualContactEmailPage).isEmpty) Some(routes.IndividualContactEmailController.onPageLoad(NormalMode)) else None
         )
       } else {
         List(
-          if (userAnswers.get(IndividualRegistrationTypePage).isEmpty)
+          if (userAnswers.get(IndividualRegistrationTypePage).isEmpty) {
             Some(routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
-          else None,
-          if (userAnswers.get(HaveNiNumberPage).isEmpty) Some(routes.HaveNiNumberController.onPageLoad(NormalMode))
-          else None,
-          if (userAnswers.get(WhatIsYourNameIndividualPage).isEmpty)
+          } else {
+            None
+          },
+          if (userAnswers.get(HaveNiNumberPage).isEmpty) {
+            Some(routes.HaveNiNumberController.onPageLoad(NormalMode))
+          }
+          else {
+            None
+          },
+          if (userAnswers.get(WhatIsYourNameIndividualPage).isEmpty) {
             Some(routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode))
-          else None,
-          if (userAnswers.get(RegisterDateOfBirthPage).isEmpty)
+          } else {
+            None
+          },
+          if (userAnswers.get(RegisterDateOfBirthPage).isEmpty) {
             Some(routes.RegisterDateOfBirthController.onPageLoad(NormalMode))
-          else None
+          } else {
+            None
+          }
           // CARF-183  if (userAnswers.get(IndividualContactEmailPage).isEmpty) Some(routes.IndividualContactEmailController.onPageLoad(NormalMode)) else None
         )
       }

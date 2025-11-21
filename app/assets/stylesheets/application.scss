@@ -9,3 +9,7 @@
 .js-enabled .js-visible {
   display: inline-block !important;
 }
+
+.long-word {
+  word-wrap: break-word;
+}

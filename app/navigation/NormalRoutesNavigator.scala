@@ -222,9 +222,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-
-  @SuppressWarnings(Array("org.wartremover.warts.CyclomaticComplexity", "org.wartremover.warts.Any"))
-
   private def findFirstMissingPageForIndividualOrSoleTrader(userAnswers: UserAnswers): Call = {
 
     val missingPageChecks: List[Option[Call]] =
@@ -256,8 +253,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
           },
           if (userAnswers.get(HaveNiNumberPage).isEmpty) {
             Some(routes.HaveNiNumberController.onPageLoad(NormalMode))
-          }
-          else {
+          } else {
             None
           },
           if (userAnswers.get(WhatIsYourNameIndividualPage).isEmpty) {

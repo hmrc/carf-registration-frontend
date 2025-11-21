@@ -676,5 +676,40 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
+
+    "IndividualHavePhonePage navigation" - {
+
+      "must go to Individual Phone Number page when user answers 'Yes'" in {
+        val userAnswers = emptyUserAnswers.set(IndividualHavePhonePage, true).success.value
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-phone (CARF-185)"
+        )
+      }
+
+      "must go to Check Your Answers page when user answers 'No'" in {
+        val userAnswers = emptyUserAnswers.set(IndividualHavePhonePage, false).success.value
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go to Journey Recovery when no answer is given" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
   }
 }

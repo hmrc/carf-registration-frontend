@@ -694,12 +694,22 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         "and is an Individual with all mandatory data complete" - {
           "must go to Check Your Answers page" in {
             val completeIndividualAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.Individual).success.value
-              .set(HaveNiNumberPage, true).success.value
-              .set(WhatIsYourNameIndividualPage, Name("Test", "User")).success.value
-              .set(RegisterDateOfBirthPage, LocalDate.now()).success.value
+              .set(IndividualRegistrationTypePage, IndividualRegistrationType.Individual)
+              .success
+              .value
+              .set(HaveNiNumberPage, true)
+              .success
+              .value
+              .set(WhatIsYourNameIndividualPage, Name("Test", "User"))
+              .success
+              .value
+              .set(RegisterDateOfBirthPage, LocalDate.now())
+              .success
+              .value
               // CARF-183 .set(IndividualContactEmailPage, "test@test.com").success.value
-              .set(IndividualHavePhonePage, false).success.value
+              .set(IndividualHavePhonePage, false)
+              .success
+              .value
 
             navigator.nextPage(
               IndividualHavePhonePage,
@@ -712,11 +722,22 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         "and is a Sole Trader with all mandatory data complete" - {
           "must go to Check Your Answers page" in {
             val completeSoleTraderAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader).success.value
-              .set(RegisteredAddressInUkPage, true).success.value
-              .set(IsThisYourBusinessPage, IsThisYourBusinessPageDetails("name", Address("line1", None, None, None, None, "GB"), Some(true))).success.value
+              .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+              .success
+              .value
+              .set(RegisteredAddressInUkPage, true)
+              .success
+              .value
+              .set(
+                IsThisYourBusinessPage,
+                IsThisYourBusinessPageDetails("name", Address("line1", None, None, None, None, "GB"), Some(true))
+              )
+              .success
+              .value
               // CARF-183 .set(IndividualContactEmailPage, "test@test.com").success.value
-              .set(IndividualHavePhonePage, false).success.value
+              .set(IndividualHavePhonePage, false)
+              .success
+              .value
 
             navigator.nextPage(
               IndividualHavePhonePage,
@@ -729,10 +750,18 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         "and is an Individual with missing data (e.g., Date of Birth)" - {
           "must go back to the first missing page (RegisterDateOfBirthPage)" in {
             val incompleteIndividualAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.Individual).success.value
-              .set(HaveNiNumberPage, true).success.value
-              .set(WhatIsYourNameIndividualPage, Name("Test", "User")).success.value
-              .set(IndividualHavePhonePage, false).success.value
+              .set(IndividualRegistrationTypePage, IndividualRegistrationType.Individual)
+              .success
+              .value
+              .set(HaveNiNumberPage, true)
+              .success
+              .value
+              .set(WhatIsYourNameIndividualPage, Name("Test", "User"))
+              .success
+              .value
+              .set(IndividualHavePhonePage, false)
+              .success
+              .value
 
             navigator.nextPage(
               IndividualHavePhonePage,
@@ -745,9 +774,15 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         "and is a Sole Trader with missing data (e.g., IsThisYourBusiness)" - {
           "must go back to the first missing page (IsThisYourBusinessPage)" in {
             val incompleteSoleTraderAnswers = emptyUserAnswers
-              .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader).success.value
-              .set(RegisteredAddressInUkPage, true).success.value
-              .set(IndividualHavePhonePage, false).success.value
+              .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+              .success
+              .value
+              .set(RegisteredAddressInUkPage, true)
+              .success
+              .value
+              .set(IndividualHavePhonePage, false)
+              .success
+              .value
 
             navigator.nextPage(
               IndividualHavePhonePage,

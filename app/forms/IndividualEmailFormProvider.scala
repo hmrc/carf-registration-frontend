@@ -16,21 +16,24 @@
 
 package forms
 
-import javax.inject.Inject
+import config.Constants
 
+import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
 class IndividualEmailFormProvider @Inject() extends Mappings {
 
-  private val maxLengthChars = 132
+  private val maxLengthChars = Constants.validEmailMaxLength
 
   def apply(): Form[String] =
     Form(
       "value" -> text("individualEmail.error.required")
         .verifying(
-          firstError(maxLength(maxLengthChars, "individualEmail.error.length")),
-          validEmailAddress("individualEmail.error.invalid")
+          firstError(
+            maxLength(maxLengthChars, "individualEmail.error.length"),
+            validEmailAddress("individualEmail.error.invalid")
+          )
         )
     )
 }

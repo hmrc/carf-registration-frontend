@@ -132,3 +132,8 @@ GET         /register/email                                               contro
 POST        /register/email                                               controllers.FirstContactEmailController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-email                                        controllers.FirstContactEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-email                                        controllers.FirstContactEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/individual-have-phone                       controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/individual-have-phone                       controllers.IndividualHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-individual-have-phone                controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-individual-have-phone                controllers.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)

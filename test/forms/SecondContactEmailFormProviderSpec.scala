@@ -17,15 +17,18 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import play.api.data.FormError
+import org.scalacheck.Gen
+import play.api.data.{Form, FormError}
 
 class SecondContactEmailFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "secondContactEmail.error.required"
-  val lengthKey   = "secondContactEmail.error.length"
-  val maxLength   = 132
+  val requiredKey: String = "secondContactEmail.error.required"
+  val lengthKey: String = "secondContactEmail.error.length"
+  val invalidKey: String = "secondContactEmail.error.invalid"
+  val maxLength: Int = 132
+  val validEmailAddress = "avalid@email.com"
 
-  val form = new SecondContactEmailFormProvider()()
+  val form: Form[String] = new SecondContactEmailFormProvider()()
 
   ".value" - {
 
@@ -34,10 +37,17 @@ class SecondContactEmailFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      validEmailAddress
     )
 
-    behave like fieldWithMaxLength(
+    behave like fieldWithInvalidData(
+      form,
+      fieldName,
+      invalidString = "not validemail@ @ test",
+      error = FormError(fieldName, invalidKey)
+    )
+
+    behave like fieldWithMaxLengthEmail(
       form,
       fieldName,
       maxLength = maxLength,
@@ -49,5 +59,30 @@ class SecondContactEmailFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "not bind invalid email formats" in {
+      val invalidEmails = Gen.oneOf(
+        "testemail",
+        "@example.com",
+        "test@",
+        "test @example.com",
+        "test@exam ple.com",
+        "test@@example.com",
+        "test@.com",
+        "test@example",
+        ".user@example.com",
+        "user.@example.com",
+        "user..name@example.com",
+        "user@example..com",
+        "user@-example.com",
+        "user@example.com-"
+      )
+
+      forAll(invalidEmails) { email =>
+        val result = form.bind(Map(fieldName -> email))
+        result.errors must contain(FormError(fieldName, invalidKey))
+      }
+    }
+
   }
 }

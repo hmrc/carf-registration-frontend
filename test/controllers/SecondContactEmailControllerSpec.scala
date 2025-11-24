@@ -17,49 +17,50 @@
 package controllers
 
 import base.SpecBase
-import forms.SecondContactEmailFormProvider
+import forms.OrganisationSecondContactEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{SecondContactEmailPage, SecondContactNamePage}
+import pages.{OrganisationSecondContactEmailPage, OrganisationSecondContactNamePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import views.html.SecondContactEmailView
+import views.html.OrganisationSecondContactEmailView
 
 import scala.concurrent.Future
 
-class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationSecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider              = new SecondContactEmailFormProvider()
+  val formProvider              = new OrganisationSecondContactEmailFormProvider()
   val form                      = formProvider()
   val secondContactName: String = "name"
 
-  lazy val secondContactEmailRoute = routes.SecondContactEmailController.onPageLoad(NormalMode).url
+  lazy val organisationSecondContactEmailRoute =
+    routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode).url
 
-  "SecondContactEmail Controller" - {
+  "OrganisationSecondContactEmail Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(SecondContactNamePage, secondContactName)
+        .set(OrganisationSecondContactNamePage, secondContactName)
         .success
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, secondContactEmailRoute)
+        val request = FakeRequest(GET, organisationSecondContactEmailRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[SecondContactEmailView]
+        val view = application.injector.instanceOf[OrganisationSecondContactEmailView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, secondContactName)(
@@ -72,19 +73,19 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(SecondContactNamePage, secondContactName)
+        .set(OrganisationSecondContactNamePage, secondContactName)
         .success
         .value
-        .set(SecondContactEmailPage, "anexampleevalidemail@email.com")
+        .set(OrganisationSecondContactEmailPage, "anexampleevalidemail@email.com")
         .success
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, secondContactEmailRoute)
+        val request = FakeRequest(GET, organisationSecondContactEmailRoute)
 
-        val view = application.injector.instanceOf[SecondContactEmailView]
+        val view = application.injector.instanceOf[OrganisationSecondContactEmailView]
 
         val result = route(application, request).value
 
@@ -112,7 +113,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, secondContactEmailRoute)
+          FakeRequest(POST, organisationSecondContactEmailRoute)
             .withFormUrlEncodedBody(("value", "answer@email.com"))
 
         val result = route(application, request).value
@@ -125,19 +126,19 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(SecondContactNamePage, secondContactName)
+        .set(OrganisationSecondContactNamePage, secondContactName)
         .success
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
       running(application) {
         val request =
-          FakeRequest(POST, secondContactEmailRoute)
+          FakeRequest(POST, organisationSecondContactEmailRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[SecondContactEmailView]
+        val view = application.injector.instanceOf[OrganisationSecondContactEmailView]
 
         val result = route(application, request).value
 
@@ -154,7 +155,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, secondContactEmailRoute)
+        val request = FakeRequest(GET, organisationSecondContactEmailRoute)
 
         val result = route(application, request).value
 
@@ -166,7 +167,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey Recovery for a GET if no second contact name is found" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(SecondContactEmailPage, "test@example.com")
+        .set(OrganisationSecondContactEmailPage, "test@example.com")
         .success
         .value
 
@@ -174,7 +175,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(GET, secondContactEmailRoute)
+          FakeRequest(GET, organisationSecondContactEmailRoute)
 
         val result = route(application, request).value
 
@@ -189,7 +190,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, secondContactEmailRoute)
+          FakeRequest(POST, organisationSecondContactEmailRoute)
             .withFormUrlEncodedBody(("value", "wrong email format@"))
 
         val result = route(application, request).value
@@ -205,7 +206,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, secondContactEmailRoute)
+          FakeRequest(POST, organisationSecondContactEmailRoute)
             .withFormUrlEncodedBody(("value", "email.com"))
 
         val result = route(application, request).value

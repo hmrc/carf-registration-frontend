@@ -17,29 +17,29 @@
 package controllers
 
 import controllers.actions._
-import forms.SecondContactEmailFormProvider
+import forms.OrganisationSecondContactEmailFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.{SecondContactEmailPage, SecondContactNamePage}
+import pages.{OrganisationSecondContactEmailPage, OrganisationSecondContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.SecondContactEmailView
+import views.html.OrganisationSecondContactEmailView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SecondContactEmailController @Inject() (
+class OrganisationSecondContactEmailController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: SecondContactEmailFormProvider,
+    formProvider: OrganisationSecondContactEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: SecondContactEmailView
+    view: OrganisationSecondContactEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -49,12 +49,12 @@ class SecondContactEmailController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(SecondContactEmailPage) match {
+      val preparedForm = request.userAnswers.get(OrganisationSecondContactEmailPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
 
-      request.userAnswers.get(SecondContactNamePage) match {
+      request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case Some(secondContactName) => Ok(view(preparedForm, mode, secondContactName))
         case None                    => Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
@@ -66,16 +66,16 @@ class SecondContactEmailController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            request.userAnswers.get(SecondContactNamePage) match {
+            request.userAnswers.get(OrganisationSecondContactNamePage) match {
               case Some(secondContactName) =>
                 Future.successful(BadRequest(view(formWithErrors, mode, secondContactName)))
               case None                    => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SecondContactEmailPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationSecondContactEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(SecondContactEmailPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(OrganisationSecondContactEmailPage, mode, updatedAnswers))
         )
   }
 }

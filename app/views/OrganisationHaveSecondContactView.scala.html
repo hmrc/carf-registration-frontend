@@ -24,22 +24,22 @@
 
 @(form: Form[_], mode: Mode, firstContactName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("haveSecondContactOrganisation.title"))) {
+@layout(pageTitle = title(form, messages("organisationHaveSecondContact.title"))) {
 
-    @formHelper(action = routes.HaveSecondContactOrganisationController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.OrganisationHaveSecondContactController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-l long-word">@messages("haveSecondContactOrganisation.heading", firstContactName)</h1>
+        <h1 class="govuk-heading-l long-word">@messages("organisationHaveSecondContact.heading", firstContactName)</h1>
 
-        <p class="govuk-body">@messages("haveSecondContactOrganisation.hint")</p>
+        <p class="govuk-body">@messages("organisationHaveSecondContact.hint")</p>
 
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("haveSecondContactOrganisation.heading", firstContactName)).withCssClass("govuk-visually-hidden govuk-!-display-block")
+                legend = LegendViewModel(messages("organisationHaveSecondContact.heading", firstContactName)).withCssClass("govuk-visually-hidden govuk-!-display-block")
             )
             .copy(classes = "")
         )

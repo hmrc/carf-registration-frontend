@@ -651,7 +651,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.FirstContactPhoneController.onPageLoad(NormalMode)
     }
 
-    "must go from SecondContactEmail page to SecondContactHavePhone page" in {
+    "must go from OrganisationSecondContactEmail page to SecondContactHavePhone page" in {
 
       val updatedAnswers =
         emptyUserAnswers
@@ -660,7 +660,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .value
 
       navigator.nextPage(
-        SecondContactEmailPage,
+        OrganisationSecondContactEmailPage,
         NormalMode,
         updatedAnswers
       ) mustBe routes.PlaceholderController.onPageLoad(
@@ -754,10 +754,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactPhonePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+      ) mustBe routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
-    "must navigate from FirstContactPhone page (/phone) to HaveSecondContactOrganisation page" in {
+    "must navigate from FirstContactPhone page (/phone) to OrganisationHaveSecondContact page" in {
 
       val updatedAnswers =
         emptyUserAnswers
@@ -772,44 +772,44 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactPhoneNumberPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+      ) mustBe routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
-    "must navigate from HaveSecondContactOrganisation page to CheckYourAnswers when the provided answer is No" in {
+    "must navigate from OrganisationHaveSecondContact page to CheckYourAnswers when the provided answer is No" in {
 
       val userAnswers =
         emptyUserAnswers
-          .set(HaveSecondContactOrganisationPage, false)
+          .set(OrganisationHaveSecondContactPage, false)
           .success
           .value
 
       navigator.nextPage(
-        HaveSecondContactOrganisationPage,
+        OrganisationHaveSecondContactPage,
         NormalMode,
         userAnswers
       ) mustBe routes.CheckYourAnswersController.onPageLoad()
     }
 
-    "must navigate from HaveSecondContactOrganisation page to SecondContactName page when the provided answer is Yes" in {
+    "must navigate from OrganisationHaveSecondContact page to OrganisationSecondContactName page when the provided answer is Yes" in {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(HaveSecondContactOrganisationPage, true)
+          .set(OrganisationHaveSecondContactPage, true)
           .success
           .value
 
       navigator.nextPage(
-        HaveSecondContactOrganisationPage,
+        OrganisationHaveSecondContactPage,
         NormalMode,
         updatedAnswers
       ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-name (CARF-249)")
     }
 
-    "must navigate from HaveSecondContactOrganisation page to Journey Recovery when no answer exists" in {
+    "must navigate from OrganisationHaveSecondContact page to Journey Recovery when no answer exists" in {
       val userAnswers = emptyUserAnswers
 
       navigator.nextPage(
-        HaveSecondContactOrganisationPage,
+        OrganisationHaveSecondContactPage,
         NormalMode,
         userAnswers
       ) mustBe routes.JourneyRecoveryController.onPageLoad()

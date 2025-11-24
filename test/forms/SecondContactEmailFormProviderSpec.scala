@@ -20,15 +20,15 @@ import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
-class SecondContactEmailFormProviderSpec extends StringFieldBehaviours {
+class OrganisationSecondContactEmailFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey: String = "secondContactEmail.error.required"
-  val lengthKey: String   = "secondContactEmail.error.length"
-  val invalidKey: String  = "secondContactEmail.error.invalid"
+  val requiredKey: String = "organisationSecondContactEmail.error.required"
+  val lengthKey: String   = "organisationSecondContactEmail.error.length"
+  val invalidKey: String  = "organisationSecondContactEmail.error.invalid"
   val maxLength: Int      = 132
   val validEmailAddress   = "avalid@email.com"
 
-  val form: Form[String] = new SecondContactEmailFormProvider()()
+  val form: Form[String] = new OrganisationSecondContactEmailFormProvider()()
 
   ".value" - {
 

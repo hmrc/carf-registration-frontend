@@ -17,30 +17,30 @@
 package controllers
 
 import controllers.actions.*
-import forms.HaveSecondContactOrganisationFormProvider
+import forms.OrganisationHaveSecondContactFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{FirstContactNamePage, HaveSecondContactOrganisationPage}
+import pages.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.HaveSecondContactOrganisationView
+import views.html.OrganisationHaveSecondContactView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class HaveSecondContactOrganisationController @Inject() (
+class OrganisationHaveSecondContactController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: HaveSecondContactOrganisationFormProvider,
+    formProvider: OrganisationHaveSecondContactFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: HaveSecondContactOrganisationView
+    view: OrganisationHaveSecondContactView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -50,7 +50,7 @@ class HaveSecondContactOrganisationController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(HaveSecondContactOrganisationPage) match {
+      val preparedForm = request.userAnswers.get(OrganisationHaveSecondContactPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -73,9 +73,9 @@ class HaveSecondContactOrganisationController @Inject() (
             },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveSecondContactOrganisationPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationHaveSecondContactPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(HaveSecondContactOrganisationPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(OrganisationHaveSecondContactPage, mode, updatedAnswers))
         )
   }
 

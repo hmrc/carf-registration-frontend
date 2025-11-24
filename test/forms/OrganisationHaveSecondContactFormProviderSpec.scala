@@ -19,12 +19,12 @@ package forms
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class HaveSecondContactOrganisationFormProviderSpec extends BooleanFieldBehaviours {
+class OrganisationHaveSecondContactFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "haveSecondContactOrganisation.error.required"
+  val requiredKey = "organisationHaveSecondContact.error.required"
   val invalidKey  = "error.boolean"
 
-  val form = new HaveSecondContactOrganisationFormProvider()()
+  val form = new OrganisationHaveSecondContactFormProvider()()
 
   ".value" - {
 

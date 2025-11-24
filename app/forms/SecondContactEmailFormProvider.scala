@@ -21,17 +21,17 @@ import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
-class SecondContactEmailFormProvider @Inject() extends Mappings {
+class OrganisationSecondContactEmailFormProvider @Inject() extends Mappings {
 
   private val maxLength = 132
 
   def apply(): Form[String] =
     Form(
-      "value" -> text("secondContactEmail.error.required")
+      "value" -> text("organisationSecondContactEmail.error.required")
         .verifying(
           firstError(
-            maxLength(maxLength, "secondContactEmail.error.length"),
-            validEmailAddress("secondContactEmail.error.invalid")
+            maxLength(maxLength, "organisationSecondContactEmail.error.length"),
+            validEmailAddress("organisationSecondContactEmail.error.invalid")
           )
         )
     )

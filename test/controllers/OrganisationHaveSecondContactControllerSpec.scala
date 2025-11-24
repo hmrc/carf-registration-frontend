@@ -17,35 +17,35 @@
 package controllers
 
 import base.SpecBase
-import forms.HaveSecondContactOrganisationFormProvider
+import forms.OrganisationHaveSecondContactFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{FirstContactNamePage, HaveSecondContactOrganisationPage}
+import pages.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.HaveSecondContactOrganisationView
+import views.html.OrganisationHaveSecondContactView
 
 import scala.concurrent.Future
 
-class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider: HaveSecondContactOrganisationFormProvider = new HaveSecondContactOrganisationFormProvider()
+  val formProvider: OrganisationHaveSecondContactFormProvider = new OrganisationHaveSecondContactFormProvider()
   val form: Form[Boolean]                                     = formProvider()
   val firstContactName: String                                = "Contact Name"
 
-  lazy val haveSecondContactOrganisationRoute: String =
-    routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode).url
+  lazy val organisationHaveSecondContactRoute: String =
+    routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode).url
 
-  "HaveSecondContactOrganisation Controller" - {
+  "OrganisationHaveSecondContact Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
@@ -57,11 +57,11 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, haveSecondContactOrganisationRoute)
+        val request = FakeRequest(GET, organisationHaveSecondContactRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[HaveSecondContactOrganisationView]
+        val view = application.injector.instanceOf[OrganisationHaveSecondContactView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, firstContactName)(
@@ -74,7 +74,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(HaveSecondContactOrganisationPage, true)
+        .set(OrganisationHaveSecondContactPage, true)
         .success
         .value
         .set(FirstContactNamePage, firstContactName)
@@ -84,9 +84,9 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, haveSecondContactOrganisationRoute)
+        val request = FakeRequest(GET, organisationHaveSecondContactRoute)
 
-        val view = application.injector.instanceOf[HaveSecondContactOrganisationView]
+        val view = application.injector.instanceOf[OrganisationHaveSecondContactView]
 
         val result = route(application, request).value
 
@@ -110,7 +110,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, haveSecondContactOrganisationRoute)
+          FakeRequest(POST, organisationHaveSecondContactRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -131,12 +131,12 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, haveSecondContactOrganisationRoute)
+          FakeRequest(POST, organisationHaveSecondContactRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[HaveSecondContactOrganisationView]
+        val view = application.injector.instanceOf[OrganisationHaveSecondContactView]
 
         val result = route(application, request).value
 
@@ -153,7 +153,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, haveSecondContactOrganisationRoute)
+        val request = FakeRequest(GET, organisationHaveSecondContactRoute)
 
         val result = route(application, request).value
 
@@ -165,7 +165,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
     "must redirect to Journey Recovery for a GET if no first contact name is found" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(HaveSecondContactOrganisationPage, true)
+        .set(OrganisationHaveSecondContactPage, true)
         .success
         .value
 
@@ -173,7 +173,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(GET, haveSecondContactOrganisationRoute)
+          FakeRequest(GET, organisationHaveSecondContactRoute)
 
         val result = route(application, request).value
 
@@ -188,7 +188,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, haveSecondContactOrganisationRoute)
+          FakeRequest(POST, organisationHaveSecondContactRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -205,7 +205,7 @@ class HaveSecondContactOrganisationControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, haveSecondContactOrganisationRoute)
+          FakeRequest(POST, organisationHaveSecondContactRoute)
             .withFormUrlEncodedBody(("value", "invalid"))
 
         val result = route(application, request).value

@@ -41,9 +41,8 @@
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("individualHavePhone.heading")).asPageHeading()
-                    .withCssClass("govuk-visually-hidden")
-            ).copy(classes = "")
+                legend = LegendViewModel("individualHavePhone.heading").withCssClass("govuk-visually-hidden")
+            ).copy(classes = "govuk-radios govuk-radios--stacked")
         )
 
         @govukButton(

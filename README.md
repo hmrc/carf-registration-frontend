@@ -105,34 +105,6 @@ Run Unit and Integration Tests with coverage report:
 sbt clean compile scalafmtAll coverage test it:test coverageReport 
 ```
 
-NINOs to use for testing RegistrationService.getIndividualByNino [eg at RegisterDateOfBirthPage]:
-```
-Example NINOs to generate the 4 possible responses in RegistrationService.getIndividualByNino(...)
-JX123456D   OK, Non-empty valid IndividualDetails
-WX123456D   OK, Empty IndividualDetails
-XX123456D 	NOT FOUND [404]	
-YX123456D 	InternalServerError	 [500]
-
-The backend stub "carf-stubs/app/uk/gov/hmrc/carfstubs/helpers/RegistrationHelper" returns the following responses, based upon the first character of the NINO: 
-      case "9" | "Y" => InternalServerError("Unexpected error")
-      case "8" | "X" => NotFound("Individual user could not be matched")
-      case "7" | "W" => Ok(Json.toJson(createEmptyIndividualResponse(request)))
-      case _         => Ok(Json.toJson(createFullIndividualResponse(request)))
-    
-The Full NINO validation regex used by "carf-registration-frontend/app/config/Constants" is:
-ninoRegex      =
-  "^( [ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]
-          |B[A-CEHJ-NPR-TW-Z]
-          |G[ACEGHJ-NPR-TW-Z]
-          |[KT][A-CEGHJ-MPR-TW-Z]
-          |N[A-CEGHJL-NPR-SW-Z]
-          |Z[A-CEGHJ-NPR-TW-Y]
-   )
-   [0-9]{6}
-   [A-D ]
-   $"
-```
-
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").

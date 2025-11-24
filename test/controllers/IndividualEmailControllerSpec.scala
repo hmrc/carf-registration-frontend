@@ -23,11 +23,12 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IndividualEmailPage
+import pages.{IndividualEmailPage, NiNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.IndividualEmailView
 
 import scala.concurrent.Future
@@ -81,7 +82,7 @@ class IndividualEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+    "must return a Bad Request and errors when empty email data is submitted" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
         val request   =
@@ -90,6 +91,24 @@ class IndividualEmailControllerSpec extends SpecBase with MockitoSugar {
         val boundForm = form.bind(Map("value" -> ""))
         val view      = application.injector.instanceOf[IndividualEmailView]
         val result    = route(application, request).value
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must return BadRequest when and errors when invalid email data is submitted" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      val userAnswers = UserAnswers(userAnswersId).set(IndividualEmailPage, "not-an-email").success.value
+
+      running(application) {
+        val request   =
+          FakeRequest(POST, individualEmailRoute)
+            .withFormUrlEncodedBody(("value", "not-an-email"))
+        val boundForm = form.bind(Map("value" -> "not-an-email"))
+        val view      = application.injector.instanceOf[IndividualEmailView]
+        val result    = route(application, request).value
+
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }

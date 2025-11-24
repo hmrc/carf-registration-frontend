@@ -88,10 +88,13 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
 
     case FirstContactPhoneNumberPage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/have-second-contact (CARF-182)")
+      _ => routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
 
     case FirstContactPhonePage =>
       userAnswers => navigateFromFirstContactPhonePage(userAnswers)
+
+    case HaveSecondContactOrganisationPage =>
+      userAnswers => navigateFromHaveSecondContactOrganisationController(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -207,9 +210,19 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
       case _          =>
+        routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+    }
+
+  private def navigateFromHaveSecondContactOrganisationController(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveSecondContactOrganisationPage) match {
+      case Some(true) =>
         routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/have-second-contact (CARF-182)"
+          "Must redirect to /register/second-contact-name (CARF-249)"
         )
+
+      case Some(false) =>
+        routes.CheckYourAnswersController.onPageLoad()
+      case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =

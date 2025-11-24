@@ -284,3 +284,11 @@ individualHavePhone.checkYourAnswersLabel = Can we contact you by phone?
 individualHavePhone.error.required = Select yes if we can contact you by phone
 individualHavePhone.change.hidden = Change if we can contact you by phone
 individualHavePhone.p1 = We will call if we have any questions about your reports.
+
+secondContactEmail.title = What is the email address for the second contact name?
+secondContactEmail.heading = What is the email address for {0} ?
+secondContactEmail.checkYourAnswersLabel = What is the email address for the second contact name?
+secondContactEmail.error.required = Enter an email address for the second contact
+secondContactEmail.error.length = The email address must be 132 characters or less
+secondContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
+secondContactEmail.change.hidden = Change the email address for the second contact name

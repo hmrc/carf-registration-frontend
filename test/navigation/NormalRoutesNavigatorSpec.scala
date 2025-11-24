@@ -651,6 +651,23 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.FirstContactPhoneController.onPageLoad(NormalMode)
     }
 
+    "must go from SecondContactEmail page to SecondContactHavePhone page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(FirstContactEmailPage, "an@email.com")
+          .success
+          .value
+
+      navigator.nextPage(
+        SecondContactEmailPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad(
+        "Must redirect to /register/second-contact-have-phone (CARF-251)"
+      )
+    }
+
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =

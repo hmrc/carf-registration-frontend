@@ -37,8 +37,8 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new SecondContactEmailFormProvider()
-  val form = formProvider()
+  val formProvider              = new SecondContactEmailFormProvider()
+  val form                      = formProvider()
   val secondContactName: String = "name"
 
   lazy val secondContactEmailRoute = routes.SecondContactEmailController.onPageLoad(NormalMode).url
@@ -61,8 +61,11 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[SecondContactEmailView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, secondContactName)(request, messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, secondContactName)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -85,8 +88,12 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("anexampleevalidemail@email.com"), NormalMode, secondContactName)(
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(
+          form.fill("anexampleevalidemail@email.com"),
+          NormalMode,
+          secondContactName
+        )(
           request,
           messages(application)
         ).toString
@@ -110,7 +117,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -134,7 +141,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode, secondContactName)(
           request,
           messages(application)
@@ -151,7 +158,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -171,7 +178,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -187,7 +194,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -203,7 +210,7 @@ class SecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

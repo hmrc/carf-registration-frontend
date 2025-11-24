@@ -138,7 +138,7 @@ POST       /register/individual-have-phone                       controllers.Ind
 GET        /register/change-individual-have-phone                controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-individual-have-phone                controllers.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET        /secondContactEmail                        controllers.SecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
-POST       /secondContactEmail                        controllers.SecondContactEmailController.onSubmit(mode: Mode = NormalMode)
-GET        /changeSecondContactEmail                  controllers.SecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeSecondContactEmail                  controllers.SecondContactEmailController.onSubmit(mode: Mode = CheckMode)
+GET        /register/second-contact-email                        controllers.SecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/second-contact-email                        controllers.SecondContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-second-contact-email                 controllers.SecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-second-contact-email                 controllers.SecondContactEmailController.onSubmit(mode: Mode = CheckMode)

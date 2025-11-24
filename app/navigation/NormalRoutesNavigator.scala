@@ -84,6 +84,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case FirstContactEmailPage =>
       _ => routes.FirstContactPhoneController.onPageLoad(NormalMode)
 
+    case IndividualHavePhonePage =>
+      userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
+
     case FirstContactPhoneNumberPage =>
       _ => routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
 
@@ -220,5 +223,17 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualHavePhonePage) match {
+      case Some(true)  =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-phone (CARF-185)"
+        )
+      case Some(false) =>
+        routes.CheckYourAnswersController.onPageLoad()
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
     }
 }

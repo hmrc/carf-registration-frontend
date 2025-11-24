@@ -95,7 +95,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     case SecondContactEmailPage =>
       _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-have-phone (CARF-251)")
-    
+
     case HaveSecondContactOrganisationPage =>
       userAnswers => navigateFromHaveSecondContactOrganisationController(userAnswers)
 

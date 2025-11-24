@@ -120,7 +120,7 @@ GET        /register/phone                                          controllers.
 POST       /register/phone                                          controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-phone                                   controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-phone                                   controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
-GET        /register/identity-confirmed                             controllers.RegisterIdentityConfirmedController.onPageLoad()
+
 GET        /register/problem/could-not-confirm-identity             controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
 
 GET         /register/contact-name                                        controllers.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)

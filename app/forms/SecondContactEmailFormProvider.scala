@@ -24,7 +24,7 @@ import play.api.data.Form
 class SecondContactEmailFormProvider @Inject() extends Mappings {
 
   private val maxLength = 132
-  
+
   def apply(): Form[String] =
     Form(
       "value" -> text("secondContactEmail.error.required")

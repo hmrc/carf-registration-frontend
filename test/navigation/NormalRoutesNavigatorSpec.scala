@@ -675,6 +675,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "IndividualEmail navigation" - {
+      "must navigate from IndividualEmailPage to IndividualHavePhone for Individual or SoleTrader with NINO" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(IndividualEmailPage, "an@email.com")
+            .success
+            .value
+        navigator.nextPage(
+          IndividualEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+      }
+    }
+
     "IndividualHavePhonePage navigation" - {
 
       "must go to Individual Phone Number page when user answers 'Yes'" in {

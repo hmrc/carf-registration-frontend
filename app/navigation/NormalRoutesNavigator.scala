@@ -221,13 +221,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
   private def navigateFromOrganisationHaveSecondContactController(userAnswers: UserAnswers): Call =
     userAnswers.get(OrganisationHaveSecondContactPage) match {
-      case Some(true) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/second-contact-name (CARF-249)"
-        )
-
-  private def navigateFromHaveSecondContactOrganisationController(userAnswers: UserAnswers): Call =
-    userAnswers.get(HaveSecondContactOrganisationPage) match {
       case Some(true)  =>
         routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
       case Some(false) =>

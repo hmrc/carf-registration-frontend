@@ -24,10 +24,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.OrganisationSecondContactNamePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.OrganisationSecondContactNameView
 
@@ -37,10 +38,11 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new OrganisationSecondContactNameFormProvider()
-  val form = formProvider()
+  val formProvider: OrganisationSecondContactNameFormProvider = new OrganisationSecondContactNameFormProvider()
+  val form: Form[String]                                      = formProvider()
 
-  lazy val organisationSecondContactNameRoute = routes.OrganisationSecondContactNameController.onPageLoad(NormalMode).url
+  lazy val organisationSecondContactNameRoute: String =
+    routes.OrganisationSecondContactNameController.onPageLoad(NormalMode).url
 
   "OrganisationSecondContactName Controller" - {
 
@@ -55,7 +57,7 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
         val view = application.injector.instanceOf[OrganisationSecondContactNameView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
@@ -73,7 +75,7 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
       }
     }
@@ -95,7 +97,7 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -115,7 +117,7 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
@@ -129,7 +131,7 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -145,7 +147,7 @@ class OrganisationSecondContactNameControllerSpec extends SpecBase with MockitoS
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

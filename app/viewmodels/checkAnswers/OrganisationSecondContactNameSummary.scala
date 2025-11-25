@@ -22,22 +22,20 @@ import pages.OrganisationSecondContactNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object OrganisationSecondContactNameSummary  {
+object OrganisationSecondContactNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(OrganisationSecondContactNamePage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "organisationSecondContactName.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.OrganisationSecondContactNameController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("organisationSecondContactName.change.hidden"))
-          )
+    answers.get(OrganisationSecondContactNamePage).map { answer =>
+      SummaryListRowViewModel(
+        key = "organisationSecondContactName.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.OrganisationSecondContactNameController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("organisationSecondContactName.change.hidden"))
         )
+      )
     }
 }

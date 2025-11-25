@@ -18,8 +18,6 @@ package controllers
 
 import controllers.actions.*
 import forms.OrganisationSecondContactNameFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
 import pages.OrganisationSecondContactNamePage
@@ -30,6 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.OrganisationSecondContactNameView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class OrganisationSecondContactNameController @Inject() (

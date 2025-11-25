@@ -805,6 +805,22 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
     }
 
+    "must navigate from OrganisationSecondContactName page to OrganisationSecondContactEmail page when continue is clicked" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(OrganisationSecondContactNamePage, "name")
+          .success
+          .value
+
+      navigator.nextPage(
+        OrganisationSecondContactNamePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
+
+    }
+
     "must navigate from OrganisationHaveSecondContact page to Journey Recovery when no answer exists" in {
       val userAnswers = emptyUserAnswers
 

@@ -662,9 +662,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisterDateOfBirthPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/identity-confirmed (CARF-168)"
-        )
+        ) mustBe routes.RegisterIdentityConfirmedController.onPageLoad()
       }
 
       "must navigate to Journey Recovery when no answer is provided" in {

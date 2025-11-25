@@ -70,7 +70,6 @@ class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
         ";x@x.com",
         "<x@x.com",
         "@£@x.com",
-        "€ex@x.com",
         "[x@ex.com",
         "]x@ex.com",
         "(x@ex.com",

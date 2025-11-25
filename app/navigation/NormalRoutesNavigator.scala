@@ -97,7 +97,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveSecondContactOrganisationController(userAnswers)
 
     case IndividualEmailPage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-have-phone (CARF-184)")
+      _ => routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -202,9 +202,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisterDateOfBirthPage) match {
       case Some(_: LocalDate) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/identity-confirmed (CARF-168)"
-        )
+        routes.RegisterIdentityConfirmedController.onPageLoad()
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 

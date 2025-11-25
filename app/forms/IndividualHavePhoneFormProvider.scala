@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
-
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.AgentSignInProblemView
+package forms
 
 import javax.inject.Inject
 
-class AgentSignInProblemController @Inject() (
-    override val messagesApi: MessagesApi,
-    val controllerComponents: MessagesControllerComponents,
-    view: AgentSignInProblemView
-) extends FrontendBaseController
-    with I18nSupport {
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  def onPageLoad: Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
+class IndividualHavePhoneFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("individualHavePhone.error.required")
+    )
 }

@@ -676,5 +676,127 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
+
+    "IndividualHavePhonePage navigation" - {
+
+      "must go to Individual Phone Number page when user answers 'Yes'" in {
+        val userAnswers = emptyUserAnswers.set(IndividualHavePhonePage, true).success.value
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-phone (CARF-185)"
+        )
+      }
+
+      "must go to Check Your Answers page when user answers 'No'" in {
+        val userAnswers = emptyUserAnswers.set(IndividualHavePhonePage, false).success.value
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go to Journey Recovery when no answer is given" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "must navigate from FirstContactPhone page to FirstContactPhoneNumber page when answer is true" in {
+      val userAnswers = emptyUserAnswers
+        .set(FirstContactPhonePage, true)
+        .success
+        .value
+
+      navigator.nextPage(
+        FirstContactPhonePage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
+    }
+
+    "must navigate from FirstContactPhoneNumber page (/have-phone) to HaveSecondPhoneOrganisation if answer is No" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(FirstContactNamePage, "John Doe")
+          .success
+          .value
+
+      navigator.nextPage(
+        FirstContactPhonePage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+    }
+
+    "must navigate from FirstContactPhone page (/phone) to HaveSecondContactOrganisation page" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(FirstContactPhonePage, true)
+          .success
+          .value
+          .set(FirstContactNamePage, "John Doe")
+          .success
+          .value
+
+      navigator.nextPage(
+        FirstContactPhoneNumberPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+    }
+
+    "must navigate from HaveSecondContactOrganisation page to CheckYourAnswers when the provided answer is No" in {
+
+      val userAnswers =
+        emptyUserAnswers
+          .set(HaveSecondContactOrganisationPage, false)
+          .success
+          .value
+
+      navigator.nextPage(
+        HaveSecondContactOrganisationPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.CheckYourAnswersController.onPageLoad()
+    }
+
+    "must navigate from HaveSecondContactOrganisation page to SecondContactName page when the provided answer is Yes" in {
+
+      val updatedAnswers =
+        emptyUserAnswers
+          .set(HaveSecondContactOrganisationPage, true)
+          .success
+          .value
+
+      navigator.nextPage(
+        HaveSecondContactOrganisationPage,
+        NormalMode,
+        updatedAnswers
+      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-name (CARF-249)")
+    }
+
+    "must navigate from HaveSecondContactOrganisation page to Journey Recovery when no answer exists" in {
+      val userAnswers = emptyUserAnswers
+
+      navigator.nextPage(
+        HaveSecondContactOrganisationPage,
+        NormalMode,
+        userAnswers
+      ) mustBe routes.JourneyRecoveryController.onPageLoad()
+    }
+
   }
 }

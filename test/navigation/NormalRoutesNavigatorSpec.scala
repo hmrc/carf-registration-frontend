@@ -785,7 +785,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         HaveSecondContactOrganisationPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-name (CARF-249)")
+      ) mustBe routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
     }
 
     "must navigate from HaveSecondContactOrganisation page to Journey Recovery when no answer exists" in {

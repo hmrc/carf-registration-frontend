@@ -292,3 +292,12 @@ individualHavePhone.checkYourAnswersLabel = Can we contact you by phone?
 individualHavePhone.error.required = Select yes if we can contact you by phone
 individualHavePhone.change.hidden = Change if we can contact you by phone
 individualHavePhone.p1 = We will call if we have any questions about your reports.
+
+organisationSecondContactName.title = What is the name of the second person or team we should contact?
+organisationSecondContactName.heading = What is the name of the second person or team we should contact?
+organisationSecondContactName.checkYourAnswersLabel = Enter a name for the second contact
+organisationSecondContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
+organisationSecondContactName.error.required = Enter a name for the second contact
+organisationSecondContactName.error.length = The name must be 35 characters or less
+organisationSecondContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+organisationSecondContactName.change.hidden = Change what is the name of the second contact

@@ -133,17 +133,22 @@ POST        /register/email                                               contro
 GET         /register/change-email                                        controllers.FirstContactEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-email                                        controllers.FirstContactEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/have-second-contact                                 controllers.OrganisationHaveSecondContactController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/have-second-contact                                 controllers.OrganisationHaveSecondContactController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-have-second-contact                          controllers.OrganisationHaveSecondContactController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-have-second-contact                          controllers.OrganisationHaveSecondContactController.onSubmit(mode: Mode = CheckMode)
-
-GET        /register/individual-have-phone                                controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/individual-have-phone                                controllers.IndividualHavePhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-individual-have-phone                         controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-individual-have-phone                         controllers.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)
-
 GET        /register/second-contact-email                                 controllers.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
 POST       /register/second-contact-email                                 controllers.OrganisationSecondContactEmailController.onSubmit(mode: Mode = NormalMode)
 GET        /register/change-second-contact-email                          controllers.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
 POST       /register/change-second-contact-email                          controllers.OrganisationSecondContactEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/have-second-contact                                 controllers.HaveSecondContactOrganisationController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/have-second-contact                                 controllers.HaveSecondContactOrganisationController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-have-second-contact                          controllers.HaveSecondContactOrganisationController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-have-second-contact                          controllers.HaveSecondContactOrganisationController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/individual-have-phone                               controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-have-phone                               controllers.IndividualHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-have-phone                        controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-have-phone                        controllers.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/second-contact-name                                 controllers.OrganisationSecondContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-name                                 controllers.OrganisationSecondContactNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onSubmit(mode: Mode = CheckMode)

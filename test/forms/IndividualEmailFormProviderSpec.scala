@@ -23,13 +23,15 @@ import play.api.data.{Form, FormError}
 
 class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey       = "individualEmail.error.required"
-  val lengthKey         = "individualEmail.error.length"
-  val invalidKey        = "individualEmail.error.invalid"
-  val maxLength         = Constants.validEmailMaxLength
-  val validEmailAddress = "avalid{emailaddress@email.com"
-
-  val form: Form[String] = new IndividualEmailFormProvider()()
+  val requiredKey                               = "individualEmail.error.required"
+  val lengthKey                                 = "individualEmail.error.length"
+  val invalidKey                                = "individualEmail.error.invalid"
+  val maxLength                                 = Constants.validEmailMaxLength
+  val validEmailAddress132chars64charUsername   =
+    "pooYokBZRRdpUsizrOdDbKarOtRjFT.WQOpooYokBZRRdpUsizrOdDbKarOtRjFT@123456789012345678901234567890WQOpooYokBZRRdpUsizrOdDbKarOtRjFT.com"
+  val invalidEmailAddress133chars64charUsername =
+    "pooYokBZRRdpUsizrOdDbKarOtRjFT.WQOpooYokBZRRdpUsizrOdDbKarOtRjFT@x123456789012345678901234567890WQOpooYokBZRRdpUsizrOdDbKarOtRjFT.com"
+  val form: Form[String]                        = new IndividualEmailFormProvider()()
 
   ".value" - {
     val fieldName = "value"
@@ -37,7 +39,7 @@ class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validEmailAddress
+      validEmailAddress132chars64charUsername
     )
 
     behave like mandatoryField(
@@ -62,6 +64,7 @@ class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
 
     "not bind invalid email formats" in {
       val invalidEmails = Gen.oneOf(
+        invalidEmailAddress133chars64charUsername,
         "testemail",
         "@example.com",
         "@.com",

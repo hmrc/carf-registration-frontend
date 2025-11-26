@@ -318,7 +318,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
             .success
             .value
-
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,
@@ -341,7 +340,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
             .success
             .value
-
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,

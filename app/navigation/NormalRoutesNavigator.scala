@@ -160,7 +160,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          routes.IndividualEmailController.onPageLoad(NormalMode)
         } else {
           routes.OrgYourContactDetailsController.onPageLoad()
         }

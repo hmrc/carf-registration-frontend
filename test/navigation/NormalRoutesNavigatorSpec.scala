@@ -323,7 +323,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to individual email page for individual sole traders" in {
@@ -346,7 +346,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to contact details page for non-sole traders" in {

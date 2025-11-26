@@ -278,12 +278,12 @@ firstContactEmail.error.length = The email address must be 132 characters or les
 firstContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
 firstContactEmail.change.hidden = Change first contact email address
 
-haveSecondContactOrganisation.title =  Is there someone else we can contact if your first contact is not available?
-haveSecondContactOrganisation.heading = Is there someone else we can contact if {0} is not available?
-haveSecondContactOrganisation.hint = This can be a team mailbox or another contact.
-haveSecondContactOrganisation.checkYourAnswersLabel =  Is there someone else we can contact if your first contact is not available?
-haveSecondContactOrganisation.error.required = Select yes if there is someone else we can contact
-haveSecondContactOrganisation.change.hidden = Change if there is someone else we can contact
+organisationHaveSecondContact.title =  Is there someone else we can contact if your first contact is not available?
+organisationHaveSecondContact.heading = Is there someone else we can contact if {0} is not available?
+organisationHaveSecondContact.hint = This can be a team mailbox or another contact.
+organisationHaveSecondContact.checkYourAnswersLabel =  Is there someone else we can contact if your first contact is not available?
+organisationHaveSecondContact.error.required = Select yes if there is someone else we can contact
+organisationHaveSecondContact.change.hidden = Change if there is someone else we can contact
 
 
 individualHavePhone.title = Can we contact you by phone?
@@ -301,6 +301,13 @@ individualEmail.error.required = Enter your email address
 individualEmail.error.length = The email address must be 132 characters or less
 individualEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
 individualEmail.change.hidden = Change your email address
+organisationSecondContactEmail.title = What is the email address for the second contact name?
+organisationSecondContactEmail.heading = What is the email address for {0}?
+organisationSecondContactEmail.checkYourAnswersLabel = What is the email address for the second contact name?
+organisationSecondContactEmail.error.required = Enter an email address for the second contact
+organisationSecondContactEmail.error.length = The email address must be 132 characters or less
+organisationSecondContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
+organisationSecondContactEmail.change.hidden = Change the email address for the second contact name
 
 organisationSecondContactName.title = What is the name of the second person or team we should contact?
 organisationSecondContactName.heading = What is the name of the second person or team we should contact?

@@ -18,25 +18,23 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.HaveSecondContactOrganisationPage
+import pages.OrganisationSecondContactEmailPage
 import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object HaveSecondContactOrganisationSummary {
+object OrganisationSecondContactEmailSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(HaveSecondContactOrganisationPage).map { answer =>
-
-      val value = if (answer) "site.yes" else "site.no"
-
+    answers.get(OrganisationSecondContactEmailPage).map { answer =>
       SummaryListRowViewModel(
-        key = "haveSecondContactOrganisation.checkYourAnswersLabel",
-        value = ValueViewModel(value),
+        key = "organisationSecondContactEmail.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.HaveSecondContactOrganisationController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("haveSecondContactOrganisation.change.hidden"))
+          ActionItemViewModel("site.change", routes.OrganisationSecondContactEmailController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("organisationSecondContactEmail.change.hidden"))
         )
       )
     }

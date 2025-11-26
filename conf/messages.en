@@ -302,10 +302,10 @@ organisationSecondContactName.error.length = The name must be 35 characters or l
 organisationSecondContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 organisationSecondContactName.change.hidden = Change what is the name of the second contact
 
-secondContactHavePhone.title = secondContactHavePhone
-secondContactHavePhone.heading = secondContactHavePhone
+secondContactHavePhone.title = Can we contact your second contact by phone?
+secondContactHavePhone.heading = Can we contact {0} by phone?
 secondContactHavePhone.yes = Yes
-secondContactHavePhone.no = o
-secondContactHavePhone.checkYourAnswersLabel = secondContactHavePhone
-secondContactHavePhone.error.required = Select secondContactHavePhone
-secondContactHavePhone.change.hidden = SecondContactHavePhone
+secondContactHavePhone.no = No
+secondContactHavePhone.checkYourAnswersLabel = Can we contact your second contact by phone?
+secondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
+secondContactHavePhone.change.hidden = Change if the second contact can be contacted by phone

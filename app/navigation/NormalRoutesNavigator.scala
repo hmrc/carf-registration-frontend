@@ -88,16 +88,19 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
 
     case FirstContactPhoneNumberPage =>
-      _ => routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+      _ => routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
 
     case FirstContactPhonePage =>
       userAnswers => navigateFromFirstContactPhonePage(userAnswers)
 
-    case HaveSecondContactOrganisationPage =>
-      userAnswers => navigateFromHaveSecondContactOrganisationController(userAnswers)
+    case OrganisationSecondContactEmailPage =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-have-phone (CARF-251)")
+
+    case OrganisationHaveSecondContactPage =>
+      userAnswers => navigateFromOrganisationHaveSecondContactController(userAnswers)
 
     case OrganisationSecondContactNamePage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-email (CARF-250)")
+      _ => routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -213,11 +216,11 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
       case _          =>
-        routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+        routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
-  private def navigateFromHaveSecondContactOrganisationController(userAnswers: UserAnswers): Call =
-    userAnswers.get(HaveSecondContactOrganisationPage) match {
+  private def navigateFromOrganisationHaveSecondContactController(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationHaveSecondContactPage) match {
       case Some(true)  =>
         routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
       case Some(false) =>

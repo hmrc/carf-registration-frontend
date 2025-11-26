@@ -294,7 +294,7 @@ individualHavePhone.change.hidden = Change if we can contact you by phone
 individualHavePhone.p1 = We will call if we have any questions about your reports.
 
 organisationSecondContactEmail.title = What is the email address for the second contact name?
-organisationSecondContactEmail.heading = What is the email address for {0} ?
+organisationSecondContactEmail.heading = What is the email address for {0}?
 organisationSecondContactEmail.checkYourAnswersLabel = What is the email address for the second contact name?
 organisationSecondContactEmail.error.required = Enter an email address for the second contact
 organisationSecondContactEmail.error.length = The email address must be 132 characters or less

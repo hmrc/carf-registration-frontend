@@ -99,6 +99,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case OrganisationHaveSecondContactPage =>
       userAnswers => navigateFromOrganisationHaveSecondContactController(userAnswers)
 
+    case IndividualEmailPage =>
+      _ => routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+
     case OrganisationSecondContactNamePage =>
       _ => routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
@@ -160,7 +163,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          routes.IndividualEmailController.onPageLoad(NormalMode)
         } else {
           routes.OrgYourContactDetailsController.onPageLoad()
         }
@@ -205,9 +208,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisterDateOfBirthPage) match {
       case Some(_: LocalDate) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/identity-confirmed (CARF-168)"
-        )
+        routes.RegisterIdentityConfirmedController.onPageLoad()
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 

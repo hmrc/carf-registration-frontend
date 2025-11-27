@@ -18,9 +18,13 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.UserAnswers
+import pages.Page
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CheckYourAnswersValidator
+import viewmodels.checkAnswers.CheckYourAnswersViewModel
 import viewmodels.govuk.summarylist.*
 import views.html.CheckYourAnswersView
 
@@ -35,10 +39,12 @@ class CheckYourAnswersController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    val list = SummaryListViewModel(
-      rows = Seq.empty
-    )
-
-    Ok(view(list))
+    getMissingAnswers(request.userAnswers) match {
+      case Nil => Ok(view(CheckYourAnswersViewModel.buildPages(request.userAnswers)))
+      case _   => Redirect(routes.InformationMissingController.onPageLoad())
+    }
   }
+
+  private def getMissingAnswers(userAnswers: UserAnswers): Seq[Page] = CheckYourAnswersValidator(userAnswers).validate
+
 }

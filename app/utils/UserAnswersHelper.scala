@@ -31,4 +31,15 @@ trait UserAnswersHelper {
       case _                                                                                                     => false
     }
   }
+
+  def isRegisteringAsBusiness(userAnswers: UserAnswers): Boolean = {
+    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
+    val organisationRegistrationType: Option[OrganisationRegistrationType] =
+      userAnswers.get(OrganisationRegistrationTypePage)
+
+    (individualRegistrationType, organisationRegistrationType) match {
+      case (Some(IndividualRegistrationType.Individual), _) | (Some(IndividualRegistrationType.SoleTrader), _) => false
+      case _                                                                                                   => true
+    }
+  }
 }

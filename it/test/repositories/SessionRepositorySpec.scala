@@ -23,7 +23,7 @@ import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
 import org.scalatest.OptionValues
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.{Eventually, IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -38,15 +38,16 @@ import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionRepositorySpec
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with DefaultPlayMongoRepositorySupport[UserAnswers]
     with ScalaFutures
     with IntegrationPatience
     with OptionValues
-    with MockitoSugar {
+    with MockitoSugar
+    with Eventually {
 
-  private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
+  private val instant          = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
@@ -56,8 +57,8 @@ class SessionRepositorySpec
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
-    appConfig      = mockAppConfig,
-    clock          = stubClock
+    appConfig = mockAppConfig,
+    clock = stubClock
   )(scala.concurrent.ExecutionContext.Implicits.global)
 
   ".set" - {
@@ -84,7 +85,7 @@ class SessionRepositorySpec
         val collection = repository.collection
         collection.insertOne(userAnswers).toFuture().futureValue
 
-        val result = repository.get(userAnswers.id).futureValue
+        val result         = repository.get(userAnswers.id).futureValue
         val expectedResult = userAnswers.copy(lastUpdated = instant)
 
         result.value mustEqual expectedResult
@@ -150,7 +151,7 @@ class SessionRepositorySpec
     mustPreserveMdc(repository.keepAlive(userAnswers.id))
   }
 
-  private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =
+  private def mustPreserveMdc[A](f: => Future[A])(using pos: Position): Unit =
     "must preserve MDC" in {
 
       implicit lazy val ec: ExecutionContext =
@@ -158,11 +159,10 @@ class SessionRepositorySpec
 
       MDC.put("test", "foo")
 
-      val expectedMdcValue = MDC.get("test")
-
-      f.map { _ =>
-        val actualMdcValue = MDC.get("test")
-        actualMdcValue mustEqual expectedMdcValue
-      }.futureValue
+      eventually {
+        f.map { _ =>
+          MDC.get("test") mustEqual "foo"
+        }.futureValue
+      }
     }
 }

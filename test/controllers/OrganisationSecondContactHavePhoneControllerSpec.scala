@@ -1,30 +1,46 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers
 
 import base.SpecBase
-import forms.SecondContactHavePhoneFormProvider
-import models.{NormalMode, SecondContactHavePhone, UserAnswers}
+import forms.OrganisationSecondContactHavePhoneFormProvider
+import models.{NormalMode, OrganisationSecondContactHavePhone, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.SecondContactHavePhonePage
+import pages.OrganisationSecondContactHavePhonePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.SecondContactHavePhoneView
+import views.html.OrganisationSecondContactHavePhoneView
 
 import scala.concurrent.Future
 
-class SecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val secondContactHavePhoneRoute = routes.SecondContactHavePhoneController.onPageLoad(NormalMode).url
+  lazy val secondContactHavePhoneRoute = routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode).url
 
-  val formProvider = new SecondContactHavePhoneFormProvider()
-  val form = formProvider()
+  val formProvider = new OrganisationSecondContactHavePhoneFormProvider()
+  val form         = formProvider()
 
   "SecondContactHavePhone Controller" - {
 
@@ -37,28 +53,35 @@ class SecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[SecondContactHavePhoneView]
+        val view = application.injector.instanceOf[OrganisationSecondContactHavePhoneView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(SecondContactHavePhonePage, SecondContactHavePhone.values.head).success.value
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .set(OrganisationSecondContactHavePhonePage, OrganisationSecondContactHavePhone.values.head)
+          .success
+          .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, secondContactHavePhoneRoute)
 
-        val view = application.injector.instanceOf[SecondContactHavePhoneView]
+        val view = application.injector.instanceOf[OrganisationSecondContactHavePhoneView]
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(SecondContactHavePhone.values.head), NormalMode)(request, messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(OrganisationSecondContactHavePhone.values.head), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -75,11 +98,11 @@ class SecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, secondContactHavePhoneRoute)
-            .withFormUrlEncodedBody(("value", SecondContactHavePhone.values.head.toString))
+            .withFormUrlEncodedBody(("value", OrganisationSecondContactHavePhone.values.head.toString))
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -95,11 +118,11 @@ class SecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[SecondContactHavePhoneView]
+        val view = application.injector.instanceOf[OrganisationSecondContactHavePhoneView]
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
@@ -113,7 +136,7 @@ class SecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -125,7 +148,7 @@ class SecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, secondContactHavePhoneRoute)
-            .withFormUrlEncodedBody(("value", SecondContactHavePhone.values.head.toString))
+            .withFormUrlEncodedBody(("value", OrganisationSecondContactHavePhone.values.head.toString))
 
         val result = route(application, request).value
 

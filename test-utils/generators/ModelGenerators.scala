@@ -22,11 +22,6 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {}
 
-implicit lazy val arbitrarySecondContactHavePhone: Arbitrary[OrganisationSecondContactHavePhone] =
-  Arbitrary {
-    Gen.oneOf(OrganisationSecondContactHavePhone.values.toSeq)
-  }
-
 implicit lazy val arbitraryWhatIsYourName: Arbitrary[Name] =
   Arbitrary {
     for {

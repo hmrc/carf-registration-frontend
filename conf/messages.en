@@ -314,6 +314,7 @@ organisationSecondContactHavePhone.title = Can we contact your second contact by
 organisationSecondContactHavePhone.heading = Can we contact {0} by phone?
 organisationSecondContactHavePhone.yes = Yes
 organisationSecondContactHavePhone.no = No
+organisationSecondContactHavePhone.p1 = We will call if we have any questions about your reports.
 organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact your second contact by phone?
 organisationSecondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
 organisationSecondContactHavePhone.change.hidden = Change if the second contact can be contacted by phone

@@ -31,21 +31,17 @@ object OrganisationSecondContactHavePhoneSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(OrganisationSecondContactHavePhonePage).map { answer =>
 
-      val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"organisationSecondContactHavePhone.$answer"))
-        )
-      )
+      val value = if (answer) "site.yes" else "site.no"
 
       SummaryListRowViewModel(
         key = "organisationSecondContactHavePhone.checkYourAnswersLabel",
-        value = value,
+        value = ValueViewModel(value),
         actions = Seq(
           ActionItemViewModel(
             "site.change",
             routes.OrganisationSecondContactHavePhoneController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("organisationSecondContactHavePhone.change.hidden"))
+            .withVisuallyHiddenText(messages("firstContactPhone.change.hidden"))
         )
       )
     }

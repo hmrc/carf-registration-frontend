@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.OrganisationSecondContactHavePhonePage
+import pages.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -54,7 +54,10 @@ class OrganisationSecondContactHavePhoneController @Inject() (
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+      request.userAnswers.get(OrganisationSecondContactNamePage) match {
+        case Some(usersName) => Ok(view(preparedForm, mode, usersName))
+        case None            => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -62,7 +65,11 @@ class OrganisationSecondContactHavePhoneController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            request.userAnswers.get(OrganisationSecondContactNamePage) match {
+              case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
+              case None            => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            },
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationSecondContactHavePhonePage, value))

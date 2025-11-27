@@ -22,22 +22,28 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, usersName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("organisationSecondContactHavePhone.title"))) {
 
     @formHelper(action = routes.OrganisationSecondContactHavePhoneController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-l long-word">@messages("organisationSecondContactHavePhone.heading", usersName)</h1>
+
+        <p class="govuk-body govuk-!-margin-bottom-4">
+            @messages("organisationSecondContactHavePhone.p1")
+        </p>
+
         @govukRadios(
-            RadiosViewModel(
+            RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(messages("organisationSecondContactHavePhone.heading")).asPageHeading(),
-                items  = OrganisationSecondContactHavePhone.options
-            )
+                legend = LegendViewModel(messages("organisationSecondContactHavePhone.heading", usersName))
+                    .withCssClass("govuk-visually-hidden")
+        ).copy(classes = "")
         )
 
         @govukButton(

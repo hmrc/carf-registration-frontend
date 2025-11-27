@@ -16,24 +16,23 @@
 
 package forms
 
-import forms.behaviours.OptionFieldBehaviours
-import models.OrganisationSecondContactHavePhone
+import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class OrganisationSecondContactHavePhoneFormProviderSpec extends OptionFieldBehaviours {
-
-  val form = new OrganisationSecondContactHavePhoneFormProvider()()
+class OrganisationSecondContactHavePhoneFormProviderSpec extends BooleanFieldBehaviours {
+  val requiredKey = "organisationSecondContactHavePhone.error.required"
+  val invalidKey  = "error.boolean"
+  val form        = new OrganisationSecondContactHavePhoneFormProvider()()
 
   ".value" - {
 
     val fieldName   = "value"
     val requiredKey = "organisationSecondContactHavePhone.error.required"
 
-    behave like optionsField[OrganisationSecondContactHavePhone](
+    behave like booleanField(
       form,
       fieldName,
-      validValues = OrganisationSecondContactHavePhone.values,
-      invalidError = FormError(fieldName, "error.invalid")
+      invalidError = FormError(fieldName, invalidKey)
     )
 
     behave like mandatoryField(

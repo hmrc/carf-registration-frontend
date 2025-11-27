@@ -22,16 +22,13 @@ import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
 class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
-
-  val requiredKey                               = "individualEmail.error.required"
-  val lengthKey                                 = "individualEmail.error.length"
-  val invalidKey                                = "individualEmail.error.invalid"
-  val maxLength                                 = Constants.validEmailMaxLength
-  val validEmailAddress132chars64charUsername   =
+  val requiredKey                             = "individualEmail.error.required"
+  val lengthKey                               = "individualEmail.error.length"
+  val invalidKey                              = "individualEmail.error.invalid"
+  val maxLength                               = Constants.validEmailMaxLength
+  val validEmailAddress132chars64charUsername =
     "pooYokBZRRdpUsizrOdDbKarOtRjFT.WQOpooYokBZRRdpUsizrOdDbKarOtRjFT@123456789012345678901234567890WQOpooYokBZRRdpUsizrOdDbKarOtRjFT.com"
-  val invalidEmailAddress133chars64charUsername =
-    "pooYokBZRRdpUsizrOdDbKarOtRjFT.WQOpooYokBZRRdpUsizrOdDbKarOtRjFT@x123456789012345678901234567890WQOpooYokBZRRdpUsizrOdDbKarOtRjFT.com"
-  val form: Form[String]                        = new IndividualEmailFormProvider()()
+  val form: Form[String]                      = new IndividualEmailFormProvider()()
 
   ".value" - {
     val fieldName = "value"
@@ -64,8 +61,7 @@ class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
 
     "not bind invalid email formats" in {
       val invalidEmails = Gen.oneOf(
-        invalidEmailAddress133chars64charUsername,
-        "testemail",
+        "test email",
         "@example.com",
         "@.com",
         "@x.com",

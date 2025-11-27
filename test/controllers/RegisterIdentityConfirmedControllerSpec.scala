@@ -17,10 +17,11 @@
 package controllers
 
 import base.SpecBase
+import models.NormalMode
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.RegisterIdentityConfirmedView
 
 class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar {
@@ -37,7 +38,7 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar
         val result      = route(application, request).value
         val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
         val continueUrl =
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)").url
+          routes.IndividualEmailController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString

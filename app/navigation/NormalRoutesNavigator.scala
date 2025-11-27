@@ -88,16 +88,22 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
 
     case FirstContactPhoneNumberPage =>
-      _ => routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+      _ => routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
 
     case FirstContactPhonePage =>
       userAnswers => navigateFromFirstContactPhonePage(userAnswers)
 
-    case HaveSecondContactOrganisationPage =>
-      userAnswers => navigateFromHaveSecondContactOrganisationController(userAnswers)
+    case OrganisationSecondContactEmailPage =>
+      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-have-phone (CARF-251)")
+
+    case OrganisationHaveSecondContactPage =>
+      userAnswers => navigateFromOrganisationHaveSecondContactController(userAnswers)
+
+    case IndividualEmailPage =>
+      _ => routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactNamePage =>
-      _ => routes.PlaceholderController.onPageLoad("Must redirect to /register/second-contact-email (CARF-250)")
+      _ => routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -157,7 +163,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          routes.IndividualEmailController.onPageLoad(NormalMode)
         } else {
           routes.OrgYourContactDetailsController.onPageLoad()
         }
@@ -202,9 +208,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisterDateOfBirthPage) match {
       case Some(_: LocalDate) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/identity-confirmed (CARF-168)"
-        )
+        routes.RegisterIdentityConfirmedController.onPageLoad()
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -213,11 +217,11 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
       case _          =>
-        routes.HaveSecondContactOrganisationController.onPageLoad(NormalMode)
+        routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
-  private def navigateFromHaveSecondContactOrganisationController(userAnswers: UserAnswers): Call =
-    userAnswers.get(HaveSecondContactOrganisationPage) match {
+  private def navigateFromOrganisationHaveSecondContactController(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationHaveSecondContactPage) match {
       case Some(true)  =>
         routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
       case Some(false) =>

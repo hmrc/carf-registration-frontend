@@ -153,7 +153,7 @@ POST        /register/second-contact-name                                 contro
 GET         /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/second-contact-have-phone                            controllers.SecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/second-contact-have-phone                            controllers.SecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-second-contact-have-phone                     controllers.SecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-second-contact-have-phone                     controllers.SecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
+GET        /register/second-contact-have-phone                            controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/second-contact-have-phone                            controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)

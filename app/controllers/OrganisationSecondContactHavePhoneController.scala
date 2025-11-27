@@ -16,30 +16,30 @@
 
 package controllers
 
-import controllers.actions._
-import forms.SecondContactHavePhoneFormProvider
-import javax.inject.Inject
+import controllers.actions.*
+import forms.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.SecondContactHavePhonePage
+import pages.OrganisationSecondContactHavePhonePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.SecondContactHavePhoneView
+import views.html.OrganisationSecondContactHavePhoneView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SecondContactHavePhoneController @Inject() (
+class OrganisationSecondContactHavePhoneController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: SecondContactHavePhoneFormProvider,
+    formProvider: OrganisationSecondContactHavePhoneFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: SecondContactHavePhoneView
+    view: OrganisationSecondContactHavePhoneView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -49,7 +49,7 @@ class SecondContactHavePhoneController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(SecondContactHavePhonePage) match {
+      val preparedForm = request.userAnswers.get(OrganisationSecondContactHavePhonePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -65,9 +65,9 @@ class SecondContactHavePhoneController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SecondContactHavePhonePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationSecondContactHavePhonePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(SecondContactHavePhonePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(OrganisationSecondContactHavePhonePage, mode, updatedAnswers))
         )
   }
 }

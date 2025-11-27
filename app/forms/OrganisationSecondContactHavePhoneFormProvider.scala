@@ -16,16 +16,16 @@
 
 package forms
 
+import forms.mappings.Mappings
+import models.OrganisationSecondContactHavePhone
+import play.api.data.Form
+
 import javax.inject.Inject
 
-import forms.mappings.Mappings
-import play.api.data.Form
-import models.SecondContactHavePhone
+class OrganisationSecondContactHavePhoneFormProvider @Inject() extends Mappings {
 
-class SecondContactHavePhoneFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[SecondContactHavePhone] =
+  def apply(): Form[OrganisationSecondContactHavePhone] =
     Form(
-      "value" -> enumerable[SecondContactHavePhone]("secondContactHavePhone.error.required")
+      "value" -> enumerable[OrganisationSecondContactHavePhone]("organisationSecondContactHavePhone.error.required")
     )
 }

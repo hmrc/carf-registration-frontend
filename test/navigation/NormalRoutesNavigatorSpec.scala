@@ -464,9 +464,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad(
-            "Must redirect to /problem/business-not-identified (CARF-147)"
-          )
+          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
         }
 
         "must navigate to business not identified page when not CT auto-matched and no organisation type" in {
@@ -486,9 +484,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad(
-            "Must redirect to /problem/business-not-identified (CARF-147)"
-          )
+          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
         }
       }
 

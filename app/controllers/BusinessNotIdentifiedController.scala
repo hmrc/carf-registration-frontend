@@ -16,37 +16,36 @@
 
 package controllers
 
-
 import config.FrontendAppConfig
 import controllers.actions._
 import javax.inject.Inject
-import pages.{WhatIsTheNameOfYourBusinessPage, OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessNotIdentifiedView
 
-class BusinessNotIdentifiedController @Inject()(
-                                                 override val messagesApi: MessagesApi,
-                                                 identify: IdentifierAction,
-                                                 getData: DataRetrievalAction,
-                                                 requireData: DataRequiredAction,
-                                                 val controllerComponents: MessagesControllerComponents,
-                                                 view: BusinessNotIdentifiedView,
-                                                 appConfig: FrontendAppConfig
-                                               ) extends FrontendBaseController with I18nSupport {
+class BusinessNotIdentifiedController @Inject() (
+    override val messagesApi: MessagesApi,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    val controllerComponents: MessagesControllerComponents,
+    view: BusinessNotIdentifiedView,
+    appConfig: FrontendAppConfig
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
-      val organisationType = request.userAnswers.get(OrganisationRegistrationTypePage)
-      val utr = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
-      val businessName = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+    val organisationType = request.userAnswers.get(OrganisationRegistrationTypePage)
+    val utr              = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+    val businessName     = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
 
-      (utr, businessName) match {
-        case (Some(utrValue), Some(nameValue)) =>
-          Ok(view(utrValue.uniqueTaxPayerReference, nameValue, organisationType, appConfig))
-        case _ =>
-          Redirect(routes.JourneyRecoveryController.onPageLoad())
-      }
+    (utr, businessName) match {
+      case (Some(utrValue), Some(nameValue)) =>
+        Ok(view(utrValue.uniqueTaxPayerReference, nameValue, organisationType, appConfig))
+      case _                                 =>
+        Redirect(routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 }

@@ -337,4 +337,5 @@ businessNotIdentified.contact.p1 = If you have checked your UTR and business nam
 businessNotIdentified.name.p1.limitedCompany = Check if you have entered your full business name as it was registered. You can find the registered business name on your incorporation certificate.
 businessNotIdentified.name.p2.limitedCompany = You can also <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">search the Companies House register for your company name (opens in new tab).</a>
 businessNotIdentified.name.p1.partnership = Check if you have entered your full business name as it was registered.
+businessNotIdentified.name.p2.partnership = If your business is registered with Companies House, you can <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">search the register for your company name (opens in new tab).</a>
 businessNotIdentified.name.p1.default = Check if you have entered your full business name as it was registered. You can find the registered business name on your governing document.

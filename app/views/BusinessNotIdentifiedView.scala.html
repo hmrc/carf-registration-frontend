@@ -87,9 +87,6 @@
         case Some(Partnership) | Some(LLP) => {
             <p class="govuk-body">@Html(messages("businessNotIdentified.name.p2.partnership", appConfig.companiesHouseSearchUrl))</p>
         }
-        case _ => {
-            @* Render nothing for other types, which is correct *@
-        }
     }
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.contact.heading")</h2>

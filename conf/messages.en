@@ -326,7 +326,8 @@ businessNotIdentified.tryAgain = If you used the wrong details, you can <a class
 businessNotIdentified.summary.utr.label = Unique Taxpayer Reference (UTR)
 businessNotIdentified.summary.name.label = Business name
 businessNotIdentified.utr.heading = Find a lost UTR
-businessNotIdentified.utr.p1 = Refer to the guidance for <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">finding your UTR (opens in new tab)</a>.
+businessNotIdentified.utr.linkText = Refer to the guidance for
+businessNotIdentified.utr.link = finding your UTR (opens in new tab)
 businessNotIdentified.name.heading = Check your business name
 businessNotIdentified.name.bullets.heading = Some businesses:
 businessNotIdentified.name.bullet1 = are known by a trading name that is different to the registered name
@@ -335,7 +336,9 @@ businessNotIdentified.contact.heading = Contact HMRC to help us find your busine
 businessNotIdentified.contact.p1 = If you have checked your UTR and business name again and we still cannot find your business, then email <a class="govuk-link" href="mailto:{0}">{0}</a> for help.
 
 businessNotIdentified.name.p1.limitedCompany = Check if you have entered your full business name as it was registered. You can find the registered business name on your incorporation certificate.
-businessNotIdentified.name.p2.limitedCompany = You can also <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">search the Companies House register for your company name (opens in new tab).</a>
+businessNotIdentified.name.p2.limitedCompany.linkText = You can also
+businessNotIdentified.name.p2.limitedCompany.link = search the Companies House register for your company name (opens in new tab)
 businessNotIdentified.name.p1.partnership = Check if you have entered your full business name as it was registered.
-businessNotIdentified.name.p2.partnership = If your business is registered with Companies House, you can <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">search the register for your company name (opens in new tab).</a>
+businessNotIdentified.name.p2.partnership.linkText = If your business is registered with Companies House, you can
+businessNotIdentified.name.p2.partnership.link = search the register for your company name (opens in new tab)
 businessNotIdentified.name.p1.default = Check if you have entered your full business name as it was registered. You can find the registered business name on your governing document.

@@ -22,7 +22,8 @@
 
 @this(
         layout: templates.Layout,
-        govukSummaryList: GovukSummaryList
+        govukSummaryList: GovukSummaryList,
+        link: components.Link
 )
 
 @(
@@ -57,7 +58,8 @@
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.utr.heading")</h2>
     <p class="govuk-body">
-        @Html(messages("businessNotIdentified.utr.p1", appConfig.findUTRUrl))
+        @messages("businessNotIdentified.utr.linkText")
+        @link(appConfig.findUTRUrl, messages("businessNotIdentified.utr.link"), openInNewWindow = true, fullStop = true)
     </p>
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.name.heading")</h2>
@@ -82,10 +84,16 @@
 
     @organisationType match {
         case Some(LimitedCompany) => {
-            <p class="govuk-body">@Html(messages("businessNotIdentified.name.p2.limitedCompany", appConfig.companiesHouseSearchUrl))</p>
+            <p class="govuk-body">
+            @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
+            @link(appConfig.findUTRUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
+            </p>
         }
         case Some(Partnership) | Some(LLP) => {
-            <p class="govuk-body">@Html(messages("businessNotIdentified.name.p2.partnership", appConfig.companiesHouseSearchUrl))</p>
+            <p class="govuk-body">
+            @messages("businessNotIdentified.name.p2.partnership.linkText")
+            @link(appConfig.findUTRUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)
+            </p>
         }
     }
 

@@ -158,4 +158,4 @@ POST        /register/second-contact-name                                 contro
 GET         /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onSubmit(mode: Mode = CheckMode)
 
-GET        /businessNotIdentified                                         controllers.BusinessNotIdentifiedController.onPageLoad()
+GET         /register/problem/business-not-identified                     controllers.BusinessNotIdentifiedController.onPageLoad()

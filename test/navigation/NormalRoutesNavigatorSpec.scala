@@ -484,9 +484,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad(
-            "Must redirect to /problem/business-not-identified (CARF-147)"
-          )
+          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
         }
       }
 

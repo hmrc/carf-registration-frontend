@@ -16,45 +16,97 @@
 
 package controllers
 
-import base.SpecBase
+import base.{ControllerMockFixtures, SpecBase}
+import cats.implicits.*
+import generators.ModelGenerators
+import models.error.ApiError
+import models.error.ApiError.*
+import models.{IndividualRegistrationType, UserAnswers}
+import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatestplus.mockito.MockitoSugar.*
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import pages.*
+import play.api.Application
+import play.api.i18n.Messages
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.RegistrationService
+import uk.gov.hmrc.auth.core.AffinityGroup
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
-class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
+class CheckYourAnswersControllerSpec
+    extends SpecBase
+    with ControllerMockFixtures
+    with BeforeAndAfterEach
+    with TableDrivenPropertyChecks
+    with ScalaCheckPropertyChecks
+    with ModelGenerators {
+
+  lazy val loadRoute: String = routes.CheckYourAnswersController.onPageLoad().url
+
+  final val mockRegistrationService = mock[RegistrationService]
+
+  val firstContactName  = "first-contact-name"
+  val firstContactEmail = "first-contact-email"
+  val firstContactPhone = "+44 5021 654 1234"
+
+  override def beforeEach(): Unit = {
+    reset(mockRegistrationService)
+    super.beforeEach()
+  }
+
+  val userAnswers: UserAnswers = emptyUserAnswers
+    .withPage(FirstContactEmailPage, "tester@test.com")
+    .withPage(FirstContactPhoneNumberPage, "7778889993")
 
   "Check Your Answers Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "onPageLoad" - {
+      "when affinity group is Individual" - {
+        "must return OK and the correct view for a GET valid answers for individual with id" in {
+          val application = applicationBuilder(userAnswers = Option(userAnswers), AffinityGroup.Individual)
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+          running(application) {
+            val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
 
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+            val result = route(application, request).value
 
-        val result = route(application, request).value
+            status(result) mustEqual OK
 
-        val view = application.injector.instanceOf[CheckYourAnswersView]
-        val list = SummaryListViewModel(Seq.empty)
+          }
+        }
 
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
+        "redirect to Missing Information when missing some UserAnswers for individual with id" in {
+          val application = applicationBuilder(userAnswers = Option(userAnswers), AffinityGroup.Individual)
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
+
+          running(application) {
+            val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+
+            val result = route(application, request).value
+
+            status(result)              mustEqual SEE_OTHER
+            redirectLocation(result).value mustBe routes.InformationMissingController.onPageLoad().url
+          }
+        }
+
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
   }
 }

@@ -28,8 +28,8 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
+checkYourAnswers.title = Check your answers before you register for cryptoasset reporting
+checkYourAnswers.heading = Check your answers before you register for cryptoasset reporting
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service

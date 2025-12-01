@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import pages.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -33,18 +33,16 @@ import views.html.OrganisationSecondContactHavePhoneView
 import scala.concurrent.Future
 
 class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
-
-  def onwardRoute = Call("GET", "/foo")
-
-  lazy val secondContactHavePhoneRoute = routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode).url
-
-  val formProvider = new OrganisationSecondContactHavePhoneFormProvider()
-  val form         = formProvider()
-
-  lazy val firstContactPhoneRoute                = routes.FirstContactPhoneController.onPageLoad(NormalMode).url
-  val secondNameTest                             = "Second Contact Name"
-  val userAnswersWithSecondNameTest: UserAnswers =
+  def onwardRoute                                               = Call("GET", "/foo")
+  lazy val secondContactHavePhoneRoute                          = routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode).url
+  val formProvider                                              = new OrganisationSecondContactHavePhoneFormProvider()
+  val form                                                      = formProvider()
+  lazy val firstContactPhoneRoute                               = routes.FirstContactPhoneController.onPageLoad(NormalMode).url
+  val secondNameTest                                            = "Second Contact Name"
+  val userAnswersWithSecondNameTest: UserAnswers                =
     emptyUserAnswers.set(OrganisationSecondContactNamePage, secondNameTest).success.value
+  val userAnswersWithFirstNameOnly: UserAnswers                 = emptyUserAnswers.set(FirstContactNamePage, "Timothy").success.value
+  val userAnswersWithSecondNamePageNoneOpt: Option[UserAnswers] = Some(userAnswersWithFirstNameOnly)
 
   "SecondContactHavePhone Controller" - {
     "must return OK and the correct view for a GET" in {
@@ -122,12 +120,33 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
       }
     }
 
-    "redirect to Journey Recovery for a POST if no existing data is found" in {
+    "must redirect to Journey Recovery for a GET if UserAnswers is not empty & OrganisationSecondContactNamePage is None" in {
+      val application = applicationBuilder(userAnswers = userAnswersWithSecondNamePageNoneOpt).build()
+      running(application) {
+        val request = FakeRequest(GET, secondContactHavePhoneRoute)
+        val result  = route(application, request).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "redirect to Journey Recovery for a POST if no existing userAnswers data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
         val request =
           FakeRequest(POST, secondContactHavePhoneRoute)
             .withFormUrlEncodedBody(("value", "true"))
+        val result  = route(application, request).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+    "redirect to Journey Recovery for a POST if the form for OrganisationSecondContactNamePage has errors" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request =
+          FakeRequest(POST, secondContactHavePhoneRoute)
+            .withFormUrlEncodedBody(("value", "invalid  Boolean"))
         val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url

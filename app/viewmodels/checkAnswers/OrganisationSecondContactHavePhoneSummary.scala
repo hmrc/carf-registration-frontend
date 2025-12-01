@@ -41,7 +41,7 @@ object OrganisationSecondContactHavePhoneSummary {
             "site.change",
             routes.OrganisationSecondContactHavePhoneController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("firstContactPhone.change.hidden"))
+            .withVisuallyHiddenText(messages("organisationSecondContactHavePhone.change.hidden"))
         )
       )
     }

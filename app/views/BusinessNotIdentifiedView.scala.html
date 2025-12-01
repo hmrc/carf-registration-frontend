@@ -17,7 +17,7 @@
 @import config.FrontendAppConfig
 @import models.*
 @import models.OrganisationRegistrationType
-@import models.OrganisationRegistrationType.{LimitedCompany, Partnership, LLP}
+@import models.OrganisationRegistrationType.{LimitedCompany, Partnership, LLP, Trust}
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
@@ -27,10 +27,10 @@
 )
 
 @(
-    utr: String,
-    businessName: String,
-    organisationType: Option[OrganisationRegistrationType],
-    appConfig: FrontendAppConfig
+        utr: String,
+        businessName: String,
+        organisationType: Option[OrganisationRegistrationType],
+        appConfig: FrontendAppConfig
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("businessNotIdentified.title"))) {
@@ -53,7 +53,7 @@
     ))
 
     <p class="govuk-body">
-        @Html(messages("businessNotIdentified.tryAgain", appConfig.registrationStartUrl))
+    @Html(messages("businessNotIdentified.tryAgain", appConfig.registrationStartUrl))
     </p>
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.utr.heading")</h2>
@@ -85,20 +85,21 @@
     @organisationType match {
         case Some(LimitedCompany) => {
             <p class="govuk-body">
-            @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
-            @link(appConfig.findUTRUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
+                @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
+                @link(appConfig.companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
             </p>
         }
         case Some(Partnership) | Some(LLP) => {
             <p class="govuk-body">
-            @messages("businessNotIdentified.name.p2.partnership.linkText")
-            @link(appConfig.findUTRUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)
+                @messages("businessNotIdentified.name.p2.partnership.linkText")
+                @link(appConfig.companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)
             </p>
         }
+      case _ => { }
     }
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.contact.heading")</h2>
     <p class="govuk-body">
-        @Html(messages("businessNotIdentified.contact.p1", appConfig.aoeiEmailAddress))
+    @Html(messages("businessNotIdentified.contact.p1", appConfig.aoeiEmailAddress))
     </p>
 }

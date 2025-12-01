@@ -38,10 +38,7 @@ class CheckYourAnswersController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    getMissingAnswers(request.userAnswers) match {
-      case Nil => Ok(view(CheckYourAnswersViewModel.buildPages(request.userAnswers)))
-      case _   => Redirect(routes.InformationMissingController.onPageLoad())
-    }
+    Ok(view(CheckYourAnswersViewModel.buildPages(request.userAnswers)))
   }
 
   private def getMissingAnswers(userAnswers: UserAnswers): Seq[Page] = CheckYourAnswersValidator(userAnswers).validate

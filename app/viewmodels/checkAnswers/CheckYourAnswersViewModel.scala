@@ -16,8 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import models.{OrganisationRegistrationType, UserAnswers}
-import pages.{IsThisYourBusinessPage, OrganisationRegistrationTypePage}
+import models.UserAnswers
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.{CheckYourAnswersHelper, UserAnswersHelper}
@@ -31,19 +30,10 @@ object CheckYourAnswersViewModel extends UserAnswersHelper {
 
     val isBusiness                     = isRegisteringAsBusiness(userAnswers)
     val helper: CheckYourAnswersHelper = new CheckYourAnswersHelper(userAnswers)
-    val (contact, header)              =
-      (userAnswers.get(OrganisationRegistrationTypePage), userAnswers.get(IsThisYourBusinessPage)) match {
-        case (Some(_), _)    => ("firstContact", "businessDetails")
-        case (None, Some(_)) => ("firstContact", "businessDetails")
-        case (None, None)    =>
-          throw new Exception("ReporterType and AutoMatchedUTR must not both be empty at check your answers page")
-      }
 
-    val regDetails     = messages(s"checkYourAnswers.$header.h2")
-    val contactHeading = messages(s"checkYourAnswers.$contact.h2")
+    val contactHeading = messages(s"checkYourAnswers.title")
 
     Seq(
-      Section(contactHeading, buildFirstContact(helper, isBusiness)),
       Section(contactHeading, buildFirstContact(helper, isBusiness))
     )
   }

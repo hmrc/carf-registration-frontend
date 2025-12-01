@@ -21,7 +21,7 @@ import cats.implicits.*
 import generators.ModelGenerators
 import models.error.ApiError
 import models.error.ApiError.*
-import models.{IndividualRegistrationType, UserAnswers}
+import models.{IndividualRegistrationType, Name, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -42,6 +42,8 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
+import java.time.LocalDate
+
 class CheckYourAnswersControllerSpec
     extends SpecBase
     with ControllerMockFixtures
@@ -54,7 +56,6 @@ class CheckYourAnswersControllerSpec
 
   final val mockRegistrationService = mock[RegistrationService]
 
-  val firstContactName  = "first-contact-name"
   val firstContactEmail = "first-contact-email"
   val firstContactPhone = "+44 5021 654 1234"
 
@@ -65,7 +66,14 @@ class CheckYourAnswersControllerSpec
 
   val userAnswers: UserAnswers = emptyUserAnswers
     .withPage(FirstContactEmailPage, "tester@test.com")
-    .withPage(FirstContactPhoneNumberPage, "7778889993")
+    .withPage(FirstContactPhoneNumberPage, firstContactPhone)
+    .withPage(HaveNiNumberPage, true)
+    .withPage(NiNumberPage, "AA123456A")
+    .withPage(WhatIsYourNameIndividualPage, Name("First", "Last"))
+    .withPage(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
+    .withPage(IndividualEmailPage, "an@email.com")
+    .withPage(IndividualHavePhonePage, false)
+    .withPage(IndividualRegistrationTypePage, IndividualRegistrationType.Individual)
 
   "Check Your Answers Controller" - {
 
@@ -82,26 +90,8 @@ class CheckYourAnswersControllerSpec
             val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
 
             val result = route(application, request).value
-
             status(result) mustEqual OK
 
-          }
-        }
-
-        "redirect to Missing Information when missing some UserAnswers for individual with id" in {
-          val application = applicationBuilder(userAnswers = Option(userAnswers), AffinityGroup.Individual)
-            .overrides(
-              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-            )
-            .build()
-
-          running(application) {
-            val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
-
-            val result = route(application, request).value
-
-            status(result)              mustEqual SEE_OTHER
-            redirectLocation(result).value mustBe routes.InformationMissingController.onPageLoad().url
           }
         }
 

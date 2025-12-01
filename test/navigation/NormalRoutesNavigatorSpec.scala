@@ -318,12 +318,11 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
             .success
             .value
-
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to individual email page for individual sole traders" in {
@@ -341,12 +340,11 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
             .success
             .value
-
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)")
+          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to contact details page for non-sole traders" in {
@@ -677,9 +675,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisterDateOfBirthPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/identity-confirmed (CARF-168)"
-        )
+        ) mustBe routes.RegisterIdentityConfirmedController.onPageLoad()
       }
 
       "must navigate to Journey Recovery when no answer is provided" in {
@@ -689,6 +685,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndividualEmail navigation" - {
+      "must navigate from IndividualEmailPage to IndividualHavePhone for Individual or SoleTrader with NINO" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(IndividualEmailPage, "an@email.com")
+            .success
+            .value
+        navigator.nextPage(
+          IndividualEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.IndividualHavePhoneController.onPageLoad(NormalMode)
       }
     }
 

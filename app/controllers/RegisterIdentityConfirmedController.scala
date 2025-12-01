@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions.*
+import models.NormalMode
 
 import javax.inject.Inject
 import navigation.Navigator
@@ -24,6 +25,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegisterIdentityConfirmedView
+
 import scala.concurrent.ExecutionContext
 
 class RegisterIdentityConfirmedController @Inject() (
@@ -40,7 +42,7 @@ class RegisterIdentityConfirmedController @Inject() (
 
   def onPageLoad: Action[AnyContent] = identify() { implicit request =>
     val continueUrl =
-      routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-email (CARF-183)").url
+      routes.IndividualEmailController.onPageLoad(NormalMode).url
 
     Ok(view(continueUrl))
   }

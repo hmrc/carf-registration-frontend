@@ -1,0 +1,104 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.FrontendAppConfig
+@import models.*
+@import models.OrganisationRegistrationType
+@import models.OrganisationRegistrationType.{LimitedCompany, Partnership, LLP, Trust}
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(
+        layout: templates.Layout,
+        govukSummaryList: GovukSummaryList,
+        link: components.Link
+)
+
+@(
+        utr: String,
+        businessName: String,
+        organisationType: Option[OrganisationRegistrationType],
+        appConfig: FrontendAppConfig
+)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("businessNotIdentified.title"))) {
+
+    <h1 class="govuk-heading-l">@messages("businessNotIdentified.heading")</h1>
+
+    <p class="govuk-body">@messages("businessNotIdentified.p1")</p>
+
+    @govukSummaryList(SummaryList(
+        rows = Seq(
+            SummaryListRow(
+                key = Key(content = Text(messages("businessNotIdentified.summary.utr.label"))),
+                value = Value(content = Text(utr))
+            ),
+            SummaryListRow(
+                key = Key(content = Text(messages("businessNotIdentified.summary.name.label"))),
+                value = Value(content = Text(businessName))
+            )
+        )
+    ))
+
+    <p class="govuk-body">
+    @Html(messages("businessNotIdentified.tryAgain", appConfig.registrationStartUrl))
+    </p>
+
+    <h2 class="govuk-heading-m">@messages("businessNotIdentified.utr.heading")</h2>
+    <p class="govuk-body">
+        @messages("businessNotIdentified.utr.linkText")
+        @link(appConfig.findUTRUrl, messages("businessNotIdentified.utr.link"), openInNewWindow = true, fullStop = true)
+    </p>
+
+    <h2 class="govuk-heading-m">@messages("businessNotIdentified.name.heading")</h2>
+
+    @organisationType match {
+        case Some(LimitedCompany) | Some(Trust) => {
+            <p class="govuk-body">@messages("businessNotIdentified.name.p1.limitedCompany")</p>
+        }
+        case Some(Partnership) | Some(LLP) => {
+            <p class="govuk-body">@messages("businessNotIdentified.name.p1.partnership")</p>
+        }
+        case _ => {
+            <p class="govuk-body">@messages("businessNotIdentified.name.p1.default")</p>
+        }
+    }
+
+    <p class="govuk-body govuk-!-margin-bottom-2">@messages("businessNotIdentified.name.bullets.heading")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("businessNotIdentified.name.bullet1")</li>
+        <li>@messages("businessNotIdentified.name.bullet2")</li>
+    </ul>
+
+    @organisationType match {
+        case Some(LimitedCompany) | Some(Trust) => {
+            <p class="govuk-body">
+                @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
+                @link(appConfig.findUTRUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
+            </p>
+        }
+        case Some(Partnership) | Some(LLP) => {
+            <p class="govuk-body">
+                @messages("businessNotIdentified.name.p2.partnership.linkText")
+                @link(appConfig.findUTRUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)
+            </p>
+        }
+    }
+
+    <h2 class="govuk-heading-m">@messages("businessNotIdentified.contact.heading")</h2>
+    <p class="govuk-body">
+    @Html(messages("businessNotIdentified.contact.p1", appConfig.aoeiEmailAddress))
+    </p>
+}

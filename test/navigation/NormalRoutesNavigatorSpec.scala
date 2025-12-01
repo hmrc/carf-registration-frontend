@@ -663,9 +663,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationSecondContactEmailPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.PlaceholderController.onPageLoad(
-        "Must redirect to /register/second-contact-have-phone (CARF-251)"
-      )
+      ) mustBe routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
     }
 
     "RegisterDateOfBirth navigation" - {
@@ -831,5 +829,35 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.JourneyRecoveryController.onPageLoad()
     }
 
+    "OrganisationSecondContactHavePhone navigation" - {
+      "must go to Organisation Second Contact Phone Number page when user answers 'Yes'" in {
+        val userAnswers = emptyUserAnswers.set(OrganisationSecondContactHavePhonePage, true).success.value
+        navigator.nextPage(
+          OrganisationSecondContactHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/second-contact-phone (CARF-252)"
+        )
+      }
+
+      "must go to Check Your Answers page when user answers 'No'" in {
+        val userAnswers = emptyUserAnswers.set(OrganisationSecondContactHavePhonePage, false).success.value
+        navigator.nextPage(
+          OrganisationSecondContactHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go to Journey Recovery when no answer is given" in {
+        val userAnswers = emptyUserAnswers
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
   }
 }

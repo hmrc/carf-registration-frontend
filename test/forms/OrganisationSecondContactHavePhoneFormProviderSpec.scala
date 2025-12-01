@@ -25,9 +25,7 @@ class OrganisationSecondContactHavePhoneFormProviderSpec extends BooleanFieldBeh
   val form        = new OrganisationSecondContactHavePhoneFormProvider()()
 
   ".value" - {
-
-    val fieldName   = "value"
-    val requiredKey = "organisationSecondContactHavePhone.error.required"
+    val fieldName = "value"
 
     behave like booleanField(
       form,

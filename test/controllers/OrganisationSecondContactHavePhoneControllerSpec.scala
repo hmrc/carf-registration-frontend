@@ -41,15 +41,14 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
   val formProvider = new OrganisationSecondContactHavePhoneFormProvider()
   val form         = formProvider()
 
-  lazy val firstContactPhoneRoute      = routes.FirstContactPhoneController.onPageLoad(NormalMode).url
-  val secondNameTest                   = "Second Contact Name"
-  val userAnswersWithName: UserAnswers =
+  lazy val firstContactPhoneRoute                = routes.FirstContactPhoneController.onPageLoad(NormalMode).url
+  val secondNameTest                             = "Second Contact Name"
+  val userAnswersWithSecondNameTest: UserAnswers =
     emptyUserAnswers.set(OrganisationSecondContactNamePage, secondNameTest).success.value
 
   "SecondContactHavePhone Controller" - {
-
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithSecondNameTest)).build()
       running(application) {
         val request = FakeRequest(GET, secondContactHavePhoneRoute)
         val result  = route(application, request).value
@@ -63,7 +62,7 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = UserAnswers(userAnswersId).set(OrganisationSecondContactHavePhonePage, true).success.value
+      val userAnswers = userAnswersWithSecondNameTest.set(OrganisationSecondContactHavePhonePage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
       running(application) {
         val request = FakeRequest(GET, secondContactHavePhoneRoute)
@@ -80,7 +79,7 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application =
-        applicationBuilder(userAnswers = Some(userAnswersWithName))
+        applicationBuilder(userAnswers = Some(userAnswersWithSecondNameTest))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
           )
@@ -96,7 +95,7 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithName)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithSecondNameTest)).build()
       running(application) {
         val request =
           FakeRequest(POST, secondContactHavePhoneRoute)

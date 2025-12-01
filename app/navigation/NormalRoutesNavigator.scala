@@ -178,7 +178,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
           if (isSoleTrader(userAnswers)) {
             routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
           } else {
-            routes.PlaceholderController.onPageLoad("Must redirect to /problem/business-not-identified (CARF-147)")
+            routes.BusinessNotIdentifiedController.onPageLoad()
           }
         }
 

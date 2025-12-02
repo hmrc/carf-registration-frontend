@@ -14,16 +14,29 @@
  * limitations under the License.
  *@
 
+@import viewmodels.Section
+
 @this(
-    layout: templates.Layout,
-    govukSummaryList: GovukSummaryList
+        layout: templates.Layout,
+        govukSummaryList: GovukSummaryList
 )
 
-@(list: SummaryList)(implicit request: Request[_], messages: Messages)
+@(sections: Seq[Section])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
 
     <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
 
-    @govukSummaryList(list)
+    @sections.map { section =>
+        @if(section == sections.head) {
+            <h2 class="govuk-heading-m">@section.sectionName</h2>
+        } else {
+            <h2 class="govuk-heading-m govuk-!-padding-top-9">@section.sectionName</h2>
+        }
+
+        @govukSummaryList(SummaryList(
+            rows = section.rows,
+            classes = "govuk-!-margin-bottom-0"
+        ))
+    }
 }

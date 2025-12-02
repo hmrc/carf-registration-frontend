@@ -16,31 +16,24 @@
 
 package controllers
 
-import com.google.inject.Inject
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.UserAnswers
-import pages.Page
+import controllers.actions._
+import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckYourAnswersValidator
-import viewmodels.checkAnswers.CheckYourAnswersViewModel
-import views.html.CheckYourAnswersView
+import views.html.InformationMissingView
 
-class CheckYourAnswersController @Inject() (
+class InformationMissingController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
-    view: CheckYourAnswersView
+    view: InformationMissingView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    Ok(view(CheckYourAnswersViewModel.buildPages(request.userAnswers)))
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+    Ok(view(routes.IndexController.onPageLoad().url))
   }
-
-  private def getMissingAnswers(userAnswers: UserAnswers): Seq[Page] = CheckYourAnswersValidator(userAnswers).validate
-
 }

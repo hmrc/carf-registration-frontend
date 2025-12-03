@@ -353,3 +353,17 @@ organisationSecondContactHavePhone.p1 = We will call if we have any questions ab
 organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact your second contact by phone?
 organisationSecondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
 organisationSecondContactHavePhone.change.hidden = Change if the second contact can be contacted by phone
+
+indWithoutNinoName.title = What is your name?
+indWithoutNinoName.heading = What is your name?
+indWithoutNinoName.givenName = Given name
+indWithoutNinoName.familyName = Family name
+indWithoutNinoName.checkYourAnswersLabel = What is your name?
+indWithoutNinoName.error.givenName.required = Enter your given name
+indWithoutNinoName.error.givenName.invalid = The given name must only include letters a to z, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+indWithoutNinoName.error.givenName.length = The given name must be 35 characters or less
+indWithoutNinoName.error.familyName.required = Enter your family name
+indWithoutNinoName.error.familyName.invalid = The family name must only include letters a to z, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
+indWithoutNinoName.error.familyName.length = The family name must be 35 characters or less
+indWithoutNinoName.givenName.change.hidden = Change What is your given name?
+indWithoutNinoName.familyName.change.hidden = Change What is your family name?

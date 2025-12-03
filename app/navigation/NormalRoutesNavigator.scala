@@ -108,6 +108,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case OrganisationSecondContactHavePhonePage =>
       userAnswers => navigateFromOrganisationSecondContactHavePhonePage(userAnswers)
 
+    case IndWithoutNinoNamePage =>
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+        )
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
@@ -194,7 +200,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true)  =>
         routes.NiNumberController.onPageLoad(NormalMode)
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
+        routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 

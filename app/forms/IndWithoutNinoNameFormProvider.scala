@@ -46,5 +46,4 @@ class IndWithoutNinoNameFormProvider @Inject() extends Mappings {
       )
     )(Name.apply)(name => Some((name.firstName, name.lastName)))
   )
-
 }

@@ -159,3 +159,8 @@ GET        /register/change-second-contact-have-phone                     contro
 POST       /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/some-information-is-missing                 controllers.InformationMissingController.onPageLoad()
+
+GET         /register/individual-without-id/name                          controllers.IndWithoutNinoNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/name                          controllers.IndWithoutNinoNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-name                   controllers.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-name                   controllers.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)

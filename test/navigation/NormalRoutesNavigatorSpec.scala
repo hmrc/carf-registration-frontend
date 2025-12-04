@@ -20,8 +20,10 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
+import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import play.api.libs.json.Json
 
 import java.time.LocalDate
 
@@ -269,7 +271,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         }
       }
       "when user answers 'false' (no, I don't have a National Insurance number)" - {
-        "must navigate to: What is your name?" in {
+        "must navigate to: Individual or Sole Trader without NINO: What is your name?" in {
           val userAnswers = UserAnswers("id")
             .set(HaveNiNumberPage, false)
             .success
@@ -279,7 +281,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
+          ) mustBe routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
         }
       }
     }
@@ -864,6 +866,23 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndWithoutNinoName navigation" - {
+      "must navigate from IndWithoutNinoName to IndWithoutNinoDateOfBirth for Individual or Sole Trader Without NINO  and valid name" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(IndWithoutNinoNamePage, Name("givenName example", "familyName example"))
+            .success
+            .value
+        navigator.nextPage(
+          IndWithoutNinoNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+        )
       }
     }
   }

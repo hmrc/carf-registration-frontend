@@ -38,7 +38,7 @@ object CheckYourAnswersViewModel extends UserAnswersHelper {
     )
   }
 
-  private def buildFirstContact(helper: CheckYourAnswersHelper, isBusiness: Boolean): Seq[SummaryListRow] =
+  private def buildFirstContact(helper: CheckYourAnswersHelper, isBusiness: Boolean): Seq[SummaryListRow] = {
 
     val individualPhoneRow = helper.userAnswers.get(pages.FirstContactPhonePage).flatMap {
       case true  => helper.firstContactEmail
@@ -49,5 +49,5 @@ object CheckYourAnswersViewModel extends UserAnswersHelper {
       helper.firstContactEmail,
       helper.firstContactPhone
     ).flatten ++ individualPhoneRow
-
+  }
 }

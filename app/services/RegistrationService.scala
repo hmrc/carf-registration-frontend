@@ -70,7 +70,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   def getIndividualByUtr(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] = {
     val registrationData = for {
       utr  <- userAnswers.get(YourUniqueTaxpayerReferencePage)
-      name <- userAnswers.get(WhatIsYourNameIndividualPage)
+      name <- userAnswers.get(WhatIsYourNamePage)
     } yield (utr, name)
 
     registrationData match {
@@ -89,7 +89,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         Future.successful(None)
     }
   }
-  def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]]     = {
+
+  def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val request = RegisterOrganisationWithIdRequest(
       requiresNameMatch = false,
       IDNumber = utr,
@@ -100,7 +101,6 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     handleOrganisationRegistrationResponse(connector.organisationWithUtr(request).value)
   }
 
-  // zxc update in CARF-322:
   def getBusinessWithUserInput(
       userAnswers: UserAnswers
   )(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {

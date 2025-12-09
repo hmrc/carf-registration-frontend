@@ -141,6 +141,10 @@ POST        /register/second-contact-email                                contro
 GET         /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onSubmit(mode: Mode = CheckMode)
 
+GET        /register/second-contact-have-phone                            controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/second-contact-have-phone                            controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /register/change-second-contact-have-phone                     controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/change-second-contact-have-phone                     controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 
 GET         /register/individual-have-phone                               controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = NormalMode)
@@ -157,10 +161,6 @@ POST        /register/change-individual-email                             contro
 
 GET         /register/problem/business-not-identified                     controllers.BusinessNotIdentifiedController.onPageLoad()
 
-GET        /register/second-contact-have-phone                            controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/second-contact-have-phone                            controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/some-information-is-missing                 controllers.InformationMissingController.onPageLoad()
 

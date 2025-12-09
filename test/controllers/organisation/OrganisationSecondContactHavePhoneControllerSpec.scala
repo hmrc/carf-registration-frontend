@@ -14,35 +14,42 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.OrganisationSecondContactHavePhoneFormProvider
+import controllers.routes
+import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.OrganisationSecondContactHavePhonePage
-import pages.organisation.{FirstContactNamePage, OrganisationSecondContactNamePage}
+import pages.organisation.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.OrganisationSecondContactHavePhoneView
+import views.html.organisation.OrganisationSecondContactHavePhoneView
 
 import scala.concurrent.Future
 
 class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
-  def onwardRoute                                               = Call("GET", "/foo")
-  lazy val secondContactHavePhoneRoute                          = routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode).url
-  val formProvider                                              = new OrganisationSecondContactHavePhoneFormProvider()
-  val form                                                      = formProvider()
-  lazy val firstContactPhoneRoute                               =
+
+  def onwardRoute                              = Call("GET", "/foo")
+  lazy val secondContactHavePhoneRoute: String =
+    controllers.organisation.routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode).url
+
+  val formProvider: OrganisationSecondContactHavePhoneFormProvider =
+    new OrganisationSecondContactHavePhoneFormProvider()
+  val form: Form[Boolean]                                          = formProvider()
+  lazy val firstContactPhoneRoute: String                          =
     controllers.organisation.routes.FirstContactPhoneController.onPageLoad(NormalMode).url
-  val secondNameTest                                            = "Second Contact Name"
-  val userAnswersWithSecondNameTest: UserAnswers                =
+
+  val secondNameTest: String                     = "Second Contact Name"
+  val userAnswersWithSecondNameTest: UserAnswers =
     emptyUserAnswers.set(OrganisationSecondContactNamePage, secondNameTest).success.value
+
   val userAnswersWithFirstNameOnly: UserAnswers                 = emptyUserAnswers.set(FirstContactNamePage, "Timothy").success.value
   val userAnswersWithSecondNamePageNoneOpt: Option[UserAnswers] = Some(userAnswersWithFirstNameOnly)
 

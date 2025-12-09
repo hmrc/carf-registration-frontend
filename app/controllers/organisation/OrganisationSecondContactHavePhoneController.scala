@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
-import forms.OrganisationSecondContactHavePhoneFormProvider
+import controllers.routes
+import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.organisation.{FirstContactNamePage, OrganisationSecondContactNamePage}
-import pages.OrganisationSecondContactHavePhonePage
+import pages.organisation.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrganisationSecondContactHavePhoneView
+import views.html.organisation.OrganisationSecondContactHavePhoneView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +46,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>

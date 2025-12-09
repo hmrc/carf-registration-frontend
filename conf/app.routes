@@ -131,6 +131,11 @@ POST        /register/have-second-contact                                 contro
 GET         /register/change-have-second-contact                          controllers.organisation.OrganisationHaveSecondContactController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-have-second-contact                          controllers.organisation.OrganisationHaveSecondContactController.onSubmit(mode: Mode = CheckMode)
 
+GET         /register/second-contact-name                                 controllers.organisation.OrganisationSecondContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-name                                 controllers.organisation.OrganisationSecondContactNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-name                          controllers.organisation.OrganisationSecondContactNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-name                          controllers.organisation.OrganisationSecondContactNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/second-contact-email                                controllers.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/second-contact-email                                controllers.OrganisationSecondContactEmailController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-second-contact-email                         controllers.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
@@ -148,10 +153,7 @@ POST        /register/individual-email                                    contro
 GET         /register/change-individual-email                             controllers.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-individual-email                             controllers.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/second-contact-name                                 controllers.OrganisationSecondContactNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/second-contact-name                                 controllers.OrganisationSecondContactNameController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-second-contact-name                          controllers.OrganisationSecondContactNameController.onSubmit(mode: Mode = CheckMode)
+
 
 GET         /register/problem/business-not-identified                     controllers.BusinessNotIdentifiedController.onPageLoad()
 

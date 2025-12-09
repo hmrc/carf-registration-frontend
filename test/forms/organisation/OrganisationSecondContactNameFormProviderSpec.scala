@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
 import forms.behaviours.StringFieldBehaviours
+import forms.organisation.OrganisationSecondContactNameFormProvider
 import org.scalacheck.Gen
 import play.api.data.FormError
 

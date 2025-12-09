@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
-import forms.OrganisationSecondContactNameFormProvider
+import forms.organisation.OrganisationSecondContactNameFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.OrganisationSecondContactNamePage
+import pages.organisation.OrganisationSecondContactNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrganisationSecondContactNameView
+import views.html.organisation.OrganisationSecondContactNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

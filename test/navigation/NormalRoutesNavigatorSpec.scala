@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactNamePage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -810,7 +810,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationHaveSecondContactPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
     }
 
     "must navigate from OrganisationSecondContactName page to OrganisationSecondContactEmail page when continue is clicked" in {

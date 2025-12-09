@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
 import config.Constants.contactNameRegex
 import forms.mappings.Mappings

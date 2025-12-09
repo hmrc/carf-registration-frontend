@@ -21,7 +21,7 @@ import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -132,7 +132,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisteredAddressInUkPage) match {
       case Some(true)  =>
-        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.HaveUTRController.onPageLoad(NormalMode)
       case None        =>
@@ -142,7 +142,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveUTRPage) match {
       case Some(true)  =>
-        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
         if (isSoleTrader(userAnswers)) {
           routes.HaveNiNumberController.onPageLoad(NormalMode)

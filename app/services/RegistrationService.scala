@@ -22,7 +22,7 @@ import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWit
 import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 

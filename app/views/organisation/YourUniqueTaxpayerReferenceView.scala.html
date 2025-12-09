@@ -32,7 +32,7 @@
 
 @layout(pageTitle = title(form, messages(s"$taxTypeMessageKey.title"))) {
 
-    @formHelper(action = routes.YourUniqueTaxpayerReferenceController.onSubmit(mode)) {
+    @formHelper(action = controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

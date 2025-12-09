@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
-import forms.YourUniqueTaxpayerReferenceFormProvider
+import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
 import models.OrganisationRegistrationType.{LLP, LimitedCompany, Partnership, Trust}
 import models.{Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.Navigator
-import pages.YourUniqueTaxpayerReferencePage
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.YourUniqueTaxpayerReferenceView
+import views.html.organisation.YourUniqueTaxpayerReferenceView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

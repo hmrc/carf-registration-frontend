@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, YourUniqueTaxpayerReferencePage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -151,7 +151,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisteredAddressInUkPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       }
 
       "must go to Have UTR page when user answers 'No' to UK address" in {
@@ -184,7 +184,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       }
 
       "must go to Have NI Number page when user answers 'No' to having UTR and is Organisation SoleTrader" in {

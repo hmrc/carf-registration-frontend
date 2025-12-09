@@ -21,7 +21,8 @@ import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
 import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.YourUniqueTaxpayerReferencePage
+import pages.{IndexPage, IsThisYourBusinessPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

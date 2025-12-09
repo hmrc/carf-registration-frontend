@@ -37,10 +37,10 @@ POST        /register/registered-address-in-uk                            contro
 GET         /register/change-registered-address-in-uk                     controllers.organisation.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-registered-address-in-uk                     controllers.organisation.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/utr                                                 controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/utr                                                 controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
-GET         /register/changeUtr                                           controllers.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/changeUtr                                           controllers.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
+GET         /register/utr                                                 controllers.organisation.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/utr                                                 controllers.organisation.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)
+GET         /register/changeUtr                                           controllers.organisation.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/changeUtr                                           controllers.organisation.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/have-utr                                            controllers.HaveUTRController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/have-utr                                            controllers.HaveUTRController.onSubmit(mode: Mode = NormalMode)

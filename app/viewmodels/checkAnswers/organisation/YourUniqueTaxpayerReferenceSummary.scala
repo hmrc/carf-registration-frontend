@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.organisation
 
-import controllers.routes
+import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
-import pages.YourUniqueTaxpayerReferencePage
+import pages.organisation.YourUniqueTaxpayerReferencePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow

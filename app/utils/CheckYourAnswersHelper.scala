@@ -20,7 +20,7 @@ import models.UserAnswers
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkAnswers.*
-import viewmodels.checkAnswers.organisation.{FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneSummary, OrganisationRegistrationTypeSummary, RegisteredAddressInUkSummary}
+import viewmodels.checkAnswers.organisation.{FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneSummary, OrganisationRegistrationTypeSummary, RegisteredAddressInUkSummary, YourUniqueTaxpayerReferenceSummary}
 
 class CheckYourAnswersHelper(
     val userAnswers: UserAnswers

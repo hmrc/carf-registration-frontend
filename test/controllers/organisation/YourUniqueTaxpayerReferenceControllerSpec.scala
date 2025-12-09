@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.YourUniqueTaxpayerReferenceFormProvider
+import controllers.routes
+import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
 import models.OrganisationRegistrationType.*
 import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.YourUniqueTaxpayerReferencePage
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.YourUniqueTaxpayerReferenceView
+import views.html.organisation.YourUniqueTaxpayerReferenceView
 
 import scala.concurrent.Future
 
@@ -46,7 +46,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
   def onwardRoute = Call("GET", "/foo")
 
   lazy val yourUniqueTaxpayerReferenceRoute: String =
-    routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode).url
+    controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode).url
 
   "YourUniqueTaxpayerReference Controller" - {
 

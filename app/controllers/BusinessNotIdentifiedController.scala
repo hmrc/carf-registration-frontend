@@ -18,9 +18,9 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions._
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import javax.inject.Inject
-import pages.{WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.WhatIsTheNameOfYourBusinessPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.organisation
 
 import models.UniqueTaxpayerReference
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object YourUniqueTaxpayerReferencePage extends QuestionPage[UniqueTaxpayerReference] {

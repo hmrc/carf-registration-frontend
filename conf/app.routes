@@ -111,10 +111,10 @@ POST        /register/change-contact-name                                 contro
 
 GET         /register/problem/could-not-confirm-identity                  controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
 
-GET         /register/have-phone                                          controllers.FirstContactPhoneController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/have-phone                                          controllers.FirstContactPhoneController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-have-phone                                   controllers.FirstContactPhoneController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-have-phone                                   controllers.FirstContactPhoneController.onSubmit(mode: Mode = CheckMode)
+GET         /register/have-phone                                          controllers.organisation.FirstContactPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/have-phone                                          controllers.organisation.FirstContactPhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-have-phone                                   controllers.organisation.FirstContactPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-have-phone                                   controllers.organisation.FirstContactPhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/phone                                               controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/phone                                               controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)

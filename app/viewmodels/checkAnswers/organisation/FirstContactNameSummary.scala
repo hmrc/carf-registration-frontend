@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.organisation
 
-import controllers.routes
+import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
 import pages.organisation.FirstContactNamePage
 import play.api.i18n.Messages
@@ -35,7 +35,7 @@ object FirstContactNameSummary {
         actions = Seq(
           ActionItemViewModel(
             "site.change",
-            controllers.organisation.routes.FirstContactNameController.onPageLoad(CheckMode).url
+            routes.FirstContactNameController.onPageLoad(CheckMode).url
           )
             .withVisuallyHiddenText(messages("firstContactName.change.hidden"))
         )

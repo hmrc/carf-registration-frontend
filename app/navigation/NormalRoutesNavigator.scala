@@ -83,7 +83,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.organisation.routes.FirstContactEmailController.onPageLoad(NormalMode)
 
     case FirstContactEmailPage =>
-      _ => routes.FirstContactPhoneController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.FirstContactPhoneController.onPageLoad(NormalMode)
 
     case IndividualHavePhonePage =>
       userAnswers => navigateFromIndividualHavePhonePage(userAnswers)

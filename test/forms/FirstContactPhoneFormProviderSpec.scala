@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.organisation.FirstContactPhoneFormProvider
 import play.api.data.FormError
 
 class FirstContactPhoneFormProviderSpec extends BooleanFieldBehaviours {

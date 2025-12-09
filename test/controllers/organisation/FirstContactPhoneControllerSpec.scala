@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.FirstContactPhoneFormProvider
+import controllers.organisation.routes
+import forms.organisation.FirstContactPhoneFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -25,12 +26,13 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.FirstContactPhonePage
 import pages.organisation.FirstContactNamePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.FirstContactPhoneView
+import views.html.organisation.FirstContactPhoneView
 
 import scala.concurrent.Future
 
@@ -38,11 +40,12 @@ class FirstContactPhoneControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new FirstContactPhoneFormProvider()
-  val form         = formProvider()
+  val formProvider: FirstContactPhoneFormProvider = new FirstContactPhoneFormProvider()
+  val form: Form[Boolean]                         = formProvider()
 
-  lazy val firstContactPhoneRoute      = routes.FirstContactPhoneController.onPageLoad(NormalMode).url
-  val userAnswersWithName: UserAnswers = emptyUserAnswers.set(FirstContactNamePage, "Timothy").success.value
+  lazy val firstContactPhoneRoute: String =
+    controllers.organisation.routes.FirstContactPhoneController.onPageLoad(NormalMode).url
+  val userAnswersWithName: UserAnswers    = emptyUserAnswers.set(FirstContactNamePage, "Timothy").success.value
 
   "FirstContactPhone Controller" - {
 
@@ -138,7 +141,7 @@ class FirstContactPhoneControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -154,7 +157,7 @@ class FirstContactPhoneControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

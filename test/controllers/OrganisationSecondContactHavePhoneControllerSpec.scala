@@ -38,7 +38,8 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
   lazy val secondContactHavePhoneRoute                          = routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode).url
   val formProvider                                              = new OrganisationSecondContactHavePhoneFormProvider()
   val form                                                      = formProvider()
-  lazy val firstContactPhoneRoute                               = routes.FirstContactPhoneController.onPageLoad(NormalMode).url
+  lazy val firstContactPhoneRoute                               =
+    controllers.organisation.routes.FirstContactPhoneController.onPageLoad(NormalMode).url
   val secondNameTest                                            = "Second Contact Name"
   val userAnswersWithSecondNameTest: UserAnswers                =
     emptyUserAnswers.set(OrganisationSecondContactNamePage, secondNameTest).success.value

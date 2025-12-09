@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
 import config.Constants.individualNameRegex
+import forms.WhatIsYourNameFormProvider
 import forms.behaviours.StringFieldBehaviours
 import models.Name
 import play.api.data.{Form, FormError}

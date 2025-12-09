@@ -42,6 +42,11 @@ POST        /register/utr                                                 contro
 GET         /register/changeUtr                                           controllers.organisation.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/changeUtr                                           controllers.organisation.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = CheckMode)
 
+GET         /register/your-name                                           controllers.organisation.WhatIsYourNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/your-name                                           controllers.organisation.WhatIsYourNameController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-your-name                                    controllers.organisation.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-your-name                                    controllers.organisation.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/have-utr                                            controllers.HaveUTRController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/have-utr                                            controllers.HaveUTRController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-have-utr                                     controllers.HaveUTRController.onPageLoad(mode: Mode = CheckMode)
@@ -81,11 +86,6 @@ GET         /register/business-without-id/have-trading-name               contro
 POST        /register/business-without-id/have-trading-name               controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = NormalMode)
 GET         /register/business-without-id/change-have-trading-name        controllers.orgWithoutId.HaveTradingNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/business-without-id/change-have-trading-name        controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = CheckMode)
-
-GET         /register/your-name                                           controllers.WhatIsYourNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/your-name                                           controllers.WhatIsYourNameController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-your-name                                    controllers.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-your-name                                    controllers.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/business-without-id/trading-name                    controllers.TradingNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/business-without-id/trading-name                    controllers.TradingNameController.onSubmit(mode: Mode = NormalMode)

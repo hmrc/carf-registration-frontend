@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
+import controllers.routes
 import forms.WhatIsYourNameFormProvider
 import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.WhatIsYourNamePage
+import pages.organisation.WhatIsYourNamePage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -32,7 +33,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.WhatIsYourNameView
+import views.html.organisation.WhatIsYourNameView
 
 import scala.concurrent.Future
 
@@ -40,10 +41,11 @@ class WhatIsYourNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider     = new WhatIsYourNameFormProvider()
-  val form: Form[Name] = formProvider()
+  val formProvider: WhatIsYourNameFormProvider = new WhatIsYourNameFormProvider()
+  val form: Form[Name]                         = formProvider()
 
-  lazy val whatIsYourNameRoute: String = routes.WhatIsYourNameController.onPageLoad(NormalMode).url
+  lazy val whatIsYourNameRoute: String =
+    controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode).url
 
   val userAnswers = UserAnswers(
     userAnswersId,

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.organisation
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.WhatIsYourNamePage
+import pages.organisation.WhatIsYourNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object WhatIsYourNameSummary {
 
@@ -37,7 +37,10 @@ object WhatIsYourNameSummary {
         key = "whatIsYourName.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.WhatIsYourNameController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.organisation.routes.WhatIsYourNameController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("whatIsYourName.change.hidden"))
         )
       )

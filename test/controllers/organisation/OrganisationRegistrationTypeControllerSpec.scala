@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.OrganisationRegistrationTypeFormProvider
+import controllers.routes
+import forms.organisation.OrganisationRegistrationTypeFormProvider
 import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.OrganisationRegistrationTypePage
+import pages.organisation.OrganisationRegistrationTypePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import views.html.OrganisationRegistrationTypeView
+import views.html.organisation.OrganisationRegistrationTypeView
 
 import scala.concurrent.Future
 
@@ -38,7 +39,7 @@ class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSu
   def onwardRoute = Call("GET", "/foo")
 
   lazy val organisationRegistrationTypeRoute: String =
-    routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
+    controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
 
   val formProvider = new OrganisationRegistrationTypeFormProvider()
   val form         = formProvider()

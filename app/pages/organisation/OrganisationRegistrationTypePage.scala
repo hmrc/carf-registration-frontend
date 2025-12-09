@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package forms
+package pages.organisation
 
-import forms.mappings.Mappings
 import models.OrganisationRegistrationType
-import play.api.data.Form
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
+case object OrganisationRegistrationTypePage extends QuestionPage[OrganisationRegistrationType] {
 
-class OrganisationRegistrationTypeFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  def apply(): Form[OrganisationRegistrationType] =
-    Form(
-      "value" -> enumerable[OrganisationRegistrationType]("organisationRegistrationType.error.required")
-    )
+  override def toString: String = "organisationRegistrationType"
 }

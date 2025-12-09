@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
-import forms.OrganisationRegistrationTypeFormProvider
+import forms.organisation.OrganisationRegistrationTypeFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.OrganisationRegistrationTypePage
+import pages.organisation.OrganisationRegistrationTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrganisationRegistrationTypeView
+import views.html.organisation.OrganisationRegistrationTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

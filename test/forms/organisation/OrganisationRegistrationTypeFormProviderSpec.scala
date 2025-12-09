@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
 import forms.behaviours.OptionFieldBehaviours
+import forms.organisation.OrganisationRegistrationTypeFormProvider
 import models.OrganisationRegistrationType
 import play.api.data.FormError
 

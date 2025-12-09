@@ -23,7 +23,8 @@ import views.html.BusinessNotIdentifiedView
 import config.FrontendAppConfig
 import models.{OrganisationRegistrationType, UniqueTaxpayerReference}
 import models.UserAnswers
-import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.OrganisationRegistrationTypePage
+import pages.{WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 class BusinessNotIdentifiedControllerSpec extends SpecBase {
 

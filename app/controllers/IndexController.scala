@@ -63,7 +63,9 @@ class IndexController @Inject() (
             case None      =>
               for {
                 _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-              } yield Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
+              } yield Redirect(
+                controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
+              )
 
           }
       }

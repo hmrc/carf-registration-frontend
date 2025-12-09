@@ -21,7 +21,8 @@ import forms.YourUniqueTaxpayerReferenceFormProvider
 import models.OrganisationRegistrationType.{LLP, LimitedCompany, Partnership, Trust}
 import models.{Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.Navigator
-import pages.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.YourUniqueTaxpayerReferencePage
+import pages.organisation.OrganisationRegistrationTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

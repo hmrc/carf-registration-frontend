@@ -17,7 +17,8 @@
 package utils
 
 import models.{IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
-import pages.{IndividualRegistrationTypePage, OrganisationRegistrationTypePage}
+import pages.IndividualRegistrationTypePage
+import pages.organisation.OrganisationRegistrationTypePage
 
 trait UserAnswersHelper {
 

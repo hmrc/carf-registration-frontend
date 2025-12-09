@@ -79,7 +79,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
 
     case FirstContactNamePage =>
-      _ => routes.FirstContactEmailController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.FirstContactEmailController.onPageLoad(NormalMode)
 
     case FirstContactEmailPage =>
       _ => routes.FirstContactPhoneController.onPageLoad(NormalMode)

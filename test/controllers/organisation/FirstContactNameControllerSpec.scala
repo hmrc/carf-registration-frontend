@@ -24,10 +24,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.FirstContactNamePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.FirstContactNameView
 
@@ -37,10 +38,11 @@ class FirstContactNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new FirstContactNameFormProvider()
-  val form         = formProvider()
+  val formProvider: FirstContactNameFormProvider = new FirstContactNameFormProvider()
+  val form: Form[String]                         = formProvider()
 
-  lazy val firstContactNameRoute = routes.FirstContactNameController.onPageLoad(NormalMode).url
+  lazy val firstContactNameRoute: String =
+    controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode).url
 
   "FirstContactName Controller" - {
 

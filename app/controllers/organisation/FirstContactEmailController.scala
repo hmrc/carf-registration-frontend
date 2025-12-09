@@ -14,47 +14,52 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
-import controllers.actions._
-import forms.FirstContactNameFormProvider
-import javax.inject.Inject
+import controllers.actions.*
+import controllers.routes
+import forms.FirstContactEmailFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.FirstContactNamePage
+import pages.{FirstContactEmailPage, FirstContactNamePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.FirstContactNameView
+import views.html.FirstContactEmailView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FirstContactNameController @Inject() (
+class FirstContactEmailController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: FirstContactNameFormProvider,
+    formProvider: FirstContactEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: FirstContactNameView
+    view: FirstContactEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(FirstContactNamePage) match {
+      val preparedForm = request.userAnswers.get(FirstContactEmailPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+      request.userAnswers.get(FirstContactNamePage) match {
+        case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
+        case None                   => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -62,12 +67,18 @@ class FirstContactNameController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            request.userAnswers.get(FirstContactNamePage) match {
+              case Some(firstContactName) =>
+                Future.successful(BadRequest(view(formWithErrors, mode, firstContactName)))
+              case None                   => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(FirstContactNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(FirstContactEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(FirstContactNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(FirstContactEmailPage, mode, updatedAnswers))
         )
   }
+
 }

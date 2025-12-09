@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
+import controllers.routes
 import forms.FirstContactEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -42,7 +43,8 @@ class FirstContactEmailControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[String]  = formProvider()
   val contactName: String = "name"
 
-  lazy val firstContactEmailRoute: String = routes.FirstContactEmailController.onPageLoad(NormalMode).url
+  lazy val firstContactEmailRoute: String =
+    controllers.organisation.routes.FirstContactEmailController.onPageLoad(NormalMode).url
 
   "FirstContactEmail Controller" - {
 

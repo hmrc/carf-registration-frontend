@@ -629,7 +629,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.FirstContactEmailController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.FirstContactEmailController.onPageLoad(NormalMode)
     }
 
     "must go from FirstContactEmail page to HavePhone page" in {

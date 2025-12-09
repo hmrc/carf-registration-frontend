@@ -33,7 +33,10 @@ object FirstContactEmailSummary {
         key = "firstContactEmail.checkYourAnswersLabel",
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.FirstContactEmailController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.organisation.routes.FirstContactEmailController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("firstContactEmail.change.hidden"))
         )
       )

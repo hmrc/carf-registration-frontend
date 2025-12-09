@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, OrganisationSecondContactNamePage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -825,7 +825,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationSecondContactNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
     }
 

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.organisation
 
-import controllers.routes
+import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
-import pages.OrganisationSecondContactEmailPage
+import pages.organisation.OrganisationSecondContactEmailPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object OrganisationSecondContactEmailSummary {
 

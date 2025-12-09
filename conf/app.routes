@@ -136,10 +136,10 @@ POST        /register/second-contact-name                                 contro
 GET         /register/change-second-contact-name                          controllers.organisation.OrganisationSecondContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-name                          controllers.organisation.OrganisationSecondContactNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/second-contact-email                                controllers.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/second-contact-email                                controllers.OrganisationSecondContactEmailController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-second-contact-email                         controllers.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-second-contact-email                         controllers.OrganisationSecondContactEmailController.onSubmit(mode: Mode = CheckMode)
+GET         /register/second-contact-email                                controllers.organisation.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-email                                controllers.organisation.OrganisationSecondContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onSubmit(mode: Mode = CheckMode)
 
 
 

@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.OrganisationSecondContactEmailFormProvider
+import controllers.routes
+import forms.organisation.OrganisationSecondContactEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.OrganisationSecondContactEmailPage
-import pages.organisation.OrganisationSecondContactNamePage
+import pages.organisation.{OrganisationSecondContactEmailPage, OrganisationSecondContactNamePage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.OrganisationSecondContactEmailView
+import views.html.organisation.OrganisationSecondContactEmailView
 
 import scala.concurrent.Future
 
@@ -38,12 +39,12 @@ class OrganisationSecondContactEmailControllerSpec extends SpecBase with Mockito
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider              = new OrganisationSecondContactEmailFormProvider()
-  val form                      = formProvider()
-  val secondContactName: String = "name"
+  val formProvider: OrganisationSecondContactEmailFormProvider = new OrganisationSecondContactEmailFormProvider()
+  val form: Form[String]                                       = formProvider()
+  val secondContactName: String                                = "name"
 
-  lazy val organisationSecondContactEmailRoute =
-    routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode).url
+  lazy val organisationSecondContactEmailRoute: String =
+    controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode).url
 
   "OrganisationSecondContactEmail Controller" - {
 

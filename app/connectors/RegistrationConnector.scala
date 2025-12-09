@@ -62,12 +62,9 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         .map {
           case response if response.status == OK        =>
             Try(response.json.as[RegisterIndividualWithIdResponse]) match {
-              case Success(data)      =>
-                Right(data)
+              case Success(data)      => Right(data)
               case Failure(exception) =>
-                logger.warn(
-                  s"Error parsing response as RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"
-                )
+                logger.warn(s"Error parsing RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}")
                 Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>

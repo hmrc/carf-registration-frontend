@@ -110,12 +110,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
                         case Some(value) => Some(value)
                         case None        => userAnswers.get(WhatIsYourNamePage).map(_.fullName)
                       }
-      orgType      <- (userAnswers.get(OrganisationRegistrationTypePage) match {
-                        case Some(value) => Some(value)
-                        case None        => userAnswers.get(IndividualRegistrationTypePage)
-                      }) match {
+      orgType      <- userAnswers.get(OrganisationRegistrationTypePage) match {
                         case Some(value: OrganisationRegistrationType) => Some(value.code)
-                        case Some(value: IndividualRegistrationType)   => Some(value.code)
                         case None                                      => None
                       }
     } yield (utr, businessName, orgType)

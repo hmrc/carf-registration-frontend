@@ -21,13 +21,13 @@ import cats.data.EitherT
 import connectors.RegistrationConnector
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
-import models.requests.RegisterOrganisationWithIdRequest
+import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -51,7 +51,7 @@ class RegistrationServiceSpec extends SpecBase {
     countryCode = "GB"
   )
 
-  val testRegisterIndividualWithIdSuccessResponse: RegisterIndividualWithIdResponse = RegisterIndividualWithIdResponse(
+  val testRegisterIndividualWithIdSuccessResponse = RegisterIndividualWithIdResponse(
     safeId = "testSafeId",
     firstName = "Floriane",
     lastName = "Yammel",
@@ -78,7 +78,7 @@ class RegistrationServiceSpec extends SpecBase {
     )
   )
 
-  val orgNonUkBusinessResponse = RegisterOrganisationWithIdResponse(
+  val orgNonUkBusinessResponse   = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
     code = Some("0001"),
     organisationName = "International Ltd",
@@ -91,7 +91,7 @@ class RegistrationServiceSpec extends SpecBase {
       countryCode = "US"
     )
   )
-  val userAnswersUtr           = UserAnswers(userAnswersId)
+  val organisationUserAnswersUtr = UserAnswers(userAnswersId)
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
     .success
     .value
@@ -99,6 +99,33 @@ class RegistrationServiceSpec extends SpecBase {
     .success
     .value
     .set(OrganisationRegistrationTypePage, testOrgType)
+    .success
+    .value
+
+  val individualDetailsUtrUserAnswers = UserAnswers(userAnswersId)
+    .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("5234567890"))
+    .success
+    .value
+    .set(WhatIsYourNamePage, Name("ST firstName", "ST lastName"))
+    .success
+    .value
+    .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+    .success
+    .value
+
+  val utrNotPresentInIndividualDetailsUserAnswers = UserAnswers(userAnswersId)
+    .set(WhatIsYourNamePage, Name("ST firstName", "ST lastName"))
+    .success
+    .value
+    .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+    .success
+    .value
+
+  val nameNotPresentIndividualDetailsUserAnswers = UserAnswers(userAnswersId)
+    .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("5234567890"))
+    .success
+    .value
+    .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
     .success
     .value
 
@@ -184,7 +211,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.organisationWithUtr(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](InternalServerError))
         val exception = intercept[Exception] {
-          testService.getBusinessWithUserInput(userAnswersUtr).futureValue
+          testService.getBusinessWithUserInput(organisationUserAnswersUtr).futureValue
         }
         exception.getMessage must include("Unexpected error!")
       }
@@ -231,6 +258,54 @@ class RegistrationServiceSpec extends SpecBase {
             .getIndividualByNino(ninoInternalServerError, validName, validBirthDate)
             .futureValue
         result mustBe Left(InternalServerError)
+      }
+    }
+
+    "getIndividualByUtr method should" - {
+      "return individual details when UserAnswers is complete and connector finds a match for this user's UTR & Name" in {
+        val expectedRequest  = RegisterIndividualWithIdRequest(
+          requiresNameMatch = true,
+          IDNumber = "5234567890",
+          IDType = "UTR",
+          firstName = "ST firstName",
+          lastName = "ST lastName",
+          dateOfBirth = ""
+        )
+        when(mockConnector.individualWithUtr(eqTo(expectedRequest))(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithIdSuccessResponse))
+        val individualResult = testService.getIndividualByUtr(individualDetailsUtrUserAnswers).futureValue
+        individualResult               mustBe defined
+        individualResult.get.firstName mustBe testRegisterIndividualWithIdSuccessResponse.firstName
+        individualResult.get.lastName  mustBe testRegisterIndividualWithIdSuccessResponse.lastName
+        verify(mockConnector).individualWithUtr(eqTo(expectedRequest))(any())
+      }
+
+      "return None when the connector could not get a record match for this user's UTR & Name" in {
+        when(mockConnector.individualWithUtr(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
+        val individualResult = testService.getIndividualByUtr(individualDetailsUtrUserAnswers).futureValue
+        individualResult mustBe None
+      }
+
+      "return None when the call to the RegistrationService does not contain a Utr" in {
+        val individualResult =
+          testService.getBusinessWithUserInput(utrNotPresentInIndividualDetailsUserAnswers).futureValue
+        individualResult mustBe None
+      }
+
+      "return None when the call to the RegistrationService does not contain a Name" in {
+        val individualResult =
+          testService.getBusinessWithUserInput(nameNotPresentIndividualDetailsUserAnswers).futureValue
+        individualResult mustBe None
+      }
+
+      "throw an 'Unexpected error!' exception when the connector returns an error" in {
+        when(mockConnector.individualWithUtr(any())(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
+        val exception = intercept[Exception] {
+          testService.getIndividualByUtr(individualDetailsUtrUserAnswers).futureValue
+        }
+        exception.getMessage must include("Unexpected error!")
       }
     }
   }

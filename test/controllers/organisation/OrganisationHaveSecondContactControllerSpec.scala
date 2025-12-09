@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.OrganisationHaveSecondContactFormProvider
+import controllers.routes
+import forms.organisation.OrganisationHaveSecondContactFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.OrganisationHaveSecondContactPage
-import pages.organisation.FirstContactNamePage
+import pages.organisation.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.OrganisationHaveSecondContactView
+import views.html.organisation.OrganisationHaveSecondContactView
 
 import scala.concurrent.Future
 
@@ -44,7 +44,7 @@ class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoS
   val firstContactName: String                                = "Contact Name"
 
   lazy val organisationHaveSecondContactRoute: String =
-    routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode).url
+    controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode).url
 
   "OrganisationHaveSecondContact Controller" - {
 

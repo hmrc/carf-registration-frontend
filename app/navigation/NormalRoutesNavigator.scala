@@ -21,7 +21,7 @@ import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -89,7 +89,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
 
     case FirstContactPhoneNumberPage =>
-      _ => routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
 
     case FirstContactPhonePage =>
       userAnswers => navigateFromFirstContactPhonePage(userAnswers)
@@ -227,7 +227,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
       case _          =>
-        routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+        controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
   private def navigateFromOrganisationHaveSecondContactController(userAnswers: UserAnswers): Call =

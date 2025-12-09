@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.organisation.OrganisationHaveSecondContactFormProvider
 import play.api.data.FormError
 
 class OrganisationHaveSecondContactFormProviderSpec extends BooleanFieldBehaviours {

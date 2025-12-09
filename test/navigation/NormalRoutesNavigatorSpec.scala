@@ -23,6 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate

@@ -21,6 +21,7 @@ import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 

@@ -20,7 +20,8 @@ import controllers.actions.*
 import forms.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import pages.organisation.FirstContactNamePage
+import pages.{OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

@@ -18,16 +18,16 @@ package controllers.organisation
 
 import controllers.actions.*
 import controllers.routes
-import forms.FirstContactEmailFormProvider
+import forms.organisation.FirstContactEmailFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{FirstContactEmailPage, FirstContactNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.FirstContactEmailView
+import views.html.organisation.FirstContactEmailView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package pages
+package forms.organisation
 
-import play.api.libs.json.JsPath
+import config.Constants.contactNameRegex
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object FirstContactEmailPage extends QuestionPage[String] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class FirstContactNameFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "firstContactEmail"
+  private val maxContactNameLength = 35
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> validatedText(
+        requiredKey = "firstContactName.error.required",
+        invalidKey = "firstContactName.error.invalid",
+        lengthKey = "firstContactName.error.length",
+        regex = contactNameRegex,
+        maxLength = maxContactNameLength
+      )
+    )
 }

@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -747,7 +747,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactPhonePage,
         NormalMode,
         userAnswers
-      ) mustBe routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
     }
 
     "must navigate from FirstContactPhoneNumber page (/have-phone) to HaveSecondPhoneOrganisation if answer is No" in {

@@ -116,10 +116,10 @@ POST        /register/have-phone                                          contro
 GET         /register/change-have-phone                                   controllers.organisation.FirstContactPhoneController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-have-phone                                   controllers.organisation.FirstContactPhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/phone                                               controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/phone                                               controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-phone                                        controllers.FirstContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-phone                                        controllers.FirstContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+GET         /register/phone                                               controllers.organisation.FirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/phone                                               controllers.organisation.FirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-phone                                        controllers.organisation.FirstContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-phone                                        controllers.organisation.FirstContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/email                                               controllers.organisation.FirstContactEmailController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/email                                               controllers.organisation.FirstContactEmailController.onSubmit(mode: Mode = NormalMode)

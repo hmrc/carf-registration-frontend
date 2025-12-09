@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
-import forms.FirstContactPhoneNumberFormProvider
-
-import javax.inject.Inject
+import controllers.routes
+import forms.organisation.FirstContactPhoneNumberFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.FirstContactPhoneNumberPage
-import pages.organisation.FirstContactNamePage
+import pages.organisation.{FirstContactNamePage, FirstContactPhoneNumberPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.FirstContactPhoneNumberView
+import views.html.organisation.FirstContactPhoneNumberView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class FirstContactPhoneNumberController @Inject() (
@@ -46,7 +46,7 @@ class FirstContactPhoneNumberController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>

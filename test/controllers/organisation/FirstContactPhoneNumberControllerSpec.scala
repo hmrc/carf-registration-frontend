@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.FirstContactPhoneNumberFormProvider
+import controllers.routes
+import forms.organisation.FirstContactPhoneNumberFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.FirstContactPhoneNumberPage
-import pages.organisation.FirstContactNamePage
+import pages.organisation.{FirstContactNamePage, FirstContactPhoneNumberPage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.FirstContactPhoneNumberView
+import views.html.organisation.FirstContactPhoneNumberView
 
 import scala.concurrent.Future
 
@@ -38,10 +39,11 @@ class FirstContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new FirstContactPhoneNumberFormProvider()
-  val form         = formProvider()
+  val formProvider: FirstContactPhoneNumberFormProvider = new FirstContactPhoneNumberFormProvider()
+  val form: Form[String]                                = formProvider()
 
-  lazy val firstContactPhoneNumberRoute = routes.FirstContactPhoneNumberController.onPageLoad(NormalMode).url
+  lazy val firstContactPhoneNumberRoute: String =
+    controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(NormalMode).url
 
   val userAnswersWithName: UserAnswers = emptyUserAnswers.set(FirstContactNamePage, "Timothy").success.value
 

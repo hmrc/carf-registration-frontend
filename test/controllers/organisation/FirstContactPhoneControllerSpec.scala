@@ -24,8 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.FirstContactPhonePage
-import pages.organisation.FirstContactNamePage
+import pages.organisation.{FirstContactNamePage, FirstContactPhonePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

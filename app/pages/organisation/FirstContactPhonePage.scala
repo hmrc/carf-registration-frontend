@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package pages.organisation
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
+case object FirstContactPhonePage extends QuestionPage[Boolean] {
 
-class FirstContactPhoneNumberFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  def apply(): Form[String] =
-    Form(
-      "value" -> phoneNumber(
-        requiredKey = "firstContactPhoneNumber.error.required",
-        invalidKey = "firstContactPhoneNumber.error.invalid",
-        lengthKey = "firstContactPhoneNumber.error.length"
-      )
-    )
+  override def toString: String = "firstContactPhone"
 }

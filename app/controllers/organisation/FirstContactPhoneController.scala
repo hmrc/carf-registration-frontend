@@ -21,8 +21,7 @@ import controllers.routes
 import forms.organisation.FirstContactPhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.FirstContactPhonePage
-import pages.organisation.FirstContactNamePage
+import pages.organisation.{FirstContactNamePage, FirstContactPhonePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

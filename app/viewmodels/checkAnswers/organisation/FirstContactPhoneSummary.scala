@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
-import pages.FirstContactPhonePage
+import pages.organisation.FirstContactPhonePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*

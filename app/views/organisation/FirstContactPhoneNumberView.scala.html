@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("firstContactPhoneNumber.title"))) {
 
-    @formHelper(action = routes.FirstContactPhoneNumberController.onSubmit(mode)) {
+    @formHelper(action = controllers.organisation.routes.FirstContactPhoneNumberController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

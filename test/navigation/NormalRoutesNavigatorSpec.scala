@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -47,7 +47,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationRegistrationTypePage,
         NormalMode,
         UserAnswers("id")
-      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Registered Address in the UK Page when user is a Sole Trader" in {
@@ -57,7 +57,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         IndividualRegistrationTypePage,
         NormalMode,
         userAnswers
-      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {

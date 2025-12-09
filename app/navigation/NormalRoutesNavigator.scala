@@ -21,7 +21,7 @@ import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -35,7 +35,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
     case OrganisationRegistrationTypePage =>
-      _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
@@ -122,7 +122,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualRegistrationTypePage) match {
       case Some(IndividualRegistrationType.SoleTrader) =>
-        routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+        controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
         routes.HaveNiNumberController.onPageLoad(NormalMode)
       case _                                           =>

@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.RegisteredAddressInUkFormProvider
+import controllers.routes
+import forms.organisation.RegisteredAddressInUkFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RegisteredAddressInUkPage
+import pages.organisation.RegisteredAddressInUkPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import views.html.RegisteredAddressInUkView
+import views.html.organisation.RegisteredAddressInUkView
 
 import scala.concurrent.Future
 
@@ -38,11 +40,11 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new RegisteredAddressInUkFormProvider()
-  val form         = formProvider()
+  val formProvider: RegisteredAddressInUkFormProvider = new RegisteredAddressInUkFormProvider()
+  val form: Form[Boolean]                             = formProvider()
 
-  lazy val registeredAddressInUkControllerRoute =
-    routes.RegisteredAddressInUkController.onPageLoad(NormalMode).url
+  lazy val registeredAddressInUkControllerRoute: String =
+    controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode).url
 
   "RegisteredAddressInUkController Controller" - {
 

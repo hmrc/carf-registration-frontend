@@ -17,8 +17,6 @@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
-@import play.api.libs.json.Json
-@import play.twirl.api.Html
 
 @(
     field: Field,
@@ -28,9 +26,6 @@
 
 @this(govukSelect: GovukSelect)
 
-<script type="application/json" id="@{field.id}-countries">
-    @Html(Json.toJson(countries.filter(_.value.exists(_.nonEmpty)).map(_.text)).toString)
-</script>
 
 @govukSelect(
     Select(
@@ -45,14 +40,13 @@
 <script type="text/javascript">
     (function() {
         var selectElement = document.querySelector('#@{field.id}');
-        var countryData = JSON.parse(document.getElementById('@{field.id}-countries').textContent);
-
-        accessibleAutocomplete.enhanceSelectElement({
-            selectElement: selectElement,
-            source: countryData,
-            autoselect: false,
-            showAllValues: false,
-            defaultValue: ''
-        });
+        if (selectElement) {
+            accessibleAutocomplete.enhanceSelectElement({
+                selectElement: selectElement,
+                autoselect: false,
+                showAllValues: false,
+                defaultValue: ''
+            });
+        }
     })();
 </script>

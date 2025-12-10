@@ -16,10 +16,9 @@
 
 package controllers
 
-import controllers.actions.*
-import forms.OrganisationBusinessAddressFormProvider
 
-import javax.inject.Inject
+import controllers.actions._
+import forms.OrganisationBusinessAddressFormProvider
 import models.{Country, Mode}
 import navigation.Navigator
 import pages.OrganisationBusinessAddressPage
@@ -27,12 +26,12 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
 import views.html.OrganisationBusinessAddressView
-import uk.gov.hmrc.govukfrontend.views.html.components.implicits.*
-import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class OrganisationBusinessAddressController @Inject() (
@@ -57,10 +56,10 @@ class OrganisationBusinessAddressController @Inject() (
       case Some(countries: Seq[Country]) => countryListFactory.countrySelectList(form.data, countries)
       case _ => Seq.empty
     }
-    
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      
+
       val preparedForm = request.userAnswers.get(OrganisationBusinessAddressPage) match {
         case None        => form
         case Some(value) => form.fill(value)

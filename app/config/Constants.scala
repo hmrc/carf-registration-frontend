@@ -16,6 +16,8 @@
 
 package config
 
+import scala.util.matching.Regex
+
 object Constants {
 
   val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
@@ -27,6 +29,8 @@ object Constants {
   final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
   final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
   final val phoneNumberRegex    = """^[A-Z0-9 )/(\-*#+]*$""".stripMargin
+
+  final val addressLookupPostcodeRegex: Regex = """^([A-Z]{1,2})([0-9][0-9A-Z]?)([0-9])([A-Z]{2})$""".r
 
   final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""
   final val ninoRegex       =

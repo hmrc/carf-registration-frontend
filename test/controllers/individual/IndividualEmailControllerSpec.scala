@@ -14,31 +14,36 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import base.SpecBase
-import forms.IndividualEmailFormProvider
+import controllers.routes
+import forms.individual.IndividualEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{IndividualEmailPage, NiNumberPage}
+import pages.NiNumberPage
+import pages.individual.IndividualEmailPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.IndividualEmailView
+import views.html.individual.IndividualEmailView
 
 import scala.concurrent.Future
 
 class IndividualEmailControllerSpec extends SpecBase with MockitoSugar {
-  def onwardRoute               = Call("GET", "/foo")
-  val formProvider              = new IndividualEmailFormProvider()
-  val form                      = formProvider()
-  lazy val individualEmailRoute = routes.IndividualEmailController.onPageLoad(NormalMode).url
-  val validEmailAddress         = "avalidemailaddress@email.com"
+
+  def onwardRoute: Call                         = Call("GET", "/foo")
+  val formProvider: IndividualEmailFormProvider = new IndividualEmailFormProvider()
+  val form: Form[String]                        = formProvider()
+  lazy val individualEmailRoute: String         =
+    controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
+  val validEmailAddress: String                 = "avalidemailaddress@email.com"
 
   "IndividualEmail Controller" - {
     "must return OK and the correct view for a GET" in {

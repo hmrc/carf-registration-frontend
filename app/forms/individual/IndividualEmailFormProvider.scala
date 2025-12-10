@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package pages
+package forms.individual
 
-import play.api.libs.json.JsPath
+import config.Constants
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object IndividualEmailPage extends QuestionPage[String] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class IndividualEmailFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "individualEmail"
+  private val maxLengthChars = Constants.validEmailMaxLength
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("individualEmail.error.required")
+        .verifying(
+          firstError(
+            maxLength(maxLengthChars, "individualEmail.error.length"),
+            validEmailAddress("individualEmail.error.invalid")
+          )
+        )
+    )
 }

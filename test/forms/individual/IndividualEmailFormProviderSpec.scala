@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individual
 
 import config.Constants
 import forms.behaviours.StringFieldBehaviours
+import forms.individual.IndividualEmailFormProvider
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
 class IndividualEmailFormProviderSpec extends StringFieldBehaviours {
-  val requiredKey                             = "individualEmail.error.required"
-  val lengthKey                               = "individualEmail.error.length"
-  val invalidKey                              = "individualEmail.error.invalid"
-  val maxLength                               = Constants.validEmailMaxLength
-  val validEmailAddress132chars64charUsername =
+
+  val requiredKey: String                             = "individualEmail.error.required"
+  val lengthKey: String                               = "individualEmail.error.length"
+  val invalidKey: String                              = "individualEmail.error.invalid"
+  val maxLength: Int                                  = Constants.validEmailMaxLength
+  val validEmailAddress132chars64charUsername: String =
     "pooYokBZRRdpUsizrOdDbKarOtRjFT.WQOpooYokBZRRdpUsizrOdDbKarOtRjFT@123456789012345678901234567890WQOpooYokBZRRdpUsizrOdDbKarOtRjFT.com"
-  val form: Form[String]                      = new IndividualEmailFormProvider()()
+  val form: Form[String]                              = new IndividualEmailFormProvider()()
 
   ".value" - {
     val fieldName = "value"

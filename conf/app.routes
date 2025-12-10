@@ -152,10 +152,10 @@ POST        /register/individual-have-phone                               contro
 GET         /register/change-individual-have-phone                        controllers.IndividualHavePhoneController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-individual-have-phone                        controllers.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/individual-email                                    controllers.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/individual-email                                    controllers.IndividualEmailController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-individual-email                             controllers.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-individual-email                             controllers.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-email                                    controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-email                                    controllers.individual.IndividualEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-email                             controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-email                             controllers.individual.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
 
 
 

@@ -22,6 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
+import pages.individual.IndividualEmailPage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
 import play.api.libs.json.Json
@@ -325,7 +326,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
+          ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to individual email page for individual sole traders" in {
@@ -347,7 +348,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
+          ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to contact details page for non-sole traders" in {

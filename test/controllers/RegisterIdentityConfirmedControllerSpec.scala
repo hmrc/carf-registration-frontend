@@ -25,8 +25,9 @@ import play.api.test.Helpers.*
 import views.html.RegisterIdentityConfirmedView
 
 class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar {
-  def onwardRoute                         = Call("GET", "/foo")
-  lazy val registerIdentityConfirmedRoute = routes.RegisterIdentityConfirmedController.onPageLoad().url
+
+  def onwardRoute: Call                           = Call("GET", "/foo")
+  lazy val registerIdentityConfirmedRoute: String = routes.RegisterIdentityConfirmedController.onPageLoad().url
 
   "RegisterIdentityConfirmed Controller" - {
 
@@ -38,7 +39,7 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar
         val result      = route(application, request).value
         val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
         val continueUrl =
-          routes.IndividualEmailController.onPageLoad(NormalMode).url
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString

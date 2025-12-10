@@ -20,6 +20,7 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
+import pages.individual.IndividualEmailPage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
@@ -173,7 +174,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          routes.IndividualEmailController.onPageLoad(NormalMode)
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         } else {
           routes.OrgYourContactDetailsController.onPageLoad()
         }

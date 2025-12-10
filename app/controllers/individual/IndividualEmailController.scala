@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import controllers.actions.*
-import forms.IndividualEmailFormProvider
-
-import javax.inject.Inject
+import forms.individual.IndividualEmailFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.IndividualEmailPage
+import pages.individual.IndividualEmailPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndividualEmailView
+import views.html.individual.IndividualEmailView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualEmailController @Inject() (
@@ -45,7 +45,7 @@ class IndividualEmailController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>

@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("individualEmail.title"))) {
 
-    @formHelper(action = routes.IndividualEmailController.onSubmit(mode)) {
+    @formHelper(action = controllers.individual.routes.IndividualEmailController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

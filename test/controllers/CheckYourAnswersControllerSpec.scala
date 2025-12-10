@@ -30,6 +30,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.mockito.MockitoSugar.*
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages.*
+import pages.individual.IndividualEmailPage
 import pages.organisation.{FirstContactEmailPage, FirstContactPhoneNumberPage}
 import play.api.Application
 import play.api.i18n.Messages

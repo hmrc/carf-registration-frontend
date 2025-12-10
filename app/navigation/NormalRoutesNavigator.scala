@@ -70,10 +70,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveTradingName(userAnswers)
 
     case TradingNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+      _ => routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+
+    case OrganisationBusinessAddressPage =>
+      _ => routes.OrgYourContactDetailsController.onPageLoad()
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -209,9 +209,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
     }
 
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =

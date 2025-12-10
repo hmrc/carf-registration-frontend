@@ -14,18 +14,16 @@
  * limitations under the License.
  *@
 
-
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+
+@this(govukSelect: GovukSelect)
 
 @(
     field: Field,
     label: String,
     countries: Seq[SelectItem]
 )(implicit messages: Messages)
-
-@this(govukSelect: GovukSelect)
-
 
 @govukSelect(
     Select(

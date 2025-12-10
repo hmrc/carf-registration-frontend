@@ -16,7 +16,6 @@
 
 package controllers
 
-
 import controllers.actions._
 import forms.OrganisationBusinessAddressFormProvider
 import models.{Country, Mode}
@@ -54,7 +53,7 @@ class OrganisationBusinessAddressController @Inject() (
   private def getCountries(form: Form[_]): Seq[SelectItem] =
     countryListFactory.countryList match {
       case Some(countries: Seq[Country]) => countryListFactory.countrySelectList(form.data, countries)
-      case _ => Seq.empty
+      case _                             => Seq.empty
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
@@ -70,16 +69,15 @@ class OrganisationBusinessAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, getCountries(formWithErrors)))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, getCountries(formWithErrors)))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
+        )
   }
 }

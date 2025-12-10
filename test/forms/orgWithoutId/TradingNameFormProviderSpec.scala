@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
 import forms.behaviours.StringFieldBehaviours
-import play.api.data.FormError
+import forms.orgWithoutId.TradingNameFormProvider
 import org.scalacheck.Gen
+import play.api.data.{Form, FormError}
 
 class TradingNameFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "tradingName.error.required"
-  val lengthKey   = "tradingName.error.length"
-  val invalidKey  = "tradingName.error.invalid"
-  val maxLength   = 80
+  val requiredKey: String = "tradingName.error.required"
+  val lengthKey: String   = "tradingName.error.length"
+  val invalidKey: String  = "tradingName.error.invalid"
+  val maxLength: Int      = 80
 
-  val form = new TradingNameFormProvider()()
+  val form: Form[String] = new TradingNameFormProvider()()
 
   val validTradingNameChars: Gen[Char] = Gen.oneOf(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 &'\\`^-".toSeq

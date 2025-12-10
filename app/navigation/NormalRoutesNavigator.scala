@@ -209,7 +209,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromHaveTradingName(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveTradingNamePage) match {
       case Some(true) =>
-        routes.TradingNameController.onPageLoad(NormalMode)
+        controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/business-address (CARF-162)"

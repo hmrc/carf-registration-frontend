@@ -14,33 +14,35 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.orgWithoutId
 
 import base.SpecBase
-import forms.TradingNameFormProvider
+import controllers.routes
+import forms.orgWithoutId.TradingNameFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.orgWithoutId.TradingNamePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.TradingNameView
+import views.html.orgWithoutId.TradingNameView
 
 import scala.concurrent.Future
 
 class TradingNameControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
-  val formProvider = new TradingNameFormProvider()
-  val form         = formProvider()
+  val formProvider: TradingNameFormProvider = new TradingNameFormProvider()
+  val form: Form[String]                    = formProvider()
 
-  lazy val tradingNameRoute = routes.TradingNameController.onPageLoad(NormalMode).url
+  lazy val tradingNameRoute: String = controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode).url
 
   "TradingName Controller" - {
 

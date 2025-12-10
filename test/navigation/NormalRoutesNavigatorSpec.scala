@@ -548,7 +548,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.TradingNameController.onPageLoad(NormalMode)
+        ) mustBe controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
 
       }
       "business without id business address, when No is selected" in {

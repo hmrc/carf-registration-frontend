@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.orgWithoutId
 
 import base.SpecBase
+import controllers.routes
 import forms.orgWithoutId.HaveTradingNameFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -24,6 +25,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.orgWithoutId.HaveTradingNamePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -36,12 +38,13 @@ import scala.concurrent.Future
 
 class HaveTradingNameControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
-  val formProvider = new HaveTradingNameFormProvider()
-  val form         = formProvider()
+  val formProvider: HaveTradingNameFormProvider = new HaveTradingNameFormProvider()
+  val form: Form[Boolean]                       = formProvider()
 
-  lazy val haveTradingNameRoute = controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode).url
+  lazy val haveTradingNameRoute: String =
+    controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode).url
 
   "HaveTradingName Controller" - {
 

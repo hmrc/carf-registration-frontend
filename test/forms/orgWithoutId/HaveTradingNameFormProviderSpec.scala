@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
 import forms.behaviours.BooleanFieldBehaviours
 import forms.orgWithoutId.HaveTradingNameFormProvider
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 
 class HaveTradingNameFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "haveTradingName.error.required"
-  val invalidKey  = "error.boolean"
+  val requiredKey: String = "haveTradingName.error.required"
+  val invalidKey: String  = "error.boolean"
 
-  val form = new HaveTradingNameFormProvider()()
+  val form: Form[Boolean] = new HaveTradingNameFormProvider()()
 
   ".value" - {
 

@@ -46,9 +46,7 @@ class AddressLookupController @Inject() (
     s"Total responses = ${responses.length}\n\n\n" +
       responses.zipWithIndex
         .map { case (resp, idx) =>
-          val a           = resp.address
-          val subdivision =
-            a.subdivision.map(s => s"${s.name} (${s.code})").getOrElse("N/A")
+          val a = resp.address
 
           s"""
          |#${idx + 1}
@@ -57,7 +55,6 @@ class AddressLookupController @Inject() (
          |  ${a.lines.mkString("\n  ")}
          |Town: ${a.town}
          |Postcode: ${a.postcode}
-         |Subdivision: $subdivision
          |Country: ${a.country.name} (${a.country.code})
          |""".stripMargin.trim
         }

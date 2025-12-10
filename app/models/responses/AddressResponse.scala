@@ -33,7 +33,6 @@ case class AddressRecord(
     lines: List[String],
     town: String,
     postcode: String,
-    subdivision: Option[CountryRecord],
     country: CountryRecord
 )
 

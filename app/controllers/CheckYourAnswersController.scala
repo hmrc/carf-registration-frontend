@@ -19,12 +19,14 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.UserAnswers
-import pages.Page
+import pages.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, Page}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersValidator
-import viewmodels.checkAnswers.CheckYourAnswersViewModel
+import viewmodels.Section
+import viewmodels.checkAnswers.{CheckYourAnswersViewModel, FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneNumberSummary, FirstContactPhoneSummary}
 import views.html.CheckYourAnswersView
 
 class CheckYourAnswersController @Inject() (
@@ -38,7 +40,20 @@ class CheckYourAnswersController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    Ok(view(CheckYourAnswersViewModel.buildPages(request.userAnswers)))
+
+    val firstContactDetails: Option[Seq[SummaryListRow]] = for {
+      firstContactName         <- FirstContactNameSummary.row(request.userAnswers)
+      firstContactEmail        <- FirstContactEmailSummary.row(request.userAnswers)
+      canWeContactFirstContact <- FirstContactPhoneSummary.row(request.userAnswers)
+      firstContactNumber       <- FirstContactPhoneNumberSummary.row(request.userAnswers)
+    } yield Seq(firstContactName, firstContactEmail, canWeContactFirstContact, firstContactNumber)
+
+    firstContactDetails match {
+
+      case Some(summaryListRows: Seq[SummaryListRow]) => Ok(view(Seq(Section("sectionName", summaryListRows))))
+
+      case None => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+    }
   }
 
   private def getMissingAnswers(userAnswers: UserAnswers): Seq[Page] = CheckYourAnswersValidator(userAnswers).validate

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms.organisation
 
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object HaveUTRPage extends QuestionPage[Boolean] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class HaveUTRFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "haveUTR"
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("haveUTR.error.required")
+    )
 }

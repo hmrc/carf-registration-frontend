@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.HaveUTRFormProvider
+import controllers.routes
+import forms.organisation.HaveUTRFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.HaveUTRPage
+import pages.organisation.HaveUTRPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.HaveUTRView
+import views.html.organisation.HaveUTRView
 
 import scala.concurrent.Future
 
@@ -37,10 +39,10 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new HaveUTRFormProvider()
-  val form         = formProvider()
+  val formProvider: HaveUTRFormProvider = new HaveUTRFormProvider()
+  val form: Form[Boolean]               = formProvider()
 
-  lazy val haveUTRRoute = routes.HaveUTRController.onPageLoad(NormalMode).url
+  lazy val haveUTRRoute: String = controllers.organisation.routes.HaveUTRController.onPageLoad(NormalMode).url
 
   "HaveUTR Controller" - {
 

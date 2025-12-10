@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.organisation.HaveUTRFormProvider
 import play.api.data.FormError
 
 class HaveUTRFormProviderSpec extends BooleanFieldBehaviours {

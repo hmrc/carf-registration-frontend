@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.*
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -161,7 +161,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisteredAddressInUkPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveUTRController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.HaveUTRController.onPageLoad(NormalMode)
       }
 
       "must go to Journey Recovery when no answer is provided" in {

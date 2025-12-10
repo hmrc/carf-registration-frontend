@@ -47,10 +47,10 @@ POST        /register/your-name                                           contro
 GET         /register/change-your-name                                    controllers.organisation.WhatIsYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-your-name                                    controllers.organisation.WhatIsYourNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/have-utr                                            controllers.HaveUTRController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/have-utr                                            controllers.HaveUTRController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-have-utr                                     controllers.HaveUTRController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-have-utr                                     controllers.HaveUTRController.onSubmit(mode: Mode = CheckMode)
+GET         /register/have-utr                                            controllers.organisation.HaveUTRController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/have-utr                                            controllers.organisation.HaveUTRController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-have-utr                                     controllers.organisation.HaveUTRController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-have-utr                                     controllers.organisation.HaveUTRController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/is-this-your-business                               controllers.IsThisYourBusinessController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/is-this-your-business                               controllers.IsThisYourBusinessController.onSubmit(mode: Mode = NormalMode)

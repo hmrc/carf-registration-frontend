@@ -22,6 +22,14 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {}
 
+implicit lazy val arbitraryOrganisationBusinessAddress: Arbitrary[OrganisationBusinessAddress] =
+  Arbitrary {
+    for {
+      AddressLine1 <- arbitrary[String]
+      AddressLine2 <- arbitrary[String]
+    } yield OrganisationBusinessAddress(AddressLine1, AddressLine2)
+  }
+
 implicit lazy val arbitraryWhatIsYourName: Arbitrary[Name] =
   Arbitrary {
     for {

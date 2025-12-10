@@ -153,10 +153,10 @@ POST        /register/change-second-contact-name                          contro
 
 GET         /register/problem/business-not-identified                     controllers.BusinessNotIdentifiedController.onPageLoad()
 
-GET        /register/second-contact-have-phone                            controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/second-contact-have-phone                            controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-second-contact-have-phone                     controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
+GET         /register/second-contact-have-phone                           controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-have-phone                           controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-have-phone                    controllers.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-have-phone                    controllers.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/some-information-is-missing                 controllers.InformationMissingController.onPageLoad()
 
@@ -164,3 +164,8 @@ GET         /register/individual-without-id/name                          contro
 POST        /register/individual-without-id/name                          controllers.IndWithoutNinoNameController.onSubmit(mode: Mode = NormalMode)
 GET         /register/individual-without-id/change-name                   controllers.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /register/business-without-id/business-address                 controllers.OrganisationBusinessAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /register/business-without-id/business-address                 controllers.OrganisationBusinessAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /register/business-without-id/change-business-address          controllers.OrganisationBusinessAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /register/business-without-id/change-business-address          controllers.OrganisationBusinessAddressController.onSubmit(mode: Mode = CheckMode)

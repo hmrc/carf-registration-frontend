@@ -1,0 +1,110 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.InputWidth._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
+@import views.html.components.countryPicker
+@import views.html.layouts.Layout
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.legend.Legend
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton,
+    govukFieldset: GovukFieldset,
+    countryPicker: countryPicker
+)
+
+@(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("organisationBusinessAddress.title"))) {
+
+    @formHelper(action = routes.OrganisationBusinessAddressController.onSubmit(mode)) {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = Text(messages("organisationBusinessAddress.heading")),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = true
+            )),
+            html = html
+        ))
+
+        @html = {
+            @govukInput(
+                InputViewModel(
+                    field = form("AddressLine1"),
+                    label = LabelViewModel(messages("organisationBusinessAddress.addressLine1"))
+                )
+                .withWidth(TwoThirds)
+                .withAutocomplete("address-line1")
+            )
+
+            @govukInput(
+                InputViewModel(
+                    field = form("AddressLine2"),
+                    label = LabelViewModel(messages("organisationBusinessAddress.addressLine2"))
+                )
+                .withWidth(TwoThirds)
+                .withAutocomplete("address-line2")
+            )
+
+            @govukInput(
+                InputViewModel(
+                    field = form("TownOrCity"),
+                    label = LabelViewModel(messages("organisationBusinessAddress.townOrCity"))
+                )
+                .withWidth(TwoThirds)
+                .withAutocomplete("address-level2")
+            )
+
+            @govukInput(
+                InputViewModel(
+                    field = form("Region"),
+                    label = LabelViewModel(messages("organisationBusinessAddress.region"))
+                )
+                .withWidth(TwoThirds)
+                .withAutocomplete("address-level1")
+            )
+
+            @govukInput(
+                InputViewModel(
+                    field = form("Postcode"),
+                    label = LabelViewModel(messages("organisationBusinessAddress.postcode"))
+                )
+                .withWidth(Width10)
+                .withAutocomplete("postal-code")
+            )
+
+            <div class="govuk-!-width-two-thirds">
+                @countryPicker(form("Country"), messages("organisationBusinessAddress.country"), countries)
+            </div>
+        }
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}

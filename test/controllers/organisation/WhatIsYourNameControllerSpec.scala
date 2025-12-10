@@ -18,7 +18,7 @@ package controllers.organisation
 
 import base.SpecBase
 import controllers.routes
-import forms.WhatIsYourNameFormProvider
+import forms.organisation.WhatIsYourNameFormProvider
 import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any

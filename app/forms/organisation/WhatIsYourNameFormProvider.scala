@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisation
 
+import config.Constants.individualNameRegex
 import forms.mappings.Mappings
 import models.Name
 import play.api.data.Form
 import play.api.data.Forms.*
-import config.Constants.individualNameRegex
+
 import javax.inject.Inject
 
 class WhatIsYourNameFormProvider @Inject() extends Mappings {

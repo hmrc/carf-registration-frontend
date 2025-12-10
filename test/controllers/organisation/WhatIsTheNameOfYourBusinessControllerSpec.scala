@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import forms.WhatIsTheNameOfYourBusinessFormProvider
+import controllers.routes
+import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
 import models.OrganisationRegistrationType.*
 import models.{Address, BusinessDetails, NormalMode, UniqueTaxpayerReference, UserAnswers}
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
-import pages.WhatIsTheNameOfYourBusinessPage
+import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.RegistrationService
-import views.html.WhatIsTheNameOfYourBusinessView
+import views.html.organisation.WhatIsTheNameOfYourBusinessView
 
 import scala.concurrent.Future
 
@@ -49,7 +48,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     }
 
   lazy val whatIsTheNameOfYourBusinessRoute: String =
-    routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode).url
+    controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode).url
 
   final val mockRegistrationService: RegistrationService = mock[RegistrationService]
 

@@ -23,7 +23,7 @@ import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
@@ -85,7 +85,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
@@ -139,7 +139,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "RegisteredAddressInUkPage navigation" - {

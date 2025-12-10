@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package pages.organisation
 
-import config.Constants.orgNameRegex
-import forms.mappings.Mappings
-import play.api.data.Form
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
+case object WhatIsTheNameOfYourBusinessPage extends QuestionPage[String] {
 
-class WhatIsTheNameOfYourBusinessFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  private val maxLength = 105
-
-  def apply(businessType: String): Form[String] =
-    Form(
-      "value" -> validatedText(
-        s"$businessType.error.required",
-        s"$businessType.error.invalid",
-        s"$businessType.error.length",
-        orgNameRegex,
-        maxLength = maxLength
-      )
-    )
+  override def toString: String = "whatIsTheNameOfYourBusiness"
 }

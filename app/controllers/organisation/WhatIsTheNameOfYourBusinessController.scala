@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
-import forms.WhatIsTheNameOfYourBusinessFormProvider
+import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
 import models.OrganisationRegistrationType.*
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.WhatIsTheNameOfYourBusinessPage
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.WhatIsTheNameOfYourBusinessView
+import views.html.organisation.WhatIsTheNameOfYourBusinessView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

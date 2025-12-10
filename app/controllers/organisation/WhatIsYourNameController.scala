@@ -17,7 +17,7 @@
 package controllers.organisation
 
 import controllers.actions.*
-import forms.WhatIsYourNameFormProvider
+import forms.organisation.WhatIsYourNameFormProvider
 import models.{Mode, Name}
 import navigation.Navigator
 import pages.organisation.WhatIsYourNamePage

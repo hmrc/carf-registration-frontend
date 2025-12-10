@@ -68,10 +68,10 @@ POST        /register/business-without-id/business-name                   contro
 GET         /register/business-without-id/change-business-name            controllers.orgWithoutId.OrgWithoutIdBusinessNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/business-without-id/change-business-name            controllers.orgWithoutId.OrgWithoutIdBusinessNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/business-name                                       controllers.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/business-name                                       controllers.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-business-name                                controllers.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-business-name                                controllers.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = CheckMode)
+GET         /register/business-name                                       controllers.organisation.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-name                                       controllers.organisation.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-business-name                                controllers.organisation.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-business-name                                controllers.organisation.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/your-contact-details                                controllers.OrgYourContactDetailsController.onPageLoad()
 

@@ -14,33 +14,36 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import base.SpecBase
-import forms.IndividualHavePhoneFormProvider
+import controllers.routes
+import forms.individual.IndividualHavePhoneFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IndividualHavePhonePage
+import pages.individual.IndividualHavePhonePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.IndividualHavePhoneView
+import views.html.individual.IndividualHavePhoneView
 
 import scala.concurrent.Future
 
 class IndividualHavePhoneControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
-  val formProvider = new IndividualHavePhoneFormProvider()
-  val form         = formProvider()
+  val formProvider: IndividualHavePhoneFormProvider = new IndividualHavePhoneFormProvider()
+  val form: Form[Boolean]                           = formProvider()
 
-  lazy val individualHavePhoneRoute = routes.IndividualHavePhoneController.onPageLoad(NormalMode).url
+  lazy val individualHavePhoneRoute: String =
+    controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode).url
 
   "IndividualHavePhone Controller" - {
 

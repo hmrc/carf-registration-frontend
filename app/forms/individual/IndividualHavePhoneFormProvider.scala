@@ -14,32 +14,17 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individual
 
-import forms.behaviours.BooleanFieldBehaviours
-import play.api.data.FormError
+import forms.mappings.Mappings
+import play.api.data.Form
 
-class IndividualHavePhoneFormProviderSpec extends BooleanFieldBehaviours {
+import javax.inject.Inject
 
-  val requiredKey = "individualHavePhone.error.required"
-  val invalidKey  = "error.boolean"
+class IndividualHavePhoneFormProvider @Inject() extends Mappings {
 
-  val form = new IndividualHavePhoneFormProvider()()
-
-  ".value" - {
-
-    val fieldName = "value"
-
-    behave like booleanField(
-      form,
-      fieldName,
-      invalidError = FormError(fieldName, invalidKey)
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("individualHavePhone.error.required")
     )
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
-  }
 }

@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
-import controllers.actions._
-import forms.IndividualHavePhoneFormProvider
-import javax.inject.Inject
+import controllers.actions.*
+import forms.individual.IndividualHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.IndividualHavePhonePage
+import pages.individual.IndividualHavePhonePage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndividualHavePhoneView
+import views.html.individual.IndividualHavePhoneView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualHavePhoneController @Inject() (
@@ -44,7 +45,7 @@ class IndividualHavePhoneController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>

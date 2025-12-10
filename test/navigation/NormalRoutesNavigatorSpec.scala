@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.IndividualEmailPage
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
 import play.api.libs.json.Json
@@ -699,7 +699,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualEmailPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
       }
     }
 

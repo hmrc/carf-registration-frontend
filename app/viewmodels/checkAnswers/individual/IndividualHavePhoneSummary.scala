@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.individual
 
-import controllers.routes
+import controllers.individual.routes
 import models.{CheckMode, UserAnswers}
-import pages.IndividualHavePhonePage
+import pages.individual.IndividualHavePhonePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object IndividualHavePhoneSummary {
 

@@ -26,7 +26,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersValidator
 import viewmodels.Section
-import viewmodels.checkAnswers.{CheckYourAnswersViewModel, FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneNumberSummary, FirstContactPhoneSummary}
+import viewmodels.checkAnswers.{CheckYourAnswersViewModel, FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneNumberSummary, FirstContactPhoneSummary, IsThisYourBusinessSummary}
 import views.html.CheckYourAnswersView
 
 class CheckYourAnswersController @Inject() (
@@ -41,18 +41,38 @@ class CheckYourAnswersController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
 
-    val firstContactDetails: Option[Seq[SummaryListRow]] = for {
-      firstContactName         <- FirstContactNameSummary.row(request.userAnswers)
-      firstContactEmail        <- FirstContactEmailSummary.row(request.userAnswers)
-      canWeContactFirstContact <- FirstContactPhoneSummary.row(request.userAnswers)
-      firstContactNumber       <- FirstContactPhoneNumberSummary.row(request.userAnswers)
-    } yield Seq(firstContactName, firstContactEmail, canWeContactFirstContact, firstContactNumber)
+    val businessDetailsSectionMaybe: Option[Section] =
+      IsThisYourBusinessSummary.row(request.userAnswers).map(row => Section("Business details", Seq(row)))
 
-    firstContactDetails match {
+    val firstContactDetailsSectionMaybe: Option[Section] = {
+      for {
+        firstContactName               <- FirstContactNameSummary.row(request.userAnswers)
+        firstContactEmail              <- FirstContactEmailSummary.row(request.userAnswers)
+        canWeContactFirstContact       <- FirstContactPhoneSummary.row(request.userAnswers)
+        canWeContactFirstContactAnswer <- request.userAnswers.get(FirstContactPhonePage)
+      } yield
+        if (canWeContactFirstContactAnswer) {
+          FirstContactPhoneNumberSummary.row(request.userAnswers).map {
+            Seq(
+              firstContactName,
+              firstContactEmail,
+              canWeContactFirstContact,
+              _
+            )
+          }
+        } else {
+          Some(Seq(firstContactName, firstContactEmail, canWeContactFirstContact))
+        }
+    }.flatten.map(Section("First contact", _))
 
-      case Some(summaryListRows: Seq[SummaryListRow]) => Ok(view(Seq(Section("sectionName", summaryListRows))))
+    val sectionsMaybe = for {
+      section1 <- businessDetailsSectionMaybe
+      section2 <- firstContactDetailsSectionMaybe
+    } yield Seq(section1, section2)
 
-      case None => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+    sectionsMaybe match {
+      case Some(sections: Seq[Section]) => Ok(view(sections))
+      case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
     }
   }
 

@@ -103,7 +103,7 @@ haveUTR.change.hidden = Change if you have a Unique Taxpayer Reference
 
 isThisYourBusiness.title = Is this your business?
 isThisYourBusiness.heading = Is this your business?
-isThisYourBusiness.checkYourAnswersLabel = Is this your business?
+isThisYourBusiness.checkYourAnswersLabel = Your business
 isThisYourBusiness.error.required = Select yes if this is your business
 isThisYourBusiness.change.hidden = Change if this is your business
 
@@ -224,7 +224,7 @@ indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered d
 
 firstContactName.title = What is the name of the person or team we should contact?
 firstContactName.heading = What is the name of the person or team we should contact?
-firstContactName.checkYourAnswersLabel = First Contact Name
+firstContactName.checkYourAnswersLabel = First contact name
 firstContactName.error.required = Enter a name for the first contact
 firstContactName.error.length = The name must be 35 characters or less
 firstContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
@@ -256,7 +256,7 @@ registerDateOfBirth.change.hidden = Change What is your date of birth?
 firstContactPhone.title = Can we contact your first contact by phone?
 firstContactPhone.heading = Can we contact {0} by phone?
 firstContactPhone.p1 = We will call if we have any questions about your reports.
-firstContactPhone.checkYourAnswersLabel = Can we contact your first contact by phone?
+firstContactPhone.checkYourAnswersLabel = Can we contact the first contact by phone?
 firstContactPhone.error.required = Select yes if the first contact can be contacted by phone
 firstContactPhone.change.hidden = Change if the first contact can be contacted by phone
 
@@ -301,6 +301,7 @@ individualEmail.error.required = Enter your email address
 individualEmail.error.length = The email address must be 132 characters or less
 individualEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
 individualEmail.change.hidden = Change your email address
+
 organisationSecondContactEmail.title = What is the email address for the second contact?
 organisationSecondContactEmail.heading = What is the email address for {0}?
 organisationSecondContactEmail.checkYourAnswersLabel = What is the email address for the second contact?

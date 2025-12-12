@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package viewmodels
+package pages
 
-package object govuk {
+import models.OrganisationBusinessAddress
+import play.api.libs.json.JsPath
 
-  object all
-      extends ImplicitConversions
-      with BackLinkFluency
-      with ButtonFluency
-      with CheckboxFluency
-      with DateFluency
-      with ErrorSummaryFluency
-      with FieldsetFluency
-      with HintFluency
-      with InputFluency
-      with LabelFluency
-      with RadiosFluency
-      with SelectFluency
-      with SummaryListFluency
-      with TagFluency
+case object OrganisationBusinessAddressPage extends QuestionPage[OrganisationBusinessAddress] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "organisationBusinessAddress"
 }

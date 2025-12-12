@@ -20,7 +20,9 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegisteredAddressInUkPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -34,7 +36,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
     case OrganisationRegistrationTypePage =>
-      _ => routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
@@ -79,16 +81,16 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
 
     case FirstContactNamePage =>
-      _ => routes.FirstContactEmailController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.FirstContactEmailController.onPageLoad(NormalMode)
 
     case FirstContactEmailPage =>
-      _ => routes.FirstContactPhoneController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.FirstContactPhoneController.onPageLoad(NormalMode)
 
     case IndividualHavePhonePage =>
       userAnswers => navigateFromIndividualHavePhonePage(userAnswers)
 
     case FirstContactPhoneNumberPage =>
-      _ => routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
 
     case FirstContactPhonePage =>
       userAnswers => navigateFromFirstContactPhonePage(userAnswers)
@@ -97,13 +99,13 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromOrganisationHaveSecondContactController(userAnswers)
 
     case IndividualEmailPage =>
-      _ => routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+      _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactNamePage =>
-      _ => routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactEmailPage =>
-      _ => routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
+      _ => controllers.organisation.routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactHavePhonePage =>
       userAnswers => navigateFromOrganisationSecondContactHavePhonePage(userAnswers)
@@ -121,7 +123,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualRegistrationTypePage) match {
       case Some(IndividualRegistrationType.SoleTrader) =>
-        routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+        controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
         routes.HaveNiNumberController.onPageLoad(NormalMode)
       case _                                           =>
@@ -131,9 +133,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisteredAddressInUkPage) match {
       case Some(true)  =>
-        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
-        routes.HaveUTRController.onPageLoad(NormalMode)
+        controllers.organisation.routes.HaveUTRController.onPageLoad(NormalMode)
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
@@ -141,7 +143,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveUTRPage) match {
       case Some(true)  =>
-        routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
         if (isSoleTrader(userAnswers)) {
           routes.HaveNiNumberController.onPageLoad(NormalMode)
@@ -162,9 +164,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     (individualRegistrationType, organisationRegistrationType) match {
       case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        routes.WhatIsYourNameController.onPageLoad(NormalMode)
+        controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
       case _                                                                                                     =>
-        routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+        controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
   }
 
@@ -172,7 +174,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          routes.IndividualEmailController.onPageLoad(NormalMode)
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         } else {
           routes.OrgYourContactDetailsController.onPageLoad()
         }
@@ -207,7 +209,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromHaveTradingName(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveTradingNamePage) match {
       case Some(true) =>
-        routes.TradingNameController.onPageLoad(NormalMode)
+        controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/business-without-id/business-address (CARF-162)"
@@ -224,15 +226,15 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromFirstContactPhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(FirstContactPhonePage) match {
       case Some(true) =>
-        routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
+        controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
       case _          =>
-        routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+        controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
   private def navigateFromOrganisationHaveSecondContactController(userAnswers: UserAnswers): Call =
     userAnswers.get(OrganisationHaveSecondContactPage) match {
       case Some(true)  =>
-        routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
+        controllers.organisation.routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        => routes.JourneyRecoveryController.onPageLoad()

@@ -18,12 +18,12 @@ package controllers
 
 import controllers.actions.*
 import models.NormalMode
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.OrgYourContactDetailsView
+
+import javax.inject.Inject
 
 class OrgYourContactDetailsController @Inject() (
     override val messagesApi: MessagesApi,
@@ -34,7 +34,7 @@ class OrgYourContactDetailsController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify() { implicit request =>
-    val continueUrl: String = routes.FirstContactNameController.onPageLoad(NormalMode).url
+    val continueUrl: String = controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode).url
 
     Ok(view(continueUrl))
   }

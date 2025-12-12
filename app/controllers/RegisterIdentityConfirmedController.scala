@@ -42,7 +42,7 @@ class RegisterIdentityConfirmedController @Inject() (
 
   def onPageLoad: Action[AnyContent] = identify() { implicit request =>
     val continueUrl =
-      routes.IndividualEmailController.onPageLoad(NormalMode).url
+      controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 
     Ok(view(continueUrl))
   }

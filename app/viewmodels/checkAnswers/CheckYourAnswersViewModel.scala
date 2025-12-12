@@ -17,6 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.UserAnswers
+import pages.organisation.FirstContactPhonePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.{CheckYourAnswersHelper, UserAnswersHelper}
@@ -40,7 +41,7 @@ object CheckYourAnswersViewModel extends UserAnswersHelper {
 
   private def buildFirstContact(helper: CheckYourAnswersHelper, isBusiness: Boolean): Seq[SummaryListRow] =
 
-    val individualPhoneRow = helper.userAnswers.get(pages.FirstContactPhonePage).flatMap {
+    val individualPhoneRow = helper.userAnswers.get(FirstContactPhonePage).flatMap {
       case true  => helper.firstContactEmail
       case false => None
     }

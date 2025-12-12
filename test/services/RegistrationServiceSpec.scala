@@ -27,7 +27,7 @@ import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRe
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future

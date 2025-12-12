@@ -36,7 +36,8 @@ class OrgYourContactDetailsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view                        = application.injector.instanceOf[OrgYourContactDetailsView]
-        val expectedContinueUrl: String = routes.FirstContactNameController.onPageLoad(NormalMode).url
+        val expectedContinueUrl: String =
+          controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(expectedContinueUrl)(request, messages(application)).toString

@@ -17,15 +17,13 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 
-@this(govukSelect: GovukSelect)
-
 @(
     field: Field,
     label: String,
     countries: Seq[SelectItem]
 )(implicit messages: Messages)
 
-@govukSelect(
+@uk.gov.hmrc.govukfrontend.views.html.components.govukSelect(
     Select(
         id = field.id,
         name = field.name,

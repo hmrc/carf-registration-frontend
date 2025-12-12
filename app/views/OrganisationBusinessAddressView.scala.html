@@ -16,6 +16,7 @@
 
 @import models.Mode
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.helpers.FormWithCSRF
 @import views.html.components.CountryPicker
 @import views.html.templates.Layout
 
@@ -37,8 +38,7 @@
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
-    govukFieldset: GovukFieldset,
-    countryPicker: CountryPicker
+    govukFieldset: GovukFieldset
 )
 
 @(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
@@ -58,13 +58,14 @@
                 isPageHeading = true
             )),
             html = {
-                @govukInput(InputViewModel(form("AddressLine1"), LabelViewModel(messages("organisationBusinessAddress.addressLine1"))).withAutocomplete("address-line1").withCssClass("govuk-!-width-two-thirds"))
-                @govukInput(InputViewModel(form("AddressLine2"), LabelViewModel(messages("organisationBusinessAddress.addressLine2"))).withAutocomplete("address-line2").withCssClass("govuk-!-width-two-thirds"))
-                @govukInput(InputViewModel(form("TownOrCity"), LabelViewModel(messages("organisationBusinessAddress.townOrCity"))).withAutocomplete("address-level2").withCssClass("govuk-!-width-two-thirds"))
-                @govukInput(InputViewModel(form("Region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
-                @govukInput(InputViewModel(form("Postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
+                @govukInput(InputViewModel(form("AddressLine1"), LabelViewModel(messages("organisationBusinessAddress.addressLine1"))).withAutocomplete("address-line1").withWidth(TwoThirds))
+                @govukInput(InputViewModel(form("AddressLine2"), LabelViewModel(messages("organisationBusinessAddress.addressLine2"))).withAutocomplete("address-line2").withWidth(TwoThirds))
+                @govukInput(InputViewModel(form("TownOrCity"), LabelViewModel(messages("organisationBusinessAddress.townOrCity"))).withAutocomplete("address-level2").withWidth(TwoThirds))
+                @govukInput(InputViewModel(form("Region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withWidth(TwoThirds))
+                @govukInput(InputViewModel(form("Postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withWidth(Width10))
+
                 <div class="govuk-!-width-two-thirds">
-                    @countryPicker(form("Country"), messages("organisationBusinessAddress.country"), countries)
+                    @CountryPicker(form("Country"), messages("organisationBusinessAddress.country"), countries)
                 </div>
             }
         ))

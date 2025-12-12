@@ -90,9 +90,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson(validResponse).toString)
           )
       )
-
       val result = connector.individualWithNino(validRequestBody).value.futureValue
-
       result shouldBe Right(validResponse)
     }
 
@@ -105,9 +103,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("invalid response").toString)
           )
       )
-
       val result = connector.individualWithNino(validRequestBody).value.futureValue
-
       result shouldBe Left(ApiError.JsonValidationError)
     }
 
@@ -120,9 +116,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("test_body").toString)
           )
       )
-
       val result = connector.individualWithNino(validRequestBody).value.futureValue
-
       result shouldBe Left(ApiError.NotFoundError)
     }
 
@@ -135,12 +129,65 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("test_body").toString)
           )
       )
-
       val result = connector.individualWithNino(validRequestBody).value.futureValue
-
       result shouldBe Left(ApiError.InternalServerError)
     }
   }
+
+  "individualWithUtr" should {
+    "successfully retrieve a Sole Trader's first and last name and address" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/utr"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(validResponse).toString)
+          )
+      )
+      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      result shouldBe Right(validResponse)
+    }
+
+    "return a Json validation error if unexpected response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/utr"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson("invalid response").toString)
+          )
+      )
+      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      result shouldBe Left(ApiError.JsonValidationError)
+    }
+
+    "return a not found error if 404 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/utr"))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      result shouldBe Left(ApiError.NotFoundError)
+    }
+
+    "return an internal server error if 500 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual/utr"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      result shouldBe Left(ApiError.InternalServerError)
+    }
+  }
+
   "organisationWithUtr" should {
     "successfully retrieve a name and address" in {
       stubFor(

@@ -28,9 +28,8 @@ object IndividualRegistrationType extends Enumerable.Implicits {
     override val code: String = "0004"
   }
 
-  // update in CARF-322
   case object Individual extends WithName("individual") with IndividualRegistrationType {
-    override val code: String = "Individual code not needed"
+    override val code: String = "Individual code placeholder"
   }
 
   val values: Seq[IndividualRegistrationType] = Seq(

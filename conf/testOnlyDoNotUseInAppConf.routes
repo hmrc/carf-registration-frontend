@@ -12,4 +12,4 @@
 # Add all the application routes to the prod.routes file
 ->         /         prod.Routes
 
-GET         /test-only/address-lookup/:postcode        testOnly.controllers.AddressLookupController.searchByPostcode(postcode: String, filter: Option[String] ?= None)
+GET         /register-for-carf/test-only/address-lookup/:postcode        testOnly.controllers.AddressLookupController.searchByPostcode(postcode: String, filter: Option[String] ?= None)

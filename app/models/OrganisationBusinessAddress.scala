@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json._
 
-case class OrganisationBusinessAddress(AddressLine1: String, AddressLine2: String)
+case class OrganisationBusinessAddress(AddressLine1: String, AddressLine2: String, country: Country)
 
 object OrganisationBusinessAddress {
 

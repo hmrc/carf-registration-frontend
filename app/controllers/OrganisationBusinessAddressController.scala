@@ -16,11 +16,12 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.OrganisationBusinessAddressFormProvider
 import models.{Country, Mode}
 import navigation.Navigator
 import pages.OrganisationBusinessAddressPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -46,38 +47,63 @@ class OrganisationBusinessAddressController @Inject() (
     view: OrganisationBusinessAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
-  val form = formProvider()
+  private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
-  private def getCountries(form: Form[_]): Seq[SelectItem] =
-    countryListFactory.countryList match {
-      case Some(countries: Seq[Country]) => countryListFactory.countrySelectList(form.data, countries)
-      case _                             => Seq.empty
-    }
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) async {
     implicit request =>
+      countriesList match {
+        case Some(countries) =>
+          val form         = formProvider(countries)
+          val preparedForm = request.userAnswers.get(OrganisationBusinessAddressPage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          Future.successful(
+            Ok(
+              view(
+                preparedForm,
+                mode,
+                countryListFactory.countrySelectList(preparedForm.data, countries)
+              )
+            )
+          )
 
-      val preparedForm = request.userAnswers.get(OrganisationBusinessAddressPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
+        case None =>
+          logger.error("Could not retrieve countries list from JSON file.")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
-
-      Ok(view(preparedForm, mode, getCountries(preparedForm)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, getCountries(formWithErrors)))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
-        )
+      countriesList match {
+        case Some(countries) =>
+          val form = formProvider(countries)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                Future.successful(
+                  BadRequest(
+                    view(
+                      formWithErrors,
+                      mode,
+                      countryListFactory.countrySelectList(formWithErrors.data, countries)
+                    )
+                  )
+                ),
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
+            )
+        case None            =>
+          logger.error("Could not retrieve countries list from JSON file.")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 }

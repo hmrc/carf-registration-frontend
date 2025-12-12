@@ -17,20 +17,31 @@
 package forms
 
 import javax.inject.Inject
-
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.data.Forms._
-import models.OrganisationBusinessAddress
+import play.api.data.Forms.*
+import models.{Country, OrganisationBusinessAddress}
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[OrganisationBusinessAddress] = Form(
+  
+  def apply(countryList: Seq[Country]): Form[OrganisationBusinessAddress] = Form(
     mapping(
       "AddressLine1" -> text("organisationBusinessAddress.error.AddressLine1.required")
         .verifying(maxLength(35, "organisationBusinessAddress.error.AddressLine1.length")),
       "AddressLine2" -> text("organisationBusinessAddress.error.AddressLine2.required")
-        .verifying(maxLength(35, "organisationBusinessAddress.error.AddressLine2.length"))
-    )(OrganisationBusinessAddress.apply)(x => Some((x.AddressLine1, x.AddressLine2)))
+        .verifying(maxLength(35, "organisationBusinessAddress.error.AddressLine2.length")),
+      "country"      -> text("addressWithoutId.error.country.required")
+        .verifying(
+          "addressWithoutId.error.country.required",
+          value => countryList.exists(_.code == value)
+        )
+        .transform[Country](
+          value =>
+            countryList
+              .find(_.code.contains(value))
+              .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
+          country => country.code
+        )
+    )(OrganisationBusinessAddress.apply)(x => Some((x.AddressLine1, x.AddressLine2, x.country)))
   )
 }

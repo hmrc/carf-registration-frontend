@@ -25,6 +25,7 @@
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
+    govukSelect: GovukSelect,
     countryPicker: CountryPicker
 )
 
@@ -32,11 +33,11 @@
 
 @layout(pageTitle = title(form, messages("organisationBusinessAddress.title"))) {
 
-    @if(form.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummaryViewModel(form))
-    }
-
     @formHelper(action = routes.OrganisationBusinessAddressController.onSubmit(mode)) {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
 
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
@@ -51,9 +52,13 @@
             @govukInput(InputViewModel(form("Region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
             @govukInput(InputViewModel(form("Postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
 
-            <div class="govuk-!-width-two-thirds">
-                @countryPicker(form("Country"), messages("organisationBusinessAddress.country"), countries)
-            </div>
+            @govukSelect(
+                SelectViewModel(
+                    field = form("country"),
+                    label = LabelViewModel(messages("organisationBusinessAddress.country")),
+                    items = countries
+                )
+            )
 
         </fieldset>
 

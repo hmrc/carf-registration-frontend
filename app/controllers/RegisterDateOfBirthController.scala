@@ -91,7 +91,9 @@ class RegisterDateOfBirthController @Inject() (
           case Right(_)                     =>
             Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
           case Left(ApiError.NotFoundError) =>
-            Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad())
+            Redirect(
+              controllers.individualWithoutId.routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
+            )
           case Left(_)                      =>
             Redirect(routes.JourneyRecoveryController.onPageLoad())
         }

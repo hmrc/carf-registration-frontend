@@ -110,7 +110,7 @@ POST        /register/contact-name                                        contro
 GET         /register/change-contact-name                                 controllers.organisation.FirstContactNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-contact-name                                 controllers.organisation.FirstContactNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/problem/could-not-confirm-identity                  controllers.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
+GET         /register/problem/could-not-confirm-identity                  controllers.individualWithoutId.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
 
 GET         /register/have-phone                                          controllers.organisation.FirstContactPhoneController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/have-phone                                          controllers.organisation.FirstContactPhoneController.onSubmit(mode: Mode = NormalMode)

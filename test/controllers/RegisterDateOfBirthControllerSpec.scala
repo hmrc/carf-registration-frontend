@@ -167,8 +167,12 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, buildPostRequest()).value
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad().url
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(
+          result
+        ).value        mustEqual controllers.individualWithoutId.routes.IndWithoutNinoCouldNotConfirmIdentityController
+          .onPageLoad()
+          .url
       }
     }
 

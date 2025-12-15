@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individualWithoutId
 
 import base.SpecBase
+import controllers.routes
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.IndWithoutNinoCouldNotConfirmIdentityView
+import play.api.test.Helpers.*
+import views.html.individualWithoutId.IndWithoutNinoCouldNotConfirmIdentityView
 
 class IndWithoutNinoCouldNotConfirmIdentityControllerSpec extends SpecBase {
 
@@ -32,7 +33,10 @@ class IndWithoutNinoCouldNotConfirmIdentityControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad().url)
+        val request = FakeRequest(
+          GET,
+          controllers.individualWithoutId.routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad().url
+        )
 
         val result = route(application, request).value
 

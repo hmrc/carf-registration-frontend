@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.BusinessNotIdentifiedView
 import config.FrontendAppConfig
-import models.{OrganisationRegistrationType, UniqueTaxpayerReference}
-import models.UserAnswers
+import controllers.routes
+import models.{OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import views.html.BusinessNotIdentifiedView
 
 class BusinessNotIdentifiedControllerSpec extends SpecBase {
 

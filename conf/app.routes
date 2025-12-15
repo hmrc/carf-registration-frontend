@@ -159,7 +159,7 @@ GET         /register/change-individual-have-phone                        contro
 POST        /register/change-individual-have-phone                        controllers.individual.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 
-GET         /register/problem/business-not-identified                     controllers.BusinessNotIdentifiedController.onPageLoad()
+GET         /register/problem/business-not-identified                     controllers.organisation.BusinessNotIdentifiedController.onPageLoad()
 
 
 GET         /register/problem/some-information-is-missing                 controllers.InformationMissingController.onPageLoad()

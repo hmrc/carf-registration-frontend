@@ -135,7 +135,7 @@ class IsThisYourBusinessController @Inject() (
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {
           logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
-          Future.successful(Redirect(routes.BusinessNotIdentifiedController.onPageLoad()))
+          Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
     }
 

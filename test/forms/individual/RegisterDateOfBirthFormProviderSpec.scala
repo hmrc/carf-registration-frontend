@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individual
 
-import java.time.{LocalDate, ZoneOffset}
-import java.time.format.DateTimeFormatter
 import forms.behaviours.DateBehaviours
+import forms.individual.RegisterDateOfBirthFormProvider
+import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import play.api.data.FormError
+
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, ZoneOffset}
 
 class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
   private implicit val messages: Messages = stubMessages()

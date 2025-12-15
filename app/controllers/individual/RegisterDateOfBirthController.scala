@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import controllers.actions.*
-import forms.RegisterDateOfBirthFormProvider
+import controllers.routes
+import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
 import models.requests.DataRequest
-import javax.inject.Inject
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.individual.NiNumberPage
-import pages.{RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.{NiNumberPage, RegisterDateOfBirthPage}
+import pages.WhatIsYourNameIndividualPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.RegisterDateOfBirthView
+import views.html.individual.RegisterDateOfBirthView
+
 import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegisterDateOfBirthController @Inject() (

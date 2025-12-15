@@ -98,10 +98,10 @@ POST        /register/name                                                contro
 GET         /register/change-name                                         controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-name                                         controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/date-of-birth                                       controllers.RegisterDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/date-of-birth                                       controllers.RegisterDateOfBirthController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-date-of-birth                                controllers.RegisterDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-date-of-birth                                controllers.RegisterDateOfBirthController.onSubmit(mode: Mode = CheckMode)
+GET         /register/date-of-birth                                       controllers.individual.RegisterDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/date-of-birth                                       controllers.individual.RegisterDateOfBirthController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-date-of-birth                                controllers.individual.RegisterDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-date-of-birth                                controllers.individual.RegisterDateOfBirthController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/identity-confirmed                                  controllers.RegisterIdentityConfirmedController.onPageLoad()
 

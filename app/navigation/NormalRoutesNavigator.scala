@@ -20,7 +20,7 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
@@ -64,7 +64,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
 
     case WhatIsYourNameIndividualPage =>
-      _ => routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
+      _ => controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
 
     case OrgWithoutIdBusinessNamePage =>
       _ => controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode)

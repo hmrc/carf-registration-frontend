@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
-import java.time.LocalDate
 import base.SpecBase
-import forms.RegisterDateOfBirthFormProvider
-import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
+import controllers.routes
+import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
+import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.NiNumberPage
-import pages.{RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.{NiNumberPage, RegisterDateOfBirthPage}
+import pages.WhatIsYourNameIndividualPage
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -34,8 +34,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.RegistrationService
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.RegisterDateOfBirthView
+import views.html.individual.RegisterDateOfBirthView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
@@ -64,7 +65,8 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     )
   )
 
-  private lazy val registerDateOfBirthRoute = routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
+  private lazy val registerDateOfBirthRoute =
+    controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
   override val emptyUserAnswers             = UserAnswers(userAnswersId)
 
   private def buildGetRequest(

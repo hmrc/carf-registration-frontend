@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.individual
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.RegisterDateOfBirthPage
+import pages.individual.RegisterDateOfBirthPage
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object RegisterDateOfBirthSummary {
 
@@ -36,7 +36,10 @@ object RegisterDateOfBirthSummary {
         key = "registerDateOfBirth.checkYourAnswersLabel",
         value = ValueViewModel(answer.format(dateTimeFormat())),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.RegisterDateOfBirthController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
         )
       )

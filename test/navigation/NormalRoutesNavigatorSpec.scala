@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
@@ -617,7 +617,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         WhatIsYourNameIndividualPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
+      ) mustBe controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
     }
 
     "must go from FirstContactName page to FirstContactEmail page" in {

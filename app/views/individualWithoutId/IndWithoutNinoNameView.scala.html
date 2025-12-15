@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("indWithoutNinoName.title"))) {
 
-    @formHelper(action = routes.IndWithoutNinoNameController.onSubmit(mode), Symbol("autoComplete") -> "on") {
+    @formHelper(action = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onSubmit(mode), Symbol("autoComplete") -> "on") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.individualWithoutId
 
 import models.Name
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object IndWithoutNinoNamePage extends QuestionPage[Name] {

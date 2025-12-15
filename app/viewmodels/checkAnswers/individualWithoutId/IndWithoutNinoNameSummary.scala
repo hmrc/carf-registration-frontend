@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.individualWithoutId
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.IndWithoutNinoNamePage
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -37,7 +37,10 @@ object IndWithoutNinoNameSummary {
         key = "indWithoutNinoName.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.IndWithoutNinoNameController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("indWithoutNinoName.change.hidden"))
         )
       )

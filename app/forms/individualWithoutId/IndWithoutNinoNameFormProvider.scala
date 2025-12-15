@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individualWithoutId
 
 import config.Constants
 import config.Constants.individualNameRegex

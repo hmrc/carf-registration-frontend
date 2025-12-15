@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individualWithoutId
 
 import base.SpecBase
-import forms.IndWithoutNinoNameFormProvider
+import controllers.routes
+import forms.individualWithoutId.IndWithoutNinoNameFormProvider
 import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IndWithoutNinoNamePage
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.IndWithoutNinoNameView
+import views.html.individualWithoutId.IndWithoutNinoNameView
 
 import scala.concurrent.Future
 
@@ -38,7 +39,8 @@ class IndWithoutNinoNameControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute                          = Call("GET", "/foo")
   val formProvider                         = new IndWithoutNinoNameFormProvider()
   val form: Form[Name]                     = formProvider()
-  lazy val indWithoutNinoNameRoute: String = routes.IndWithoutNinoNameController.onPageLoad(NormalMode).url
+  lazy val indWithoutNinoNameRoute: String =
+    controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode).url
 
   val validNameUserAnswers = UserAnswers(
     userAnswersId,

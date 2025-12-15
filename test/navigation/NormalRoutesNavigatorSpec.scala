@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{IndividualEmailPage, IndividualHavePhonePage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
 import play.api.libs.json.Json
@@ -48,7 +48,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationRegistrationTypePage,
         NormalMode,
         UserAnswers("id")
-      ) mustBe controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Registered Address in the UK Page when user is a Sole Trader" in {
@@ -58,7 +58,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         IndividualRegistrationTypePage,
         NormalMode,
         userAnswers
-      ) mustBe controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {
@@ -68,7 +68,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         IndividualRegistrationTypePage,
         NormalMode,
         userAnswers
-      ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+      ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
@@ -201,7 +201,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Have NI Number page when user answers 'No' to having UTR and is Individual SoleTrader" in {
@@ -217,7 +217,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Business Name page when user answers 'No' to having UTR and is Organisation" in {
@@ -468,7 +468,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
+          ) mustBe controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
         }
 
         "must navigate to business not identified page when not CT auto-matched and no organisation type" in {
@@ -488,7 +488,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
+          ) mustBe controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
         }
       }
 

@@ -24,13 +24,13 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.HaveNiNumberPage
+import pages.individual.HaveNiNumberPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.HaveNiNumberView
+import views.html.individual.HaveNiNumberView
 
 import scala.concurrent.Future
 
@@ -38,7 +38,7 @@ class HaveNiNumberControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute            = Call("GET", "/foo")
   val formProvider           = new HaveNiNumberFormProvider()
   val form                   = formProvider()
-  lazy val haveNiNumberRoute = routes.HaveNiNumberController.onPageLoad(NormalMode).url
+  lazy val haveNiNumberRoute = controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode).url
 
   "HaveNiNumber Controller" - {
 

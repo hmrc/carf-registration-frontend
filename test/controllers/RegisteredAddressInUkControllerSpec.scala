@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import views.html.organisation.RegisteredAddressInUkView
+import views.html.RegisteredAddressInUkView
 
 import scala.concurrent.Future
 
@@ -44,7 +44,7 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[Boolean]                             = formProvider()
 
   lazy val registeredAddressInUkControllerRoute: String =
-    controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode).url
+    routes.RegisteredAddressInUkController.onPageLoad(NormalMode).url
 
   "RegisteredAddressInUkController Controller" - {
 

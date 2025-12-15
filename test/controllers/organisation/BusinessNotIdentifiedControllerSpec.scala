@@ -23,7 +23,7 @@ import models.{OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswer
 import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.BusinessNotIdentifiedView
+import views.html.organisation.BusinessNotIdentifiedView
 
 class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
@@ -50,7 +50,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithData)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BusinessNotIdentifiedController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -78,7 +78,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithoutUtr)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BusinessNotIdentifiedController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -97,7 +97,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithoutName)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BusinessNotIdentifiedController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
 
         val result = route(application, request).value
 

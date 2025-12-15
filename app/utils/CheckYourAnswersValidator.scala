@@ -18,7 +18,7 @@ package utils
 
 import models.{IndividualRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualRegistrationTypePage, NiNumberPage}
+import pages.individual.{HaveNiNumberPage, IndividualRegistrationTypePage, NiNumberPage, WhatIsYourNameIndividualPage}
 import play.api.libs.json.Reads
 
 sealed trait IndividualAnswersValidator {

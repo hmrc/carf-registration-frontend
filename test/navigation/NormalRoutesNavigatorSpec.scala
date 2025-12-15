@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
@@ -300,7 +300,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NiNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
       }
     }
 

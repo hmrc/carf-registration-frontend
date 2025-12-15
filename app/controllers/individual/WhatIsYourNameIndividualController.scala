@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import controllers.actions.*
-import forms.WhatIsYourNameIndividualFormProvider
+import forms.individual.WhatIsYourNameIndividualFormProvider
 import models.{Mode, Name}
 import navigation.Navigator
-import pages.WhatIsYourNameIndividualPage
+import pages.individual.WhatIsYourNameIndividualPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.WhatIsYourNameIndividualView
+import views.html.individual.WhatIsYourNameIndividualView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -25,8 +25,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.{NiNumberPage, RegisterDateOfBirthPage}
-import pages.WhatIsYourNameIndividualPage
+import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}

@@ -20,7 +20,7 @@ import models.UserAnswers
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkAnswers.*
-import viewmodels.checkAnswers.individual.{NiNumberSummary, RegisterDateOfBirthSummary}
+import viewmodels.checkAnswers.individual.{NiNumberSummary, RegisterDateOfBirthSummary, WhatIsYourNameIndividualSummary}
 import viewmodels.checkAnswers.organisation.{FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneSummary, OrganisationRegistrationTypeSummary, WhatIsYourNameSummary, YourUniqueTaxpayerReferenceSummary}
 
 class CheckYourAnswersHelper(

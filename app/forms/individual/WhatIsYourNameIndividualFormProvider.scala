@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individual
 
 import config.Constants
 import config.Constants.individualNameRegex
@@ -24,6 +24,7 @@ import play.api.data.Form
 import play.api.data.Forms.*
 
 import javax.inject.Inject
+
 class WhatIsYourNameIndividualFormProvider @Inject() extends Mappings {
 
   private val maxLength = 35

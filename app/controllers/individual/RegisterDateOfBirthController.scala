@@ -23,8 +23,7 @@ import models.error.ApiError
 import models.requests.DataRequest
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.individual.{NiNumberPage, RegisterDateOfBirthPage}
-import pages.WhatIsYourNameIndividualPage
+import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository

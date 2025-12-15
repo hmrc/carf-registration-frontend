@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import base.SpecBase
-import forms.WhatIsYourNameIndividualFormProvider
+import controllers.routes
+import forms.individual.WhatIsYourNameIndividualFormProvider
 import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.WhatIsYourNameIndividualPage
+import pages.individual.WhatIsYourNameIndividualPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -31,7 +32,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.WhatIsYourNameIndividualView
+import views.html.individual.WhatIsYourNameIndividualView
 
 import scala.concurrent.Future
 
@@ -42,7 +43,8 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
   val formProvider     = new WhatIsYourNameIndividualFormProvider()
   val form: Form[Name] = formProvider()
 
-  lazy val whatIsYourNameIndividualRoute: String = routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode).url
+  lazy val whatIsYourNameIndividualRoute: String =
+    controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode).url
 
   val userAnswers = UserAnswers(
     userAnswersId,

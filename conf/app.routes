@@ -93,10 +93,10 @@ POST        /register/business-without-id/trading-name                    contro
 GET         /register/business-without-id/change-trading-name             controllers.orgWithoutId.TradingNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/business-without-id/change-trading-name             controllers.orgWithoutId.TradingNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/name                                                controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/name                                                controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-name                                         controllers.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-name                                         controllers.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
+GET         /register/name                                                controllers.individual.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/name                                                controllers.individual.WhatIsYourNameIndividualController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-name                                         controllers.individual.WhatIsYourNameIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-name                                         controllers.individual.WhatIsYourNameIndividualController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/date-of-birth                                       controllers.individual.RegisterDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/date-of-birth                                       controllers.individual.RegisterDateOfBirthController.onSubmit(mode: Mode = NormalMode)

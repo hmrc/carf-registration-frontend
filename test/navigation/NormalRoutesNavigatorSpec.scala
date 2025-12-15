@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
@@ -270,7 +270,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.NiNumberController.onPageLoad(NormalMode)
+          ) mustBe controllers.individual.routes.NiNumberController.onPageLoad(NormalMode)
         }
       }
       "when user answers 'false' (no, I don't have a National Insurance number)" - {

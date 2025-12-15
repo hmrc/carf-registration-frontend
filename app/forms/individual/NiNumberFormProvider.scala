@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package pages
+package forms.individual
 
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object NiNumberPage extends QuestionPage[String] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class NiNumberFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "niNumber"
+  def apply(): Form[String] =
+    Form(
+      "value" -> nationalInsuranceNumber(
+        requiredKey = "niNumber.error.required",
+        invalidFormatKey = "niNumber.error.invalidFormat",
+        invalidKey = "niNumber.error.invalid"
+      )
+    )
 }

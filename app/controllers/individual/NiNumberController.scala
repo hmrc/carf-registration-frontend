@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
-import controllers.actions._
-import forms.NiNumberFormProvider
-import javax.inject.Inject
+import controllers.actions.*
+import forms.individual.NiNumberFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.NiNumberPage
+import pages.individual.NiNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.NiNumberView
+import views.html.individual.NiNumberView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class NiNumberController @Inject() (

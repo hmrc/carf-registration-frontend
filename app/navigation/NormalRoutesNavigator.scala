@@ -20,7 +20,7 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
@@ -201,7 +201,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {
       case Some(true)  =>
-        routes.NiNumberController.onPageLoad(NormalMode)
+        controllers.individual.routes.NiNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
       case None        => routes.JourneyRecoveryController.onPageLoad()

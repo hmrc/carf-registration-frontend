@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.individual
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.NiNumberPage
+import pages.individual.NiNumberPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object NiNumberSummary {
 
@@ -33,7 +33,7 @@ object NiNumberSummary {
         key = "niNumber.checkYourAnswersLabel",
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.NiNumberController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", controllers.individual.routes.NiNumberController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("niNumber.change.hidden"))
         )
       )

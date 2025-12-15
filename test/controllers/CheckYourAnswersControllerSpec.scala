@@ -26,7 +26,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.mockito.MockitoSugar.*
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage}
 import pages.organisation.{FirstContactEmailPage, FirstContactPhoneNumberPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest

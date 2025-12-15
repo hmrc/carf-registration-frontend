@@ -372,7 +372,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
+          ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
         }
 
         "must navigate to contact details page when no organisation type is set" in {
@@ -392,7 +392,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
+          ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
         }
       }
 

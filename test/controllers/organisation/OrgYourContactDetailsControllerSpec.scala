@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
+import controllers.routes
 import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.OrgYourContactDetailsView
+import views.html.organisation.OrgYourContactDetailsView
 
 class OrgYourContactDetailsControllerSpec extends SpecBase {
 
@@ -31,7 +32,7 @@ class OrgYourContactDetailsControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.OrgYourContactDetailsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad().url)
 
         val result = route(application, request).value
 

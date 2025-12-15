@@ -74,7 +74,7 @@ POST        /register/business-name                                       contro
 GET         /register/change-business-name                                controllers.organisation.WhatIsTheNameOfYourBusinessController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-business-name                                controllers.organisation.WhatIsTheNameOfYourBusinessController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/your-contact-details                                controllers.OrgYourContactDetailsController.onPageLoad()
+GET         /register/your-contact-details                                controllers.organisation.OrgYourContactDetailsController.onPageLoad()
 
 GET         /register/ni-number                                           controllers.individual.NiNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/ni-number                                           controllers.individual.NiNumberController.onSubmit(mode: Mode = NormalMode)

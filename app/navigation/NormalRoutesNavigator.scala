@@ -177,7 +177,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         if (isSoleTrader(userAnswers)) {
           controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         } else {
-          routes.OrgYourContactDetailsController.onPageLoad()
+          controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
         }
 
       case Some(false) =>

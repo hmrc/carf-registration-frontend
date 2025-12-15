@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import controllers.actions.*
 import models.NormalMode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.OrgYourContactDetailsView
+import views.html.organisation.OrgYourContactDetailsView
 
 import javax.inject.Inject
 

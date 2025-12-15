@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.orgWithoutId
+package models
 
 import play.api.libs.json.*
 

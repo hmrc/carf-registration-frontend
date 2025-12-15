@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import base.SpecBase
-import forms.IndividualRegistrationTypeFormProvider
+import controllers.routes
+import forms.individual.IndividualRegistrationTypeFormProvider
 import models.{IndividualRegistrationType, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IndividualRegistrationTypePage
+import pages.individual.IndividualRegistrationTypePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-import views.html.IndividualRegistrationTypeView
+import views.html.individual.IndividualRegistrationTypeView
 
 import scala.concurrent.Future
 
@@ -37,7 +38,8 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val individualRegistrationTypeRoute = routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+  lazy val individualRegistrationTypeRoute =
+    controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
 
   val formProvider = new IndividualRegistrationTypeFormProvider()
   val form         = formProvider()

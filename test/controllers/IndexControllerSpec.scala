@@ -52,7 +52,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+          controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, times(1)).set(any())
       }
@@ -71,7 +71,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+          controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, times(1)).set(testExistingUserAnswers)
       }

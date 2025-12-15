@@ -22,10 +22,10 @@ GET         /account/signed-out                                           contro
 
 GET         /unauthorised                                                 controllers.UnauthorisedController.onPageLoad()
 
-GET         /register/individual-registration-type                        controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/individual-registration-type                        controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-individual-registration-type                 controllers.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-individual-registration-type                 controllers.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-registration-type                        controllers.individual.IndividualRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-registration-type                        controllers.individual.IndividualRegistrationTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-registration-type                 controllers.individual.IndividualRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-registration-type                 controllers.individual.IndividualRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/organisation-registration-type                      controllers.organisation.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/organisation-registration-type                      controllers.organisation.OrganisationRegistrationTypeController.onSubmit(mode: Mode = NormalMode)

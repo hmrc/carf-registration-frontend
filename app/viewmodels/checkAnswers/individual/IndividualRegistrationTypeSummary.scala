@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.individual
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.IndividualRegistrationTypePage
+import pages.individual.IndividualRegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -41,7 +41,10 @@ object IndividualRegistrationTypeSummary {
         key = "individualRegistrationType.checkYourAnswersLabel",
         value = value,
         actions = Seq(
-          ActionItemViewModel("site.change", routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("individualRegistrationType.change.hidden"))
         )
       )

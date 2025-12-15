@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package pages
+package forms.individual
 
+import forms.mappings.Mappings
 import models.IndividualRegistrationType
-import play.api.libs.json.JsPath
+import play.api.data.Form
 
-case object IndividualRegistrationTypePage extends QuestionPage[IndividualRegistrationType] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class IndividualRegistrationTypeFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "individualRegistrationType"
+  def apply(): Form[IndividualRegistrationType] =
+    Form(
+      "individualRegistrationType" -> enumerable[IndividualRegistrationType](
+        "individualRegistrationType.error.required"
+      )
+    )
 }

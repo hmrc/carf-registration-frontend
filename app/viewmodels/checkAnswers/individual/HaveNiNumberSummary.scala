@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.individual
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.HaveNiNumberPage
+import pages.individual.HaveNiNumberPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -35,7 +35,10 @@ object HaveNiNumberSummary {
         key = "haveNiNumber.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.HaveNiNumberController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.individual.routes.HaveNiNumberController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("haveNiNumber.change.hidden"))
         )
       )

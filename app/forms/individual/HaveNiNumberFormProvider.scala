@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms.individual
 
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object HaveNiNumberPage extends QuestionPage[Boolean] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class HaveNiNumberFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "haveNiNumber"
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("haveNiNumber.error.required")
+    )
 }

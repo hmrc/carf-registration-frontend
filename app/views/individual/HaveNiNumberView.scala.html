@@ -30,7 +30,7 @@
 
 @layout(pageTitle = title(form, messages("haveNiNumber.title"))) {
 
-    @formHelper(action = routes.HaveNiNumberController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.individual.routes.HaveNiNumberController.onSubmit(mode), Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }

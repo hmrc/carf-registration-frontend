@@ -20,7 +20,7 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{IndividualEmailPage, IndividualHavePhonePage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
@@ -125,7 +125,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(IndividualRegistrationType.SoleTrader) =>
         controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
-        routes.HaveNiNumberController.onPageLoad(NormalMode)
+        controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
       case _                                           =>
         routes.JourneyRecoveryController.onPageLoad()
     }
@@ -146,7 +146,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       case Some(false) =>
         if (isSoleTrader(userAnswers)) {
-          routes.HaveNiNumberController.onPageLoad(NormalMode)
+          controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
         } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
           controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
         } else {

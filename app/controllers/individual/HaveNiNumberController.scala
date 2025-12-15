@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import controllers.actions.*
-import forms.HaveNiNumberFormProvider
+import forms.individual.HaveNiNumberFormProvider
 import models.{Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.HaveNiNumberPage
+import pages.individual.HaveNiNumberPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.HaveNiNumberView
+import views.html.individual.HaveNiNumberView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

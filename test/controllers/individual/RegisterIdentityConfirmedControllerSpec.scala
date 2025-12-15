@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import base.SpecBase
+import controllers.routes
 import models.NormalMode
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.RegisterIdentityConfirmedView
+import views.html.individual.RegisterIdentityConfirmedView
 
 class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call                           = Call("GET", "/foo")
-  lazy val registerIdentityConfirmedRoute: String = routes.RegisterIdentityConfirmedController.onPageLoad().url
+  lazy val registerIdentityConfirmedRoute: String =
+    controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad().url
 
   "RegisterIdentityConfirmed Controller" - {
 

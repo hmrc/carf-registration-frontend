@@ -103,7 +103,7 @@ POST        /register/date-of-birth                                       contro
 GET         /register/change-date-of-birth                                controllers.individual.RegisterDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-date-of-birth                                controllers.individual.RegisterDateOfBirthController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/identity-confirmed                                  controllers.RegisterIdentityConfirmedController.onPageLoad()
+GET         /register/identity-confirmed                                  controllers.individual.RegisterIdentityConfirmedController.onPageLoad()
 
 GET         /register/contact-name                                        controllers.organisation.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/contact-name                                        controllers.organisation.FirstContactNameController.onSubmit(mode: Mode = NormalMode)

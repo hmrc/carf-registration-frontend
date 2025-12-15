@@ -676,7 +676,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisterDateOfBirthPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.RegisterIdentityConfirmedController.onPageLoad()
+        ) mustBe controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad()
       }
 
       "must navigate to Journey Recovery when no answer is provided" in {

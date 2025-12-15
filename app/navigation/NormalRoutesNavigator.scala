@@ -220,7 +220,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisterDateOfBirthPage) match {
       case Some(_: LocalDate) =>
-        routes.RegisterIdentityConfirmedController.onPageLoad()
+        controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad()
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 

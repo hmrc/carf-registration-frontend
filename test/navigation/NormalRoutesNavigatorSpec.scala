@@ -421,7 +421,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.ProblemDifferentBusinessController.onPageLoad()
+          ) mustBe controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         }
 
         "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {

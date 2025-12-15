@@ -182,7 +182,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
       case Some(false) =>
         if (isCTAutomatched(userAnswers)) {
-          routes.ProblemDifferentBusinessController.onPageLoad()
+          controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
             routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")

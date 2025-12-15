@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisation
 
 import base.SpecBase
+import controllers.routes
 import models.{Address, IsThisYourBusinessPageDetails}
 import pages.IsThisYourBusinessPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ProblemDifferentBusinessView
+import views.html.organisation.ProblemDifferentBusinessView
 
 class ProblemDifferentBusinessControllerSpec extends SpecBase {
 
   val testSignOutUrl: String =
     "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:17000/register-for-carf"
 
-  val controllerRoute: String = routes.ProblemDifferentBusinessController.onPageLoad().url
+  val controllerRoute: String = controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad().url
 
   "ProblemDifferentBusiness Controller" - {
     "must return OK and not display country code for a GB address, & show correct view for a GET" in {

@@ -81,7 +81,7 @@ POST        /register/ni-number                                           contro
 GET         /register/change-ni-number                                    controllers.individual.NiNumberController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-ni-number                                    controllers.individual.NiNumberController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/problem/different-business                          controllers.ProblemDifferentBusinessController.onPageLoad()
+GET         /register/problem/different-business                          controllers.organisation.ProblemDifferentBusinessController.onPageLoad()
 
 GET         /register/business-without-id/have-trading-name               controllers.orgWithoutId.HaveTradingNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/business-without-id/have-trading-name               controllers.orgWithoutId.HaveTradingNameController.onSubmit(mode: Mode = NormalMode)

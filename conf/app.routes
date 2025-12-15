@@ -32,10 +32,10 @@ POST        /register/organisation-registration-type                      contro
 GET         /register/change-organisation-registration-type               controllers.organisation.OrganisationRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-organisation-registration-type               controllers.organisation.OrganisationRegistrationTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/registered-address-in-uk                            controllers.organisation.RegisteredAddressInUkController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/registered-address-in-uk                            controllers.organisation.RegisteredAddressInUkController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-registered-address-in-uk                     controllers.organisation.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-registered-address-in-uk                     controllers.organisation.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)
+GET         /register/registered-address-in-uk                            controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/registered-address-in-uk                            controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-registered-address-in-uk                     controllers.RegisteredAddressInUkController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-registered-address-in-uk                     controllers.RegisteredAddressInUkController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/utr                                                 controllers.organisation.YourUniqueTaxpayerReferenceController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/utr                                                 controllers.organisation.YourUniqueTaxpayerReferenceController.onSubmit(mode: Mode = NormalMode)

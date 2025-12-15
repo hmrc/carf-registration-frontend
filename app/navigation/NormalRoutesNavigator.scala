@@ -36,7 +36,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
     case OrganisationRegistrationTypePage =>
-      _ => controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+      _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
@@ -123,7 +123,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualRegistrationTypePage) match {
       case Some(IndividualRegistrationType.SoleTrader) =>
-        controllers.organisation.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
+        controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
       case Some(IndividualRegistrationType.Individual) =>
         routes.HaveNiNumberController.onPageLoad(NormalMode)
       case _                                           =>

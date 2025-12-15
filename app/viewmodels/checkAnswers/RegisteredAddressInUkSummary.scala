@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import controllers.organisation.routes
+import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.RegisteredAddressInUkPage
 import play.api.i18n.Messages

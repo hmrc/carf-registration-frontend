@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package forms.organisation
+package forms
 
+import forms.RegisteredAddressInUkFormProvider
 import forms.behaviours.BooleanFieldBehaviours
-import forms.organisation.RegisteredAddressInUkFormProvider
 import play.api.data.FormError
 
 class RegisteredAddressInUkFormProviderSpec extends BooleanFieldBehaviours {

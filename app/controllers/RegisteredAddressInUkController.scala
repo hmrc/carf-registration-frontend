@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.organisation
+package controllers
 
 import controllers.actions.*
-import forms.organisation.RegisteredAddressInUkFormProvider
+import forms.RegisteredAddressInUkFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.organisation.RegisteredAddressInUkPage
+import pages.RegisteredAddressInUkPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

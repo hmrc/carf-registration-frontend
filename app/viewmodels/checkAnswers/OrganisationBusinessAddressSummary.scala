@@ -31,8 +31,16 @@ object OrganisationBusinessAddressSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(OrganisationBusinessAddressPage).map { answer =>
 
-      val value =
-        HtmlFormat.escape(answer.AddressLine1).toString + "<br/>" + HtmlFormat.escape(answer.AddressLine2).toString
+      val addressLines = Seq(
+        Some(answer.addressLine1),
+        answer.addressLine2,
+        Some(answer.townOrCity),
+        answer.region,
+        answer.postcode,
+        Some(answer.country.description)
+      ).flatten.map(HtmlFormat.escape(_).toString)
+
+      val value = addressLines.mkString("<br />")
 
       SummaryListRowViewModel(
         key = "organisationBusinessAddress.checkYourAnswersLabel",

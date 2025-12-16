@@ -30,16 +30,14 @@ trait SelectFluency {
   object SelectViewModel extends ErrorMessageAwareness {
 
     def apply(
-      field: Field,
-      items: Seq[SelectItem],
-      label: Label
+        field: Field,
+        items: Seq[SelectItem],
+        label: Label
     )(implicit messages: Messages): Select =
       Select(
         id = field.id,
         name = field.name,
-        items = items map (
-          item => item copy (selected = field.value.isDefined && field.value == item.value)
-        ),
+        items = items map (item => item copy (selected = field.value.isDefined && field.value == item.value)),
         label = label,
         errorMessage = errorMessage(field)
       )
@@ -65,8 +63,8 @@ trait SelectFluency {
   object SelectItemViewModel {
 
     def apply(
-      value: String,
-      text: String
+        value: String,
+        text: String
     ): SelectItem =
       SelectItem(value = Some(value), text = text)
 

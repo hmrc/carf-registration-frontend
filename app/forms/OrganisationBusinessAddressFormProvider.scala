@@ -17,31 +17,62 @@
 package forms
 
 import javax.inject.Inject
+import config.Constants.{addressMaxLength, addressRegex, postcodeMaxLength, postcodeRegex}
 import forms.mappings.Mappings
+import models.{Country, OrganisationBusinessAddress}
 import play.api.data.Form
 import play.api.data.Forms.*
-import models.{Country, OrganisationBusinessAddress}
+
+import javax.inject.Inject
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
-  
+
   def apply(countryList: Seq[Country]): Form[OrganisationBusinessAddress] = Form(
     mapping(
-      "AddressLine1" -> text("organisationBusinessAddress.error.AddressLine1.required")
-        .verifying(maxLength(35, "organisationBusinessAddress.error.AddressLine1.length")),
-      "AddressLine2" -> text("organisationBusinessAddress.error.AddressLine2.required")
-        .verifying(maxLength(35, "organisationBusinessAddress.error.AddressLine2.length")),
-      "country"      -> text("addressWithoutId.error.country.required")
-        .verifying(
-          "addressWithoutId.error.country.required",
-          value => countryList.exists(_.code == value)
-        )
+      "addressLine1" -> validatedText(
+        requiredKey = "organisationBusinessAddress.AddressLine1.error.required",
+        lengthKey = "organisationBusinessAddress.AddressLine1.error.length",
+        invalidKey = "organisationBusinessAddress.AddressLine1.error.invalid",
+        maxLength = addressMaxLength,
+        regex = addressRegex
+      ),
+      "addressLine2" -> optional(
+        text()
+          .verifying(maxLength(addressMaxLength, "organisationBusinessAddress.AddressLine2.error.length"))
+          .verifying(regexp(addressRegex, "organisationBusinessAddress.AddressLine2.error.invalid"))
+      ),
+      "townOrCity"   -> validatedText(
+        requiredKey = "organisationBusinessAddress.townOrCity.error.required",
+        lengthKey = "organisationBusinessAddress.townOrCity.error.length",
+        invalidKey = "organisationBusinessAddress.townOrCity.error.invalid",
+        maxLength = addressMaxLength,
+        regex = addressRegex
+      ),
+      "region"       -> optional(
+        text()
+          .verifying(maxLength(addressMaxLength, "organisationBusinessAddress.region.error.length"))
+          .verifying(regexp(addressRegex, "organisationBusinessAddress.region.error.invalid"))
+      ),
+      "postcode"     -> optional(
+        text()
+          .verifying(maxLength(postcodeMaxLength, "organisationBusinessAddress.postcode.error.length"))
+          .verifying(regexp(postcodeRegex, "organisationBusinessAddress.postcode.error.invalid"))
+      ),
+      "country"      -> text("organisationBusinessAddress.country.error.required")
+        .verifying("organisationBusinessAddress.country.error.required", code => countryList.exists(_.code == code))
         .transform[Country](
-          value =>
-            countryList
-              .find(_.code.contains(value))
-              .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
+          code => countryList.find(_.code == code).get,
           country => country.code
         )
-    )(OrganisationBusinessAddress.apply)(x => Some((x.AddressLine1, x.AddressLine2, x.country)))
+    )(OrganisationBusinessAddress.apply)(x =>
+      Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country))
+    )
+      .verifying(
+        "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey",
+        address => {
+          val crownDependencies = Seq("GG", "JE", "IM")
+          !crownDependencies.contains(address.country.code) || address.postcode.exists(_.trim.nonEmpty)
+        }
+      )
   )
 }

@@ -18,9 +18,16 @@ package models
 
 import play.api.libs.json._
 
-case class OrganisationBusinessAddress(AddressLine1: String, AddressLine2: String, country: Country)
+case class OrganisationBusinessAddress(
+    addressLine1: String,
+    addressLine2: Option[String],
+    townOrCity: String,
+    region: Option[String],
+    postcode: Option[String],
+    country: Country
+)
 
 object OrganisationBusinessAddress {
 
-  implicit val format: OFormat[OrganisationBusinessAddress] = Json.format
+  implicit val format: OFormat[OrganisationBusinessAddress] = Json.format[OrganisationBusinessAddress]
 }

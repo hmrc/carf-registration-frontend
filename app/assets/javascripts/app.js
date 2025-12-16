@@ -47,7 +47,8 @@ if (countrySelect !== null) {
         HMRCAccessibleAutocomplete.enhanceSelectElement({
             defaultValue: '',
             selectElement: countrySelect,
-            showAllValues: true,
+            showAllValues: false,
+            minLength: 1,
             autoselect: false,
             containerClassName: 'govuk-!-width-two-thirds',
             templates: {

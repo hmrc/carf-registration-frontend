@@ -46,11 +46,11 @@
                 </h1>
             </legend>
 
-            @govukInput(InputViewModel(form("AddressLine1"), LabelViewModel(messages("organisationBusinessAddress.addressLine1"))).withAutocomplete("address-line1").withCssClass("govuk-!-width-two-thirds"))
-            @govukInput(InputViewModel(form("AddressLine2"), LabelViewModel(messages("organisationBusinessAddress.addressLine2"))).withAutocomplete("address-line2").withCssClass("govuk-!-width-two-thirds"))
-            @govukInput(InputViewModel(form("TownOrCity"), LabelViewModel(messages("organisationBusinessAddress.townOrCity"))).withAutocomplete("address-level2").withCssClass("govuk-!-width-two-thirds"))
-            @govukInput(InputViewModel(form("Region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
-            @govukInput(InputViewModel(form("Postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
+            @govukInput(InputViewModel(form("addressLine1"), LabelViewModel(messages("organisationBusinessAddress.addressLine1"))).withAutocomplete("address-line1").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("addressLine2"), LabelViewModel(messages("organisationBusinessAddress.addressLine2"))).withAutocomplete("address-line2").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("townOrCity"), LabelViewModel(messages("organisationBusinessAddress.townOrCity"))).withAutocomplete("address-level2").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
 
             <div class="govuk-!-width-two-thirds">
                 @govukSelect(

@@ -563,7 +563,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+        ) mustBe controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
       }
     }
 
@@ -686,7 +686,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationBusinessAddressPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
       }
     }
     "RegisterDateOfBirth navigation" - {

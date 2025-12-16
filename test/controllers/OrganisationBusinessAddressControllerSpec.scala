@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import utils.CountryListFactory
-import views.html.OrganisationBusinessAddressView
+import views.html.orgWithoutId.OrganisationBusinessAddressView
 
 import scala.concurrent.Future
 
@@ -40,7 +40,7 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
 
   def onwardRoute                                   = Call("GET", "/foo")
   lazy val organisationBusinessAddressRoute: String =
-    routes.OrganisationBusinessAddressController.onPageLoad(NormalMode).url
+    controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode).url
 
   val validAddress: OrganisationBusinessAddress = OrganisationBusinessAddress(
     addressLine1 = "1 Test Street",

@@ -22,6 +22,8 @@ import models.requests.{RegisterIndividualWithIdAndDobRequest, RegisterIndividua
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
+import pages.individual.IndividualRegistrationTypePage
+import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 

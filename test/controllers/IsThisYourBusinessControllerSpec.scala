@@ -25,6 +25,7 @@ import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
+import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -254,7 +255,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           val result  = route(application, request).value
 
           status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.BusinessNotIdentifiedController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.organisation.routes.BusinessNotIdentifiedController
+            .onPageLoad()
+            .url
         }
       }
     }

@@ -16,14 +16,13 @@
 
 package controllers
 
-import java.time.LocalDate
 import base.SpecBase
 import forms.RegisterDateOfBirthFormProvider
-import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
 import models.error.ApiError
+import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.Messages
@@ -35,6 +34,7 @@ import services.RegistrationService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.RegisterDateOfBirthView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
@@ -132,7 +132,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       val mockRegistrationService = mock[RegistrationService]
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.successful(Right(validIndividualDetails)))
+      ).thenReturn(Future.successful(Some(validIndividualDetails)))
 
       val application =
         applicationBuilder(userAnswers = Some(buildUserAnswers(nino = Some(validNino), name = Some(validName))))
@@ -154,7 +154,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       val mockRegistrationService = mock[RegistrationService]
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.successful(Left(ApiError.NotFoundError)))
+      ).thenReturn(Future.successful(None))
 
       val application = applicationBuilder(userAnswers =
         Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))

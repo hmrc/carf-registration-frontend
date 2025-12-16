@@ -21,7 +21,7 @@ import cats.data.EitherT
 import connectors.RegistrationConnector
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithIdNoDobRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -225,51 +225,49 @@ class RegistrationServiceSpec extends SpecBase {
           safeId = "testSafeId",
           firstName = "Floriane",
           lastName = "Yammel",
-          middleName = Some("Exie"),
+          middleName = None,
           address = testAddress
         )
         val result         = testService
           .getIndividualByNino(ninoOkFullIndividualResponse, validName, validBirthDate)
           .futureValue
-        result mustBe Right(expectedResult)
+        result mustBe Some(expectedResult)
       }
 
-      "return Left(NotFoundError) when the connector could not get a record match for this user" in {
+      "return None when the connector could not get a record match for this user" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
         val result =
           testService.getIndividualByNino(ninoNotFound, validName, validBirthDate).futureValue
-        result mustBe Left(NotFoundError)
+        result mustBe None
       }
 
-      "return Left(NotFoundError) when the call to the RegistrationService does not contain a Nino" in {
+      "return None when the call to the RegistrationService does not contain a Nino" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](NotFoundError))
         val result =
           testService.getIndividualByNino("", validName, validBirthDate).futureValue
-        result mustBe Left(NotFoundError)
+        result mustBe None
       }
 
-      "return Left(InternalServerError) when the connector returns an error" in {
+      "throw an 'Unexpected error!' exception when the connector returns an error" in {
         when(mockConnector.individualWithNino(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithIdResponse](InternalServerError))
-        val result =
-          testService
-            .getIndividualByNino(ninoInternalServerError, validName, validBirthDate)
-            .futureValue
-        result mustBe Left(InternalServerError)
+        val exception = intercept[Exception] {
+          testService.getIndividualByNino(ninoInternalServerError, validName, validBirthDate).futureValue
+        }
+        exception.getMessage must include("Unexpected error!")
       }
     }
 
     "getIndividualByUtr method should" - {
       "return individual details when UserAnswers is complete and connector finds a match for this user's UTR & Name" in {
-        val expectedRequest  = RegisterIndividualWithIdRequest(
+        val expectedRequest  = RegisterIndividualWithIdNoDobRequest(
           requiresNameMatch = true,
           IDNumber = "5234567890",
           IDType = "UTR",
           firstName = "ST firstName",
-          lastName = "ST lastName",
-          dateOfBirth = ""
+          lastName = "ST lastName"
         )
         when(mockConnector.individualWithUtr(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithIdSuccessResponse))

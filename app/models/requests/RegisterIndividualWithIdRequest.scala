@@ -16,17 +16,47 @@
 
 package models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, Writes}
 
-case class RegisterIndividualWithIdRequest(
+sealed trait RegisterIndividualWithIdRequest {
+  def requiresNameMatch: Boolean
+  def IDNumber: String
+  def IDType: String
+  def firstName: String
+  def lastName: String
+}
+
+object RegisterIndividualWithIdRequest {
+  implicit val writes: Writes[RegisterIndividualWithIdRequest] = Writes {
+    case r: RegisterIndividualWithIdAndDobRequest =>
+      Json.toJson(r)(RegisterIndividualWithIdAndDobRequest.format)
+
+    case r: RegisterIndividualWithIdNoDobRequest =>
+      Json.toJson(r)(RegisterIndividualWithIdNoDobRequest.format)
+  }
+}
+case class RegisterIndividualWithIdAndDobRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
     IDType: String,
     dateOfBirth: String,
     firstName: String,
     lastName: String
-)
+) extends RegisterIndividualWithIdRequest
 
-object RegisterIndividualWithIdRequest {
-  implicit val format: OFormat[RegisterIndividualWithIdRequest] = Json.format[RegisterIndividualWithIdRequest]
+object RegisterIndividualWithIdAndDobRequest {
+  implicit val format: OFormat[RegisterIndividualWithIdAndDobRequest] =
+    Json.format[RegisterIndividualWithIdAndDobRequest]
+}
+
+case class RegisterIndividualWithIdNoDobRequest(
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String,
+    firstName: String,
+    lastName: String
+) extends RegisterIndividualWithIdRequest
+
+object RegisterIndividualWithIdNoDobRequest {
+  implicit val format: OFormat[RegisterIndividualWithIdNoDobRequest] = Json.format[RegisterIndividualWithIdNoDobRequest]
 }

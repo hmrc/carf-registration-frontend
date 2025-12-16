@@ -18,9 +18,9 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithIdAndDobRequest, RegisterIndividualWithIdNoDobRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -31,11 +31,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
-
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
-  ): Future[Either[ApiError, IndividualDetails]] =
-    val request = RegisterIndividualWithIdRequest(
+  ): Future[Option[IndividualDetails]] = {
+    val request = RegisterIndividualWithIdAndDobRequest(
       requiresNameMatch = true,
       IDNumber = nino,
       IDType = "NINO",
@@ -43,29 +42,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       firstName = name.firstName,
       lastName = name.lastName
     )
-    connector
-      .individualWithNino(request)
-      .value
-      .flatMap {
-        case Right(response) =>
-          logger.info(
-            s"RegistrationConnector Successfully retrieved individual details for: $response.firstName, $response.lastName, safeId=$response.safeId"
-          )
-          Future.successful(
-            Right(
-              IndividualDetails(
-                safeId = response.safeId,
-                firstName = response.firstName,
-                lastName = response.lastName,
-                middleName = response.middleName,
-                address = response.address
-              )
-            )
-          )
-        case Left(error)     =>
-          logger.warn(s"Failed to retrieve individual details: $error")
-          Future.successful(Left(error))
-      }
+    handleIndividualRegistrationResponse(connector.individualWithNino(request).value)
+  }
 
   def getIndividualByUtr(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] = {
     val registrationData = for {
@@ -75,13 +53,12 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
     registrationData match {
       case Some((utr, name)) =>
-        val request = RegisterIndividualWithIdRequest(
+        val request = RegisterIndividualWithIdNoDobRequest(
           requiresNameMatch = true,
           IDNumber = utr.uniqueTaxPayerReference,
           IDType = "UTR",
           firstName = name.firstName,
-          lastName = name.lastName,
-          dateOfBirth = ""
+          lastName = name.lastName
         )
         handleIndividualRegistrationResponse(connector.individualWithUtr(request).value)
       case None              =>
@@ -106,14 +83,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   )(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val registrationData = for {
       utr          <- userAnswers.get(YourUniqueTaxpayerReferencePage)
-      businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage) match {
-                        case Some(value) => Some(value)
-                        case None        => userAnswers.get(WhatIsYourNamePage).map(_.fullName)
-                      }
-      orgType      <- userAnswers.get(OrganisationRegistrationTypePage) match {
-                        case Some(value: OrganisationRegistrationType) => Some(value.code)
-                        case None                                      => None
-                      }
+      businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+      orgType      <- userAnswers.get(OrganisationRegistrationTypePage).map(_.code)
     } yield (utr, businessName, orgType)
 
     registrationData match {

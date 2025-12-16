@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithIdAndDobRequest, RegisterIndividualWithIdNoDobRequest, RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -41,12 +41,12 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   private val backendBaseUrl = config.carfRegistrationBaseUrl
 
   def individualWithNino(
-      request: RegisterIndividualWithIdRequest
+      request: RegisterIndividualWithIdAndDobRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
 
   def individualWithUtr(
-      request: RegisterIndividualWithIdRequest
+      request: RegisterIndividualWithIdNoDobRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/utr")
 

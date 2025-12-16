@@ -18,9 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.RegisterDateOfBirthFormProvider
-import models.error.ApiError
 import models.requests.DataRequest
-import javax.inject.Inject
 import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
@@ -30,7 +28,9 @@ import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegisterDateOfBirthView
+
 import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegisterDateOfBirthController @Inject() (
@@ -87,14 +87,14 @@ class RegisterDateOfBirthController @Inject() (
 
     (maybeNino, maybeName, maybeDob) match {
       case (Some(nino), Some(name), Some(dob)) =>
-        service.getIndividualByNino(nino, name, dob).map {
-          case Right(_)                     =>
-            Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers))
-          case Left(ApiError.NotFoundError) =>
-            Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad())
-          case Left(_)                      =>
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
-        }
+        service
+          .getIndividualByNino(nino, name, dob)
+          .flatMap {
+            case Some(individualDetails) =>
+              Future.successful(Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers)))
+            case None                    =>
+              Future.successful(Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()))
+          }
       case _                                   =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

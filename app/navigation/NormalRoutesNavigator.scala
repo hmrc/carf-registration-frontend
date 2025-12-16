@@ -73,10 +73,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveTradingName(userAnswers)
 
     case TradingNamePage =>
-      _ => routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+      _ => controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
 
     case OrganisationBusinessAddressPage =>
-      _ => routes.OrgYourContactDetailsController.onPageLoad()
+      _ => controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -212,7 +212,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
-        routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+        controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
     }
 
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =

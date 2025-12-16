@@ -46,7 +46,10 @@ object OrganisationBusinessAddressSummary {
         key = "organisationBusinessAddress.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.OrganisationBusinessAddressController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            "site.change",
+            controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("organisationBusinessAddress.change.hidden"))
         )
       )

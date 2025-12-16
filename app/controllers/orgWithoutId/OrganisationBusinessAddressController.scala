@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.orgWithoutId
 
 import controllers.actions.*
 import forms.OrganisationBusinessAddressFormProvider
@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
-import views.html.OrganisationBusinessAddressView
+import views.html.orgWithoutId.OrganisationBusinessAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

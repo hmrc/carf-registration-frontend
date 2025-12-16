@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form, messages("organisationBusinessAddress.title"))) {
 
-    @formHelper(action = routes.OrganisationBusinessAddressController.onSubmit(mode)) {
+    @formHelper(action = controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

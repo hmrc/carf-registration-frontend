@@ -49,6 +49,7 @@ if (countrySelect !== null) {
             selectElement: countrySelect,
             showAllValues: true,
             autoselect: false,
+            containerClassName: 'govuk-!-width-two-thirds',
             templates: {
                 suggestion: function (suggestion) {
                     if (suggestion) {

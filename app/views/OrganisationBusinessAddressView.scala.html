@@ -25,8 +25,8 @@
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
-    govukSelect: GovukSelect,
-    countryPicker: CountryPicker
+    countryPicker: CountryPicker,
+    govukSelect: GovukSelect
 )
 
 @(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
@@ -52,13 +52,15 @@
             @govukInput(InputViewModel(form("Region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
             @govukInput(InputViewModel(form("Postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
 
-            @govukSelect(
-                SelectViewModel(
-                    field = form("country"),
-                    label = LabelViewModel(messages("organisationBusinessAddress.country")),
-                    items = countries
-                ).withCssClass("govuk-!-width-two-thirds")
-            )
+            <div class="govuk-!-width-two-thirds">
+                @govukSelect(
+                    SelectViewModel(
+                        field = form("country"),
+                        label = LabelViewModel(messages("organisationBusinessAddress.country")),
+                        items = countries
+                    )
+                )
+            </div>
 
         </fieldset>
 

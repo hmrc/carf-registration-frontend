@@ -1,0 +1,67 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package connectors
+
+import com.google.inject.Inject
+import config.FrontendAppConfig
+import models.error.ApiError
+import models.requests.SearchByPostcodeRequest
+import models.responses.AddressResponse
+import play.api.Logging
+import play.api.http.Status.OK
+import play.api.libs.json.Json
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+
+import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
+
+class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
+    ec: ExecutionContext
+) extends Logging {
+
+  private val searchByPostcodeUrl = url"${config.addressLookupBaseUrl}/lookup"
+
+  def searchByPostcode(
+      request: SearchByPostcodeRequest
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, Seq[AddressResponse]]] =
+    http
+      .post(searchByPostcodeUrl)
+      .setHeader("X-Hmrc-Origin" -> "CARF")
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
+      .map {
+        case response if response.status == OK =>
+          Try(response.json.as[Seq[AddressResponse]]) match {
+            case Success(data)      =>
+              Right(data)
+            case Failure(exception) =>
+              logger.warn(
+                s"Error parsing response as AddressResponse with uri: $searchByPostcodeUrl"
+              )
+              Left(ApiError.JsonValidationError)
+          }
+        case response                          =>
+          logger.warn(
+            s"Unexpected response: status code: ${response.status}, with message: ${response.body} from uri: $searchByPostcodeUrl"
+          )
+          Left(ApiError.InternalServerError)
+      }
+
+}

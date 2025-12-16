@@ -17,7 +17,6 @@
 package controllers.individual
 
 import controllers.actions.*
-import forms.RegisterDateOfBirthFormProvider
 import controllers.routes
 import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
@@ -30,7 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.RegisterDateOfBirthView
+import views.html.individual.RegisterDateOfBirthView
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -96,7 +95,11 @@ class RegisterDateOfBirthController @Inject() (
             case Some(individualDetails) =>
               Future.successful(Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers)))
             case None                    =>
-              Future.successful(Redirect(routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()))
+              Future.successful(
+                Redirect(
+                  controllers.individualWithoutId.routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
+                )
+              )
           }
       case _                                   =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

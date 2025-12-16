@@ -1,63 +1,254 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package forms
 
+import config.Constants.{addressMaxLength, addressRegex, postcodeMaxLength, postcodeRegex}
 import forms.behaviours.StringFieldBehaviours
-import play.api.data.FormError
+import models.{Country, OrganisationBusinessAddress}
+import org.scalacheck.Gen
+import play.api.data.{Form, FormError}
 
 class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours {
 
-  val form = new OrganisationBusinessAddressFormProvider()()
+  val uk: Country               = Country("GB", "United Kingdom")
+  val france: Country           = Country("FR", "France")
+  val jersey: Country           = Country("JE", "Jersey")
+  val countryList: Seq[Country] = Seq(uk, france, jersey)
 
-  ".AddressLine1" - {
+  val form: Form[OrganisationBusinessAddress] = new OrganisationBusinessAddressFormProvider()(countryList)
 
-    val fieldName   = "AddressLine1"
-    val requiredKey = "organisationBusinessAddress.error.AddressLine1.required"
-    val lengthKey   = "organisationBusinessAddress.error.AddressLine1.length"
-    val maxLength   = 35
-
-    behave like fieldThatBindsValidData(
-      form,
-      fieldName,
-      stringsWithMaxLength(maxLength)
-    )
-
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-    )
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
+  val validAddressStringGen: Gen[String] = {
+    val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 &.,'-"
+    for {
+      length <- Gen.choose(1, addressMaxLength)
+      chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
+    } yield chars.mkString
   }
 
-  ".AddressLine2" - {
+  val validPostcodeStringGen: Gen[String] = {
+    val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 "
+    for {
+      length <- Gen.choose(1, postcodeMaxLength)
+      chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
+    } yield chars.mkString
+  }
 
-    val fieldName   = "AddressLine2"
-    val requiredKey = "organisationBusinessAddress.error.AddressLine2.required"
-    val lengthKey   = "organisationBusinessAddress.error.AddressLine2.length"
-    val maxLength   = 35
+  ".addressLine1" - {
+
+    val fieldName   = "addressLine1"
+    val requiredKey = "organisationBusinessAddress.AddressLine1.error.required"
+    val lengthKey   = "organisationBusinessAddress.AddressLine1.error.length"
+    val invalidKey  = "organisationBusinessAddress.AddressLine1.error.invalid"
 
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      validAddressStringGen
     )
 
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-    )
+    "must not bind strings longer than the max length" in {
+      val longString = "a" * (addressMaxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, lengthKey, Nil))
+    }
 
     behave like mandatoryField(
       form,
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "must not bind strings with invalid characters" in {
+      val invalidString = "123 Street!"
+      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey, Nil))
+    }
+  }
+
+  ".addressLine2" - {
+
+    val fieldName  = "addressLine2"
+    val lengthKey  = "organisationBusinessAddress.AddressLine2.error.length"
+    val invalidKey = "organisationBusinessAddress.AddressLine2.error.invalid"
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      validAddressStringGen
+    )
+
+    "must not bind strings longer than the max length" in {
+      val longString = "a" * (addressMaxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
+    }
+
+    "must bind an empty string as valid" in {
+      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+      result.errors mustBe empty
+    }
+
+    "must not bind strings with invalid characters" in {
+      val invalidString = "Apt 4!"
+      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
+    }
+  }
+
+  ".townOrCity" - {
+
+    val fieldName   = "townOrCity"
+    val requiredKey = "organisationBusinessAddress.townOrCity.error.required"
+    val lengthKey   = "organisationBusinessAddress.townOrCity.error.length"
+    val invalidKey  = "organisationBusinessAddress.townOrCity.error.invalid"
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      validAddressStringGen
+    )
+
+    "must not bind strings longer than the max length" in {
+      val longString = "a" * (addressMaxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, lengthKey, Nil))
+    }
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+
+    "must not bind strings with invalid characters" in {
+      val invalidString = "Luton!"
+      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey, Nil))
+    }
+  }
+
+  ".region" - {
+
+    val fieldName  = "region"
+    val lengthKey  = "organisationBusinessAddress.region.error.length"
+    val invalidKey = "organisationBusinessAddress.region.error.invalid"
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      validAddressStringGen
+    )
+
+    "must not bind strings longer than the max length" in {
+      val longString = "a" * (addressMaxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
+    }
+
+    "must bind an empty string as valid" in {
+      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+      result.errors mustBe empty
+    }
+
+    "must not bind strings with invalid characters" in {
+      val invalidString = "California*"
+      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
+    }
+  }
+
+  ".postcode" - {
+
+    val fieldName  = "postcode"
+    val lengthKey  = "organisationBusinessAddress.postcode.error.length"
+    val invalidKey = "organisationBusinessAddress.postcode.error.invalid"
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      validPostcodeStringGen
+    )
+
+    "must not bind strings longer than the max length" in {
+      val longString = "a" * (postcodeMaxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, lengthKey, Seq(postcodeMaxLength)))
+    }
+
+    "must bind an empty string as valid" in {
+      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+      result.errors mustBe empty
+    }
+
+    "must not bind strings with invalid characters" in {
+      val invalidString = "W1A-1AA!"
+      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey, Seq(postcodeRegex)))
+    }
+  }
+
+  ".country" - {
+    val fieldName   = "country"
+    val requiredKey = "organisationBusinessAddress.country.error.required"
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+
+    "must not bind an invalid country code" in {
+      val result = form.bind(Map(fieldName -> "ZZ")).apply(fieldName)
+      result.errors must contain(FormError(fieldName, requiredKey))
+    }
+  }
+
+  "The form as a whole" - {
+    "must return an error if country is a Crown Dependency and postcode is empty" in {
+      val formData = Map(
+        "addressLine1" -> "1 Test Street",
+        "townOrCity"   -> "St Helier",
+        "country"      -> "JE",
+        "postcode"     -> ""
+      )
+      val result   = form.bind(formData)
+      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey"))
+    }
+
+    "must be valid if country is a Crown Dependency and postcode is provided" in {
+      val formData = Map(
+        "addressLine1" -> "1 Test Street",
+        "townOrCity"   -> "St Helier",
+        "country"      -> "JE",
+        "postcode"     -> "JE1 1AA"
+      )
+      val result   = form.bind(formData)
+      result.hasErrors mustBe false
+    }
+
+    "must be valid if country is not a Crown Dependency and postcode is empty" in {
+      val formData = Map(
+        "addressLine1" -> "1 Test Street",
+        "townOrCity"   -> "Paris",
+        "country"      -> "FR",
+        "postcode"     -> ""
+      )
+      val result   = form.bind(formData)
+      result.hasErrors mustBe false
+    }
   }
 }

@@ -560,9 +560,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        ) mustBe routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
       }
     }
 
@@ -662,6 +660,32 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
     }
 
+    "OrganisationBusinessAddressPage navigation" - {
+
+      "must navigate from OrganisationBusinessAddressPage to the next page in the journey" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(
+            OrganisationBusinessAddressPage,
+            OrganisationBusinessAddress(
+              "Address Line 1",
+              Some("Address Line 2"),
+              "City",
+              Some("Region"),
+              Some("Postcode"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
+      }
+    }
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =

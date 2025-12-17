@@ -16,30 +16,30 @@
 
 package forms
 
-import javax.inject.Inject
-import config.Constants.{addressMaxLength, addressRegex, postcodeMaxLength, postcodeRegex}
+import config.Constants.{addressMaxLength, addressRegex, crownDependencyPostcodeRegex, postcodeMaxLength, postcodeRegex}
 import forms.mappings.Mappings
 import models.{Country, OrganisationBusinessAddress}
 import play.api.data.Form
 import play.api.data.Forms.*
-
 import javax.inject.Inject
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
 
+  private val crownDependencies = Seq("GG", "JE", "IM")
+
   def apply(countryList: Seq[Country]): Form[OrganisationBusinessAddress] = Form(
     mapping(
       "addressLine1" -> validatedText(
-        requiredKey = "organisationBusinessAddress.AddressLine1.error.required",
-        lengthKey = "organisationBusinessAddress.AddressLine1.error.length",
-        invalidKey = "organisationBusinessAddress.AddressLine1.error.invalid",
+        requiredKey = "organisationBusinessAddress.addressLine1.error.required",
+        lengthKey = "organisationBusinessAddress.addressLine1.error.length",
+        invalidKey = "organisationBusinessAddress.addressLine1.error.invalid",
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
       "addressLine2" -> optional(
         text()
-          .verifying(maxLength(addressMaxLength, "organisationBusinessAddress.AddressLine2.error.length"))
-          .verifying(regexp(addressRegex, "organisationBusinessAddress.AddressLine2.error.invalid"))
+          .verifying(maxLength(addressMaxLength, "organisationBusinessAddress.addressLine2.error.length"))
+          .verifying(regexp(addressRegex, "organisationBusinessAddress.addressLine2.error.invalid"))
       ),
       "townOrCity"   -> validatedText(
         requiredKey = "organisationBusinessAddress.townOrCity.error.required",
@@ -69,10 +69,16 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
     )
       .verifying(
         "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey",
-        address => {
-          val crownDependencies = Seq("GG", "JE", "IM")
-          !crownDependencies.contains(address.country.code) || address.postcode.exists(_.trim.nonEmpty)
-        }
+        address => !crownDependencies.contains(address.country.code) || address.postcode.exists(_.trim.nonEmpty)
+      )
+      .verifying(
+        "organisationBusinessAddress.postcode.error.invalidFormat",
+        address =>
+          if (crownDependencies.contains(address.country.code) && address.postcode.exists(_.trim.nonEmpty)) {
+            address.postcode.get.toUpperCase.matches(crownDependencyPostcodeRegex)
+          } else {
+            true
+          }
       )
   )
 }

@@ -16,7 +16,7 @@
 
 package forms
 
-import config.Constants.{addressMaxLength, addressRegex, postcodeMaxLength, postcodeRegex}
+import config.Constants.{addressMaxLength, addressRegex, crownDependencyPostcodeRegex, postcodeMaxLength, postcodeRegex}
 import forms.behaviours.StringFieldBehaviours
 import models.{Country, OrganisationBusinessAddress}
 import org.scalacheck.Gen
@@ -27,7 +27,9 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
   val uk: Country               = Country("GB", "United Kingdom")
   val france: Country           = Country("FR", "France")
   val jersey: Country           = Country("JE", "Jersey")
-  val countryList: Seq[Country] = Seq(uk, france, jersey)
+  val guernsey: Country         = Country("GG", "Guernsey")
+  val isleOfMan: Country        = Country("IM", "Isle of Man")
+  val countryList: Seq[Country] = Seq(uk, france, jersey, guernsey, isleOfMan)
 
   val form: Form[OrganisationBusinessAddress] = new OrganisationBusinessAddressFormProvider()(countryList)
 
@@ -47,12 +49,17 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
     } yield chars.mkString
   }
 
+  val baseFormData: Map[String, String] = Map(
+    "addressLine1" -> "1 Test Street",
+    "townOrCity"   -> "Testville"
+  )
+
   ".addressLine1" - {
 
     val fieldName   = "addressLine1"
-    val requiredKey = "organisationBusinessAddress.AddressLine1.error.required"
-    val lengthKey   = "organisationBusinessAddress.AddressLine1.error.length"
-    val invalidKey  = "organisationBusinessAddress.AddressLine1.error.invalid"
+    val requiredKey = "organisationBusinessAddress.addressLine1.error.required"
+    val lengthKey   = "organisationBusinessAddress.addressLine1.error.length"
+    val invalidKey  = "organisationBusinessAddress.addressLine1.error.invalid"
 
     behave like fieldThatBindsValidData(
       form,
@@ -82,8 +89,8 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
   ".addressLine2" - {
 
     val fieldName  = "addressLine2"
-    val lengthKey  = "organisationBusinessAddress.AddressLine2.error.length"
-    val invalidKey = "organisationBusinessAddress.AddressLine2.error.invalid"
+    val lengthKey  = "organisationBusinessAddress.addressLine2.error.length"
+    val invalidKey = "organisationBusinessAddress.addressLine2.error.invalid"
 
     behave like fieldThatBindsValidData(
       form,
@@ -212,40 +219,59 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
     )
 
     "must not bind an invalid country code" in {
-      val result = form.bind(Map(fieldName -> "ZZ")).apply(fieldName)
+      val data   = baseFormData ++ Map(fieldName -> "ZZ")
+      val result = form.bind(data).apply(fieldName)
       result.errors must contain(FormError(fieldName, requiredKey))
+    }
+
+    "must bind a valid country code" in {
+      val data   = baseFormData ++ Map(fieldName -> "FR")
+      val result = form.bind(data).apply(fieldName)
+      result.errors mustBe empty
     }
   }
 
   "The form as a whole" - {
     "must return an error if country is a Crown Dependency and postcode is empty" in {
-      val formData = Map(
-        "addressLine1" -> "1 Test Street",
-        "townOrCity"   -> "St Helier",
-        "country"      -> "JE",
-        "postcode"     -> ""
+      val formData = baseFormData ++ Map(
+        "country"  -> "JE",
+        "postcode" -> ""
       )
       val result   = form.bind(formData)
       result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey"))
     }
 
-    "must be valid if country is a Crown Dependency and postcode is provided" in {
-      val formData = Map(
-        "addressLine1" -> "1 Test Street",
-        "townOrCity"   -> "St Helier",
-        "country"      -> "JE",
-        "postcode"     -> "JE1 1AA"
+    "must return an error if country is a Crown Dependency and postcode is invalid format" in {
+      val formData = baseFormData ++ Map(
+        "country"  -> "JE",
+        "postcode" -> "INVALID"
+      )
+      val result   = form.bind(formData)
+      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.invalidFormat", Nil))
+    }
+
+    "must be valid if country is a Crown Dependency and postcode is provided in a valid format" in {
+      val formData = baseFormData ++ Map(
+        "country"  -> "JE",
+        "postcode" -> "JE1 1AA"
       )
       val result   = form.bind(formData)
       result.hasErrors mustBe false
     }
 
     "must be valid if country is not a Crown Dependency and postcode is empty" in {
-      val formData = Map(
-        "addressLine1" -> "1 Test Street",
-        "townOrCity"   -> "Paris",
-        "country"      -> "FR",
-        "postcode"     -> ""
+      val formData = baseFormData ++ Map(
+        "country"  -> "FR",
+        "postcode" -> ""
+      )
+      val result   = form.bind(formData)
+      result.hasErrors mustBe false
+    }
+
+    "must be valid if country is not a Crown Dependency and postcode is provided" in {
+      val formData = baseFormData ++ Map(
+        "country"  -> "GB",
+        "postcode" -> "SW1A 0AA"
       )
       val result   = form.bind(formData)
       result.hasErrors mustBe false

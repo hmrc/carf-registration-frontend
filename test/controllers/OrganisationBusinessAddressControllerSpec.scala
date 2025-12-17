@@ -29,8 +29,7 @@ import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+import play.api.test.Helpers._
 import utils.CountryListFactory
 import views.html.orgWithoutId.OrganisationBusinessAddressView
 
@@ -38,7 +37,7 @@ import scala.concurrent.Future
 
 class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute                                   = Call("GET", "/foo")
+  def onwardRoute: Call                             = Call("GET", "/foo")
   lazy val organisationBusinessAddressRoute: String =
     controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode).url
 
@@ -55,14 +54,12 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
 
   def getDependencies(
       application: Application
-  ): (OrganisationBusinessAddressFormProvider, Form[OrganisationBusinessAddress], Seq[SelectItem]) = {
+  ): (OrganisationBusinessAddressFormProvider, Form[OrganisationBusinessAddress], Seq[Country]) = {
     val countryListFactory = application.injector.instanceOf[CountryListFactory]
-    val countries          = countryListFactory.countryListWithoutUKCountries.getOrElse(Seq.empty)
+    val countries          = countryListFactory.countryList.getOrElse(Seq.empty).filterNot(_.code == "GB")
     val formProvider       = new OrganisationBusinessAddressFormProvider()
     val form               = formProvider(countries)
-    val countrySelectItems = countryListFactory.countrySelectList(form.data, countries)
-
-    (formProvider, form, countrySelectItems)
+    (formProvider, form, countries)
   }
 
   "OrganisationBusinessAddress Controller" - {
@@ -71,10 +68,12 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val (_, form, countrySelectItems) = getDependencies(application)
-        val request                       = FakeRequest(GET, organisationBusinessAddressRoute)
-        val result                        = route(application, request).value
-        val view                          = application.injector.instanceOf[OrganisationBusinessAddressView]
+        val (_, form, countries) = getDependencies(application)
+        val countryListFactory   = application.injector.instanceOf[CountryListFactory]
+        val countrySelectItems   = countryListFactory.countrySelectList(form.data, countries)
+        val request              = FakeRequest(GET, organisationBusinessAddressRoute)
+        val result               = route(application, request).value
+        val view                 = application.injector.instanceOf[OrganisationBusinessAddressView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, countrySelectItems)(
@@ -88,10 +87,12 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val (_, form, countrySelectItems) = getDependencies(application)
-        val request                       = FakeRequest(GET, organisationBusinessAddressRoute)
-        val result                        = route(application, request).value
-        val view                          = application.injector.instanceOf[OrganisationBusinessAddressView]
+        val (_, form, countries) = getDependencies(application)
+        val countryListFactory   = application.injector.instanceOf[CountryListFactory]
+        val countrySelectItems   = countryListFactory.countrySelectList(form.data, countries)
+        val request              = FakeRequest(GET, organisationBusinessAddressRoute)
+        val result               = route(application, request).value
+        val view                 = application.injector.instanceOf[OrganisationBusinessAddressView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form.fill(validAddress), NormalMode, countrySelectItems)(
@@ -129,8 +130,10 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val (_, form, countrySelectItems) = getDependencies(application)
-        val request                       =
+        val (_, form, countries) = getDependencies(application)
+        val countryListFactory   = application.injector.instanceOf[CountryListFactory]
+        val countrySelectItems   = countryListFactory.countrySelectList(form.data, countries)
+        val request              =
           FakeRequest(POST, organisationBusinessAddressRoute)
             .withFormUrlEncodedBody(("addressLine1", ""))
 
@@ -146,48 +149,73 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
       }
     }
 
-    "must redirect to Journey Recovery if country list cannot be loaded" in {
-      val mockCountryListFactory = mock[CountryListFactory]
-      when(mockCountryListFactory.countryListWithoutUKCountries).thenReturn(None)
+    "must return a Bad Request and errors when postcode is empty for a Crown Dependency (Guernsey)" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request = FakeRequest(POST, organisationBusinessAddressRoute)
+          .withFormUrlEncodedBody(
+            "addressLine1" -> "1 Test Street",
+            "townOrCity"   -> "St Peter Port",
+            "country"      -> "GG",
+            "postcode"     -> ""
+          )
+        val result  = route(application, request).value
+        status(result) mustEqual BAD_REQUEST
+      }
+    }
 
+    "must return a Bad Request and errors when postcode has an invalid format for a Crown Dependency (Jersey)" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request = FakeRequest(POST, organisationBusinessAddressRoute)
+          .withFormUrlEncodedBody(
+            "addressLine1" -> "1 Test Street",
+            "townOrCity"   -> "Saint Helier",
+            "country"      -> "JE",
+            "postcode"     -> "INVALID"
+          )
+        val result  = route(application, request).value
+        status(result) mustEqual BAD_REQUEST
+      }
+    }
+
+    "must redirect to the next page when a valid Crown Dependency address is submitted (Isle of Man)" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
+        .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, organisationBusinessAddressRoute)
+        val request = FakeRequest(POST, organisationBusinessAddressRoute)
+          .withFormUrlEncodedBody(
+            "addressLine1" -> "1 Test Street",
+            "townOrCity"   -> "Douglas",
+            "country"      -> "IM",
+            "postcode"     -> "IM1 2EL"
+          )
         val result  = route(application, request).value
-
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
-
       running(application) {
         val request = FakeRequest(GET, organisationBusinessAddressRoute)
-
-        val result = route(application, request).value
-
+        val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
-
       running(application) {
         val request =
           FakeRequest(POST, organisationBusinessAddressRoute)
             .withFormUrlEncodedBody(("AddressLine1", "value 1"), ("AddressLine2", "value 2"))
-
-        val result = route(application, request).value
-
+        val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

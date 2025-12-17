@@ -50,7 +50,9 @@ class OrganisationBusinessAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
+  private val countriesList: Option[Seq[Country]] = countryListFactory.countryList.map { countries =>
+    countries.filterNot(_.code == "GB")
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) async {
     implicit request =>

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
-import config.Constants.{addressMaxLength, addressRegex, crownDependencyPostcodeRegex, postcodeMaxLength, postcodeRegex}
+import config.Constants.*
 import forms.mappings.Mappings
 import models.{Country, OrganisationBusinessAddress}
 import play.api.data.Form
 import play.api.data.Forms.*
+
 import javax.inject.Inject
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {

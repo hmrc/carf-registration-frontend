@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package forms
+package forms.orgWithoutId
 
-import config.Constants.{addressMaxLength, addressRegex, crownDependencyPostcodeRegex, postcodeMaxLength, postcodeRegex}
+import config.Constants.*
 import forms.behaviours.StringFieldBehaviours
 import models.{Country, OrganisationBusinessAddress}
 import org.scalacheck.Gen

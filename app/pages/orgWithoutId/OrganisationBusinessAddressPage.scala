@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.orgWithoutId
 
 import models.OrganisationBusinessAddress
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object OrganisationBusinessAddressPage extends QuestionPage[OrganisationBusinessAddress] {

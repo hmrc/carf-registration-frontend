@@ -24,7 +24,7 @@ import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
 import play.api.libs.json.Json
 

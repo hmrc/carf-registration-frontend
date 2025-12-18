@@ -22,19 +22,21 @@ import forms.orgWithoutId.OrganisationBusinessAddressFormProvider
 import models.{Country, NormalMode, OrganisationBusinessAddress, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.orgWithoutId.OrganisationBusinessAddressPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import utils.CountryListFactory
 import views.html.orgWithoutId.OrganisationBusinessAddressView
 
 import scala.concurrent.Future
 
-class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   def onwardRoute: Call = Call("GET", "/foo")
 
@@ -43,7 +45,7 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
   val mockCountries: Seq[Country] = Seq(france, jersey)
 
   val formProvider = new OrganisationBusinessAddressFormProvider()
-  val form         = formProvider(mockCountries)
+  val form         = formProvider(mockCountries.filterNot(_.code == "GB"))
 
   lazy val organisationBusinessAddressRoute: String =
     controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode).url
@@ -61,6 +63,12 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
     UserAnswers(userAnswersId).set(OrganisationBusinessAddressPage, validAddress).success.value
 
   val mockCountryListFactory: CountryListFactory = mock[CountryListFactory]
+  val mockSessionRepository: SessionRepository   = mock[SessionRepository]
+
+  override def beforeEach(): Unit = {
+    reset(mockCountryListFactory, mockSessionRepository)
+    super.beforeEach()
+  }
 
   "OrganisationBusinessAddress Controller" - {
 
@@ -111,6 +119,7 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
             bind[CountryListFactory].toInstance(mockCountryListFactory)
           )
           .build()
@@ -142,9 +151,9 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
       running(application) {
         val request =
           FakeRequest(POST, organisationBusinessAddressRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+            .withFormUrlEncodedBody(("addressLine1", ""))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        val boundForm = form.bind(Map("addressLine1" -> ""))
         val view      = application.injector.instanceOf[OrganisationBusinessAddressView]
         val result    = route(application, request).value
 
@@ -181,8 +190,9 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
 
       running(application) {
         val request = FakeRequest(POST, organisationBusinessAddressRoute)
-          .withFormUrlEncodedBody(("value", "invalid value"))
-        val result  = route(application, request).value
+          .withFormUrlEncodedBody(("addressLine1", "some value"))
+
+        val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -206,7 +216,7 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
 
       running(application) {
         val request = FakeRequest(POST, organisationBusinessAddressRoute)
-          .withFormUrlEncodedBody(("value", "some value"))
+          .withFormUrlEncodedBody(("addressLine1", "some value"))
         val result  = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER

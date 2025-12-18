@@ -21,7 +21,6 @@ import forms.mappings.Mappings
 import models.{Country, OrganisationBusinessAddress}
 import play.api.data.Form
 import play.api.data.Forms.*
-
 import javax.inject.Inject
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
@@ -42,36 +41,46 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
       ),
       "addressLine2" -> optional(
         text()
-          .verifying(maxLength(addressMaxLength, "organisationBusinessAddress.addressLine2.error.length"))
-          .verifying(regexp(addressRegex, "organisationBusinessAddress.addressLine2.error.invalid"))
+          .verifying(
+            firstError(
+              maxLength(addressMaxLength, "organisationBusinessAddress.addressLine2.error.length"),
+              regexp(addressRegex, "organisationBusinessAddress.addressLine2.error.invalid")
+            )
+          )
       ),
-      "townOrCity"   -> validatedText(
+      "townOrCity" -> validatedText(
         requiredKey = "organisationBusinessAddress.townOrCity.error.required",
         lengthKey = "organisationBusinessAddress.townOrCity.error.length",
         invalidKey = "organisationBusinessAddress.townOrCity.error.invalid",
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "region"       -> optional(
+      "region" -> optional(
         text()
-          .verifying(maxLength(addressMaxLength, "organisationBusinessAddress.region.error.length"))
-          .verifying(regexp(addressRegex, "organisationBusinessAddress.region.error.invalid"))
+          .verifying(
+            firstError(
+              maxLength(addressMaxLength, "organisationBusinessAddress.region.error.length"),
+              regexp(addressRegex, "organisationBusinessAddress.region.error.invalid")
+            )
+          )
       ),
-      "postcode"     -> optional(
+      "postcode" -> optional(
         text()
           .transform[String](normalisePostcode, identity)
-          .verifying(maxLength(postcodeMaxLength, "organisationBusinessAddress.postcode.error.length"))
-          .verifying(regexp(postcodeRegex, "organisationBusinessAddress.postcode.error.invalid"))
+          .verifying(
+            firstError(
+              maxLength(postcodeMaxLength, "organisationBusinessAddress.postcode.error.length"),
+              regexp(postcodeRegex, "organisationBusinessAddress.postcode.error.invalid")
+            )
+          )
       ),
-      "country"      -> text("organisationBusinessAddress.country.error.required")
+      "country" -> text("organisationBusinessAddress.country.error.required")
         .verifying("organisationBusinessAddress.country.error.required", code => countryList.exists(_.code == code))
         .transform[Country](
           code => countryList.find(_.code == code).get,
           country => country.code
         )
-    )(OrganisationBusinessAddress.apply)(x =>
-      Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country))
-    )
+    )(OrganisationBusinessAddress.apply)(x => Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country)))
       .verifying(
         "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey",
         address => !crownDependencies.contains(address.country.code) || address.postcode.exists(_.trim.nonEmpty)

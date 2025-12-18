@@ -63,7 +63,6 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
     UserAnswers(userAnswersId).set(OrganisationBusinessAddressPage, validAddress).success.value
 
   val mockCountryListFactory: CountryListFactory = mock[CountryListFactory]
-  val mockSessionRepository: SessionRepository   = mock[SessionRepository]
 
   override def beforeEach(): Unit = {
     reset(mockCountryListFactory, mockSessionRepository)
@@ -119,7 +118,6 @@ class OrganisationBusinessAddressControllerSpec extends SpecBase with MockitoSug
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
             bind[CountryListFactory].toInstance(mockCountryListFactory)
           )
           .build()

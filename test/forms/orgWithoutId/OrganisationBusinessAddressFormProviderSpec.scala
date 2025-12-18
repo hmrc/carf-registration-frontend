@@ -209,12 +209,12 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
 
     "must accept postcodes with leading, trailing, or multiple internal spaces" in {
       val postcodeWithSpaces = "  JE2   3AB  "
-      val data = baseFormData ++ Map(
+      val data               = baseFormData ++ Map(
         "country"  -> "JE",
         "postcode" -> postcodeWithSpaces
       )
-      val result = form.bind(data)
-      result.hasErrors mustBe false
+      val result             = form.bind(data)
+      result.hasErrors          mustBe false
       result.value.get.postcode mustBe Some("JE2 3AB")
     }
   }

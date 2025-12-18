@@ -50,14 +50,14 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "townOrCity" -> validatedText(
+      "townOrCity"   -> validatedText(
         requiredKey = "organisationBusinessAddress.townOrCity.error.required",
         lengthKey = "organisationBusinessAddress.townOrCity.error.length",
         invalidKey = "organisationBusinessAddress.townOrCity.error.invalid",
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "region" -> optional(
+      "region"       -> optional(
         text()
           .verifying(
             firstError(
@@ -66,7 +66,7 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "postcode" -> optional(
+      "postcode"     -> optional(
         text()
           .transform[String](normalisePostcode, identity)
           .verifying(
@@ -76,13 +76,15 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "country" -> text("organisationBusinessAddress.country.error.required")
+      "country"      -> text("organisationBusinessAddress.country.error.required")
         .verifying("organisationBusinessAddress.country.error.required", code => countryList.exists(_.code == code))
         .transform[Country](
           code => countryList.find(_.code == code).get,
           country => country.code
         )
-    )(OrganisationBusinessAddress.apply)(x => Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country)))
+    )(OrganisationBusinessAddress.apply)(x =>
+      Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country))
+    )
       .verifying(
         "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey",
         address => !crownDependencies.contains(address.country.code) || address.postcode.exists(_.trim.nonEmpty)

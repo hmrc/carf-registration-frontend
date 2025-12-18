@@ -21,12 +21,13 @@ import forms.mappings.Mappings
 import models.{Country, OrganisationBusinessAddress}
 import play.api.data.Form
 import play.api.data.Forms.*
+import play.api.data.validation.{Constraint, Invalid, Valid}
+
 import javax.inject.Inject
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
 
-  private val crownDependencies = Seq("GG", "JE", "IM")
-
+  private val crownDependencies                = Seq("GG", "JE", "IM")
   private val realCrownDependencyPostcodeRegex = "^((GY([1-9]|10))|(JE[1-4])|(IM([1-9]|99))) ?[0-9][A-Z]{2}$"
 
   private def normalisePostcode(postcode: String): String =
@@ -85,27 +86,34 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
     )(OrganisationBusinessAddress.apply)(x =>
       Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country))
     )
-      .verifying(
-        "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey",
-        address => !crownDependencies.contains(address.country.code) || address.postcode.exists(_.trim.nonEmpty)
-      )
-      .verifying(
-        "organisationBusinessAddress.postcode.error.invalidFormat",
-        address =>
-          if (crownDependencies.contains(address.country.code) && address.postcode.exists(_.trim.nonEmpty)) {
-            address.postcode.get.toUpperCase.matches(crownDependencyPostcodeRegex)
-          } else {
-            true
-          }
-      )
-      .verifying(
-        "organisationBusinessAddress.postcode.error.required",
-        address =>
-          if (crownDependencies.contains(address.country.code) && address.postcode.exists(_.trim.nonEmpty)) {
-            address.postcode.get.toUpperCase.matches(realCrownDependencyPostcodeRegex)
-          } else {
-            true
-          }
-      )
+      .verifying(Constraint[OrganisationBusinessAddress]("postcode.mandatory") { address =>
+        if (crownDependencies.contains(address.country.code) && address.postcode.getOrElse("").isEmpty) {
+          Invalid("postcode", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey")
+        } else {
+          Valid
+        }
+      })
+      .verifying(Constraint[OrganisationBusinessAddress]("postcode.format") { address =>
+        val postcode = address.postcode.getOrElse("")
+        if (
+          crownDependencies.contains(address.country.code) && postcode.nonEmpty && !postcode
+            .matches(crownDependencyPostcodeRegex)
+        ) {
+          Invalid("postcode", "organisationBusinessAddress.postcode.error.invalidFormat")
+        } else {
+          Valid
+        }
+      })
+      .verifying(Constraint[OrganisationBusinessAddress]("postcode.real") { address =>
+        val postcode = address.postcode.getOrElse("")
+        if (
+          crownDependencies.contains(address.country.code) && postcode.nonEmpty && !postcode
+            .matches(realCrownDependencyPostcodeRegex)
+        ) {
+          Invalid("postcode", "organisationBusinessAddress.postcode.error.required")
+        } else {
+          Valid
+        }
+      })
   )
 }

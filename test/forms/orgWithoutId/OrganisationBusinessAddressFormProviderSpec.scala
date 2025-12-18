@@ -249,7 +249,9 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
         "postcode" -> ""
       )
       val result   = form.bind(formData)
-      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey"))
+      result.errors must contain(
+        FormError("postcode", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey")
+      )
     }
 
     "must return an 'invalid format' error if country is a Crown Dependency and postcode does not match basic format" in {
@@ -258,7 +260,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
         "postcode" -> "INVALID"
       )
       val result   = form.bind(formData)
-      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.invalidFormat"))
+      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.invalidFormat"))
     }
 
     "must return a 'real postcode' error if country is a Crown Dependency and postcode has an invalid number" in {
@@ -267,7 +269,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
         "postcode" -> "JE5 1AA"
       )
       val result   = form.bind(formData)
-      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.required"))
+      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.required"))
     }
 
     "must be valid if country is a Crown Dependency and postcode is provided in a valid format" in {

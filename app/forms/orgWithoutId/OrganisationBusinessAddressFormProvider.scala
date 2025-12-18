@@ -28,6 +28,9 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
 
   private val crownDependencies = Seq("GG", "JE", "IM")
 
+  private def normalisePostcode(postcode: String): String =
+    postcode.replaceAll("\\s+", " ").trim.toUpperCase
+
   def apply(countryList: Seq[Country]): Form[OrganisationBusinessAddress] = Form(
     mapping(
       "addressLine1" -> validatedText(
@@ -56,6 +59,7 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
       ),
       "postcode"     -> optional(
         text()
+          .transform[String](normalisePostcode, identity)
           .verifying(maxLength(postcodeMaxLength, "organisationBusinessAddress.postcode.error.length"))
           .verifying(regexp(postcodeRegex, "organisationBusinessAddress.postcode.error.invalid"))
       ),

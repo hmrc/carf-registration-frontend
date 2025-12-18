@@ -206,6 +206,17 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
       result.errors must contain(FormError(fieldName, invalidKey, Seq(postcodeRegex)))
     }
+
+    "must accept postcodes with leading, trailing, or multiple internal spaces" in {
+      val postcodeWithSpaces = "  JE2   3AB  "
+      val data               = baseFormData ++ Map(
+        "country"  -> "JE",
+        "postcode" -> postcodeWithSpaces
+      )
+      val result             = form.bind(data)
+      result.hasErrors          mustBe false
+      result.value.get.postcode mustBe Some("JE2 3AB")
+    }
   }
 
   ".country" - {

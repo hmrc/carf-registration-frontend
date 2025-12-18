@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
 
-  private val crownDependencies                = Seq("GG", "JE", "IM")
+  private val crownDependencies = Seq("GG", "JE", "IM")
   private val realCrownDependencyPostcodeRegex = "^((GY([1-9]|10))|(JE[1-4])|(IM([1-9]|99))) ?[0-9][A-Z]{2}$"
 
   private def normalisePostcode(postcode: String): String =
@@ -51,14 +51,14 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "townOrCity"   -> validatedText(
+      "townOrCity" -> validatedText(
         requiredKey = "organisationBusinessAddress.townOrCity.error.required",
         lengthKey = "organisationBusinessAddress.townOrCity.error.length",
         invalidKey = "organisationBusinessAddress.townOrCity.error.invalid",
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "region"       -> optional(
+      "region" -> optional(
         text()
           .verifying(
             firstError(
@@ -67,7 +67,7 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "postcode"     -> optional(
+      "postcode" -> optional(
         text()
           .transform[String](normalisePostcode, identity)
           .verifying(
@@ -77,43 +77,38 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "country"      -> text("organisationBusinessAddress.country.error.required")
+      "country" -> text("organisationBusinessAddress.country.error.required")
         .verifying("organisationBusinessAddress.country.error.required", code => countryList.exists(_.code == code))
         .transform[Country](
           code => countryList.find(_.code == code).get,
           country => country.code
         )
-    )(OrganisationBusinessAddress.apply)(x =>
-      Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country))
-    )
-      .verifying(Constraint[OrganisationBusinessAddress]("postcode.mandatory") { address =>
-        if (crownDependencies.contains(address.country.code) && address.postcode.getOrElse("").isEmpty) {
-          Invalid("postcode", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey")
-        } else {
-          Valid
-        }
-      })
-      .verifying(Constraint[OrganisationBusinessAddress]("postcode.format") { address =>
-        val postcode = address.postcode.getOrElse("")
-        if (
-          crownDependencies.contains(address.country.code) && postcode.nonEmpty && !postcode
-            .matches(crownDependencyPostcodeRegex)
-        ) {
-          Invalid("postcode", "organisationBusinessAddress.postcode.error.invalidFormat")
-        } else {
-          Valid
-        }
-      })
-      .verifying(Constraint[OrganisationBusinessAddress]("postcode.real") { address =>
-        val postcode = address.postcode.getOrElse("")
-        if (
-          crownDependencies.contains(address.country.code) && postcode.nonEmpty && !postcode
-            .matches(realCrownDependencyPostcodeRegex)
-        ) {
-          Invalid("postcode", "organisationBusinessAddress.postcode.error.required")
-        } else {
-          Valid
-        }
-      })
+    )(OrganisationBusinessAddress.apply)(x => Some((x.addressLine1, x.addressLine2, x.townOrCity, x.region, x.postcode, x.country)))
+      .verifying(
+        Constraint[OrganisationBusinessAddress]("postcode.mandatory") { address =>
+          if (crownDependencies.contains(address.country.code) && address.postcode.getOrElse("").isEmpty) {
+            Invalid("postcode", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey")
+          } else {
+            Valid
+          }
+        })
+      .verifying(
+        Constraint[OrganisationBusinessAddress]("postcode.format") { address =>
+          val postcode = address.postcode.getOrElse("")
+          if (crownDependencies.contains(address.country.code) && postcode.nonEmpty && !postcode.matches(crownDependencyPostcodeRegex)) {
+            Invalid("postcode", "organisationBusinessAddress.postcode.error.invalidFormat")
+          } else {
+            Valid
+          }
+        })
+      .verifying(
+        Constraint[OrganisationBusinessAddress]("postcode.real") { address =>
+          val postcode = address.postcode.getOrElse("")
+          if (crownDependencies.contains(address.country.code) && postcode.nonEmpty && !postcode.matches(realCrownDependencyPostcodeRegex)) {
+            Invalid("postcode", "organisationBusinessAddress.postcode.error.required")
+          } else {
+            Valid
+          }
+        })
   )
 }

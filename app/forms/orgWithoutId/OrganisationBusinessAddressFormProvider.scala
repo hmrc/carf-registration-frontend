@@ -27,6 +27,8 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
 
   private val crownDependencies = Seq("GG", "JE", "IM")
 
+  private val realCrownDependencyPostcodeRegex = "^((GY([1-9]|10))|(JE[1-4])|(IM([1-9]|99))) ?[0-9][A-Z]{2}$"
+
   private def normalisePostcode(postcode: String): String =
     postcode.replaceAll("\\s+", " ").trim.toUpperCase
 
@@ -90,6 +92,15 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
         address =>
           if (crownDependencies.contains(address.country.code) && address.postcode.exists(_.trim.nonEmpty)) {
             address.postcode.get.toUpperCase.matches(crownDependencyPostcodeRegex)
+          } else {
+            true
+          }
+      )
+      .verifying(
+        "organisationBusinessAddress.postcode.error.required",
+        address =>
+          if (crownDependencies.contains(address.country.code) && address.postcode.exists(_.trim.nonEmpty)) {
+            address.postcode.get.toUpperCase.matches(realCrownDependencyPostcodeRegex)
           } else {
             true
           }

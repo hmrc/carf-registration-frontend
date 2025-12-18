@@ -209,12 +209,12 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
 
     "must accept postcodes with leading, trailing, or multiple internal spaces" in {
       val postcodeWithSpaces = "  JE2   3AB  "
-      val data               = baseFormData ++ Map(
+      val data = baseFormData ++ Map(
         "country"  -> "JE",
         "postcode" -> postcodeWithSpaces
       )
-      val result             = form.bind(data)
-      result.hasErrors          mustBe false
+      val result = form.bind(data)
+      result.hasErrors mustBe false
       result.value.get.postcode mustBe Some("JE2 3AB")
     }
   }
@@ -252,19 +252,28 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey"))
     }
 
-    "must return an error if country is a Crown Dependency and postcode is invalid format" in {
+    "must return an 'invalid format' error if country is a Crown Dependency and postcode does not match basic format" in {
       val formData = baseFormData ++ Map(
         "country"  -> "JE",
         "postcode" -> "INVALID"
       )
       val result   = form.bind(formData)
-      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.invalidFormat", Nil))
+      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.invalidFormat"))
+    }
+
+    "must return a 'real postcode' error if country is a Crown Dependency and postcode has an invalid number" in {
+      val formData = baseFormData ++ Map(
+        "country"  -> "JE",
+        "postcode" -> "JE5 1AA"
+      )
+      val result   = form.bind(formData)
+      result.errors must contain(FormError("", "organisationBusinessAddress.postcode.error.required"))
     }
 
     "must be valid if country is a Crown Dependency and postcode is provided in a valid format" in {
       val formData = baseFormData ++ Map(
         "country"  -> "JE",
-        "postcode" -> "JE1 1AA"
+        "postcode" -> "JE2 3AB"
       )
       val result   = form.bind(formData)
       result.hasErrors mustBe false

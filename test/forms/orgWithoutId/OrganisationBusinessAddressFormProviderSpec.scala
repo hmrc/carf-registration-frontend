@@ -144,7 +144,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
 
     "must return an invalid character error if postcode contains invalid chars" in {
       val postcode = "!!??"
-      val formData = baseFormData ++ Map("country" -> "FR", "postcode" -> postcode)
+      val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> postcode)
       val result   = form.bind(formData)
       result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.invalid"))
     }
@@ -167,12 +167,20 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.hasErrors mustBe false
     }
 
-    "must accept postcodes with leading, trailing, or multiple internal spaces" in {
-      val postcodeWithSpaces = "  JE2   3AB  "
-      val data               = baseFormData ++ Map("country" -> "JE", "postcode" -> postcodeWithSpaces)
-      val result             = form.bind(data)
+    "must correctly format a Crown Dependency postcode by adding a space" in {
+      val postcodeWithoutSpace = "JE23AB"
+      val data                 = baseFormData ++ Map("country" -> "JE", "postcode" -> postcodeWithoutSpace)
+      val result               = form.bind(data)
       result.hasErrors          mustBe false
       result.value.get.postcode mustBe Some("JE2 3AB")
+    }
+
+    "must correctly trim a non-Crown Dependency postcode" in {
+      val postcodeWithSpaces = "  12345-6789  "
+      val data               = baseFormData ++ Map("country" -> "FR", "postcode" -> postcodeWithSpaces)
+      val result             = form.bind(data)
+      result.hasErrors          mustBe false
+      result.value.get.postcode mustBe Some("12345-6789")
     }
 
     "must be valid if country is not a Crown Dependency and postcode is empty" in {

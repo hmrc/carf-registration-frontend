@@ -33,8 +33,21 @@ class PostcodeFormatter(
   private val realCrownDependencyPostcodeRegex = "^((GY([1-9]|10))|(JE[1-4])|(IM([1-9]|99))) ?[0-9][A-Z]{2}$"
   private val postcodeCharsRegex               = "^[A-Z0-9 ]*$"
 
-  private def normalisePostcode(postcode: String): String =
-    postcode.replaceAll("\\s+", " ").trim.toUpperCase
+  private def normalise(countryCode: Option[String], postcode: String): String = {
+    val isCrownDependency = countryCode.exists(crownDependencies.contains)
+
+    if (isCrownDependency) {
+      val noSpaces = postcode.replaceAll("\\s", "").toUpperCase
+      if (noSpaces.length > 3) {
+        val (start, end) = noSpaces.splitAt(noSpaces.length - 3)
+        s"$start $end"
+      } else {
+        noSpaces
+      }
+    } else {
+      postcode.trim
+    }
+  }
 
   private def validation(countryCode: Option[String], postcode: String): Either[Seq[FormError], Option[String]] = {
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
@@ -45,7 +58,7 @@ class PostcodeFormatter(
       else Right(None)
     } else if (postcode.length > 10) {
       Left(Seq(FormError("postcode", lengthKey)))
-    } else if (!postcode.matches(postcodeCharsRegex)) {
+    } else if (isCrownDependency && !postcode.matches(postcodeCharsRegex)) {
       Left(Seq(FormError("postcode", invalidCharKey)))
     } else if (isCrownDependency && !postcode.startsWith(cc)) {
       Left(Seq(FormError("postcode", invalidFormatCrownKey)))
@@ -57,9 +70,9 @@ class PostcodeFormatter(
   }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
-    val countryCode = data.get("country")
-    val postcode    = normalisePostcode(data.getOrElse(key, ""))
-    validation(countryCode, postcode)
+    val countryCode        = data.get("country")
+    val normalisedPostcode = normalise(countryCode, data.getOrElse(key, ""))
+    validation(countryCode, normalisedPostcode)
   }
 
   override def unbind(key: String, value: Option[String]): Map[String, String] =

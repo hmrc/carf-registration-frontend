@@ -183,6 +183,14 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.value.get.postcode mustBe Some("12345-6789")
     }
 
+    "must preserve internal spaces and case for non-Crown Dependency postcodes" in {
+      val postcodeWithInternalSpaces = "  abc   123  "
+      val data                       = baseFormData ++ Map("country" -> "FR", "postcode" -> postcodeWithInternalSpaces)
+      val result                     = form.bind(data)
+      result.hasErrors          mustBe false
+      result.value.get.postcode mustBe Some("abc   123")
+    }
+
     "must be valid if country is not a Crown Dependency and postcode is empty" in {
       val formData = baseFormData ++ Map("country" -> "FR", "postcode" -> "")
       val result   = form.bind(formData)

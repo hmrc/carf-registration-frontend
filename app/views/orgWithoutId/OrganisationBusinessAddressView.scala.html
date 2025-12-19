@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.components.CountryPicker
 @import views.html.templates.Layout
+@import models.Country
 
 @this(
     layout: Layout,
@@ -29,7 +30,7 @@
     govukSelect: GovukSelect
 )
 
-@(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, countries: Seq[Country])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("organisationBusinessAddress.title")), showAutoComplete = true) {
 
@@ -53,12 +54,10 @@
             @govukInput(InputViewModel(form("postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
 
             <div class="govuk-!-width-two-thirds">
-                @govukSelect(
-                    SelectViewModel(
-                        field = form("country"),
-                        label = LabelViewModel(messages("organisationBusinessAddress.country")),
-                        items = countries
-                    )
+                @countryPicker(
+                    form("country"),
+                    countries,
+                    LabelViewModel(messages("organisationBusinessAddress.country"))
                 )
             </div>
 

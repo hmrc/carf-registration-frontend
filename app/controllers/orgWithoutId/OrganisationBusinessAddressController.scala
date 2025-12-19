@@ -79,33 +79,31 @@ class OrganisationBusinessAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val form = formProvider(Seq.empty)
-
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            countriesList match {
-              case Some(countries) =>
-                val formWithCountries = formProvider(countries).bind(formWithErrors.data)
+      countriesList match {
+        case Some(countries) =>
+          val form = formProvider(countries)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
                 Future.successful(
                   BadRequest(
                     view(
-                      formWithCountries,
+                      formWithErrors,
                       mode,
                       countryListFactory.countrySelectList(formWithErrors.data, countries)
                     )
                   )
-                )
-              case None            =>
-                logger.error("Could not retrieve countries list from JSON file.")
-                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            },
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
-        )
+                ),
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
+            )
+        case None            =>
+          logger.error("Could not retrieve countries list from JSON file.")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 }

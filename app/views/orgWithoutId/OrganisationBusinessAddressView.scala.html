@@ -31,7 +31,7 @@
 
 @(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("organisationBusinessAddress.title"))) {
+@layout(pageTitle = title(form, messages("organisationBusinessAddress.title")), showAutoComplete = true) {
 
     @formHelper(action = controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onSubmit(mode)) {
 

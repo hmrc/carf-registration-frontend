@@ -24,7 +24,7 @@ import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
 import play.api.libs.json.Json
 
@@ -563,9 +563,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        ) mustBe controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
       }
     }
 
@@ -665,6 +663,32 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe controllers.organisation.routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
     }
 
+    "OrganisationBusinessAddressPage navigation" - {
+
+      "must navigate from OrganisationBusinessAddressPage to the next page in the journey" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(
+            OrganisationBusinessAddressPage,
+            OrganisationBusinessAddress(
+              "Address Line 1",
+              Some("Address Line 2"),
+              "City",
+              Some("Region"),
+              Some("Postcode"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+      }
+    }
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =

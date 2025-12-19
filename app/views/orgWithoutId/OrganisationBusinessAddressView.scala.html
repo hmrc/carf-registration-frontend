@@ -1,0 +1,68 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.Mode
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+@import views.html.templates.Layout
+
+@this(
+    layout: Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton,
+    govukSelect: GovukSelect
+)
+
+@(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("organisationBusinessAddress.title")), showAutoComplete = true) {
+
+    @formHelper(action = controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onSubmit(mode)) {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    @messages("organisationBusinessAddress.heading")
+                </h1>
+            </legend>
+
+            @govukInput(InputViewModel(form("addressLine1"), LabelViewModel(messages("organisationBusinessAddress.addressLine1"))).withAutocomplete("address-line1").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("addressLine2"), LabelViewModel(messages("organisationBusinessAddress.addressLine2"))).withAutocomplete("address-line2").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("townOrCity"), LabelViewModel(messages("organisationBusinessAddress.townOrCity"))).withAutocomplete("address-level2").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
+            @govukInput(InputViewModel(form("postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
+
+            <div class="govuk-form-group govuk-!-width-two-thirds">
+            @govukSelect(
+                    SelectViewModel(
+                        field = form("country"),
+                        label = LabelViewModel(messages("organisationBusinessAddress.country")),
+                        items = countries
+                    )
+                )
+            </div>
+
+        </fieldset>
+
+        @govukButton(ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue"))
+    }
+}

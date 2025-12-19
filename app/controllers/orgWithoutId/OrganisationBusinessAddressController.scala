@@ -22,11 +22,9 @@ import models.{Country, Mode}
 import navigation.Navigator
 import pages.orgWithoutId.OrganisationBusinessAddressPage
 import play.api.Logging
-import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
 import views.html.orgWithoutId.OrganisationBusinessAddressView
@@ -54,7 +52,7 @@ class OrganisationBusinessAddressController @Inject() (
     countries.filterNot(_.code == "GB")
   }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
       countriesList match {
         case Some(countries) =>
@@ -81,31 +79,33 @@ class OrganisationBusinessAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      countriesList match {
-        case Some(countries) =>
-          val form = formProvider(countries)
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
+      val form = formProvider(Seq.empty)
+
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            countriesList match {
+              case Some(countries) =>
+                val formWithCountries = formProvider(countries).bind(formWithErrors.data)
                 Future.successful(
                   BadRequest(
                     view(
-                      formWithErrors,
+                      formWithCountries,
                       mode,
                       countryListFactory.countrySelectList(formWithErrors.data, countries)
                     )
                   )
-                ),
-              value =>
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
-            )
-        case None            =>
-          logger.error("Could not retrieve countries list from JSON file.")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      }
+                )
+              case None            =>
+                logger.error("Could not retrieve countries list from JSON file.")
+                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            },
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
+        )
   }
 }

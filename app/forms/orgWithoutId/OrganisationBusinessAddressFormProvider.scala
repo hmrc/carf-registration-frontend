@@ -64,7 +64,7 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
         countryList = countryList,
         lengthKey = "organisationBusinessAddress.postcode.error.length",
         invalidCharKey = "organisationBusinessAddress.postcode.error.invalid",
-        requiredCrownKey = "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey",
+        requiredCrownKey = "organisationBusinessAddress.postcode.error.emptyAndCountryIsCrownDependency",
         invalidFormatCrownKey = "organisationBusinessAddress.postcode.error.invalidFormat",
         invalidRealCrownKey = "organisationBusinessAddress.postcode.error.required"
       ),

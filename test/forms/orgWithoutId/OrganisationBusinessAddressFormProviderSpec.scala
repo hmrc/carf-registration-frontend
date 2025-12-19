@@ -131,7 +131,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> "")
       val result   = form.bind(formData)
       result.errors must contain(
-        FormError("postcode", "organisationBusinessAddress.postcode.error.emptyAndCountryIsJersey")
+        FormError("postcode", "organisationBusinessAddress.postcode.error.emptyAndCountryIsCrownDependency")
       )
     }
 

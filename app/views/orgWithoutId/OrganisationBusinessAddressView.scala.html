@@ -51,8 +51,8 @@
             @govukInput(InputViewModel(form("region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
             @govukInput(InputViewModel(form("postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
 
-            <div class="govuk-form-group">
-                @govukSelect(
+            <div class="govuk-form-group govuk-!-width-two-thirds">
+            @govukSelect(
                     SelectViewModel(
                         field = form("country"),
                         label = LabelViewModel(messages("organisationBusinessAddress.country")),

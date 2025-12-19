@@ -16,9 +16,8 @@
 
 @import models.Mode
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@import views.html.components.CountryPicker
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 @import views.html.templates.Layout
-@import models.Country
 
 @this(
     layout: Layout,
@@ -26,11 +25,10 @@
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
-    countryPicker: CountryPicker,
     govukSelect: GovukSelect
 )
 
-@(form: Form[_], mode: Mode, countries: Seq[Country])(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("organisationBusinessAddress.title")), showAutoComplete = true) {
 
@@ -53,11 +51,13 @@
             @govukInput(InputViewModel(form("region"), LabelViewModel(messages("organisationBusinessAddress.region"))).withAutocomplete("address-level1").withCssClass("govuk-!-width-two-thirds"))
             @govukInput(InputViewModel(form("postcode"), LabelViewModel(messages("organisationBusinessAddress.postcode"))).withAutocomplete("postal-code").withCssClass("govuk-input--width-10"))
 
-            <div class="govuk-!-width-two-thirds">
-                @countryPicker(
-                    form("country"),
-                    countries,
-                    LabelViewModel(messages("organisationBusinessAddress.country"))
+            <div class="govuk-form-group">
+                @govukSelect(
+                    SelectViewModel(
+                        field = form("country"),
+                        label = LabelViewModel(messages("organisationBusinessAddress.country")),
+                        items = countries
+                    ).withCssClass("govuk-!-width-two-thirds")
                 )
             </div>
 

@@ -66,7 +66,7 @@ class OrganisationBusinessAddressController @Inject() (
               view(
                 preparedForm,
                 mode,
-                countries
+                countryListFactory.countrySelectList(preparedForm.data, countries)
               )
             )
           )
@@ -91,7 +91,7 @@ class OrganisationBusinessAddressController @Inject() (
                     view(
                       formWithErrors,
                       mode,
-                      countries
+                      countryListFactory.countrySelectList(formWithErrors.data, countries)
                     )
                   )
                 ),

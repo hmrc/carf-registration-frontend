@@ -18,7 +18,7 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithIdAndDobRequest, RegisterIndividualWithIdNoDobRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
@@ -36,7 +36,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
   ): Future[Option[IndividualDetails]] = {
-    val request = RegisterIndividualWithIdAndDobRequest(
+    val request = RegisterIndividualWithNinoRequest(
       requiresNameMatch = true,
       IDNumber = nino,
       IDType = "NINO",
@@ -55,7 +55,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
     registrationData match {
       case Some((utr, name)) =>
-        val request = RegisterIndividualWithIdNoDobRequest(
+        val request = RegisterIndividualWithUtrRequest(
           requiresNameMatch = true,
           IDNumber = utr.uniqueTaxPayerReference,
           IDType = "UTR",

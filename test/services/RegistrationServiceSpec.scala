@@ -21,7 +21,7 @@ import cats.data.EitherT
 import connectors.RegistrationConnector
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
-import models.requests.{RegisterIndividualWithIdNoDobRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -262,7 +262,7 @@ class RegistrationServiceSpec extends SpecBase {
 
     "getIndividualByUtr method should" - {
       "return individual details when UserAnswers is complete and connector finds a match for this user's UTR & Name" in {
-        val expectedRequest  = RegisterIndividualWithIdNoDobRequest(
+        val expectedRequest  = RegisterIndividualWithUtrRequest(
           requiresNameMatch = true,
           IDNumber = "5234567890",
           IDType = "UTR",

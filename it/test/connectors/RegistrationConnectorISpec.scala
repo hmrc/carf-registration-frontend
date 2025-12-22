@@ -20,12 +20,11 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import itutil.ApplicationWithWiremock
 import models.Address
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -48,7 +47,7 @@ class RegistrationConnectorISpec
     countryCode = "GB"
   )
 
-  val validRequestBody: RegisterIndividualWithIdRequest = RegisterIndividualWithIdRequest(
+  val validIndWithNinoRequestBody: RegisterIndividualWithNinoRequest = RegisterIndividualWithNinoRequest(
     requiresNameMatch = true,
     IDNumber = "testIDNumber",
     IDType = "testIDType",
@@ -57,7 +56,15 @@ class RegistrationConnectorISpec
     lastName = "testLastName"
   )
 
-  val validResponse: RegisterIndividualWithIdResponse = RegisterIndividualWithIdResponse(
+  val validIndWithUtrRequestBody: RegisterIndividualWithUtrRequest = RegisterIndividualWithUtrRequest(
+    requiresNameMatch = true,
+    IDNumber = "testIDNumber",
+    IDType = "testIDType",
+    firstName = "testFirstName",
+    lastName = "testLastName"
+  )
+
+  val validIndividualResponse: RegisterIndividualWithIdResponse = RegisterIndividualWithIdResponse(
     safeId = "testSafeId",
     firstName = "testFirstName",
     lastName = "testLastName",
@@ -87,11 +94,11 @@ class RegistrationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(validResponse).toString)
+              .withBody(Json.toJson(validIndividualResponse).toString)
           )
       )
-      val result = connector.individualWithNino(validRequestBody).value.futureValue
-      result shouldBe Right(validResponse)
+      val result = connector.individualWithNino(validIndWithNinoRequestBody).value.futureValue
+      result shouldBe Right(validIndividualResponse)
     }
 
     "return a Json validation error if unexpected response is returned from backend" in {
@@ -103,7 +110,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("invalid response").toString)
           )
       )
-      val result = connector.individualWithNino(validRequestBody).value.futureValue
+      val result = connector.individualWithNino(validIndWithNinoRequestBody).value.futureValue
       result shouldBe Left(ApiError.JsonValidationError)
     }
 
@@ -116,7 +123,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("test_body").toString)
           )
       )
-      val result = connector.individualWithNino(validRequestBody).value.futureValue
+      val result = connector.individualWithNino(validIndWithNinoRequestBody).value.futureValue
       result shouldBe Left(ApiError.NotFoundError)
     }
 
@@ -129,7 +136,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("test_body").toString)
           )
       )
-      val result = connector.individualWithNino(validRequestBody).value.futureValue
+      val result = connector.individualWithNino(validIndWithNinoRequestBody).value.futureValue
       result shouldBe Left(ApiError.InternalServerError)
     }
   }
@@ -141,11 +148,11 @@ class RegistrationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(validResponse).toString)
+              .withBody(Json.toJson(validIndividualResponse).toString)
           )
       )
-      val result = connector.individualWithUtr(validRequestBody).value.futureValue
-      result shouldBe Right(validResponse)
+      val result = connector.individualWithUtr(validIndWithUtrRequestBody).value.futureValue
+      result shouldBe Right(validIndividualResponse)
     }
 
     "return a Json validation error if unexpected response is returned from backend" in {
@@ -157,7 +164,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("invalid response").toString)
           )
       )
-      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      val result = connector.individualWithUtr(validIndWithUtrRequestBody).value.futureValue
       result shouldBe Left(ApiError.JsonValidationError)
     }
 
@@ -170,7 +177,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("test_body").toString)
           )
       )
-      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      val result = connector.individualWithUtr(validIndWithUtrRequestBody).value.futureValue
       result shouldBe Left(ApiError.NotFoundError)
     }
 
@@ -183,7 +190,7 @@ class RegistrationConnectorISpec
               .withBody(Json.toJson("test_body").toString)
           )
       )
-      val result = connector.individualWithUtr(validRequestBody).value.futureValue
+      val result = connector.individualWithUtr(validIndWithUtrRequestBody).value.futureValue
       result shouldBe Left(ApiError.InternalServerError)
     }
   }

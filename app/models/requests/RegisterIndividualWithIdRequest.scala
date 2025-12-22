@@ -19,23 +19,24 @@ package models.requests
 import play.api.libs.json.{Json, OFormat, Writes}
 
 sealed trait RegisterIndividualWithIdRequest {
-  def requiresNameMatch: Boolean
-  def IDNumber: String
-  def IDType: String
-  def firstName: String
-  def lastName: String
+  val requiresNameMatch: Boolean
+  val IDNumber: String
+  val IDType: String
+  val firstName: String
+  val lastName: String
 }
 
 object RegisterIndividualWithIdRequest {
   implicit val writes: Writes[RegisterIndividualWithIdRequest] = Writes {
-    case r: RegisterIndividualWithIdAndDobRequest =>
-      Json.toJson(r)(RegisterIndividualWithIdAndDobRequest.format)
+    case r: RegisterIndividualWithNinoRequest =>
+      Json.toJson(r)(RegisterIndividualWithNinoRequest.format)
 
-    case r: RegisterIndividualWithIdNoDobRequest =>
-      Json.toJson(r)(RegisterIndividualWithIdNoDobRequest.format)
+    case r: RegisterIndividualWithUtrRequest =>
+      Json.toJson(r)(RegisterIndividualWithUtrRequest.format)
   }
 }
-case class RegisterIndividualWithIdAndDobRequest(
+
+case class RegisterIndividualWithNinoRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
     IDType: String,
@@ -44,12 +45,12 @@ case class RegisterIndividualWithIdAndDobRequest(
     lastName: String
 ) extends RegisterIndividualWithIdRequest
 
-object RegisterIndividualWithIdAndDobRequest {
-  implicit val format: OFormat[RegisterIndividualWithIdAndDobRequest] =
-    Json.format[RegisterIndividualWithIdAndDobRequest]
+object RegisterIndividualWithNinoRequest {
+  implicit val format: OFormat[RegisterIndividualWithNinoRequest] =
+    Json.format[RegisterIndividualWithNinoRequest]
 }
 
-case class RegisterIndividualWithIdNoDobRequest(
+case class RegisterIndividualWithUtrRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
     IDType: String,
@@ -57,6 +58,6 @@ case class RegisterIndividualWithIdNoDobRequest(
     lastName: String
 ) extends RegisterIndividualWithIdRequest
 
-object RegisterIndividualWithIdNoDobRequest {
-  implicit val format: OFormat[RegisterIndividualWithIdNoDobRequest] = Json.format[RegisterIndividualWithIdNoDobRequest]
+object RegisterIndividualWithUtrRequest {
+  implicit val format: OFormat[RegisterIndividualWithUtrRequest] = Json.format[RegisterIndividualWithUtrRequest]
 }

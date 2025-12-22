@@ -16,27 +16,26 @@
 
 package viewmodels.checkAnswers.individual
 
-import controllers.routes
+import controllers.individual.routes
 import models.{CheckMode, UserAnswers}
 import pages.individual.IndividualPhoneNumberPage
 import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object IndividualPhoneNumberSummary  {
+object IndividualPhoneNumberSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(IndividualPhoneNumberPage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "individualPhoneNumber.checkYourAnswersLabel",
-          value   = ValueViewModel(answer.toString),
-          actions = Seq(
-              ActionItemViewModel("site.change", controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("individualPhoneNumber.change.hidden"))
-          )
+    answers.get(IndividualPhoneNumberPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "individualPhoneNumber.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.IndividualPhoneNumberController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("individualPhoneNumber.change.hidden"))
         )
+      )
     }
 }

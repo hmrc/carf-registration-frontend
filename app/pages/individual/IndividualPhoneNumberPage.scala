@@ -19,7 +19,7 @@ package pages.individual
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IndividualPhoneNumberPage extends QuestionPage[Int] {
+case object IndividualPhoneNumberPage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ toString
 

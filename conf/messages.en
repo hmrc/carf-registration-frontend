@@ -372,8 +372,8 @@ individualPhoneNumber.title = What is your phone number?
 individualPhoneNumber.heading = What is your phone number?
 individualPhoneNumber.hint = For international numbers, include the country code.
 individualPhoneNumber.checkYourAnswersLabel = Change your phone number
-
-individualPhoneNumber.error.required = Enter your individualPhoneNumber
-individualPhoneNumber.error.length = Enter your individualPhoneNumber using whole numbers
-individualPhoneNumber.error.invalid = IndividualPhoneNumber must be between {0} and {1}
-individualPhoneNumber.change.hidden = IndividualPhoneNumber
+individualPhoneNumber.error.required = Enter your phone number
+individualPhoneNumber.error.length = The phone number must be 24 characters or less
+individualPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+individualPhoneNumber.error.real = Enter a real phone number
+individualPhoneNumber.change.hidden = Change your phone number

@@ -16,8 +16,9 @@
 
 package controllers.individual
 
-import controllers.actions.*
+import controllers.actions._
 import forms.individual.IndividualPhoneNumberFormProvider
+import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
 import pages.individual.IndividualPhoneNumberPage
@@ -27,20 +28,21 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.IndividualPhoneNumberView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class IndividualPhoneNumberController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: IndividualPhoneNumberFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: IndividualPhoneNumberView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class IndividualPhoneNumberController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: IndividualPhoneNumberFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: IndividualPhoneNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
@@ -48,7 +50,7 @@ class IndividualPhoneNumberController @Inject()(
     implicit request =>
 
       val preparedForm = request.userAnswers.get(IndividualPhoneNumberPage) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
@@ -57,16 +59,15 @@ class IndividualPhoneNumberController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualPhoneNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(IndividualPhoneNumberPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualPhoneNumberPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(IndividualPhoneNumberPage, mode, updatedAnswers))
+        )
   }
 }

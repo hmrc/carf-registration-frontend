@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import controllers.individual.routes
 @import viewmodels.InputWidth._
 
 @this(
@@ -21,7 +22,8 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukHint: GovukHint
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
@@ -39,8 +41,10 @@
                 field = form("value"),
                 label = LabelViewModel(messages("individualPhoneNumber.heading")).asPageHeading()
             )
-            .asNumeric()
-            .withWidth(Fixed10)
+            .withHint(HintViewModel(content = HtmlContent(messages("individualPhoneNumber.hint"))))
+            .withWidth(Fixed20)
+            .withInputType("tel")
+            .withAutocomplete("tel")
         )
 
         @govukButton(

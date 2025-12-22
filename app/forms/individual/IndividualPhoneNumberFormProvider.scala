@@ -18,17 +18,29 @@ package forms.individual
 
 import forms.mappings.Mappings
 import play.api.data.Form
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import javax.inject.Inject
 
 class IndividualPhoneNumberFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Int] =
+  private val phoneNumberRegex     = """^[A-Z0-9 )/(*#+-]+$"""
+  private val maxPhoneNumberLength = 24
+
+  private def validPhoneNumberFormat(): Constraint[String] =
+    Constraint {
+      case str if str.matches(phoneNumberRegex) => Valid
+      case _                                    => Invalid("individualPhoneNumber.error.invalid")
+    }
+
+  def apply(): Form[String] =
     Form(
-      "value" -> int(
-        "individualPhoneNumber.error.required",
-        "individualPhoneNumber.error.wholeNumber",
-        "individualPhoneNumber.error.nonNumeric")
-          .verifying(inRange(0, 24, "individualPhoneNumber.error.outOfRange"))
+      "value" -> text("individualPhoneNumber.error.required")
+        .verifying(
+          firstError(
+            maxLength(maxPhoneNumberLength, "individualPhoneNumber.error.length"),
+            validPhoneNumberFormat()
+          )
+        )
     )
 }

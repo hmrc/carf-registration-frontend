@@ -367,3 +367,13 @@ indWithoutNinoName.error.familyName.invalid = The family name must only include 
 indWithoutNinoName.error.familyName.length = The family name must be 35 characters or less
 indWithoutNinoName.givenName.change.hidden = Change What is your given name?
 indWithoutNinoName.familyName.change.hidden = Change What is your family name?
+
+individualPhoneNumber.title = What is your phone number?
+individualPhoneNumber.heading = What is your phone number?
+individualPhoneNumber.hint = For international numbers, include the country code.
+individualPhoneNumber.checkYourAnswersLabel = Change your phone number
+
+individualPhoneNumber.error.required = Enter your individualPhoneNumber
+individualPhoneNumber.error.length = Enter your individualPhoneNumber using whole numbers
+individualPhoneNumber.error.invalid = IndividualPhoneNumber must be between {0} and {1}
+individualPhoneNumber.change.hidden = IndividualPhoneNumber

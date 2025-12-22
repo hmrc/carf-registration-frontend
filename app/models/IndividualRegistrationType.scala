@@ -20,18 +20,19 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait IndividualRegistrationType { val code: String }
+sealed trait IndividualRegistrationType
+
+sealed trait HasCode extends IndividualRegistrationType {
+  def code: String
+}
 
 object IndividualRegistrationType extends Enumerable.Implicits {
 
-  case object SoleTrader extends WithName("soleTrader") with IndividualRegistrationType {
+  case object SoleTrader extends WithName("soleTrader") with HasCode {
     override val code: String = "0004"
   }
 
-  // update in CARF-322
-  case object Individual extends WithName("individual") with IndividualRegistrationType {
-    override val code: String = "Individual code not needed"
-  }
+  case object Individual extends WithName("individual") with IndividualRegistrationType {}
 
   val values: Seq[IndividualRegistrationType] = Seq(
     SoleTrader,

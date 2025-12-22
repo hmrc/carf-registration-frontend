@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegisterIndividualWithIdRequest, RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -41,9 +41,14 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   private val backendBaseUrl = config.carfRegistrationBaseUrl
 
   def individualWithNino(
-      request: RegisterIndividualWithIdRequest
+      request: RegisterIndividualWithNinoRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
+
+  def individualWithUtr(
+      request: RegisterIndividualWithUtrRequest
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
+    registerIndividualWithId(request, url"$backendBaseUrl/individual/utr")
 
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
@@ -57,12 +62,9 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         .map {
           case response if response.status == OK        =>
             Try(response.json.as[RegisterIndividualWithIdResponse]) match {
-              case Success(data)      =>
-                Right(data)
+              case Success(data)      => Right(data)
               case Failure(exception) =>
-                logger.warn(
-                  s"Error parsing response as RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"
-                )
+                logger.warn(s"Error parsing RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}")
                 Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>

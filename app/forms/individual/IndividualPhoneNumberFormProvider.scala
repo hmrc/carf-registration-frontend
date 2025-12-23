@@ -24,23 +24,12 @@ import javax.inject.Inject
 
 class IndividualPhoneNumberFormProvider @Inject() extends Mappings {
 
-  private val phoneNumberRegex     = """^[A-Z0-9 )/(*#+-]+$"""
-  private val maxPhoneNumberLength = 24
-
-  private def validPhoneNumberFormat(): Constraint[String] =
-    Constraint {
-      case str if str.matches(phoneNumberRegex) => Valid
-      case _                                    => Invalid("individualPhoneNumber.error.invalid")
-    }
-
   def apply(): Form[String] =
     Form(
-      "value" -> text("individualPhoneNumber.error.required")
-        .verifying(
-          firstError(
-            maxLength(maxPhoneNumberLength, "individualPhoneNumber.error.length"),
-            validPhoneNumberFormat()
-          )
-        )
+      "value" -> phoneNumber(
+        requiredKey = "individualPhoneNumber.error.required",
+        invalidKey = "individualPhoneNumber.error.invalid",
+        lengthKey = "individualPhoneNumber.error.length"
+      )
     )
 }

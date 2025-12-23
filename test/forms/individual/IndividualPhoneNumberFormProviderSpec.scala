@@ -31,14 +31,16 @@ class IndividualPhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
   ".value" - {
 
-    "must bind valid data" in {
-      val result = form.bind(Map(fieldName -> "01234 567890")).apply(fieldName)
-      result.value.value mustBe "01234 567890"
+    "must bind valid UK phone numbers" in {
+      val result = form.bind(Map(fieldName -> "07123456789")).apply(fieldName)
+      result.value.value mustBe "07123456789"
+      result.errors        must be(empty)
     }
 
-    "must bind valid data with allowed special characters" in {
-      val result = form.bind(Map(fieldName -> "+44 (808) 157-0192")).apply(fieldName)
-      result.value.value mustBe "+44 (808) 157-0192"
+    "must bind valid international phone numbers" in {
+      val result = form.bind(Map(fieldName -> "+12125550123")).apply(fieldName)
+      result.value.value mustBe "+12125550123"
+      result.errors        must be(empty)
     }
 
     behave like fieldWithMaxLength(
@@ -48,15 +50,13 @@ class IndividualPhoneNumberFormProviderSpec extends StringFieldBehaviours {
       lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
     )
 
-    "not bind strings that exceed max length" in {
-      val invalidData = "1" * (maxLength + 1)
-      val result      = form.bind(Map(fieldName -> invalidData)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, lengthKey, Seq(maxLength)))
+    "not bind strings with invalid characters and show the 'invalid' error" in {
+      val result = form.bind(Map(fieldName -> "not a phone number")).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey))
     }
 
-    "not bind strings with invalid characters" in {
-      val invalidData = "not a phone number!"
-      val result      = form.bind(Map(fieldName -> invalidData)).apply(fieldName)
+    "not bind an unallocated 'not real' number and show the 'invalid' error" in {
+      val result = form.bind(Map(fieldName -> "01632 960 001")).apply(fieldName)
       result.errors must contain(FormError(fieldName, invalidKey))
     }
 

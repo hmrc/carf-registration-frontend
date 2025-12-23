@@ -269,6 +269,15 @@ firstContactPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001
 firstContactPhoneNumber.change.hidden = Change first contact phone number
 firstContactPhoneNumber.hint = For international numbers, include the country code.
 
+organisationSecondContactPhoneNumber.title = What is the phone number for the second contact?
+organisationSecondContactPhoneNumber.heading = What is the phone number for {0}?
+organisationSecondContactPhoneNumber.checkYourAnswersLabel = Second contact phone number
+organisationSecondContactPhoneNumber.error.required = Enter a phone number for the second contact
+organisationSecondContactPhoneNumber.error.length = The phone number must be 24 characters or less
+organisationSecondContactPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+organisationSecondContactPhoneNumber.change.hidden = Change second contact phone number
+organisationSecondContactPhoneNumber.hint = For international numbers, include the country code.
+
 firstContactEmail.title = What is the email address for the first contact?
 firstContactEmail.heading = What is the email address for {0}?
 firstContactEmail.checkYourAnswersLabel = First contact email address

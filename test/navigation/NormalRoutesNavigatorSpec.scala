@@ -848,9 +848,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationSecondContactHavePhonePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/second-contact-phone (CARF-252)"
-        )
+        ) mustBe controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Check Your Answers page when user answers 'No'" in {
@@ -885,6 +883,28 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+        )
+      }
+    }
+
+    "FirstContactPhoneNumber navigation" - {
+      "must navigate from FirstContactPhoneNumberPage to OrganisationHaveSecondContactPage always" in {
+        navigator.nextPage(
+          FirstContactPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      }
+    }
+
+    "OrganisationSecondContactPhoneNumber navigation" - {
+      "must navigate from OrganisationSecondContactPhoneNumberPage to the Check your answers page always" in {
+        navigator.nextPage(
+          OrganisationSecondContactPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
         )
       }
     }

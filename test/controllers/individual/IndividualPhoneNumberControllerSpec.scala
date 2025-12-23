@@ -17,7 +17,6 @@
 package controllers.individual
 
 import base.SpecBase
-import controllers.routes
 import forms.individual.IndividualPhoneNumberFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -29,7 +28,6 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.individual.IndividualPhoneNumberView
 
 import scala.concurrent.Future
@@ -48,9 +46,6 @@ class IndividualPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
   lazy val individualPhoneNumberSubmitRoute =
     controllers.individual.routes.IndividualPhoneNumberController.onSubmit(NormalMode).url
 
-  private def getIndividualPhoneNumberView(application: play.api.Application) =
-    application.injector.instanceOf[IndividualPhoneNumberView]
-
   "IndividualPhoneNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -58,7 +53,8 @@ class IndividualPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, individualPhoneNumberRoute)
         val result  = route(application, request).value
-        val view    = getIndividualPhoneNumberView(application)
+
+        val view = application.injector.instanceOf[IndividualPhoneNumberView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -71,8 +67,9 @@ class IndividualPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, individualPhoneNumberRoute)
-        val view    = getIndividualPhoneNumberView(application)
-        val result  = route(application, request).value
+
+        val view   = application.injector.instanceOf[IndividualPhoneNumberView]
+        val result = route(application, request).value
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode)(
@@ -113,8 +110,9 @@ class IndividualPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
-        val view      = getIndividualPhoneNumberView(application)
-        val result    = route(application, request).value
+
+        val view   = application.injector.instanceOf[IndividualPhoneNumberView]
+        val result = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString

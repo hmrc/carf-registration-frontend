@@ -20,7 +20,7 @@ import controllers.routes
 import models.OrganisationRegistrationType.*
 import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
@@ -101,6 +101,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     case IndividualEmailPage =>
       _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+
+    case IndividualPhoneNumberPage =>
+      _ => routes.CheckYourAnswersController.onPageLoad()
 
     case OrganisationSecondContactNamePage =>
       _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
@@ -244,9 +247,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualHavePhonePage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-phone (CARF-185)"
-        )
+        controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        =>

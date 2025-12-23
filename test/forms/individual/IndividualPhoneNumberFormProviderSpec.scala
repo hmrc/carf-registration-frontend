@@ -31,33 +31,22 @@ class IndividualPhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
   ".value" - {
 
-    "must bind valid UK phone numbers" in {
-      val result = form.bind(Map(fieldName -> "07123456789")).apply(fieldName)
-      result.value.value mustBe "07123456789"
-      result.errors        must be(empty)
+    "must bind a valid UK phone number" in {
+      val result = form.bind(Map(fieldName -> "07123 456789"))
+      result.errors must be(empty)
+      result.get  mustBe "07123 456789"
     }
 
-    "must bind valid international phone numbers" in {
-      val result = form.bind(Map(fieldName -> "+12125550123")).apply(fieldName)
-      result.value.value mustBe "+12125550123"
-      result.errors        must be(empty)
+    "must bind a valid international phone number" in {
+      val result = form.bind(Map(fieldName -> "+44 808 157 0192"))
+      result.errors must be(empty)
+      result.get  mustBe "+44 808 157 0192"
     }
 
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-    )
-
-    "not bind strings with invalid characters and show the 'invalid' error" in {
-      val result = form.bind(Map(fieldName -> "not a phone number")).apply(fieldName)
-      result.errors must contain(FormError(fieldName, invalidKey))
-    }
-
-    "not bind an unallocated 'not real' number and show the 'invalid' error" in {
-      val result = form.bind(Map(fieldName -> "01632 960 001")).apply(fieldName)
-      result.errors must contain(FormError(fieldName, invalidKey))
+    "must bind a valid number with parentheses" in {
+      val result = form.bind(Map(fieldName -> "(01632) 960000"))
+      result.errors must be(empty)
+      result.get  mustBe "(01632) 960000"
     }
 
     behave like mandatoryField(
@@ -65,5 +54,16 @@ class IndividualPhoneNumberFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "not bind strings with invalid characters" in {
+      val result = form.bind(Map(fieldName -> "not a phone number!")).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey))
+    }
+
+    "not bind strings longer than the max length" in {
+      val longString = "1" * (maxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString))
+      result.errors must contain only FormError(fieldName, lengthKey, Seq.empty)
+    }
   }
 }

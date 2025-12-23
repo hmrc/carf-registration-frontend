@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import models.*
 @import models.OrganisationRegistrationType
 @import models.OrganisationRegistrationType.{LimitedCompany, Partnership, LLP, Trust}
 @import uk.gov.hmrc.govukfrontend.views.html.components._
@@ -87,7 +86,8 @@
     ))
 
     <p class="govuk-body">
-    @Html(messages("businessNotIdentified.tryAgain", registrationStartUrl))
+        @messages("businessNotIdentified.tryAgain")
+        @link(registrationStartUrl, messages("businessNotIdentified.tryAgain.linkText"), fullStop = true)
     </p>
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.utr.heading")</h2>
@@ -109,7 +109,10 @@
     @dynamicParagraph2
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.contact.heading")</h2>
+
     <p class="govuk-body">
-    @Html(messages("businessNotIdentified.contact.p1", aeoiEmailAddress))
+        @messages("businessNotIdentified.contact.p1.part1")
+        <a href="mailto:@aeoiEmailAddress" class="govuk-link">@aeoiEmailAddress</a>
+        @messages("businessNotIdentified.contact.p1.part2")
     </p>
 }

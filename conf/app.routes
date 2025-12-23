@@ -142,10 +142,10 @@ POST        /register/second-contact-email                                contro
 GET         /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/second-contact-have-phone                            controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/second-contact-have-phone                            controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-second-contact-have-phone                     controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-second-contact-have-phone                     controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
+GET         /register/second-contact-have-phone                           controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-have-phone                           controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-have-phone                    controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-have-phone                    controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 
 GET         /register/individual-email                                    controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
@@ -169,3 +169,5 @@ GET         /register/individual-without-id/name                          contro
 POST        /register/individual-without-id/name                          controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = NormalMode)
 GET         /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /problem/sole-trader-not-identified                           controllers.individual.ProblemSoleTraderNotIdentifiedController.onPageLoad()

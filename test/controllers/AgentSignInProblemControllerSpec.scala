@@ -17,11 +17,14 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.AgentSignInProblemView
 
 class AgentSignInProblemControllerSpec extends SpecBase {
+
+  val signOutUrl: String = "http://localhost:9553/bas-gateway/sign-out-without-state"
 
   "AgentSignInProblem Controller" - {
 
@@ -37,7 +40,7 @@ class AgentSignInProblemControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[AgentSignInProblemView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(signOutUrl)(request, messages(application)).toString
       }
     }
 

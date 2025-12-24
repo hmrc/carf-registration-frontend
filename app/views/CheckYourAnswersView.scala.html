@@ -18,25 +18,42 @@
 
 @this(
         layout: templates.Layout,
-        govukSummaryList: GovukSummaryList
+        govukSummaryList: GovukSummaryList,
+        govukButton: GovukButton,
+        formHelper: FormWithCSRF
 )
 
 @(sections: Seq[Section])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+    @formHelper(action = controllers.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "on") {
 
-    <h1 class="govuk-heading-l">@messages("checkYourAnswers.heading")</h1>
+        <h1 class="govuk-heading-l">@messages("checkYourAnswers.heading")</h1>
 
-    @sections.map { section =>
-        @if(section == sections.head) {
-            <h2 class="govuk-heading-m">@section.sectionName</h2>
-        } else {
-            <h2 class="govuk-heading-m govuk-!-padding-top-9">@section.sectionName</h2>
+        @sections.map { section =>
+            @if(section == sections.head) {
+                <h2 class="govuk-heading-m">@section.sectionName</h2>
+            } else {
+                <h2 class="govuk-heading-m govuk-!-padding-top-9">@section.sectionName</h2>
+            }
+
+            @govukSummaryList(SummaryList(
+                rows = section.rows,
+                classes = "govuk-!-margin-bottom-0"
+            ))
         }
 
-        @govukSummaryList(SummaryList(
-            rows = section.rows,
-            classes = "govuk-!-margin-bottom-0"
-        ))
+        <br>
+        <br>
+        <br>
+
+        <h2 class="govuk-heading-m">@messages("checkYourAnswers.declaration.subtitle")</h2>
+
+        <p class="govuk-body">@messages("checkYourAnswers.declaration.p1")</p>
+
+        @govukButton(
+            ButtonViewModel(messages("site.confirmAndSend")).withAttribute("id" -> "confirmAndSend").preventingDoubleClick()
+        )
+
     }
 }

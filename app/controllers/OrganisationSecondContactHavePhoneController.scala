@@ -20,11 +20,12 @@ import controllers.actions.*
 import forms.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import pages.{OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.UserAnswersHelper
 import views.html.OrganisationSecondContactHavePhoneView
 
 import javax.inject.Inject
@@ -42,7 +43,8 @@ class OrganisationSecondContactHavePhoneController @Inject() (
     view: OrganisationSecondContactHavePhoneView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with UserAnswersHelper {
 
   val form = formProvider()
 
@@ -73,7 +75,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationSecondContactHavePhonePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
+              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(getJourneyTypeUtrOnly(updatedAnswers))))
             } yield Redirect(navigator.nextPage(OrganisationSecondContactHavePhonePage, mode, updatedAnswers))
         )
   }

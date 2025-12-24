@@ -6,6 +6,7 @@ site.change = Change
 site.no = No
 site.yes = Yes
 site.continue = Continue
+site.confirmAndSend = Confirm and send
 site.tryAgain = Try again
 site.start = Start now
 site.startAgain = Start again
@@ -30,6 +31,11 @@ error.summary.title = There is a problem
 
 checkYourAnswers.title = Check your answers before you register for cryptoasset reporting
 checkYourAnswers.heading = Check your answers before you register for cryptoasset reporting
+checkYourAnswers.summaryListTitle.businessDetails = Business details
+checkYourAnswers.summaryListTitle.firstContact = First contact
+checkYourAnswers.summaryListTitle.secondContact = Second contact
+checkYourAnswers.declaration.subtitle = Now send your registration for cryptoasset reporting
+checkYourAnswers.declaration.p1 = By sending these details, you are confirming that the information is correct and complete to the best of your knowledge.
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service

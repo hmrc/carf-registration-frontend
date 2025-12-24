@@ -24,30 +24,30 @@ import viewmodels.Section
 
 object CheckYourAnswersViewModel extends UserAnswersHelper {
 
-  def buildPages(userAnswers: UserAnswers)(implicit
-      messages: Messages
-  ): Seq[Section] = {
-
-    val isBusiness                     = isRegisteringAsBusiness(userAnswers)
-    val helper: CheckYourAnswersHelper = new CheckYourAnswersHelper(userAnswers)
-
-    val contactHeading = messages(s"checkYourAnswers.title")
-
-    Seq(
-      Section(contactHeading, buildFirstContact(helper, isBusiness))
-    )
-  }
-
-  private def buildFirstContact(helper: CheckYourAnswersHelper, isBusiness: Boolean): Seq[SummaryListRow] =
-
-    val individualPhoneRow = helper.userAnswers.get(pages.FirstContactPhonePage).flatMap {
-      case true  => helper.firstContactEmail
-      case false => None
-    }
-    Seq(
-      helper.whatIsYourNameIndividual,
-      helper.firstContactEmail,
-      helper.firstContactPhone
-    ).flatten ++ individualPhoneRow
+//  def buildPages(userAnswers: UserAnswers)(implicit
+//      messages: Messages
+//  ): Seq[Section] = {
+//
+//    val isBusiness                     = isRegisteringAsBusiness(userAnswers)
+//    val helper: CheckYourAnswersHelper = new CheckYourAnswersHelper(userAnswers)
+//
+//    val contactHeading = messages(s"checkYourAnswers.title")
+//
+//    Seq(
+//      Section(contactHeading, buildFirstContact(helper, isBusiness))
+//    )
+//  }
+//
+//  private def buildFirstContact(helper: CheckYourAnswersHelper, isBusiness: Boolean): Seq[SummaryListRow] =
+//
+//    val individualPhoneRow = helper.userAnswers.get(pages.FirstContactPhonePage).flatMap {
+//      case true  => helper.firstContactEmail
+//      case false => None
+//    }
+//    Seq(
+//      helper.whatIsYourNameIndividual,
+//      helper.firstContactEmail,
+//      helper.firstContactPhone
+//    ).flatten ++ individualPhoneRow
 
 }

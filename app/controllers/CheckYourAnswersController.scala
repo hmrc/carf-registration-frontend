@@ -18,16 +18,16 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.UserAnswers
-import pages.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, Page}
+import models.{JourneyType, OrgWithUtr}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckYourAnswersValidator
+import utils.CheckYourAnswersHelper
 import viewmodels.Section
-import viewmodels.checkAnswers.{CheckYourAnswersViewModel, FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneNumberSummary, FirstContactPhoneSummary, IsThisYourBusinessSummary}
 import views.html.CheckYourAnswersView
+
+import scala.concurrent.ExecutionContext
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -35,40 +35,33 @@ class CheckYourAnswersController @Inject() (
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
+    helper: CheckYourAnswersHelper,
+    subscriptionService: SubscriptionService,
     view: CheckYourAnswersView
-) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
 
-    val businessDetailsSectionMaybe: Option[Section] =
-      IsThisYourBusinessSummary.row(request.userAnswers).map(row => Section("Business details", Seq(row)))
+    val journeyType: Option[JourneyType] = request.userAnswers.journeyType
 
-    val firstContactDetailsSectionMaybe: Option[Section] = {
-      for {
-        firstContactName               <- FirstContactNameSummary.row(request.userAnswers)
-        firstContactEmail              <- FirstContactEmailSummary.row(request.userAnswers)
-        canWeContactFirstContact       <- FirstContactPhoneSummary.row(request.userAnswers)
-        canWeContactFirstContactAnswer <- request.userAnswers.get(FirstContactPhonePage)
-      } yield
-        if (canWeContactFirstContactAnswer) {
-          FirstContactPhoneNumberSummary.row(request.userAnswers).map {
-            Seq(
-              firstContactName,
-              firstContactEmail,
-              canWeContactFirstContact,
-              _
-            )
-          }
-        } else {
-          Some(Seq(firstContactName, firstContactEmail, canWeContactFirstContact))
-        }
-    }.flatten.map(Section("First contact", _))
+    val businessDetailsSectionMaybe: Option[Section]      =
+      helper.getBusinessDetailsSectionMaybe(request.userAnswers)
+    val firstContactDetailsSectionMaybe: Option[Section]  =
+      helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
+    val secondContactDetailsSectionMaybe: Option[Section] =
+      helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
-    val sectionsMaybe = for {
-      section1 <- businessDetailsSectionMaybe
-      section2 <- firstContactDetailsSectionMaybe
-    } yield Seq(section1, section2)
+    val sectionsMaybe = journeyType match {
+      case Some(OrgWithUtr) =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- firstContactDetailsSectionMaybe
+          section3 <- secondContactDetailsSectionMaybe
+        } yield Seq(section1, section2, section3)
+      case _                => None
+    }
 
     sectionsMaybe match {
       case Some(sections: Seq[Section]) => Ok(view(sections))
@@ -76,6 +69,16 @@ class CheckYourAnswersController @Inject() (
     }
   }
 
-  private def getMissingAnswers(userAnswers: UserAnswers): Seq[Page] = CheckYourAnswersValidator(userAnswers).validate
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
+    subscriptionService.subscribe() map {
+      case Right(response) =>
+        Redirect(
+          controllers.routes.PlaceholderController.onPageLoad(
+            "Should redirect to confirmation page /confirm-registration (CARF-259)"
+          )
+        )
+      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
 
+  }
 }

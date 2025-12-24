@@ -16,36 +16,65 @@
 
 package utils
 
+import com.google.inject.Inject
 import models.UserAnswers
-import play.api.i18n.Messages
+import pages.{FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactHavePhonePage}
+import play.api.i18n.{I18nSupport, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import viewmodels.Section
 import viewmodels.checkAnswers.*
 
-class CheckYourAnswersHelper(
-    val userAnswers: UserAnswers
-)(implicit val messages: Messages) {
+class CheckYourAnswersHelper @Inject() ()() {
 
-  def haveTradingName: Option[SummaryListRow] = HaveTradingNameSummary.row(userAnswers)
+  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    IsThisYourBusinessSummary
+      .row(userAnswers)
+      .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
 
-  def whatIsYourNameIndividual: Option[SummaryListRow] = WhatIsYourNameIndividualSummary.row(userAnswers)
+  def getFirstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      firstContactName               <- FirstContactNameSummary.row(userAnswers)
+      firstContactEmail              <- FirstContactEmailSummary.row(userAnswers)
+      canWeContactFirstContact       <- FirstContactPhoneSummary.row(userAnswers)
+      canWeContactFirstContactAnswer <- userAnswers.get(FirstContactPhonePage)
+    } yield
+      if (canWeContactFirstContactAnswer) {
+        FirstContactPhoneNumberSummary.row(userAnswers).map {
+          Seq(firstContactName, firstContactEmail, canWeContactFirstContact, _)
+        }
+      } else {
+        Some(Seq(firstContactName, firstContactEmail, canWeContactFirstContact))
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.firstContact"), _))
 
-  def registerDateOfBirth: Option[SummaryListRow] = RegisterDateOfBirthSummary.row(userAnswers)
-
-  def whatIsYourNameOrganisation: Option[SummaryListRow] = WhatIsYourNameSummary.row(userAnswers)
-
-  def niNumber: Option[SummaryListRow] = NiNumberSummary.row(userAnswers)
-
-  def organisationRegistrationType: Option[SummaryListRow] = OrganisationRegistrationTypeSummary.row(userAnswers)
-
-  def registeredAddressInUk: Option[SummaryListRow] = RegisteredAddressInUkSummary.row(userAnswers)
-
-  def yourUniqueTaxpayerReference: Option[SummaryListRow] =
-    YourUniqueTaxpayerReferenceSummary.row(userAnswers)
-
-  def firstContactEmail: Option[SummaryListRow] = FirstContactEmailSummary.row(userAnswers)
-
-  def firstContactName: Option[SummaryListRow] = FirstContactNameSummary.row(userAnswers)
-
-  def firstContactPhone: Option[SummaryListRow] = FirstContactPhoneSummary.row(userAnswers)
-
+  def getSecondContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      doYouHaveSecondContact    <- userAnswers.get(OrganisationHaveSecondContactPage)
+      doYouHaveSecondContactRow <- OrganisationHaveSecondContactSummary.row(userAnswers)
+    } yield {
+      val a: Option[Seq[SummaryListRow]] = {
+        if (doYouHaveSecondContact) {
+          for {
+            secondContactName               <- OrganisationSecondContactNameSummary.row(userAnswers)
+            secondContactEmail              <- OrganisationSecondContactEmailSummary.row(userAnswers)
+            canWeContactSecondContact       <- OrganisationSecondContactHavePhoneSummary.row(userAnswers)
+            canWeContactSecondContactAnswer <- userAnswers.get(OrganisationSecondContactHavePhonePage)
+          } yield {
+            val b: Option[Seq[SummaryListRow]] = if (canWeContactSecondContactAnswer) {
+              // TODO: Org second contact phone number is missing, integrate when it is merged
+              FirstContactPhoneNumberSummary.row(userAnswers).map { c =>
+                Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact, c)
+              }
+            } else {
+              Some(Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact))
+            }
+            b
+          }
+        } else {
+          Some(Some(Seq(doYouHaveSecondContactRow)))
+        }
+      }.flatten
+      a
+    }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.secondContact"), _))
 }

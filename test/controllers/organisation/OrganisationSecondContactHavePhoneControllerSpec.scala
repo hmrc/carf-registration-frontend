@@ -19,10 +19,11 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, OrgWithUtr, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.eq as eqTo
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.organisation.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
 import play.api.data.Form
@@ -32,6 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.organisation.OrganisationSecondContactHavePhoneView
 
+import java.time.Clock
 import scala.concurrent.Future
 
 class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
@@ -84,13 +86,23 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val expectedUserAnswers =
+        userAnswersWithSecondNameTest
+          .set(OrganisationSecondContactHavePhonePage, true)
+          .success
+          .value
+          .copy(journeyType = Some(OrgWithUtr))
+
+      when(mockSessionRepository.set(eqTo(expectedUserAnswers))) thenReturn Future.successful(true)
+
       val application =
         applicationBuilder(userAnswers = Some(userAnswersWithSecondNameTest))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Clock].toInstance(clock)
           )
           .build()
+
       running(application) {
         val request =
           FakeRequest(POST, secondContactHavePhoneRoute)
@@ -98,6 +110,7 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
         val result  = route(application, request).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository, times(1)).set(eqTo(expectedUserAnswers))
       }
     }
 

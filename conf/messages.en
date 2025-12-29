@@ -310,7 +310,7 @@ individualEmail.change.hidden = Change your email address
 
 organisationSecondContactEmail.title = What is the email address for the second contact?
 organisationSecondContactEmail.heading = What is the email address for {0}?
-organisationSecondContactEmail.checkYourAnswersLabel = What is the email address for the second contact?
+organisationSecondContactEmail.checkYourAnswersLabel = Second contact email address
 organisationSecondContactEmail.error.required = Enter an email address for the second contact
 organisationSecondContactEmail.error.length = The email address must be 132 characters or less
 organisationSecondContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
@@ -318,7 +318,7 @@ organisationSecondContactEmail.change.hidden = Change the email address for the 
 
 organisationSecondContactName.title = What is the name of the second person or team we should contact?
 organisationSecondContactName.heading = What is the name of the second person or team we should contact?
-organisationSecondContactName.checkYourAnswersLabel = Enter a name for the second contact
+organisationSecondContactName.checkYourAnswersLabel = Second contact name
 organisationSecondContactName.hint = For example, ‘Ashley Smith’ or ‘Tax team’.
 organisationSecondContactName.error.required = Enter a name for the second contact
 organisationSecondContactName.error.length = The name must be 35 characters or less
@@ -357,7 +357,7 @@ organisationSecondContactHavePhone.heading = Can we contact {0} by phone?
 organisationSecondContactHavePhone.yes = Yes
 organisationSecondContactHavePhone.no = No
 organisationSecondContactHavePhone.p1 = We will call if we have any questions about your reports.
-organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact your second contact by phone?
+organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact the second contact by phone?
 organisationSecondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
 organisationSecondContactHavePhone.change.hidden = Change if the second contact can be contacted by phone
 

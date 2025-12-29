@@ -19,10 +19,10 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, OrgWithUtr, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.eq as eqTo
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.organisation.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form
@@ -33,6 +33,7 @@ import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.organisation.OrganisationHaveSecondContactView
 
+import java.time.Clock
 import scala.concurrent.Future
 
 class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoSugar {
@@ -99,13 +100,17 @@ class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoS
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    "must redirect to the next page when valid data is submitted and set journey type in user answers to org with utr" in {
+      val expectedUserAnswers =
+        emptyUserAnswers.set(OrganisationHaveSecondContactPage, true).success.value.copy(journeyType = Some(OrgWithUtr))
+
+      when(mockSessionRepository.set(eqTo(expectedUserAnswers))) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Clock].toInstance(clock)
           )
           .build()
 
@@ -118,6 +123,7 @@ class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoS
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository, times(1)).set(eqTo(expectedUserAnswers))
       }
     }
 

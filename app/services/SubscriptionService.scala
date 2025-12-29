@@ -30,7 +30,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubscriptionService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
+class SubscriptionService @Inject() extends Logging {
 
   def subscribe(): Future[Either[ApiError, String]] = Future.successful(Right("Stub success!"))
 }

@@ -23,7 +23,6 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.IsThisYourBusinessSummary
-import viewmodels.checkAnswers.individual.*
 import viewmodels.checkAnswers.organisation.*
 
 class CheckYourAnswersHelper @Inject() {
@@ -63,8 +62,14 @@ class CheckYourAnswersHelper @Inject() {
         } yield
           if (canWeContactSecondContactAnswer) {
             // TODO: Org second contact phone number is missing, integrate when it is merged
-            FirstContactPhoneNumberSummary.row(userAnswers).map { c =>
-              Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact, c)
+            FirstContactPhoneNumberSummary.row(userAnswers).map { secondPhoneNumber =>
+              Seq(
+                doYouHaveSecondContactRow,
+                secondContactName,
+                secondContactEmail,
+                canWeContactSecondContact,
+                secondPhoneNumber
+              )
             }
           } else {
             Some(Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact))

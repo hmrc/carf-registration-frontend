@@ -21,7 +21,8 @@ import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
 import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import pages.{HaveNiNumberPage, IndexPage}
+import pages.IndexPage
+import pages.individual.HaveNiNumberPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Result
@@ -51,7 +52,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+          controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, times(1)).set(any())
       }
@@ -70,7 +71,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
+          controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, times(1)).set(testExistingUserAnswers)
       }
@@ -125,7 +126,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
+          controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, times(1)).set(any())
       }
@@ -144,7 +145,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
+          controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, times(1)).set(testExistingUserAnswers)
       }

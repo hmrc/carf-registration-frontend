@@ -47,7 +47,7 @@ class IndexController @Inject() (
         case AffinityGroup.Individual =>
           for {
             _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-          } yield Redirect(controllers.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+          } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
 
         case _ =>
           request.utr match {
@@ -63,7 +63,9 @@ class IndexController @Inject() (
             case None      =>
               for {
                 _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-              } yield Redirect(controllers.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode))
+              } yield Redirect(
+                controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
+              )
 
           }
       }

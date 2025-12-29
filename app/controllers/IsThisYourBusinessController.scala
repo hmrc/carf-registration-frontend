@@ -21,7 +21,8 @@ import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
 import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.{IndexPage, IsThisYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.YourUniqueTaxpayerReferencePage
+import pages.{IndexPage, IsThisYourBusinessPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -134,7 +135,7 @@ class IsThisYourBusinessController @Inject() (
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {
           logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
-          Future.successful(Redirect(routes.BusinessNotIdentifiedController.onPageLoad()))
+          Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
     }
 

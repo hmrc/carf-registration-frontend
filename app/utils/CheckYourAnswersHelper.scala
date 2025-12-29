@@ -18,11 +18,13 @@ package utils
 
 import com.google.inject.Inject
 import models.UserAnswers
-import pages.{FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactHavePhonePage}
+import pages.organisation.{FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactHavePhonePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
-import viewmodels.checkAnswers.*
+import viewmodels.checkAnswers.IsThisYourBusinessSummary
+import viewmodels.checkAnswers.individual.*
+import viewmodels.checkAnswers.organisation.*
 
 class CheckYourAnswersHelper @Inject() {
 

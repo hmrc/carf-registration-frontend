@@ -19,12 +19,12 @@ package utils
 import com.google.inject.Inject
 import models.UserAnswers
 import pages.{FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactHavePhonePage}
-import play.api.i18n.{I18nSupport, Messages}
+import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.*
 
-class CheckYourAnswersHelper @Inject() ()() {
+class CheckYourAnswersHelper @Inject() {
 
   def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     IsThisYourBusinessSummary
@@ -52,29 +52,24 @@ class CheckYourAnswersHelper @Inject() ()() {
       doYouHaveSecondContact    <- userAnswers.get(OrganisationHaveSecondContactPage)
       doYouHaveSecondContactRow <- OrganisationHaveSecondContactSummary.row(userAnswers)
     } yield {
-      val a: Option[Seq[SummaryListRow]] = {
-        if (doYouHaveSecondContact) {
-          for {
-            secondContactName               <- OrganisationSecondContactNameSummary.row(userAnswers)
-            secondContactEmail              <- OrganisationSecondContactEmailSummary.row(userAnswers)
-            canWeContactSecondContact       <- OrganisationSecondContactHavePhoneSummary.row(userAnswers)
-            canWeContactSecondContactAnswer <- userAnswers.get(OrganisationSecondContactHavePhonePage)
-          } yield {
-            val b: Option[Seq[SummaryListRow]] = if (canWeContactSecondContactAnswer) {
-              // TODO: Org second contact phone number is missing, integrate when it is merged
-              FirstContactPhoneNumberSummary.row(userAnswers).map { c =>
-                Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact, c)
-              }
-            } else {
-              Some(Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact))
+      if (doYouHaveSecondContact) {
+        for {
+          secondContactName               <- OrganisationSecondContactNameSummary.row(userAnswers)
+          secondContactEmail              <- OrganisationSecondContactEmailSummary.row(userAnswers)
+          canWeContactSecondContact       <- OrganisationSecondContactHavePhoneSummary.row(userAnswers)
+          canWeContactSecondContactAnswer <- userAnswers.get(OrganisationSecondContactHavePhonePage)
+        } yield
+          if (canWeContactSecondContactAnswer) {
+            // TODO: Org second contact phone number is missing, integrate when it is merged
+            FirstContactPhoneNumberSummary.row(userAnswers).map { c =>
+              Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact, c)
             }
-            b
+          } else {
+            Some(Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact))
           }
-        } else {
-          Some(Some(Seq(doYouHaveSecondContactRow)))
-        }
-      }.flatten
-      a
-    }
+      } else {
+        Some(Some(Seq(doYouHaveSecondContactRow)))
+      }
+    }.flatten
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.secondContact"), _))
 }

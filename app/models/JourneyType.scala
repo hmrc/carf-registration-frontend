@@ -52,6 +52,5 @@ object JourneyType {
     case IndWithoutId => JsString("IndWithoutId")
   }
 
-  // Or if you prefer one implicit:
   implicit val format: Format[JourneyType] = Format(reads, writes)
 }

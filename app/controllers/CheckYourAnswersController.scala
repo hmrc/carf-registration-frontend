@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.JourneyType
-import models.JourneyType.OrgWithUtr
+import models.JourneyType.{IndWithNino, OrgWithUtr}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
@@ -61,6 +61,7 @@ class CheckYourAnswersController @Inject() (
           section2 <- firstContactDetailsSectionMaybe
           section3 <- secondContactDetailsSectionMaybe
         } yield Seq(section1, section2, section3)
+      case Some(IndWithNino) => ???
       case _                => None
     }
 

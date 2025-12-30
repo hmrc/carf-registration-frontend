@@ -17,8 +17,9 @@
 package controllers
 
 import base.SpecBase
+import models.JourneyType.OrgWithUtr
 import models.error.ApiError.InternalServerError
-import models.{CheckMode, OrgWithUtr, UserAnswers}
+import models.{CheckMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any

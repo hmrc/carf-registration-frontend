@@ -17,8 +17,9 @@
 package utils
 
 import base.SpecBase
-import models.{IndWithUtr, OrgWithUtr, UserAnswers}
+import models.UserAnswers
 import models.IndividualRegistrationType.SoleTrader
+import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.OrganisationRegistrationType.Partnership
 import pages.individual.IndividualRegistrationTypePage
 import pages.organisation.OrganisationRegistrationTypePage

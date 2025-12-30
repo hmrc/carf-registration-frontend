@@ -287,7 +287,7 @@ firstContactEmail.change.hidden = Change first contact email address
 organisationHaveSecondContact.title =  Is there someone else we can contact if your first contact is not available?
 organisationHaveSecondContact.heading = Is there someone else we can contact if {0} is not available?
 organisationHaveSecondContact.hint = This can be a team mailbox or another contact.
-organisationHaveSecondContact.checkYourAnswersLabel =  Is there someone else we can contact if your first contact is not available?
+organisationHaveSecondContact.checkYourAnswersLabel = Do you have a second contact?
 organisationHaveSecondContact.error.required = Select yes if there is someone else we can contact
 organisationHaveSecondContact.change.hidden = Change if there is someone else we can contact
 

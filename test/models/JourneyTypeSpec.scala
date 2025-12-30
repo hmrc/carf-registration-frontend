@@ -17,6 +17,7 @@
 package models
 
 import base.SpecBase
+import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import play.api.libs.json.*
 
 class JourneyTypeSpec extends SpecBase {

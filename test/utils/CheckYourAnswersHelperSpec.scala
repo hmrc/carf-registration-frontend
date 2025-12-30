@@ -136,7 +136,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
           testHelper.getSecondContactDetailsSectionMaybe(testUserAnswersWithSecondContactDetailsAsNo).get
         val expectedTitle             = "Second contact"
         val expectedKeys: Seq[String] = Seq(
-          "Is there someone else we can contact if your first contact is not available?"
+          "Do you have a second contact?"
         )
 
         compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
@@ -147,7 +147,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
           testHelper.getSecondContactDetailsSectionMaybe(testUserAnswersWithSecondContactDetails).get
         val expectedTitle             = "Second contact"
         val expectedKeys: Seq[String] = Seq(
-          "Is there someone else we can contact if your first contact is not available?",
+          "Do you have a second contact?",
           "Second contact name",
           "Second contact email address",
           "Can we contact the second contact by phone?",
@@ -162,7 +162,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
           testHelper.getSecondContactDetailsSectionMaybe(testUserAnswersWithSecondContactDetailsNoPhoneNumber).get
         val expectedTitle             = "Second contact"
         val expectedKeys: Seq[String] = Seq(
-          "Is there someone else we can contact if your first contact is not available?",
+          "Do you have a second contact?",
           "Second contact name",
           "Second contact email address",
           "Can we contact the second contact by phone?"

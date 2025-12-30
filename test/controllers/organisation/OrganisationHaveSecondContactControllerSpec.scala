@@ -19,7 +19,8 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{NormalMode, OrgWithUtr, UserAnswers}
+import models.JourneyType.OrgWithUtr
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{times, verify, when}

@@ -18,39 +18,29 @@ package models
 
 import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
 
-sealed trait JourneyType
-
-case object OrgWithUtr extends JourneyType
-
-case object OrgWithoutId extends JourneyType
-
-case object IndWithNino extends JourneyType
-
-case object IndWithUtr extends JourneyType
-
-case object IndWithoutId extends JourneyType
+enum JourneyType:
+  case OrgWithUtr
+  case OrgWithoutId
+  case IndWithNino
+  case IndWithUtr
+  case IndWithoutId
 
 object JourneyType {
 
   implicit val reads: Reads[JourneyType] = Reads {
-    case JsString("OrgWithUtr")   => JsSuccess(OrgWithUtr)
-    case JsString("OrgWithoutId") => JsSuccess(OrgWithoutId)
-    case JsString("IndWithNino")  => JsSuccess(IndWithNino)
-    case JsString("IndWithUtr")   => JsSuccess(IndWithUtr)
-    case JsString("IndWithoutId") => JsSuccess(IndWithoutId)
-    case JsString(other)          =>
-      JsError(s"Unknown JourneyType: $other")
-    case _                        =>
+    case JsString(value) =>
+      JourneyType.values
+        .find(_.toString == value)
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"Unknown JourneyType: $value"))
+
+    case _ =>
       JsError("JourneyType must be a string")
   }
 
-  implicit val writes: Writes[JourneyType] = Writes {
-    case OrgWithUtr   => JsString("OrgWithUtr")
-    case OrgWithoutId => JsString("OrgWithoutId")
-    case IndWithNino  => JsString("IndWithNino")
-    case IndWithUtr   => JsString("IndWithUtr")
-    case IndWithoutId => JsString("IndWithoutId")
-  }
+  implicit val writes: Writes[JourneyType] =
+    Writes(jt => JsString(jt.toString))
 
-  implicit val format: Format[JourneyType] = Format(reads, writes)
+  implicit val format: Format[JourneyType] =
+    Format(reads, writes)
 }

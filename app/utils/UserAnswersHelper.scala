@@ -16,7 +16,8 @@
 
 package utils
 
-import models.{IndWithUtr, IndividualRegistrationType, JourneyType, OrgWithUtr, OrganisationRegistrationType, UserAnswers}
+import models.JourneyType.{IndWithUtr, OrgWithUtr}
+import models.{IndividualRegistrationType, JourneyType, OrganisationRegistrationType, UserAnswers}
 import pages.individual.IndividualRegistrationTypePage
 import pages.organisation.OrganisationRegistrationTypePage
 

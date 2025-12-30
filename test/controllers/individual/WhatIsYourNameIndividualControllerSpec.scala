@@ -47,8 +47,8 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
     controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode).url
 
   val userAnswers = UserAnswers(
-    userAnswersId,
-    Json.obj(
+    id = userAnswersId,
+    data = Json.obj(
       WhatIsYourNameIndividualPage.toString -> Json.obj(
         "firstName" -> "firstName example",
         "lastName"  -> "lastName example"

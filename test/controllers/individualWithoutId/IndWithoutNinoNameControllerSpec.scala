@@ -43,8 +43,8 @@ class IndWithoutNinoNameControllerSpec extends SpecBase with MockitoSugar {
     controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode).url
 
   val validNameUserAnswers = UserAnswers(
-    userAnswersId,
-    Json.obj(
+    id = userAnswersId,
+    data = Json.obj(
       IndWithoutNinoNamePage.toString -> Json.obj(
         "givenName"  -> "givenName example",
         "familyName" -> "familyName example"

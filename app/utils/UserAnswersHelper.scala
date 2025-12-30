@@ -16,7 +16,8 @@
 
 package utils
 
-import models.{IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
+import models.JourneyType.{IndWithUtr, OrgWithUtr}
+import models.{IndividualRegistrationType, JourneyType, OrganisationRegistrationType, UserAnswers}
 import pages.individual.IndividualRegistrationTypePage
 import pages.organisation.OrganisationRegistrationTypePage
 
@@ -43,4 +44,11 @@ trait UserAnswersHelper {
       case _                                                                                                   => true
     }
   }
+
+  def getJourneyTypeUtrOnly(userAnswers: UserAnswers): JourneyType =
+    if (isSoleTrader(userAnswers)) {
+      IndWithUtr
+    } else {
+      OrgWithUtr
+    }
 }

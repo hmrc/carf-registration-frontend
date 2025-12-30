@@ -48,8 +48,8 @@ class WhatIsYourNameControllerSpec extends SpecBase with MockitoSugar {
     controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode).url
 
   val userAnswers = UserAnswers(
-    userAnswersId,
-    Json.obj(
+    id = userAnswersId,
+    data = Json.obj(
       WhatIsYourNamePage.toString -> Json.obj(
         "firstName" -> "testerFirstName",
         "lastName"  -> "testerLastName"

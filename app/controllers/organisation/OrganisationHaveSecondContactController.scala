@@ -17,6 +17,7 @@
 package controllers.organisation
 
 import controllers.actions.*
+import models.{JourneyType, Mode}
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
 import models.Mode
@@ -28,7 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.organisation.OrganisationHaveSecondContactView
-
+import utils.UserAnswersHelper
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +45,8 @@ class OrganisationHaveSecondContactController @Inject() (
     view: OrganisationHaveSecondContactView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with UserAnswersHelper {
 
   val form: Form[Boolean] = formProvider()
 
@@ -75,7 +77,7 @@ class OrganisationHaveSecondContactController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationHaveSecondContactPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
+              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(getJourneyTypeUtrOnly(updatedAnswers))))
             } yield Redirect(navigator.nextPage(OrganisationHaveSecondContactPage, mode, updatedAnswers))
         )
   }

@@ -17,7 +17,8 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.{OrgWithUtr, UserAnswers}
+import models.JourneyType.OrgWithUtr
+import models.{UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.model.Filters

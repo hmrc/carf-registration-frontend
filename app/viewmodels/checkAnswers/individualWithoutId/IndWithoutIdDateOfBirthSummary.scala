@@ -28,18 +28,20 @@ import viewmodels.implicits._
 object IndWithoutIdDateOfBirthSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(IndWithoutIdDateOfBirthPage).map {
-      answer =>
+    answers.get(IndWithoutIdDateOfBirthPage).map { answer =>
 
-        implicit val lang: Lang = messages.lang
+      implicit val lang: Lang = messages.lang
 
-        SummaryListRowViewModel(
-          key     = "indWithoutIdDateOfBirth.checkYourAnswersLabel",
-          value   = ValueViewModel(answer.format(dateTimeFormat())),
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("indWithoutIdDateOfBirth.change.hidden"))
+      SummaryListRowViewModel(
+        key = "indWithoutIdDateOfBirth.checkYourAnswersLabel",
+        value = ValueViewModel(answer.format(dateTimeFormat())),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("indWithoutIdDateOfBirth.change.hidden"))
         )
+      )
     }
 }

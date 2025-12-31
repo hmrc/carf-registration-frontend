@@ -29,19 +29,19 @@ class IndWithoutIdDateOfBirthFormProvider @Inject() extends Mappings {
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
       "value" -> localDate(
-        invalidKey              = "indWithoutIdDateOfBirth.error.invalid",
-        notRealDateKey          = "indWithoutIdDateOfBirth.error.not.real.date",
-        allRequiredKey          = "indWithoutIdDateOfBirth.error.required.all",
-        dayRequiredKey          = "indWithoutIdDateOfBirth.error.required.day",
-        monthRequiredKey        = "indWithoutIdDateOfBirth.error.required.month",
-        yearRequiredKey         = "indWithoutIdDateOfBirth.error.required.year",
-        dayAndMonthRequiredKey  = "indWithoutIdDateOfBirth.error.required.day.and.month",
-        dayAndYearRequiredKey   = "indWithoutIdDateOfBirth.error.required.day.and.year",
+        invalidKey = "indWithoutIdDateOfBirth.error.invalid",
+        notRealDateKey = "indWithoutIdDateOfBirth.error.not.real.date",
+        allRequiredKey = "indWithoutIdDateOfBirth.error.required.all",
+        dayRequiredKey = "indWithoutIdDateOfBirth.error.required.day",
+        monthRequiredKey = "indWithoutIdDateOfBirth.error.required.month",
+        yearRequiredKey = "indWithoutIdDateOfBirth.error.required.year",
+        dayAndMonthRequiredKey = "indWithoutIdDateOfBirth.error.required.day.and.month",
+        dayAndYearRequiredKey = "indWithoutIdDateOfBirth.error.required.day.and.year",
         monthAndYearRequiredKey = "indWithoutIdDateOfBirth.error.required.month.and.year",
-        futureDateKey           = "indWithoutIdDateOfBirth.error.future.date",
-        pastDateKey             = "indWithoutIdDateOfBirth.error.past.date",
-        maxDate                 = today,
-        minDate                 = LocalDate.of(1901, 1, 1)
+        futureDateKey = "indWithoutIdDateOfBirth.error.future.date",
+        pastDateKey = "indWithoutIdDateOfBirth.error.past.date",
+        maxDate = today,
+        minDate = LocalDate.of(1901, 1, 1)
       )
     )
 }

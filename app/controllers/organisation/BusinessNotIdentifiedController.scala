@@ -45,7 +45,7 @@ class BusinessNotIdentifiedController @Inject() (
     val utr              = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
     val businessName     = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
 
-    // TODO: once CARF-129 merged, merge main here and remove .gets here since that PR has some refactoring
+    // TODO: once CARF-129 merged, merge main here, remove .gets and update tests here since that PR has some refactoring
     (utr, businessName) match {
       case (Some(utrValue), Some(nameValue)) =>
         Ok(view(utrValue.uniqueTaxPayerReference, nameValue, organisationType.get, appConfig))

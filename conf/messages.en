@@ -76,11 +76,11 @@ registeredAddressInUk.checkYourAnswersLabel = Is your registered address in the 
 registeredAddressInUk.error.required = Select yes if your registered address is in the UK
 registeredAddressInUk.change.hidden = Change if your registered address is in the UK
 
-yourUniqueTaxpayerReference.soleTraderIndividual.title = Your Self Assessment Unique Taxpayer Reference (UTR)
-yourUniqueTaxpayerReference.soleTraderIndividual.heading = Your Self Assessment Unique Taxpayer Reference (UTR)
-yourUniqueTaxpayerReference.soleTraderIndividual.paragraph = You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
-yourUniqueTaxpayerReference.soleTraderIndividual.link = Get more help to find your UTR (opens in new tab)
-yourUniqueTaxpayerReference.soleTraderIndividual.subtitle = What is your Self Assessment UTR?
+yourUniqueTaxpayerReference.soleTrader.title = Your Self Assessment Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.soleTrader.heading = Your Self Assessment Unique Taxpayer Reference (UTR)
+yourUniqueTaxpayerReference.soleTrader.paragraph = You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+yourUniqueTaxpayerReference.soleTrader.link = Get more help to find your UTR (opens in new tab)
+yourUniqueTaxpayerReference.soleTrader.subtitle = What is your Self Assessment UTR?
 
 yourUniqueTaxpayerReference.partnershipLlp.title = Your Partnership Unique Taxpayer Reference (UTR)
 yourUniqueTaxpayerReference.partnershipLlp.heading = Your Partnership Unique Taxpayer Reference (UTR)

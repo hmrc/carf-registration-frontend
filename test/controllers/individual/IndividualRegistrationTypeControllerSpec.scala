@@ -77,6 +77,23 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
+    "must not prepopulate the view on a GET when the question has previously been answered with an organisation registration type" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RegistrationTypePage, RegistrationType.LimitedCompany)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, individualRegistrationTypeRoute)
+        val view    = application.injector.instanceOf[IndividualRegistrationTypeView]
+        val result  = route(application, request).value
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application =

@@ -18,8 +18,8 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
-import models.{Mode, UserAnswers}
 import models.RegistrationType.*
+import models.{Mode, OrganisationRegistrationType, RegistrationType}
 import navigation.Navigator
 import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -47,36 +47,49 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val taxType      = getBusinessTypeMessageKey(request.userAnswers)
-      val form         = formProvider(taxType)
-      val preparedForm = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
+      request.userAnswers
+        .get(RegistrationTypePage)
+        .flatMap(getBusinessTypeMessageKey) match {
+        case Some(messageKey) =>
+          val form         = formProvider(messageKey)
+          val preparedForm = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+
+          Ok(view(preparedForm, mode, messageKey))
+        case None             => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-      Ok(view(preparedForm, mode, taxType))
+
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val taxType = getBusinessTypeMessageKey(request.userAnswers)
-      val form    = formProvider(taxType)
+      request.userAnswers
+        .get(RegistrationTypePage)
+        .flatMap(getBusinessTypeMessageKey) match {
+        case Some(messageKey) =>
+          val form = formProvider(messageKey)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, messageKey))),
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheNameOfYourBusinessPage, value))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
+            )
 
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, taxType))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheNameOfYourBusinessPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
-        )
+        case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 
-  private def getBusinessTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(RegistrationTypePage) match {
-      case Some(LimitedCompany) | Some(LLP) => "whatIsTheNameOfYourBusiness.ltdLpLlp"
-      case Some(Partnership)                => "whatIsTheNameOfYourBusiness.partnership"
-      case _                                => "whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust"
+  private def getBusinessTypeMessageKey(registrationType: RegistrationType): Option[String] =
+    registrationType match {
+      case LimitedCompany | LLP    => Some("whatIsTheNameOfYourBusiness.ltdLpLlp")
+      case Partnership             => Some("whatIsTheNameOfYourBusiness.partnership")
+      case Trust                   => Some("whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust")
+      case SoleTrader | Individual => None
     }
 }

@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
 import pages.organisation.*
@@ -46,7 +46,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrganisationRegistrationTypePage to Registered Address in the UK page" in {
 
       navigator.nextPage(
-        OrganisationRegistrationTypePage,
+        RegistrationTypePage,
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
@@ -76,7 +76,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -94,7 +94,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -130,7 +130,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LLP)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -194,7 +194,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
 
@@ -226,7 +226,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
 
@@ -320,7 +320,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
             .success
             .value
           navigator.nextPage(
@@ -364,7 +364,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
             .success
             .value
 
@@ -436,7 +436,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
             .success
             .value
 
@@ -461,7 +461,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
             .success
             .value
 
@@ -507,7 +507,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrgWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LLP)
           .success
           .value
           .set(OrgWithoutIdBusinessNamePage, "valid org name")
@@ -524,7 +524,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -591,7 +591,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -609,7 +609,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
 

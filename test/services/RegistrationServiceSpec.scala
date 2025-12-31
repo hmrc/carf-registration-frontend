@@ -27,7 +27,7 @@ import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRe
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -98,7 +98,7 @@ class RegistrationServiceSpec extends SpecBase {
     .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
     .success
     .value
-    .set(OrganisationRegistrationTypePage, testOrgType)
+    .set(RegistrationTypePage, testOrgType)
     .success
     .value
 
@@ -152,7 +152,7 @@ class RegistrationServiceSpec extends SpecBase {
         .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
         .success
         .value
-        .set(OrganisationRegistrationTypePage, testOrgType)
+        .set(RegistrationTypePage, testOrgType)
         .success
         .value
 

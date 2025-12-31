@@ -18,10 +18,10 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
-import models.OrganisationRegistrationType.{LLP, LimitedCompany, Partnership, Trust}
 import models.{Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.RegistrationType.*
 import navigation.Navigator
-import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -79,7 +79,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
   }
 
   private def getTaxTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
+    userAnswers.get(RegistrationTypePage) match {
       case Some(LimitedCompany) | Some(Trust) => "yourUniqueTaxpayerReference.ltdUnincorporated"
       case Some(Partnership) | Some(LLP)      => "yourUniqueTaxpayerReference.partnershipLlp"
       case _                                  => "yourUniqueTaxpayerReference.soleTraderIndividual"

@@ -25,7 +25,7 @@ import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -75,7 +75,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       "must return OK and the correct view for a successful match" in {
         val soleTraderUtr = UniqueTaxpayerReference("1234567890")
         val userAnswers   = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
@@ -105,7 +105,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       "must redirect to Sole Trader Not Identified page for an unsuccessful match" in {
         val soleTraderUtr = UniqueTaxpayerReference("3000000000")
         val userAnswers   = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
@@ -134,7 +134,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     "on an Organisation auto-match journey" - {
       "must return OK and the correct view when a UTR is found via IndexPage" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
           .set(IndexPage, testUtr)
@@ -163,7 +163,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(IndexPage, testUtr)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LLP)
           .success
           .value
 
@@ -204,7 +204,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     "on an Organisation manual-entry journey" - {
       "must return OK and the correct view when UTR and Business name are provided" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, testUtr)
@@ -239,7 +239,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(WhatIsTheNameOfYourBusinessPage, "some name")
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
 

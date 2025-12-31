@@ -65,10 +65,10 @@
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.name.heading")</h2>
 
     @organisationType match {
-        case Some(LimitedCompany) => {
+        case Some(LimitedCompany(_)) => {
             <p class="govuk-body">@messages("businessNotIdentified.name.p1.limitedCompany")</p>
         }
-        case Some(Partnership) | Some(LLP) => {
+        case Some(Partnership(_)) | Some(LLP(_)) => {
             <p class="govuk-body">@messages("businessNotIdentified.name.p1.partnership")</p>
         }
         case _ => {
@@ -83,13 +83,13 @@
     </ul>
 
     @organisationType match {
-        case Some(LimitedCompany) => {
+        case Some(LimitedCompany(_)) => {
             <p class="govuk-body">
                 @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
                 @link(appConfig.companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
             </p>
         }
-        case Some(Partnership) | Some(LLP) => {
+        case Some(Partnership(_)) | Some(LLP(_)) => {
             <p class="govuk-body">
                 @messages("businessNotIdentified.name.p2.partnership.linkText")
                 @link(appConfig.companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)

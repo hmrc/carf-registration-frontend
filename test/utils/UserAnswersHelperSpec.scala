@@ -21,8 +21,7 @@ import models.UserAnswers
 import models.IndividualRegistrationType.SoleTrader
 import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.OrganisationRegistrationType.Partnership
-import pages.individual.IndividualRegistrationTypePage
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.RegistrationTypePage
 
 class UserAnswersHelperSpec extends SpecBase {
 
@@ -31,7 +30,7 @@ class UserAnswersHelperSpec extends SpecBase {
   val userAnswersSoleTrader: UserAnswers   =
     emptyUserAnswers.set(IndividualRegistrationTypePage, SoleTrader).success.value
   val userAnswersOrganisation: UserAnswers =
-    emptyUserAnswers.set(OrganisationRegistrationTypePage, Partnership).success.value
+    emptyUserAnswers.set(RegistrationTypePage, Partnership).success.value
 
   "UserAnswersHelper" - {
     "getJourneyTypeUtrOnly" - {

@@ -22,8 +22,7 @@ import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWit
 import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.IndividualRegistrationTypePage
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -91,15 +90,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
                         case Some(value) => Some(value)
                         case None        => userAnswers.get(WhatIsYourNamePage).map(_.fullName)
                       }
-      orgType      <- (userAnswers.get(OrganisationRegistrationTypePage) match {
-                        case Some(value) => Some(value)
-                        case None        => userAnswers.get(IndividualRegistrationTypePage)
-                      }) match {
-                        case Some(value: OrganisationRegistrationType) => Some(value.code)
-                        case Some(value: IndividualRegistrationType)   => Some(value.code)
-                        case None                                      => None
-                      }
-    } yield (utr, businessName, orgType)
+      orgType      <- userAnswers.get(RegistrationTypePage)
+    } yield (utr, businessName, orgType.code)
 
     registrationData match {
       case Some((utr, businessName, orgType)) =>

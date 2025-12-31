@@ -18,10 +18,10 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
-import models.OrganisationRegistrationType.*
 import models.{Mode, UserAnswers}
+import models.RegistrationType.*
 import navigation.Navigator
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -74,7 +74,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
   }
 
   private def getBusinessTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
+    userAnswers.get(RegistrationTypePage) match {
       case Some(LimitedCompany) | Some(LLP) => "whatIsTheNameOfYourBusiness.ltdLpLlp"
       case Some(Partnership)                => "whatIsTheNameOfYourBusiness.partnership"
       case _                                => "whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust"

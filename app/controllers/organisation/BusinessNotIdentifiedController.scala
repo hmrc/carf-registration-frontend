@@ -19,7 +19,8 @@ package controllers.organisation
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import models.OrganisationRegistrationType
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -39,13 +40,15 @@ class BusinessNotIdentifiedController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    val organisationType = request.userAnswers.get(OrganisationRegistrationTypePage)
+    val organisationType =
+      request.userAnswers.get(RegistrationTypePage).map(OrganisationRegistrationType.fromRegistrationType)
     val utr              = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
     val businessName     = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
 
+    // TODO: once CARF-129 merged, merge main here and remove .gets here since that PR has some refactoring
     (utr, businessName) match {
       case (Some(utrValue), Some(nameValue)) =>
-        Ok(view(utrValue.uniqueTaxPayerReference, nameValue, organisationType, appConfig))
+        Ok(view(utrValue.uniqueTaxPayerReference, nameValue, organisationType.get, appConfig))
       case _                                 =>
         Redirect(routes.JourneyRecoveryController.onPageLoad())
     }

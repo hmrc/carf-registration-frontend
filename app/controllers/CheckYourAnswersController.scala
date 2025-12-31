@@ -55,14 +55,14 @@ class CheckYourAnswersController @Inject() (
       helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
     val sectionsMaybe = journeyType match {
-      case Some(OrgWithUtr) =>
+      case Some(OrgWithUtr)  =>
         for {
           section1 <- businessDetailsSectionMaybe
           section2 <- firstContactDetailsSectionMaybe
           section3 <- secondContactDetailsSectionMaybe
         } yield Seq(section1, section2, section3)
       case Some(IndWithNino) => ???
-      case _                => None
+      case _                 => None
     }
 
     sectionsMaybe match {

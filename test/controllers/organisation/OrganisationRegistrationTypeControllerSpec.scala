@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.RegistrationTypePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -65,7 +65,7 @@ class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSu
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.values.head)
+        .set(RegistrationTypePage, OrganisationRegistrationType.values.head)
         .success
         .value
 

@@ -25,7 +25,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -41,7 +41,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
   def onwardRoute = Call("GET", "/foo")
 
   private def getBusinessTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
+    userAnswers.get(RegistrationTypePage) match {
       case Some(LimitedCompany) | Some(LLP) => "whatIsTheNameOfYourBusiness.ltdLpLlp"
       case Some(Partnership)                => "whatIsTheNameOfYourBusiness.partnership"
       case _                                => "whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust"
@@ -62,7 +62,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return OK and the correct view for a GET when option is Ltd or LLP" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 
@@ -76,7 +76,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
         val form   = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val view = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
@@ -89,7 +89,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return OK and the correct view for a GET when option is Partnership" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, Partnership)
+        .set(RegistrationTypePage, Partnership)
         .success
         .value
 
@@ -103,7 +103,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
         val form   = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val view = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
@@ -116,7 +116,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return OK and the correct view for a GET when option is unincorporatedAssociationTrust" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, Trust)
+        .set(RegistrationTypePage, Trust)
         .success
         .value
 
@@ -130,7 +130,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
         val form   = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val view = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
@@ -144,7 +144,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
       val companyName = "Example Company Ltd"
       val userAnswers = UserAnswers(userAnswersId)
-        .set(OrganisationRegistrationTypePage, LLP)
+        .set(RegistrationTypePage, LLP)
         .success
         .value
         .set(WhatIsTheNameOfYourBusinessPage, companyName)
@@ -157,7 +157,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
       running(application) {
         val request      = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
         val form         = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
         val view         = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
         val businessType = getBusinessTypeMessageKey(userAnswers)
@@ -176,7 +176,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
       val companyName = "Test Company Ltd"
 
       val initialUserAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
         .set(YourUniqueTaxpayerReferencePage, testUtr)
@@ -219,7 +219,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 

@@ -18,9 +18,9 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.OrganisationRegistrationTypeFormProvider
-import models.Mode
+import models.{Mode, OrganisationRegistrationType}
 import navigation.Navigator
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.{NavigatorOnlyOrganisationRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -49,10 +49,11 @@ class OrganisationRegistrationTypeController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(OrganisationRegistrationTypePage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm =
+        request.userAnswers.get(RegistrationTypePage).flatMap(OrganisationRegistrationType.fromRegistrationType) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
 
       Ok(view(preparedForm, mode))
   }
@@ -66,9 +67,9 @@ class OrganisationRegistrationTypeController @Inject() (
           value =>
             for {
               updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(OrganisationRegistrationTypePage, value))
+                Future.fromTry(request.userAnswers.set(RegistrationTypePage, value.value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(OrganisationRegistrationTypePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(NavigatorOnlyOrganisationRegistrationTypePage, mode, updatedAnswers))
         )
   }
 }

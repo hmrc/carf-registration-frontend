@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
 import models.{OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.organisation.BusinessNotIdentifiedView
@@ -39,7 +39,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
     .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
     .success
     .value
-    .set(OrganisationRegistrationTypePage, testOrgType)
+    .set(RegistrationTypePage, testOrgType)
     .success
     .value
 

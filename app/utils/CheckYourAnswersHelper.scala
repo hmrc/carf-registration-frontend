@@ -22,7 +22,7 @@ import pages.organisation.{FirstContactPhonePage, OrganisationHaveSecondContactP
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
-import viewmodels.checkAnswers.IsThisYourBusinessSummary
+import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 import viewmodels.checkAnswers.organisation.*
 
 class CheckYourAnswersHelper @Inject() {
@@ -31,6 +31,11 @@ class CheckYourAnswersHelper @Inject() {
     IsThisYourBusinessSummary
       .row(userAnswers)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
+
+  def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    for {
+      registeredInUk <- RegisteredAddressInUkSummary.row(userAnswers)
+    } yield ???
 
   def getFirstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {

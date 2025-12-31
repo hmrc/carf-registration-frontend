@@ -25,7 +25,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -37,7 +37,7 @@ import scala.concurrent.Future
 class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSugar {
 
   private def getTaxTypeMessage(userAnswers: UserAnswers) =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
+    userAnswers.get(RegistrationTypePage) match {
       case Some(LimitedCompany) | Some(Trust) => "yourUniqueTaxpayerReference.ltdUnincorporated"
       case Some(Partnership) | Some(LLP)      => "yourUniqueTaxpayerReference.partnershipLlp"
       case _                                  => "yourUniqueTaxpayerReference.soleTraderIndividual"
@@ -52,7 +52,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
     "must return OK and the correct view for a GET when option is a LimitedCompany" in {
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 
@@ -64,7 +64,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result            = route(application, request).value
         val form              = new YourUniqueTaxpayerReferenceFormProvider().apply(
-          taxType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          taxType = userAnswers.get(RegistrationTypePage).get.toString
         )
         val view              = application.injector.instanceOf[YourUniqueTaxpayerReferenceView]
         val taxTypeMessageKey = getTaxTypeMessage(userAnswers)
@@ -80,7 +80,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
     "must return OK and the correct view for a GET when option is a Partnership" in {
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, Partnership)
+        .set(RegistrationTypePage, Partnership)
         .success
         .value
 
@@ -92,7 +92,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result            = route(application, request).value
         val form              = new YourUniqueTaxpayerReferenceFormProvider().apply(
-          taxType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          taxType = userAnswers.get(RegistrationTypePage).get.toString
         )
         val view              = application.injector.instanceOf[YourUniqueTaxpayerReferenceView]
         val taxTypeMessageKey = getTaxTypeMessage(userAnswers)
@@ -108,7 +108,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
     "must return OK and the correct view for a GET when option is a SoleTrader or individual" in {
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, SoleTrader)
+        .set(RegistrationTypePage, SoleTrader)
         .success
         .value
 
@@ -120,7 +120,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val result            = route(application, request).value
         val form              = new YourUniqueTaxpayerReferenceFormProvider().apply(
-          taxType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          taxType = userAnswers.get(RegistrationTypePage).get.toString
         )
         val view              = application.injector.instanceOf[YourUniqueTaxpayerReferenceView]
         val taxTypeMessageKey = getTaxTypeMessage(userAnswers)
@@ -138,7 +138,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
       val utr         = UniqueTaxpayerReference("exampleUtr")
       val userAnswers = UserAnswers(userAnswersId)
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
         .set(YourUniqueTaxpayerReferencePage, utr)
@@ -152,7 +152,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
 
         val view              = application.injector.instanceOf[YourUniqueTaxpayerReferenceView]
         val form              = new YourUniqueTaxpayerReferenceFormProvider().apply(
-          taxType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          taxType = userAnswers.get(RegistrationTypePage).get.toString
         )
         val taxTypeMessageKey = getTaxTypeMessage(userAnswers)
 
@@ -169,7 +169,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
     "must redirect to the next page when valid data is submitted" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, SoleTrader)
+        .set(RegistrationTypePage, SoleTrader)
         .success
         .value
 
@@ -200,7 +200,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 
@@ -212,7 +212,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", ""))
 
         val form = new YourUniqueTaxpayerReferenceFormProvider().apply(
-          taxType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          taxType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val boundForm = form.bind(Map("value" -> ""))

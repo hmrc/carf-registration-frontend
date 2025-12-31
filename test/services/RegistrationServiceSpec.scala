@@ -23,7 +23,7 @@ import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.requests.RegisterOrganisationWithIdRequest
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, RegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalactic.Prettifier.default
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class RegistrationServiceSpec extends SpecBase {
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
   val testService                          = new RegistrationService(mockConnector)
-  val testOrgType                          = OrganisationRegistrationType.LimitedCompany
+  val testOrgType: RegistrationType        = RegistrationType.LimitedCompany
   val ninoOkFullIndividualResponse         = "JX123456D"
   val ninoOkEmptyIndividualResponse        = "WX123456D"
   val ninoNotFound                         = "XX123456D"
@@ -78,7 +78,7 @@ class RegistrationServiceSpec extends SpecBase {
     )
   )
 
-  val orgNonUkBusinessResponse = RegisterOrganisationWithIdResponse(
+  val orgNonUkBusinessResponse    = RegisterOrganisationWithIdResponse(
     safeId = "testSafeId",
     code = Some("0001"),
     organisationName = "International Ltd",
@@ -91,7 +91,7 @@ class RegistrationServiceSpec extends SpecBase {
       countryCode = "US"
     )
   )
-  val userAnswersUtr           = UserAnswers(userAnswersId)
+  val userAnswersUtr: UserAnswers = UserAnswers(userAnswersId)
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
     .success
     .value

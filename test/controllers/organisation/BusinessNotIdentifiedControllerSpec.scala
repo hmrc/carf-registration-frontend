@@ -30,7 +30,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
   val testUtrString    = "1234567890"
   val testUtrObject    = UniqueTaxpayerReference(testUtrString)
   val testBusinessName = "Test Corp"
-  val testOrgType      = OrganisationRegistrationType.LimitedCompany
+  val testOrgType      = OrganisationRegistrationType.LimitedCompany()
 
   val userAnswersWithData: UserAnswers = emptyUserAnswers
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
@@ -39,7 +39,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
     .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
     .success
     .value
-    .set(RegistrationTypePage, testOrgType)
+    .set(RegistrationTypePage, testOrgType.value)
     .success
     .value
 

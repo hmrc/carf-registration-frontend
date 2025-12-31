@@ -19,7 +19,7 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationRegistrationTypeFormProvider
-import models.{NormalMode, OrganisationRegistrationType, UserAnswers}
+import models.{NormalMode, OrganisationRegistrationType, RegistrationType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -65,7 +65,7 @@ class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSu
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(RegistrationTypePage, OrganisationRegistrationType.values.head)
+        .set(RegistrationTypePage, RegistrationType.LimitedCompany)
         .success
         .value
 

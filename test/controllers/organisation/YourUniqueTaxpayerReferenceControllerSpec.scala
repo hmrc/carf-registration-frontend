@@ -19,7 +19,7 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
-import models.OrganisationRegistrationType.*
+import models.RegistrationType.*
 import models.{NormalMode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any

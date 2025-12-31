@@ -18,9 +18,8 @@ package utils
 
 import base.SpecBase
 import models.UserAnswers
-import models.IndividualRegistrationType.SoleTrader
+import models.RegistrationType.*
 import models.JourneyType.{IndWithUtr, OrgWithUtr}
-import models.OrganisationRegistrationType.Partnership
 import pages.organisation.RegistrationTypePage
 
 class UserAnswersHelperSpec extends SpecBase {
@@ -28,7 +27,7 @@ class UserAnswersHelperSpec extends SpecBase {
   val testHelper: UserAnswersHelper = new UserAnswersHelper {}
 
   val userAnswersSoleTrader: UserAnswers   =
-    emptyUserAnswers.set(IndividualRegistrationTypePage, SoleTrader).success.value
+    emptyUserAnswers.set(RegistrationTypePage, SoleTrader).success.value
   val userAnswersOrganisation: UserAnswers =
     emptyUserAnswers.set(RegistrationTypePage, Partnership).success.value
 

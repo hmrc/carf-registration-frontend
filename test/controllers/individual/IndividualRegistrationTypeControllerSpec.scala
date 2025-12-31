@@ -19,11 +19,12 @@ package controllers.individual
 import base.SpecBase
 import controllers.routes
 import forms.individual.IndividualRegistrationTypeFormProvider
-import models.{IndividualRegistrationType, NormalMode, UserAnswers}
+import models.{IndividualRegistrationType, NormalMode, RegistrationType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import pages.organisation.RegistrationTypePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -58,10 +59,12 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(IndividualRegistrationTypePage, IndividualRegistrationType.values.head)
+        .set(RegistrationTypePage, RegistrationType.SoleTrader)
         .success
         .value
+
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
       running(application) {
         val request = FakeRequest(GET, individualRegistrationTypeRoute)
         val view    = application.injector.instanceOf[IndividualRegistrationTypeView]

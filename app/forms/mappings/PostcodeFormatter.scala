@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,19 @@ class PostcodeFormatter(
   private val crownDependencies = Seq("GG", "JE", "IM")
 
   private val realCrownDependencyPostcodeRegex = Map(
-    "GY" -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
+    "GG" -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
     "JE" -> "^JE[1-4] ?[0-9][A-Z]{2}$",
     "IM" -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
   )
 
   private val postcodeCharsRegex = "^[A-Z0-9 ]*$"
   private val examplePostcode    = "AA1 1AA"
+
+  private def getPostcodePrefix(countryCode: String): String =
+    countryCode match {
+      case "GG"  => "GY"
+      case other => other
+    }
 
   private def normalise(countryCode: Option[String], postcode: String): String = {
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
@@ -69,7 +75,7 @@ class PostcodeFormatter(
       Left(Seq(FormError("postcode", invalidRealCrownKey)))
     } else if (isCrownDependency && !postcode.matches(postcodeCharsRegex)) {
       Left(Seq(FormError("postcode", invalidCharKey)))
-    } else if (isCrownDependency && !postcode.startsWith(cc)) {
+    } else if (isCrownDependency && !postcode.startsWith(getPostcodePrefix(cc))) {
       Left(Seq(FormError("postcode", invalidFormatCrownKey)))
     } else if (isCrownDependency) {
       realCrownDependencyPostcodeRegex.get(cc) match {

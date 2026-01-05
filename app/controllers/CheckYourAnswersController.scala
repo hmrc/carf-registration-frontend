@@ -54,6 +54,11 @@ class CheckYourAnswersController @Inject() (
     val secondContactDetailsSectionMaybe: Option[Section] =
       helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
+    val indWithNinoYourDetails: Option[Section] =
+      helper.indWithNinoYourDetails(request.userAnswers)
+    val indContactDetails: Option[Section]      =
+      helper.indContactDetails(request.userAnswers)
+
     val sectionsMaybe = journeyType match {
       case Some(OrgWithUtr)  =>
         for {
@@ -61,7 +66,11 @@ class CheckYourAnswersController @Inject() (
           section2 <- firstContactDetailsSectionMaybe
           section3 <- secondContactDetailsSectionMaybe
         } yield Seq(section1, section2, section3)
-      case Some(IndWithNino) => ???
+      case Some(IndWithNino) =>
+        for {
+          section1 <- indWithNinoYourDetails
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
       case _                 => None
     }
 

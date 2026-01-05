@@ -17,25 +17,60 @@
 package utils
 
 import com.google.inject.Inject
-import models.UserAnswers
-import pages.organisation.{FirstContactPhonePage, OrganisationHaveSecondContactPage, OrganisationSecondContactHavePhonePage}
+import models.{RegistrationType, UserAnswers}
+import pages.RegisteredAddressInUkPage
+import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
+import pages.organisation.*
+import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
-import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
+import viewmodels.checkAnswers.individual.*
 import viewmodels.checkAnswers.organisation.*
+import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 
-class CheckYourAnswersHelper @Inject() {
+class CheckYourAnswersHelper @Inject() extends Logging {
 
   def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     IsThisYourBusinessSummary
       .row(userAnswers)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
 
-  def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+  def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {
-      registeredInUk <- RegisteredAddressInUkSummary.row(userAnswers)
-    } yield ???
+      registeringAs     <- IndividualRegistrationTypeSummary.row(userAnswers)
+      haveNinoRow       <- HaveNiNumberSummary.row(userAnswers)
+      haveNino: Boolean <- userAnswers.get(HaveNiNumberPage)
+      whatNino          <- NiNumberSummary.row(userAnswers)
+      name              <- WhatIsYourNameIndividualSummary.row(userAnswers)
+      dob               <- RegisterDateOfBirthSummary.row(userAnswers)
+      registrationType  <- userAnswers.get(RegistrationTypePage)
+    } yield
+      if (haveNino) {
+        registrationType match {
+          case RegistrationType.SoleTrader =>
+            {
+              for {
+                registeredAddressInUkRow <- RegisteredAddressInUkSummary.row(userAnswers)
+                registeredAddressInUk    <- userAnswers.get(RegisteredAddressInUkPage)
+                haveUtrRow               <- HaveUTRSummary.row(userAnswers)
+                haveUtr                  <- userAnswers.get(HaveUTRPage)
+              } yield
+                if (!registeredAddressInUk && !haveUtr && haveNino) { // User has to enter certain answers to get to this CYA page. This ensures it
+                  Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
+                } else {
+                  logger.warn("Individual with NINO answers were not as expected")
+                  None
+                }
+            }.flatten
+          case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
+          case _                           => None
+        }
+      } else {
+        logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")
+        None
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
 
   def getFirstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {
@@ -66,8 +101,7 @@ class CheckYourAnswersHelper @Inject() {
           canWeContactSecondContactAnswer <- userAnswers.get(OrganisationSecondContactHavePhonePage)
         } yield
           if (canWeContactSecondContactAnswer) {
-            // TODO: Org second contact phone number is missing, integrate when it is merged
-            FirstContactPhoneNumberSummary.row(userAnswers).map { secondPhoneNumber =>
+            OrganisationSecondContactPhoneNumberSummary.row(userAnswers).map { secondPhoneNumber =>
               Seq(
                 doYouHaveSecondContactRow,
                 secondContactName,
@@ -84,4 +118,17 @@ class CheckYourAnswersHelper @Inject() {
       }
     }.flatten
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.secondContact"), _))
+
+  def indContactDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      email        <- IndividualEmailSummary.row(userAnswers)
+      havePhoneRow <- IndividualHavePhoneSummary.row(userAnswers)
+      havePhone    <- userAnswers.get(IndividualHavePhonePage)
+    } yield
+      if (havePhone) {
+        Some(Seq(email, havePhoneRow))
+      } else {
+        Some(Seq(email, havePhoneRow))
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualContactDetails"), _))
 }

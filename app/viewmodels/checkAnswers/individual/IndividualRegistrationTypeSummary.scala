@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, RegistrationType, UserAnswers}
 import pages.organisation.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -29,24 +29,27 @@ import viewmodels.implicits.*
 object IndividualRegistrationTypeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RegistrationTypePage).map { answer =>
-
-      val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"individualRegistrationType.$answer"))
-        )
-      )
-
-      SummaryListRowViewModel(
-        key = "individualRegistrationType.checkYourAnswersLabel",
-        value = value,
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url
+    answers.get(RegistrationTypePage).flatMap {
+      case answer @ (RegistrationType.Individual | RegistrationType.SoleTrader) =>
+        val value = ValueViewModel(
+          HtmlContent(
+            HtmlFormat.escape(messages(s"checkYourAnswers.registrationType.${answer.messagesKey}"))
           )
-            .withVisuallyHiddenText(messages("individualRegistrationType.change.hidden"))
         )
-      )
+
+        Some(
+          SummaryListRowViewModel(
+            key = "individualRegistrationType.checkYourAnswersLabel",
+            value = value,
+            actions = Seq(
+              ActionItemViewModel(
+                "site.change",
+                controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url
+              )
+                .withVisuallyHiddenText(messages("individualRegistrationType.change.hidden"))
+            )
+          )
+        )
+      case _                                                                    => None
     }
 }

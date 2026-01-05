@@ -17,30 +17,22 @@
 package controllers
 
 import base.{ControllerMockFixtures, SpecBase}
-import cats.implicits.*
 import generators.ModelGenerators
-import models.error.ApiError
-import models.error.ApiError.*
 import models.{IndividualRegistrationType, Name, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.reset
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.mockito.MockitoSugar.*
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages.*
-import play.api.Application
-import play.api.i18n.Messages
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.organisation.{FirstContactEmailPage, FirstContactPhoneNumberPage}
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.RegistrationService
 import uk.gov.hmrc.auth.core.AffinityGroup
-import viewmodels.govuk.SummaryListFluency
-import views.html.CheckYourAnswersView
 
 import java.time.LocalDate
 

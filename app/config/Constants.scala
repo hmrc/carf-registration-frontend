@@ -16,12 +16,21 @@
 
 package config
 
+import scala.util.matching.Regex
+
 object Constants {
 
   val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
   val validBusinessNameMaxLength: Int = 105
   val validBusinessNameMinLength: Int = 1
   val validEmailMaxLength: Int        = 132
+
+  val crownDependencyPostcodeRegex = "^(?:(GY|JE)[0-9]{1,2} ?[0-9][A-Z]{2}|IM[0-9]{1,2} ?[0-9][A-Z]{2})$"
+
+  final val addressRegex: String   = "^[A-Za-z0-9 &.,'\\\\-]*$"
+  final val postcodeRegex: String  = "^[A-Za-z0-9 ]*$"
+  final val addressMaxLength: Int  = 35
+  final val postcodeMaxLength: Int = 10
 
   final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
   final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""

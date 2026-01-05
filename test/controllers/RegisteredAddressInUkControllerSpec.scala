@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import controllers.routes
 import forms.RegisteredAddressInUkFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -24,6 +25,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RegisteredAddressInUkPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -38,10 +40,10 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new RegisteredAddressInUkFormProvider()
-  val form         = formProvider()
+  val formProvider: RegisteredAddressInUkFormProvider = new RegisteredAddressInUkFormProvider()
+  val form: Form[Boolean]                             = formProvider()
 
-  lazy val registeredAddressInUkControllerRoute =
+  lazy val registeredAddressInUkControllerRoute: String =
     routes.RegisteredAddressInUkController.onPageLoad(NormalMode).url
 
   "RegisteredAddressInUkController Controller" - {

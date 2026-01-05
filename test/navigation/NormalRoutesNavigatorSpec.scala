@@ -20,8 +20,13 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
+import org.scalactic.Prettifier.default
 import pages.*
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
+import pages.organisation.*
+import play.api.libs.json.Json
 
 import java.time.LocalDate
 
@@ -64,7 +69,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         IndividualRegistrationTypePage,
         NormalMode,
         userAnswers
-      ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+      ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
@@ -82,7 +87,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
@@ -100,7 +105,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.WhatIsYourNameController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an individual" in {
@@ -118,7 +123,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.WhatIsYourNameController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
     }
 
     "must go from YourUniqueTaxpayerReferencePage to What is your business name page for anything other than soleTrader" in {
@@ -136,7 +141,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         YourUniqueTaxpayerReferencePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
     "RegisteredAddressInUkPage navigation" - {
@@ -148,7 +153,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisteredAddressInUkPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       }
 
       "must go to Have UTR page when user answers 'No' to UK address" in {
@@ -158,7 +163,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisteredAddressInUkPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveUTRController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.HaveUTRController.onPageLoad(NormalMode)
       }
 
       "must go to Journey Recovery when no answer is provided" in {
@@ -181,7 +186,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(NormalMode)
       }
 
       "must go to Have NI Number page when user answers 'No' to having UTR and is Organisation SoleTrader" in {
@@ -197,7 +202,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Have NI Number page when user answers 'No' to having UTR and is Individual SoleTrader" in {
@@ -213,7 +218,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveUTRPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.HaveNiNumberController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Business Name page when user answers 'No' to having UTR and is Organisation" in {
@@ -265,11 +270,11 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.NiNumberController.onPageLoad(NormalMode)
+          ) mustBe controllers.individual.routes.NiNumberController.onPageLoad(NormalMode)
         }
       }
       "when user answers 'false' (no, I don't have a National Insurance number)" - {
-        "must navigate to: What is your name?" in {
+        "must navigate to: Individual or Sole Trader without NINO: What is your name?" in {
           val userAnswers = UserAnswers("id")
             .set(HaveNiNumberPage, false)
             .success
@@ -279,7 +284,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             HaveNiNumberPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad("Must redirect to /individual-without-id/name (CARF-169)")
+          ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
         }
       }
     }
@@ -295,7 +300,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NiNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(NormalMode)
       }
     }
 
@@ -322,7 +327,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
+          ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to individual email page for individual sole traders" in {
@@ -344,7 +349,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.IndividualEmailController.onPageLoad(NormalMode)
+          ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
         "must navigate to contact details page for non-sole traders" in {
@@ -367,7 +372,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
+          ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
         }
 
         "must navigate to contact details page when no organisation type is set" in {
@@ -387,7 +392,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.OrgYourContactDetailsController.onPageLoad()
+          ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
         }
       }
 
@@ -416,7 +421,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.ProblemDifferentBusinessController.onPageLoad()
+          ) mustBe controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         }
 
         "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {
@@ -464,7 +469,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
+          ) mustBe controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
         }
 
         "must navigate to business not identified page when not CT auto-matched and no organisation type" in {
@@ -484,7 +489,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.BusinessNotIdentifiedController.onPageLoad()
+          ) mustBe controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
         }
       }
 
@@ -544,7 +549,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.TradingNameController.onPageLoad(NormalMode)
+        ) mustBe controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
 
       }
       "business without id business address, when No is selected" in {
@@ -558,9 +563,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        ) mustBe controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
       }
     }
 
@@ -612,7 +615,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         WhatIsYourNameIndividualPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
+      ) mustBe controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(NormalMode)
     }
 
     "must go from FirstContactName page to FirstContactEmail page" in {
@@ -627,7 +630,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.FirstContactEmailController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.FirstContactEmailController.onPageLoad(NormalMode)
     }
 
     "must go from FirstContactEmail page to HavePhone page" in {
@@ -642,7 +645,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactEmailPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.FirstContactPhoneController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.FirstContactPhoneController.onPageLoad(NormalMode)
     }
 
     "must go from OrganisationSecondContactEmail page to SecondContactHavePhone page" in {
@@ -657,9 +660,35 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationSecondContactEmailPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
     }
 
+    "OrganisationBusinessAddressPage navigation" - {
+
+      "must navigate from OrganisationBusinessAddressPage to the next page in the journey" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(
+            OrganisationBusinessAddressPage,
+            OrganisationBusinessAddress(
+              "Address Line 1",
+              Some("Address Line 2"),
+              "City",
+              Some("Region"),
+              Some("Postcode"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+      }
+    }
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =
@@ -671,7 +700,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           RegisterDateOfBirthPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.RegisterIdentityConfirmedController.onPageLoad()
+        ) mustBe controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad()
       }
 
       "must navigate to Journey Recovery when no answer is provided" in {
@@ -695,7 +724,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualEmailPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.IndividualHavePhoneController.onPageLoad(NormalMode)
+        ) mustBe controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
       }
     }
 
@@ -744,7 +773,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactPhonePage,
         NormalMode,
         userAnswers
-      ) mustBe routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(NormalMode)
     }
 
     "must navigate from FirstContactPhoneNumber page (/have-phone) to HaveSecondPhoneOrganisation if answer is No" in {
@@ -759,7 +788,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactPhonePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
     "must navigate from FirstContactPhone page (/phone) to OrganisationHaveSecondContact page" in {
@@ -777,7 +806,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         FirstContactPhoneNumberPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
     }
 
     "must navigate from OrganisationHaveSecondContact page to CheckYourAnswers when the provided answer is No" in {
@@ -807,7 +836,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationHaveSecondContactPage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
     }
 
     "must navigate from OrganisationSecondContactName page to OrganisationSecondContactEmail page when continue is clicked" in {
@@ -822,7 +851,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         OrganisationSecondContactNamePage,
         NormalMode,
         updatedAnswers
-      ) mustBe routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
+      ) mustBe controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
     }
 
@@ -843,9 +872,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationSecondContactHavePhonePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/second-contact-phone (CARF-252)"
-        )
+        ) mustBe controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Check Your Answers page when user answers 'No'" in {
@@ -864,6 +891,45 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndWithoutNinoName navigation" - {
+      "must navigate from IndWithoutNinoName to IndWithoutNinoDateOfBirth for Individual or Sole Trader Without NINO  and valid name" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(IndWithoutNinoNamePage, Name("givenName example", "familyName example"))
+            .success
+            .value
+        navigator.nextPage(
+          IndWithoutNinoNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+        )
+      }
+    }
+
+    "FirstContactPhoneNumber navigation" - {
+      "must navigate from FirstContactPhoneNumberPage to OrganisationHaveSecondContactPage always" in {
+        navigator.nextPage(
+          FirstContactPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      }
+    }
+
+    "OrganisationSecondContactPhoneNumber navigation" - {
+      "must navigate from OrganisationSecondContactPhoneNumberPage to the Check your answers page always" in {
+        navigator.nextPage(
+          OrganisationSecondContactPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
+        )
       }
     }
   }

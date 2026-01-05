@@ -19,15 +19,15 @@ package forms.organisation
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.FormError
 
-class FirstContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
+class OrganisationSecondContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "firstContactPhoneNumber.error.required"
-  val lengthKey   = "firstContactPhoneNumber.error.length"
-  val invalidKey  = "firstContactPhoneNumber.error.invalid"
+  val requiredKey = "organisationSecondContactPhoneNumber.error.required"
+  val lengthKey   = "organisationSecondContactPhoneNumber.error.length"
+  val invalidKey  = "organisationSecondContactPhoneNumber.error.invalid"
 
   val maxLength = 24
 
-  val form = new FirstContactPhoneNumberFormProvider()()
+  val form = new OrganisationSecondContactPhoneNumberFormProvider()()
 
   ".value" - {
 

@@ -22,7 +22,7 @@ import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationT
 import pages.*
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, OrganisationSecondContactPhoneNumberPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
@@ -73,10 +73,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveTradingName(userAnswers)
 
     case TradingNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+      _ => controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+
+    case OrganisationBusinessAddressPage =>
+      _ => controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -218,9 +218,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
     }
 
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =

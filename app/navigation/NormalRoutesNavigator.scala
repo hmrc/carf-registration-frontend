@@ -17,14 +17,13 @@
 package navigation
 
 import controllers.routes
-import models.OrganisationRegistrationType.*
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, RegistrationType, UserAnswers}
+import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, NavigatorOnlyIndividualRegistrationTypePage, NavigatorOnlyOrganisationRegistrationTypePage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -116,6 +115,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+        )
+
+    case OrganisationSecondContactPhoneNumberPage =>
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
         )
 
     case _ =>
@@ -250,9 +255,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromOrganisationSecondContactHavePhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(OrganisationSecondContactHavePhonePage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/second-contact-phone (CARF-252)"
-        )
+        controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        =>

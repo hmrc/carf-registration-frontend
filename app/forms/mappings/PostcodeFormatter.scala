@@ -71,7 +71,7 @@ class PostcodeFormatter(
       else Right(None)
     } else if (postcode.length > 10) {
       Left(Seq(FormError("postcode", lengthKey)))
-    } else if (postcode == examplePostcode) {
+    } else if (isCrownDependency && postcode == examplePostcode) {
       Left(Seq(FormError("postcode", invalidRealCrownKey)))
     } else if (isCrownDependency && !postcode.matches(postcodeCharsRegex)) {
       Left(Seq(FormError("postcode", invalidCharKey)))

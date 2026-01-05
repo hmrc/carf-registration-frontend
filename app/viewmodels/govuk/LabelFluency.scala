@@ -36,6 +36,7 @@ trait LabelFluency {
       label
         .copy(isPageHeading = true)
         .withCssClass(size.toString)
+        .withCssClass("long-word")
 
     def withCssClass(className: String): Label =
       label.copy(classes = s"${label.classes} $className")

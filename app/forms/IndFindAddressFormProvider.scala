@@ -51,29 +51,3 @@ class IndFindAddressFormProvider @Inject() extends Mappings {
       )(IndFindAddress.apply)(x => Some((x.postcode, x.propertyNameOrNumber)))
     )
 }
-
-//   def apply(): Form[IndFindAddress] = Form(
-//     mapping(
-//      "postcode" -> text("indFindAddress.error.Postcode.required")
-//        .verifying(maxLength(100, "indFindAddress.error.Postcode.length")),
-//      "propertyNameOrNumber" -> text("indFindAddress.error.propertyNameOrNumber.required")
-//        .verifying(maxLength(100, "indFindAddress.error.propertyNameOrNumber.length"))
-//    )(IndFindAddress.apply)(x => Some((x.postcode, x.propertyNameOrNumber)))
-//   )
-
-//
-//
-//"addressLine4" -> validatedOptionalText("addressWithoutId.error.addressLine4.region.invalid",
-//  "addressWithoutId.error.addressLine4.region.length",
-//  apiAddressRegex,
-//  addressLineLength
-//)
-//,
-//"postCode" -> optionalPostcode(
-//  "addressWithoutId.error.postcode.required",
-//  "addressWithoutId.error.postcode.length",
-//  "addressWithoutId.error.postcode.invalid",
-//  regexPostcode,
-//  "country"
-//)
-//,

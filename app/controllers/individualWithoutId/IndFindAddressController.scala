@@ -77,7 +77,6 @@ class IndFindAddressController @Inject() (
               .searchByPostcode(SearchByPostcodeRequest(postcode = value.postcode, filter = value.propertyNameOrNumber))
               .flatMap {
                 case Nil if value.propertyNameOrNumber.isDefined =>
-                  logger.info("No results with filter, retrying postcode only")
                   addressLookupConnector
                     .searchByPostcode(SearchByPostcodeRequest(postcode = value.postcode, filter = None))
                     .flatMap {

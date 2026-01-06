@@ -22,7 +22,7 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
@@ -737,9 +737,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualHavePhonePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-phone (CARF-185)"
-        )
+        ) mustBe controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Check Your Answers page when user answers 'No'" in {
@@ -760,6 +758,20 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndividualPhoneNumberPage navigation" - {
+      "must go to Check Your Answers page" in {
+        val userAnswers = emptyUserAnswers.set(IndividualPhoneNumberPage, "07777777777").success.value
+
+        navigator.nextPage(
+          IndividualPhoneNumberPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
+        )
       }
     }
 

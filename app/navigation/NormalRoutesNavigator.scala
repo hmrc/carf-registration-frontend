@@ -103,8 +103,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
     case IndividualPhoneNumberPage =>
-      _ => routes.CheckYourAnswersController.onPageLoad()
-
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
+        )
     case OrganisationSecondContactNamePage =>
       _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 

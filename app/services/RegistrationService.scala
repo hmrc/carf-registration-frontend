@@ -22,7 +22,6 @@ import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWit
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.individual.IndividualRegistrationTypePage
 import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,6 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
+
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
   ): Future[Option[IndividualDetails]] = {
@@ -138,7 +138,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
             IndividualDetails(
               safeId = response.safeId,
               firstName = response.firstName,
-              middleName = None,
+              middleName = response.middleName,
               lastName = response.lastName,
               address = response.address
             )
@@ -152,3 +152,5 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         Future.failed(new Exception("Unexpected error!"))
     }
 }
+
+

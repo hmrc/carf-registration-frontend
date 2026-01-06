@@ -22,9 +22,9 @@ import models.*
 import models.IndividualRegistrationType.{Individual, SoleTrader}
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
 import play.api.libs.json.Json
 
@@ -563,9 +563,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           HaveTradingNamePage,
           NormalMode,
           updatedAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        ) mustBe controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
       }
     }
 
@@ -665,6 +663,32 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe controllers.organisation.routes.OrganisationSecondContactHavePhoneController.onPageLoad(NormalMode)
     }
 
+    "OrganisationBusinessAddressPage navigation" - {
+
+      "must navigate from OrganisationBusinessAddressPage to the next page in the journey" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(
+            OrganisationBusinessAddressPage,
+            OrganisationBusinessAddress(
+              "Address Line 1",
+              Some("Address Line 2"),
+              "City",
+              Some("Region"),
+              Some("Postcode"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+      }
+    }
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =
@@ -713,9 +737,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualHavePhonePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-phone (CARF-185)"
-        )
+        ) mustBe controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Check Your Answers page when user answers 'No'" in {
@@ -736,6 +758,20 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndividualPhoneNumberPage navigation" - {
+      "must go to Check Your Answers page" in {
+        val userAnswers = emptyUserAnswers.set(IndividualPhoneNumberPage, "07777777777").success.value
+
+        navigator.nextPage(
+          IndividualPhoneNumberPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
+        )
       }
     }
 
@@ -848,9 +884,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationSecondContactHavePhonePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/second-contact-phone (CARF-252)"
-        )
+        ) mustBe controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
       }
 
       "must go to Check Your Answers page when user answers 'No'" in {
@@ -885,6 +919,28 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+        )
+      }
+    }
+
+    "FirstContactPhoneNumber navigation" - {
+      "must navigate from FirstContactPhoneNumberPage to OrganisationHaveSecondContactPage always" in {
+        navigator.nextPage(
+          FirstContactPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe controllers.organisation.routes.OrganisationHaveSecondContactController.onPageLoad(NormalMode)
+      }
+    }
+
+    "OrganisationSecondContactPhoneNumber navigation" - {
+      "must navigate from OrganisationSecondContactPhoneNumberPage to the Check your answers page always" in {
+        navigator.nextPage(
+          OrganisationSecondContactPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
         )
       }
     }

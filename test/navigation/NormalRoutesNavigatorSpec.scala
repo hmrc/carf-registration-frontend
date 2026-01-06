@@ -745,7 +745,9 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualPhoneNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
+        )
       }
     }
 

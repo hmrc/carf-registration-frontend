@@ -170,4 +170,4 @@ POST        /register/individual-without-id/name                          contro
 GET         /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /problem/sole-trader-not-identified                           controllers.individual.ProblemSoleTraderNotIdentifiedController.onPageLoad()
+GET         /register/problem/sole-trader-not-identified                  controllers.individual.ProblemSoleTraderNotIdentifiedController.onPageLoad()

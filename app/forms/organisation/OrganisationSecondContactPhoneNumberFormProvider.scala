@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package viewmodels
+package forms.organisation
 
-package object govuk {
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  object all
-      extends ImplicitConversions
-      with BackLinkFluency
-      with ButtonFluency
-      with CheckboxFluency
-      with DateFluency
-      with ErrorSummaryFluency
-      with FieldsetFluency
-      with HintFluency
-      with InputFluency
-      with LabelFluency
-      with RadiosFluency
-      with SelectFluency
-      with SummaryListFluency
-      with TagFluency
+import javax.inject.Inject
+
+class OrganisationSecondContactPhoneNumberFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> phoneNumber(
+        requiredKey = "organisationSecondContactPhoneNumber.error.required",
+        invalidKey = "organisationSecondContactPhoneNumber.error.invalid",
+        lengthKey = "organisationSecondContactPhoneNumber.error.length"
+      )
+    )
 }

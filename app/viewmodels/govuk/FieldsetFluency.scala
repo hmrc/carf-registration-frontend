@@ -61,6 +61,7 @@ trait FieldsetFluency {
       legend
         .copy(isPageHeading = true)
         .withCssClass(size.toString)
+        .withCssClass("long-word")
 
     def withCssClass(newClass: String): Legend =
       legend.copy(classes = s"${legend.classes} $newClass")

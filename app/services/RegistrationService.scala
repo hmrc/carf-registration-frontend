@@ -36,7 +36,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
-  ): Future[Either[ApiError, IndividualDetails]] =
+  ): Future[Either[ApiError, IndividualDetails]] = {
     val request = RegisterIndividualWithIdRequest(
       requiresNameMatch = true,
       IDNumber = nino,
@@ -68,6 +68,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           logger.warn(s"Failed to retrieve individual details: $error")
           Future.successful(Left(error))
       }
+  }
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
     val request = RegisterOrganisationWithIdRequest(

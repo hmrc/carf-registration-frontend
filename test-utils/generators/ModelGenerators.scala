@@ -16,34 +16,59 @@
 
 package generators
 
-import models.*
+import models._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
-trait ModelGenerators {}
+trait ModelGenerators {
 
-implicit lazy val arbitraryWhatIsYourName: Arbitrary[Name] =
-  Arbitrary {
-    for {
-      firstName <- arbitrary[String]
-      lastName  <- arbitrary[String]
-    } yield Name(firstName, lastName)
-  }
+  val addressStringGen: Gen[String] = Gen.alphaNumStr.suchThat(_.nonEmpty).map(_.take(35))
 
-implicit lazy val arbitraryWhatIsYourNameIndividual: Arbitrary[Name] =
-  Arbitrary {
-    for {
-      firstName <- arbitrary[String]
-      lastName  <- arbitrary[String]
-    } yield Name(firstName, lastName)
-  }
+  val postcodeStringGen: Gen[String] = Gen.alphaNumStr.suchThat(_.nonEmpty).map(_.take(10))
 
-implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(OrganisationRegistrationType.values.toSeq)
-  }
+  implicit lazy val arbitraryCountry: Arbitrary[Country] =
+    Arbitrary {
+      for {
+        code        <- Gen.pick(2, 'A' to 'Z').map(_.mkString)
+        description <- Gen.alphaStr.suchThat(_.nonEmpty)
+      } yield Country(code, description)
+    }
 
-implicit lazy val arbitraryIndividualRegistrationType: Arbitrary[IndividualRegistrationType] =
-  Arbitrary {
-    Gen.oneOf(IndividualRegistrationType.values.toSeq)
-  }
+  implicit lazy val arbitraryOrganisationBusinessAddress: Arbitrary[OrganisationBusinessAddress] =
+    Arbitrary {
+      for {
+        addressLine1 <- addressStringGen
+        addressLine2 <- Gen.option(addressStringGen)
+        townOrCity   <- addressStringGen
+        region       <- Gen.option(addressStringGen)
+        postcode     <- Gen.option(postcodeStringGen)
+        country      <- arbitrary[Country]
+      } yield OrganisationBusinessAddress(addressLine1, addressLine2, townOrCity, region, postcode, country)
+    }
+
+  implicit lazy val arbitraryWhatIsYourName: Arbitrary[Name] =
+    Arbitrary {
+      for {
+        firstName <- arbitrary[String]
+        lastName  <- arbitrary[String]
+      } yield Name(firstName, lastName)
+    }
+
+  implicit lazy val arbitraryWhatIsYourNameIndividual: Arbitrary[Name] =
+    Arbitrary {
+      for {
+        firstName <- arbitrary[String]
+        lastName  <- arbitrary[String]
+      } yield Name(firstName, lastName)
+    }
+
+  implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
+    Arbitrary {
+      Gen.oneOf(OrganisationRegistrationType.values.toSeq)
+    }
+
+  implicit lazy val arbitraryIndividualRegistrationType: Arbitrary[IndividualRegistrationType] =
+    Arbitrary {
+      Gen.oneOf(IndividualRegistrationType.values.toSeq)
+    }
+}

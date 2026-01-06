@@ -50,6 +50,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val utrGuidanceUrl: String    = configuration.get[String]("urls.utrGuidanceUrl")
 
   val companiesHouseSearchUrl: String = configuration.get("urls.companiesHouseSearch")
+  lazy val countryCodeJson: String    = configuration.get[String]("json.countries")
   val aeoiEmailAddress: String        = configuration.get("email.aeoi")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl

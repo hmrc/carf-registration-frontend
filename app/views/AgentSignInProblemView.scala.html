@@ -20,7 +20,7 @@
         link: components.Link
 )
 
-@(signOutNoSurveyUrl: String)(implicit request: Request[_], messages: Messages)
+@(signOutNoSurveyUrl: String, loginContinueUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("agentSignInProblem.title"))) {
 
@@ -29,5 +29,5 @@
     <p class="govuk-body">@messages("agentSignInProblem.paragraph")</p>
 
     <p class="govuk-body">@messages("agentSignInProblem.linkText")
-        @link(s"$signOutNoSurveyUrl?continue=$signOutNoSurveyUrl", messages("agentSignInProblem.link"), fullStop = true)</p>
+        @link(s"$signOutNoSurveyUrl?continue=$loginContinueUrl", messages("agentSignInProblem.link"), fullStop = true)</p>
 }

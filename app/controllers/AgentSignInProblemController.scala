@@ -34,6 +34,7 @@ class AgentSignInProblemController @Inject() (
 
   def onPageLoad: Action[AnyContent] = Action { implicit request =>
     val signOutNoSurveyUrl = appConfig.signOutNoSurveyUrl
-    Ok(view(signOutNoSurveyUrl))
+    val loginContinueUrl   = appConfig.loginContinueUrl
+    Ok(view(signOutNoSurveyUrl, loginContinueUrl))
   }
 }

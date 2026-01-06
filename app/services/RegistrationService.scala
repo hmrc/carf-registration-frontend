@@ -152,5 +152,3 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         Future.failed(new Exception("Unexpected error!"))
     }
 }
-
-

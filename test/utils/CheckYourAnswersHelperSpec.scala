@@ -151,7 +151,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
           "Second contact name",
           "Second contact email address",
           "Can we contact the second contact by phone?",
-          "First contact phone number"
+          "Second contact phone number"
         )
 
         compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
@@ -195,7 +195,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
 
       "must return None when can we contact you by phone is yes but there is no phone number" in new TestData {
         val section: Option[Section] = testHelper.getSecondContactDetailsSectionMaybe(
-          testUserAnswersWithSecondContactDetails.remove(FirstContactPhoneNumberPage).success.value
+          testUserAnswersWithSecondContactDetails.remove(OrganisationSecondContactPhoneNumberPage).success.value
         )
 
         section mustBe None
@@ -264,7 +264,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       .set(OrganisationSecondContactHavePhonePage, true)
       .success
       .value
-      .set(FirstContactPhoneNumberPage, "123")
+      .set(OrganisationSecondContactPhoneNumberPage, "123")
       .success
       .value
 

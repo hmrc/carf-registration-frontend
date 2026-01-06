@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.JourneyType.OrgWithUtr
+import models.JourneyType.{IndWithNino, OrgWithUtr}
 import models.error.ApiError.InternalServerError
 import models.{CheckMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -44,9 +44,10 @@ import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
-  val orgWithUtrUserAnswers: UserAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
-  lazy val cyaRoute: String              = routes.CheckYourAnswersController.onPageLoad().url
-  def onwardRoute                        = Call("GET", "/foo")
+  val orgWithUtrUserAnswers: UserAnswers  = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
+  val indWithNinoUserAnswers: UserAnswers = emptyUserAnswers.copy(journeyType = Some(IndWithNino))
+  lazy val cyaRoute: String               = routes.CheckYourAnswersController.onPageLoad().url
+  def onwardRoute                         = Call("GET", "/foo")
 
   val testRow: SummaryListRow =
     SummaryListRowViewModel(
@@ -168,6 +169,74 @@ class CheckYourAnswersControllerSpec extends SpecBase {
             any()
           )
           verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
+            any()
+          )
+        }
+      }
+
+      "when journey is individual with NINO" - {
+        "must return OK and the correct view for a GET when all answers have been answered as expected" in new Setup(
+          AffinityGroup.Individual,
+          indWithNinoUserAnswers
+        ) {
+          when(mockCheckYourAnswersHelper.indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+          when(mockCheckYourAnswersHelper.indContactDetails(eqTo(indWithNinoUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(Seq(testSection, testSection))(
+            request,
+            messages(application)
+          ).toString
+        }
+
+        "must redirect to information missing page for a GET when 'your details' data is missing" in new Setup(
+          AffinityGroup.Individual,
+          indWithNinoUserAnswers
+        ) {
+          when(mockCheckYourAnswersHelper.indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(any()))
+            .thenReturn(None)
+          when(mockCheckYourAnswersHelper.indContactDetails(eqTo(indWithNinoUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
+          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(
+            any()
+          )
+          verify(mockCheckYourAnswersHelper, times(1)).indContactDetails(eqTo(indWithNinoUserAnswers))(
+            any()
+          )
+        }
+
+        "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
+          AffinityGroup.Individual,
+          indWithNinoUserAnswers
+        ) {
+          when(mockCheckYourAnswersHelper.indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+          when(mockCheckYourAnswersHelper.indContactDetails(eqTo(indWithNinoUserAnswers))(any()))
+            .thenReturn(None)
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
+          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(
+            any()
+          )
+          verify(mockCheckYourAnswersHelper, times(1)).indContactDetails(eqTo(indWithNinoUserAnswers))(
             any()
           )
         }

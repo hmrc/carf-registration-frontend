@@ -377,6 +377,16 @@ indWithoutNinoName.error.familyName.length = The family name must be 35 characte
 indWithoutNinoName.givenName.change.hidden = Change What is your given name?
 indWithoutNinoName.familyName.change.hidden = Change What is your family name?
 
+individualPhoneNumber.title = What is your phone number?
+individualPhoneNumber.heading = What is your phone number?
+individualPhoneNumber.hint = For international numbers, include the country code.
+individualPhoneNumber.checkYourAnswersLabel = Change your phone number
+individualPhoneNumber.error.required = Enter your phone number
+individualPhoneNumber.error.length = The phone number must be 24 characters or less
+individualPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+individualPhoneNumber.error.real = Enter a real phone number
+individualPhoneNumber.change.hidden = Change your phone number
+
 organisationBusinessAddress.title = What is the main address of your business?
 organisationBusinessAddress.heading = What is the main address of your business?
 organisationBusinessAddress.addressLine1 = Address line 1
@@ -403,6 +413,7 @@ organisationBusinessAddress.postcode.error.invalid = Postcode must only include 
 organisationBusinessAddress.postcode.error.invalidFormat = Enter postcode in the right format
 organisationBusinessAddress.postcode.error.required = Enter a real postcode
 organisationBusinessAddress.country.error.required = Select country
+
 
 indFindAddress.title = Find your address
 indFindAddress.heading = Find your address

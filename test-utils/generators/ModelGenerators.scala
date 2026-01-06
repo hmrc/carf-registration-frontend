@@ -46,14 +46,6 @@ trait ModelGenerators {
       } yield OrganisationBusinessAddress(addressLine1, addressLine2, townOrCity, region, postcode, country)
     }
 
-  implicit lazy val arbitraryIndFindAddress: Arbitrary[IndFindAddress] =
-    Arbitrary {
-      for {
-        Postcode             <- arbitrary[String]
-        PropertyNameOrNumber <- arbitrary[String]
-      } yield IndFindAddress(Postcode, Some(PropertyNameOrNumber))
-    }
-
   implicit lazy val arbitraryWhatIsYourName: Arbitrary[Name] =
     Arbitrary {
       for {
@@ -78,5 +70,13 @@ trait ModelGenerators {
   implicit lazy val arbitraryIndividualRegistrationType: Arbitrary[IndividualRegistrationType] =
     Arbitrary {
       Gen.oneOf(IndividualRegistrationType.values.toSeq)
+    }
+
+  implicit lazy val arbitraryIndFindAddress: Arbitrary[IndFindAddress] =
+    Arbitrary {
+      for {
+        Postcode <- arbitrary[String]
+        PropertyNameOrNumber <- arbitrary[String]
+      } yield IndFindAddress(Postcode, Some(PropertyNameOrNumber))
     }
 }

@@ -124,6 +124,7 @@ trait Mappings extends Formatters with Constraints {
     of(nationalInsuranceNumberFormatter(requiredKey, invalidFormatKey, invalidKey, args))
 
   protected def postcode(
+      countryList: Seq[Country],
       lengthKey: String,
       invalidCharKey: String,
       requiredCrownKey: String,
@@ -132,6 +133,7 @@ trait Mappings extends Formatters with Constraints {
   ): FieldMapping[Option[String]] =
     of(
       new PostcodeFormatter(
+        countryList,
         lengthKey,
         invalidCharKey,
         requiredCrownKey,

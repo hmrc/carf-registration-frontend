@@ -21,6 +21,7 @@ import play.api.data.FormError
 import play.api.data.format.Formatter
 
 class PostcodeFormatter(
+    countryList: Seq[Country],
     lengthKey: String,
     invalidCharKey: String,
     requiredCrownKey: String,

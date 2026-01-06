@@ -33,14 +33,14 @@ class AddressLookupController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def searchByPostcode(postcode: String, filter: Option[String]): Action[AnyContent] = Action.async {
-    implicit request =>
-      connector.searchByPostcode(SearchByPostcodeRequest(postcode = postcode, filter = filter)) map {
-        case Right(value) => Ok(formatAddressResponses(value))
-        case Left(value)  => Ok(value.toString)
-      }
-
-  }
+//  def searchByPostcode(postcode: String, filter: Option[String]): Action[AnyContent] = Action.async {
+////    implicit request =>
+////      connector.searchByPostcode(SearchByPostcodeRequest(postcode = postcode, filter = filter)) map {
+////        case Right(value) => Ok(formatAddressResponses(value))
+////        case Left(value)  => Ok(value.toString)
+////      }
+//
+//  }
 
   private def formatAddressResponses(responses: Seq[AddressResponse]): String =
     s"Total responses = ${responses.length}\n\n\n" +

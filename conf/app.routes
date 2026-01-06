@@ -142,26 +142,22 @@ POST        /register/second-contact-email                                contro
 GET         /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-email                         controllers.organisation.OrganisationSecondContactEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET        /register/second-contact-have-phone                            controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /register/second-contact-have-phone                            controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /register/change-second-contact-have-phone                     controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /register/change-second-contact-have-phone                     controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
-
+GET         /register/second-contact-have-phone                           controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-have-phone                           controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-have-phone                    controllers.organisation.OrganisationSecondContactHavePhoneController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-have-phone                    controllers.organisation.OrganisationSecondContactHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/individual-email                                    controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-email                                    controllers.individual.IndividualEmailController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-individual-email                             controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-individual-email                             controllers.individual.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
 
-
 GET         /register/individual-have-phone                               controllers.individual.IndividualHavePhoneController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-have-phone                               controllers.individual.IndividualHavePhoneController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-individual-have-phone                        controllers.individual.IndividualHavePhoneController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-individual-have-phone                        controllers.individual.IndividualHavePhoneController.onSubmit(mode: Mode = CheckMode)
 
-
 GET         /register/problem/business-not-identified                     controllers.organisation.BusinessNotIdentifiedController.onPageLoad()
-
 
 GET         /register/problem/some-information-is-missing                 controllers.InformationMissingController.onPageLoad()
 
@@ -169,3 +165,18 @@ GET         /register/individual-without-id/name                          contro
 POST        /register/individual-without-id/name                          controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = NormalMode)
 GET         /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/business-without-id/business-address                controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-without-id/business-address                controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/business-without-id/change-business-address         controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/business-without-id/change-business-address         controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/second-contact-phone                                controllers.organisation.OrganisationSecondContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/second-contact-phone                                controllers.organisation.OrganisationSecondContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-second-contact-phone                         controllers.organisation.OrganisationSecondContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-second-contact-phone                         controllers.organisation.OrganisationSecondContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/individual-without-id/find-address                  controllers.individualWithoutId.IndFindAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/find-address                  controllers.individualWithoutId.IndFindAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-find-address           controllers.individualWithoutId.IndFindAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-find-address           controllers.individualWithoutId.IndFindAddressController.onSubmit(mode: Mode = CheckMode)

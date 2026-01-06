@@ -23,14 +23,15 @@ import models.requests.SearchByPostcodeRequest
 import models.responses.AddressResponse
 import play.api.Logging
 import play.api.http.Status.OK
+import play.api.i18n.Lang.logger
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, StringContextOps}
 
-import scala.util.{Failure, Success, Try}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
@@ -40,28 +41,28 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
 
   def searchByPostcode(
       request: SearchByPostcodeRequest
-  )(implicit hc: HeaderCarrier): Future[Either[ApiError, Seq[AddressResponse]]] =
+  )(implicit hc: HeaderCarrier): Future[Seq[AddressResponse]] =
     http
       .post(searchByPostcodeUrl)
       .setHeader("X-Hmrc-Origin" -> "CARF")
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
-      .map {
-        case response if response.status == OK =>
-          Try(response.json.as[Seq[AddressResponse]]) match {
-            case Success(data)      =>
-              Right(data)
-            case Failure(exception) =>
-              logger.warn(
-                s"Error parsing response as AddressResponse with uri: $searchByPostcodeUrl"
-              )
-              Left(ApiError.JsonValidationError)
-          }
-        case response                          =>
-          logger.warn(
-            s"Unexpected response: status code: ${response.status}, with message: ${response.body} from uri: $searchByPostcodeUrl"
+      .flatMap {
+        case response if response.status equals OK =>
+          Future.successful(
+            response.json
+              .as[Seq[AddressResponse]]
           )
-          Left(ApiError.InternalServerError)
-      }
 
+        case response =>
+          val message = s"Address Lookup failed with status ${response.status} Response body: ${response.body}"
+          Future.failed(new HttpException(message, response.status))
+      }
+      .recoverWith(logException)
+
+}
+
+private def logException: PartialFunction[Throwable, Future[Seq[AddressResponse]]] = { case t: Throwable =>
+  logger.error("Exception in AddressLookup", t)
+  Future.failed(t)
 }

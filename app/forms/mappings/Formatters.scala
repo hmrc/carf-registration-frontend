@@ -23,9 +23,10 @@ import play.api.data.FormError
 import play.api.data.format.Formatter
 import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 
+import scala.collection.immutable.Seq as key
 import scala.util.control.Exception.nonFatalCatch
 
-trait Formatters {
+trait Formatters extends Transforms {
 
   private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] =
     new Formatter[String] {
@@ -294,4 +295,55 @@ trait Formatters {
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
     }
+
+  private[mappings] def mandatoryPostcodeFormatter(
+      requiredKey: String,
+      lengthKey: String,
+      invalidKey: String,
+      regex: String,
+      invalidCharKey: String,
+      validCharRegex: String
+  ): Formatter[String] =
+    new Formatter[String] {
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
+        val postCode          = postCodeDataTransform(data.get(key))
+        val maxLengthPostcode = 10
+
+        postCode match {
+          case Some(postCode) if postCode.length > maxLengthPostcode            => Left(Seq(FormError(key, lengthKey)))
+          case Some(postCode) if !stripSpaces(postCode).matches(validCharRegex) =>
+            Left(Seq(FormError(key, invalidCharKey)))
+          case Some(postcode) if !stripSpaces(postcode).matches(regex)          => Left(Seq(FormError(key, invalidKey)))
+          case Some(postcode)                                                   => Right(validPostCodeFormat(stripSpaces(postcode)))
+          case _                                                                => Left(Seq(FormError(key, requiredKey)))
+        }
+      }
+
+      override def unbind(key: String, value: String): Map[String, String] =
+        Map(key -> value)
+
+    }
 }
+
+protected def validatedOptionalTextFormatter(
+    invalidKey: String,
+    lengthKey: String,
+    regex: String,
+    length: Int
+): Formatter[Option[String]] =
+  new Formatter[Option[String]] {
+
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] =
+      data.get(key) match {
+        case Some(str) if str.trim.length == 0 => Right(None)
+        case Some(str) if !str.matches(regex)  => Left(Seq(FormError(key, invalidKey)))
+        case Some(str) if str.length > length  => Left(Seq(FormError(key, lengthKey)))
+        case Some(str)                         => Right(Some(str))
+        case _                                 => Right(None)
+      }
+
+    override def unbind(key: String, value: Option[String]): Map[String, String] =
+      Map(key -> value.getOrElse(""))
+
+  }

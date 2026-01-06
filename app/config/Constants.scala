@@ -25,6 +25,13 @@ object Constants {
   val validBusinessNameMinLength: Int = 1
   val validEmailMaxLength: Int        = 132
 
+  val crownDependencyPostcodeRegex = "^(?:(GY|JE)[0-9]{1,2} ?[0-9][A-Z]{2}|IM[0-9]{1,2} ?[0-9][A-Z]{2})$"
+
+  final val addressRegex: String   = "^[A-Za-z0-9 &.,'\\\\-]*$"
+  final val postcodeRegex: String  = "^[A-Za-z0-9 ]*$"
+  final val addressMaxLength: Int  = 35
+  final val postcodeMaxLength: Int = 10
+
   final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
   final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
   final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
@@ -34,6 +41,9 @@ object Constants {
   final val ninoRegex       =
     "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
 
+  final val regexPostcode        = """^[A-Za-z]{1,2}\d[A-Za-z0-9]?\s?\d[A-Za-z]{2}$"""
+  final val postCodeAllowedChars = """^[A-Za-z0-9 ]*$"""
+
   private val utrLengthTen: Int      = 10
   private val utrLengthThirteen: Int = 13
   val maxPhoneLength: Int            = 24
@@ -41,4 +51,5 @@ object Constants {
   final val acceptedUtrLengths = Seq(utrLengthTen, utrLengthThirteen)
 
   val ukTimeZoneStringId = "Europe/London"
+
 }

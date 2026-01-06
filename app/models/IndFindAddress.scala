@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package viewmodels
+package models
 
-package object govuk {
+import play.api.libs.json._
 
-  object all
-      extends ImplicitConversions
-      with BackLinkFluency
-      with ButtonFluency
-      with CheckboxFluency
-      with DateFluency
-      with ErrorSummaryFluency
-      with FieldsetFluency
-      with HintFluency
-      with InputFluency
-      with LabelFluency
-      with RadiosFluency
-      with SelectFluency
-      with SummaryListFluency
-      with TagFluency
+case class IndFindAddress(postcode: String, propertyNameOrNumber: Option[String])
+
+object IndFindAddress {
+
+  implicit val format: OFormat[IndFindAddress] = Json.format
 }

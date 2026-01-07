@@ -123,10 +123,10 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
           val result  = route(application, request).value
 
-          status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.PlaceholderController
-            .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-            .url
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(
+            result
+          ).value        mustEqual controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad().url
         }
       }
     }

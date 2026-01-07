@@ -17,7 +17,6 @@
 package controllers.organisation
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.routes
 import models.{OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
@@ -27,10 +26,15 @@ import views.html.organisation.BusinessNotIdentifiedView
 
 class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
-  val testUtrString    = "1234567890"
-  val testUtrObject    = UniqueTaxpayerReference(testUtrString)
-  val testBusinessName = "Test Corp"
-  val testOrgType      = OrganisationRegistrationType.LimitedCompany
+  val testUtrString                             = "1234567890"
+  val testUtrObject                             = UniqueTaxpayerReference(testUtrString)
+  val testBusinessName                          = "Test Corp"
+  val testOrgType: OrganisationRegistrationType = OrganisationRegistrationType.LimitedCompany
+
+  val testCompaniesHouseSearchUrl: String = "https://find-and-update.company-information.service.gov.uk/"
+  val testRegistrationStartUrl: String    = controllers.routes.IndexController.onPageLoad().url
+  val testFindUTRUrl: String              = "https://www.gov.uk/find-utr-number"
+  val testAeoiEmailAddress: String        = "aeoi.enquiries@hmrc.gov.uk"
 
   val userAnswersWithData: UserAnswers = emptyUserAnswers
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
@@ -54,16 +58,18 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view      = application.injector.instanceOf[BusinessNotIdentifiedView]
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val view = application.injector.instanceOf[BusinessNotIdentifiedView]
 
         status(result) mustEqual OK
 
         contentAsString(result) mustEqual view(
           testUtrString,
           testBusinessName,
-          Some(testOrgType),
-          appConfig
+          testOrgType,
+          testCompaniesHouseSearchUrl,
+          testRegistrationStartUrl,
+          testFindUTRUrl,
+          testAeoiEmailAddress
         )(request, messages(application)).toString
       }
     }
@@ -72,6 +78,9 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
       val userAnswersWithoutUtr = emptyUserAnswers
         .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+        .success
+        .value
+        .set(OrganisationRegistrationTypePage, testOrgType)
         .success
         .value
 
@@ -91,6 +100,56 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
       val userAnswersWithoutName = emptyUserAnswers
         .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .success
+        .value
+        .set(OrganisationRegistrationTypePage, testOrgType)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithoutName)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if Business type is missing" in {
+
+      val userAnswersWithoutName = emptyUserAnswers
+        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithoutName)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if Business type is Sole Trader" in {
+
+      val userAnswersWithoutName = emptyUserAnswers
+        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+        .success
+        .value
+        .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
         .success
         .value
 

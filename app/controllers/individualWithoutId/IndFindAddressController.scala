@@ -19,12 +19,12 @@ package controllers.individualWithoutId
 import connectors.AddressLookupConnector
 import controllers.actions.*
 import controllers.routes
-import forms.IndFindAddressFormProvider
-import models.requests.SearchByPostcodeRequest
+import forms.individualWithoutId.IndFindAddressFormProvider
+import models.requests.{DataRequest, SearchByPostcodeRequest}
 import models.responses.AddressResponse
 import models.{IndFindAddress, Mode}
 import navigation.Navigator
-import pages.IndFindAddressPage
+import pages.individualWithoutId.IndFindAddressPage
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -112,30 +112,15 @@ class IndFindAddressController @Inject() (
     if (addresses.size == 1) {
       Redirect(
         routes.PlaceholderController.onPageLoad(
-          s"Must redirect to /register/individual-without-id ${addresses.head.address}"
+          s"Must redirect to /register/individual-without-id/review-address (CARF-173)"
         )
       )
     } else {
-      logger.error(s"choose-address with formatter ${formatAddressResponses(addresses.take(5))}")
-      Redirect(routes.PlaceholderController.onPageLoad(s" First address ${addresses.head.address}"))
+      Redirect(
+        routes.PlaceholderController.onPageLoad(
+          s"Must redirect to /register/individual-without-id/choose-address (CARF-312)"
+        )
+      )
     }
-
-  private def formatAddressResponses(responses: Seq[AddressResponse]): String =
-    s"Total responses = ${responses.length}\n\n\n" +
-      responses.zipWithIndex
-        .map { case (resp, idx) =>
-          val a = resp.address
-
-          s"""
-             |#${idx + 1}
-             |ID: ${resp.id}
-             |Address:
-             |  ${a.lines.mkString("\n  ")}
-             |Town: ${a.town}
-             |Postcode: ${a.postcode}
-             |Country: ${a.country.name} (${a.country.code})
-             |""".stripMargin.trim
-        }
-        .mkString("\n\n---\n\n")
 
 }

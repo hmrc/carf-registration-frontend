@@ -16,7 +16,6 @@
 
 package forms.individualWithoutId
 
-import forms.IndFindAddressFormProvider
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.FormError
 
@@ -35,7 +34,8 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
 
     behave like fieldThatBindsValidData(
       form,
-      fieldName
+      fieldName,
+      postcodeStringGen
     )
 
     behave like fieldWithMaxLengthAlphanumeric(

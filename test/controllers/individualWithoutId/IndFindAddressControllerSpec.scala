@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individualWithoutId
 
 import base.SpecBase
-import forms.IndFindAddressFormProvider
+import connectors.AddressLookupConnector
+import controllers.routes
+import forms.individualWithoutId.IndFindAddressFormProvider
+import models.requests.SearchByPostcodeRequest
+import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{atLeastOnce, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IndFindAddressPage
+import pages.individualWithoutId.IndFindAddressPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -31,7 +35,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.IndFindAddressView
+import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.Future
 
@@ -42,13 +46,68 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
   val formProvider: IndFindAddressFormProvider = new IndFindAddressFormProvider()
   val form: Form[IndFindAddress]               = formProvider()
 
-  lazy val indFindAddressRoute: String = routes.IndFindAddressController.onPageLoad(NormalMode).url
+  lazy val indFindAddressRoute: String =
+    controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode).url
+
+  val searchByPostcodeValidResponse: Seq[AddressResponse] = Seq(
+    AddressResponse(
+      id = "Test-Id",
+      address = AddressRecord(
+        lines = List("Address-Line1", "Address-Line2"),
+        town = "Bristol",
+        postcode = "BS6 1XX",
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    )
+  )
+
+  val oneAddress: Seq[AddressResponse] = Seq(
+    AddressResponse(
+      id = "123",
+      address = AddressRecord(
+        lines = List("1 test", "1 Test Street", "Testington"),
+        town = " Test Town",
+        postcode = "TE1 1ST",
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    )
+  )
+
+  val addresses: Seq[AddressResponse] = Seq(
+    AddressResponse(
+      id = "123",
+      address = AddressRecord(
+        lines = List("1 test", "1 Test Street", "Testington"),
+        town = "South Test Town",
+        postcode = "TE1 1ST",
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    ),
+    AddressResponse(
+      id = "124",
+      address = AddressRecord(
+        lines = List("2 test", "2 Test Street", "Testington"),
+        town = "East Test Town",
+        postcode = "TE1 1ST",
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    ),
+    AddressResponse(
+      id = "125",
+      address = AddressRecord(
+        lines = List("1 test", "2 Test Street", "Testington"),
+        town = "North Townshire",
+        postcode = "TE1 1ST",
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    )
+  )
 
   val userAnswers = UserAnswers(
     userAnswersId,
     Json.obj(
       IndFindAddressPage.toString -> Json.obj(
-        "postcode"             -> "value 1",
+        "postcode"             -> "AA1 1AA",
         "propertyNameOrNumber" -> "value 2"
       )
     )
@@ -84,32 +143,74 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(IndFindAddress("value 1", Some("value 2"))), NormalMode)(
+        contentAsString(result) mustEqual view(form.fill(IndFindAddress("AA1 1AA", Some("value 2"))), NormalMode)(
           request,
           messages(application)
         ).toString
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when postcode has returned one address" in {
+
+      val onwardRouteOneAddress = routes.PlaceholderController.onPageLoad(
+        s"Must redirect to /register/individual-without-id/review-address (CARF-173)"
+      )
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockAddressLookupConnector.searchByPostcode(any())(any()))
+        .thenReturn(Future.successful(oneAddress))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            bind[AddressLookupConnector].toInstance(mockAddressLookupConnector),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRouteOneAddress))
           )
           .build()
 
       running(application) {
         val request =
           FakeRequest(POST, indFindAddressRoute)
-            .withFormUrlEncodedBody(("postcode", "value 1"), ("propertyNameOrNumber", "value 2"))
+            .withFormUrlEncodedBody(("postcode", "TE1 1ST"), ("propertyNameOrNumber", "value 2"))
 
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual onwardRouteOneAddress.url
+        verify(mockAddressLookupConnector, times(1)).searchByPostcode(any())(any())
+
+      }
+    }
+
+    "must redirect to the next page when postcode has returned more than one addresses" in {
+
+      val onwardRouteMultipleAddresses = routes.PlaceholderController.onPageLoad(
+        s"Must redirect to /register/individual-without-id/choose-address (CARF-312)"
+      )
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockAddressLookupConnector.searchByPostcode(any())(any()))
+        .thenReturn(Future.successful(addresses))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[AddressLookupConnector].toInstance(mockAddressLookupConnector),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRouteMultipleAddresses))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indFindAddressRoute)
+            .withFormUrlEncodedBody(("postcode", "TE1 1ST"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteMultipleAddresses.url
+        verify(mockAddressLookupConnector, times(2)).searchByPostcode(any())(any())
+
       }
     }
 

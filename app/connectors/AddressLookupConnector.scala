@@ -18,20 +18,17 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.AddressResponse
 import play.api.Logging
 import play.api.http.Status.OK
-import play.api.i18n.Lang.logger
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
@@ -58,11 +55,15 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
           val message = s"Address Lookup failed with status ${response.status} Response body: ${response.body}"
           Future.failed(new HttpException(message, response.status))
       }
-      .recoverWith(logException)
+      .recover {
+        case e: UpstreamErrorResponse =>
+          logger.warn(
+            s"[AddressLookupConnector] [searchByPostcode] - Upstream error: ${e.reportAs} message: ${e.getMessage}"
+          )
+          Nil
+        case e                        =>
+          logger.warn(s"[AddressLookupConnector] [searchByPostcode] - Error: ${e.getMessage}")
+          Nil
+      }
 
-}
-
-private def logException: PartialFunction[Throwable, Future[Seq[AddressResponse]]] = { case t: Throwable =>
-  logger.error("Exception in AddressLookup", t)
-  Future.failed(t)
 }

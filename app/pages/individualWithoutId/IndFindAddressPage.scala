@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.individualWithoutId
 
 import models.IndFindAddress
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object IndFindAddressPage extends QuestionPage[IndFindAddress] {

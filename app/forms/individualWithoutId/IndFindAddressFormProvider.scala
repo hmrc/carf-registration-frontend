@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individualWithoutId
 
-import javax.inject.Inject
-import forms.mappings.Mappings
-import play.api.data.Form
-import play.api.data.Forms.*
-import models.IndFindAddress
 import config.Constants
 import config.Constants.{postCodeAllowedChars, regexPostcode}
+import forms.mappings.Mappings
+import models.IndFindAddress
+import play.api.data.Form
+import play.api.data.Forms.*
+
+import javax.inject.Inject
 
 class IndFindAddressFormProvider @Inject() extends Mappings {
 

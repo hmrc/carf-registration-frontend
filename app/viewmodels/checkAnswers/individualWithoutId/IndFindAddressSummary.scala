@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individualWithoutId
 
 import models.{CheckMode, UserAnswers}
-import pages.IndFindAddressPage
+import pages.individualWithoutId.IndFindAddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent

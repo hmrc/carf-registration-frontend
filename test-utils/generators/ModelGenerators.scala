@@ -75,8 +75,8 @@ trait ModelGenerators {
   implicit lazy val arbitraryIndFindAddress: Arbitrary[IndFindAddress] =
     Arbitrary {
       for {
-        Postcode <- arbitrary[String]
-        PropertyNameOrNumber <- arbitrary[String]
-      } yield IndFindAddress(Postcode, Some(PropertyNameOrNumber))
+        postcode             <- arbitrary[String]
+        propertyNameOrNumber <- arbitrary[String]
+      } yield IndFindAddress(postcode, Some(propertyNameOrNumber))
     }
 }

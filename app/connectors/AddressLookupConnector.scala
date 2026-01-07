@@ -18,6 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.AddressResponse
 import play.api.Logging
@@ -29,6 +30,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
@@ -38,32 +40,27 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
 
   def searchByPostcode(
       request: SearchByPostcodeRequest
-  )(implicit hc: HeaderCarrier): Future[Seq[AddressResponse]] =
+  )(implicit hc: HeaderCarrier): Future[Either[ApiError, Seq[AddressResponse]]] =
     http
       .post(searchByPostcodeUrl)
       .setHeader("X-Hmrc-Origin" -> "CARF")
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
-      .flatMap {
+      .map {
         case response if response.status equals OK =>
-          Future.successful(
-            response.json
-              .as[Seq[AddressResponse]]
-          )
-
-        case response =>
-          val message = s"Address Lookup failed with status ${response.status} Response body: ${response.body}"
-          Future.failed(new HttpException(message, response.status))
-      }
-      .recover {
-        case e: UpstreamErrorResponse =>
+          Try(response.json.as[Seq[AddressResponse]]) match {
+            case Success(data)      =>
+              Right(data)
+            case Failure(exception) =>
+              logger.warn(
+                s"Error parsing response as AddressResponse with uri: $searchByPostcodeUrl"
+              )
+              Left(ApiError.JsonValidationError)
+          }
+        case response                              =>
           logger.warn(
-            s"[AddressLookupConnector] [searchByPostcode] - Upstream error: ${e.reportAs} message: ${e.getMessage}"
+            s"Unexpected response: status code: ${response.status}, with message: ${response.body} from uri: $searchByPostcodeUrl"
           )
-          Nil
-        case e                        =>
-          logger.warn(s"[AddressLookupConnector] [searchByPostcode] - Error: ${e.getMessage}")
-          Nil
+          Left(ApiError.InternalServerError)
       }
-
 }

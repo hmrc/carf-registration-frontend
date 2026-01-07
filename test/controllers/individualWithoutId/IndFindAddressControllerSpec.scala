@@ -17,7 +17,10 @@
 package controllers.individualWithoutId
 
 import base.SpecBase
-import connectors.AddressLookupConnector
+import services.AddressLookupService
+
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.requests.SearchByPostcodeRequest
@@ -25,7 +28,8 @@ import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{atLeastOnce, times, verify, when}
+import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.IndFindAddressPage
 import play.api.data.Form
@@ -33,13 +37,13 @@ import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import repositories.SessionRepository
 import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.Future
 
-class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
+class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -48,6 +52,12 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val indFindAddressRoute: String =
     controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode).url
+
+  override def beforeEach(): Unit = {
+    reset(mockAddressLookupService)
+    reset(mockSessionRepository)
+    super.beforeEach()
+  }
 
   val searchByPostcodeValidResponse: Seq[AddressResponse] = Seq(
     AddressResponse(
@@ -157,13 +167,13 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
       )
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockAddressLookupConnector.searchByPostcode(any())(any()))
+      when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
         .thenReturn(Future.successful(oneAddress))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[AddressLookupConnector].toInstance(mockAddressLookupConnector),
+            bind[AddressLookupService].toInstance(mockAddressLookupService),
             bind[Navigator].toInstance(new FakeNavigator(onwardRouteOneAddress))
           )
           .build()
@@ -177,8 +187,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRouteOneAddress.url
-        verify(mockAddressLookupConnector, times(1)).searchByPostcode(any())(any())
-
+        verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any())
       }
     }
 
@@ -189,13 +198,13 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
       )
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockAddressLookupConnector.searchByPostcode(any())(any()))
+      when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
         .thenReturn(Future.successful(addresses))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[AddressLookupConnector].toInstance(mockAddressLookupConnector),
+            bind[AddressLookupService].toInstance(mockAddressLookupService),
             bind[Navigator].toInstance(new FakeNavigator(onwardRouteMultipleAddresses))
           )
           .build()
@@ -209,8 +218,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRouteMultipleAddresses.url
-        verify(mockAddressLookupConnector, times(2)).searchByPostcode(any())(any())
-
+        verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
       }
     }
 

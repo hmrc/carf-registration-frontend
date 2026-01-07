@@ -18,6 +18,7 @@ package base
 
 import config.Constants.ukTimeZoneStringId
 import connectors.AddressLookupConnector
+import services.AddressLookupService
 import controllers.actions.*
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
@@ -73,6 +74,7 @@ trait SpecBase
   final val mockDataRetrievalAction: DataRetrievalAction   = mock[DataRetrievalAction]
   final val mockCtUtrRetrievalAction: CtUtrRetrievalAction = mock[CtUtrRetrievalAction]
   final val mockAddressLookupConnector                     = mock[AddressLookupConnector]
+  final val mockAddressLookupService                       = mock[AddressLookupService]
 
   override def beforeEach(): Unit = {
     reset(mockSessionRepository, mockDataRetrievalAction, mockCtUtrRetrievalAction)

@@ -16,11 +16,9 @@
 
 package controllers.individualWithoutId
 
-import connectors.AddressLookupConnector
 import controllers.actions.*
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
-import models.requests.{DataRequest, SearchByPostcodeRequest}
 import models.responses.AddressResponse
 import models.{IndFindAddress, Mode}
 import navigation.Navigator
@@ -30,6 +28,7 @@ import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.AddressLookupService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individualWithoutId.IndFindAddressView
 
@@ -44,7 +43,7 @@ class IndFindAddressController @Inject() (
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     formProvider: IndFindAddressFormProvider,
-    addressLookupConnector: AddressLookupConnector,
+    addressLookupService: AddressLookupService,
     val controllerComponents: MessagesControllerComponents,
     view: IndFindAddressView
 )(implicit ec: ExecutionContext)
@@ -73,25 +72,9 @@ class IndFindAddressController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
-            addressLookupConnector
-              .searchByPostcode(SearchByPostcodeRequest(postcode = value.postcode, filter = value.propertyNameOrNumber))
+            addressLookupService
+              .postcodeSearch(value.postcode, value.propertyNameOrNumber)
               .flatMap {
-                case Nil if value.propertyNameOrNumber.isDefined =>
-                  addressLookupConnector
-                    .searchByPostcode(SearchByPostcodeRequest(postcode = value.postcode, filter = None))
-                    .flatMap {
-                      case Nil =>
-                        val formError =
-                          formReturned.withError(FormError("postcode", List("indFindAddress.error.postcode.notFound")))
-                        Future.successful(BadRequest(view(formError, mode)))
-
-                      case addresses =>
-                        for {
-                          updatedAnswers <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
-                          _              <- sessionRepository.set(updatedAnswers)
-                        } yield redirectBasedOnAddressCount(addresses, mode)
-                    }
-
                 case Nil =>
                   val formError =
                     formReturned.withError(FormError("postcode", List("indFindAddress.error.postcode.notFound")))

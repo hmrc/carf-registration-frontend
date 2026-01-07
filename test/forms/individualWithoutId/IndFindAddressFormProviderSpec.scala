@@ -25,17 +25,17 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
 
   ".postcode" - {
 
-    val fieldName      = "postcode"
-    val requiredKey    = "indFindAddress.error.postcode.required"
-    val lengthKey      = "indFindAddress.error.postcode.length"
-    val invalidKey     = "indFindAddress.error.postcode.invalid"
-    val invalidCharKey = "indFindAddress.error.postcode.chars"
-    val maxLength      = 10
+    val fieldName     = "postcode"
+    val requiredKey   = "indFindAddress.error.postcode.required"
+    val lengthKey     = "indFindAddress.error.postcode.length"
+    val invalidKey    = "indFindAddress.error.postcode.invalid"
+    val invalidFormat = "indFindAddress.error.postcode.invalidFormat"
+    val maxLength     = 10
 
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      postcodeStringGen
+      validPostcodes
     )
 
     behave like fieldWithMaxLengthAlphanumeric(
@@ -62,17 +62,40 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       "!#2",
-      FormError(fieldName, invalidCharKey),
-      Some("chars")
+      FormError(fieldName, invalidFormat),
+      Some("format")
     )
   }
 
   ".propertyNameOrNumber" - {
 
-    val fieldName   = "propertyNameOrNumber"
-    val requiredKey = "indFindAddress.error.propertyNameOrNumber"
-    val lengthKey   = "indFindAddress.error.propertyNameOrNumber"
-    val maxLength   = 100
+    val fieldName = "propertyNameOrNumber"
+    val lengthKey = "indFindAddress.error.propertyNameOrNumber.length"
+    val maxLength = 35
+
+    "must bind valid data" in {
+      forAll(stringsWithMaxLength(maxLength) -> "validString") { string =>
+        val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> string))
+        result.errors.filter(_.key == fieldName) mustBe empty
+      }
+    }
+
+    "must bind an empty string as None" in {
+      val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> ""))
+      result.value.flatMap(_.propertyNameOrNumber) mustBe None
+    }
+
+    "must not bind when field is missing" in {
+      val result = form.bind(Map("postcode" -> "SW1A 1AA"))
+      result.value.flatMap(_.propertyNameOrNumber) mustBe None
+    }
+
+    "must not bind strings longer than 35 characters" in {
+      forAll(stringsLongerThan(maxLength) -> "longString") { string =>
+        val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> string))
+        result.errors must contain only FormError(fieldName, lengthKey, Seq(maxLength))
+      }
+    }
 
     behave like fieldThatBindsValidData(
       form,
@@ -87,10 +110,5 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
     )
 
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
   }
 }

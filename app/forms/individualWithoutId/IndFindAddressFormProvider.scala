@@ -27,8 +27,7 @@ import javax.inject.Inject
 
 class IndFindAddressFormProvider @Inject() extends Mappings {
 
-  val propertyNameOrNumberLength = 35
-  final val apiAddressRegex      = """^[A-Za-z0-9 \-,.&']*$"""
+  private val propertyNameOrNumberLength = 35
 
   def apply(): Form[IndFindAddress] =
     Form(
@@ -43,11 +42,10 @@ class IndFindAddressFormProvider @Inject() extends Mappings {
             postCodeAllowedChars
           ),
         "propertyNameOrNumber" ->
-          validatedOptionalText(
-            "indFindAddress.error.propertyNameOrNumber.required",
-            "indFindAddress.error.propertyNameOrNumber.length",
-            apiAddressRegex,
-            propertyNameOrNumberLength
+          optional(
+            text().verifying(
+              maxLength(propertyNameOrNumberLength, "indFindAddress.error.propertyNameOrNumber.length")
+            )
           )
       )(IndFindAddress.apply)(x => Some((x.postcode, x.propertyNameOrNumber)))
     )

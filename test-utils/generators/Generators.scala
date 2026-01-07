@@ -137,4 +137,20 @@ trait Generators extends ModelGenerators {
 
     } yield s"$part.$part@$part.$part"
 
+  def validPostcodes: Gen[String] =
+    for {
+      areaLength <- Gen.choose(1, 2)
+      area       <- Gen.listOfN(areaLength, Gen.alphaChar).map(_.mkString)
+
+      districtLength <- Gen.choose(1, 2)
+      district       <- Gen.listOfN(districtLength, Gen.choose(0, 9)).map(_.mkString)
+
+      subDistrict <- if (districtLength == 1) Gen.oneOf(Gen.const(""), Gen.alphaChar.map(_.toString)) else Gen.const("")
+
+      space <- Gen.oneOf("", " ")
+
+      sector <- Gen.choose(0, 9)
+      unit   <- Gen.listOfN(2, Gen.alphaChar).map(_.mkString)
+    } yield s"$area$district$subDistrict$space$sector$unit"
+
 }

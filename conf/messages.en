@@ -429,7 +429,6 @@ indFindAddress.error.postcode.invalidFormat = Enter postcode in the right format
 indFindAddress.error.postcode.notFound = We could not find any addresses for this postcode. Enter a known postcode, or enter the address manually
 indFindAddress.postcode.change.hidden = Postcode
 
-indFindAddress.error.propertyNameOrNumber.required = Enter Property name or number
 indFindAddress.error.propertyNameOrNumber.length = Property name or number must be 35 characters or less
 indFindAddress.checkYourAnswersLabel = Find your address
 indFindAddress.enterAddressManualLink = Enter the address manually

@@ -134,7 +134,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       val mockRegistrationService = mock[RegistrationService]
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.successful(Right(validIndividualDetails)))
+      ).thenReturn(Future.successful(Some(validIndividualDetails)))
 
       val application =
         applicationBuilder(userAnswers = Some(buildUserAnswers(nino = Some(validNino), name = Some(validName))))
@@ -156,7 +156,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       val mockRegistrationService = mock[RegistrationService]
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.successful(Left(ApiError.NotFoundError)))
+      ).thenReturn(Future.successful(None))
 
       val application = applicationBuilder(userAnswers =
         Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))

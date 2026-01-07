@@ -166,10 +166,15 @@ POST        /register/individual-without-id/name                          contro
 GET         /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/business-without-id/business-address                 controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = NormalMode)  
-POST        /register/business-without-id/business-address                 controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = NormalMode)  
-GET         /register/business-without-id/change-business-address          controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = CheckMode)  
-POST        /register/business-without-id/change-business-address          controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-phone                             controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-phone                             controllers.individual.IndividualPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/business-without-id/business-address                controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-without-id/business-address                controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/business-without-id/change-business-address         controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/business-without-id/change-business-address         controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/second-contact-phone                                controllers.organisation.OrganisationSecondContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/second-contact-phone                                controllers.organisation.OrganisationSecondContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)

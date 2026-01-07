@@ -16,17 +16,48 @@
 
 package models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, Writes}
 
-case class RegisterIndividualWithIdRequest(
+sealed trait RegisterIndividualWithIdRequest {
+  val requiresNameMatch: Boolean
+  val IDNumber: String
+  val IDType: String
+  val firstName: String
+  val lastName: String
+}
+
+object RegisterIndividualWithIdRequest {
+  implicit val writes: Writes[RegisterIndividualWithIdRequest] = Writes {
+    case r: RegisterIndividualWithNinoRequest =>
+      Json.toJson(r)(RegisterIndividualWithNinoRequest.format)
+
+    case r: RegisterIndividualWithUtrRequest =>
+      Json.toJson(r)(RegisterIndividualWithUtrRequest.format)
+  }
+}
+
+case class RegisterIndividualWithNinoRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
     IDType: String,
     dateOfBirth: String,
     firstName: String,
     lastName: String
-)
+) extends RegisterIndividualWithIdRequest
 
-object RegisterIndividualWithIdRequest {
-  implicit val format: OFormat[RegisterIndividualWithIdRequest] = Json.format[RegisterIndividualWithIdRequest]
+object RegisterIndividualWithNinoRequest {
+  implicit val format: OFormat[RegisterIndividualWithNinoRequest] =
+    Json.format[RegisterIndividualWithNinoRequest]
+}
+
+case class RegisterIndividualWithUtrRequest(
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String,
+    firstName: String,
+    lastName: String
+) extends RegisterIndividualWithIdRequest
+
+object RegisterIndividualWithUtrRequest {
+  implicit val format: OFormat[RegisterIndividualWithUtrRequest] = Json.format[RegisterIndividualWithUtrRequest]
 }

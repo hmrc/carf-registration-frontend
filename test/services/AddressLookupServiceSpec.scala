@@ -226,6 +226,28 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         result               mustBe a[RuntimeException]
         result.getMessage mustEqual "Connection failed"
       }
+
+      "must return empty sequence when initial search with property filter returns empty and fallback returns API error" in {
+        val service = new AddressLookupService(mockAddressLookupConnector)
+
+        val apiError = ApiError.BadRequestError
+        when(
+          mockAddressLookupConnector
+            .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 555"))))(any())
+        )
+          .thenReturn(Future.successful(Right(Seq.empty)))
+        when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
+          .thenReturn(Future.successful(Left(apiError)))
+
+        val result = service.postcodeSearch("TE1 1ST", Some("Flat 555")).futureValue
+
+        result mustEqual Seq.empty
+        verify(mockAddressLookupConnector, times(1))
+          .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 555"))))(any())
+        verify(mockAddressLookupConnector, times(1))
+          .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
+      }
+
     }
   }
 }

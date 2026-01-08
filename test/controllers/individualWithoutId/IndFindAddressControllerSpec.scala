@@ -17,18 +17,14 @@
 package controllers.individualWithoutId
 
 import base.SpecBase
-import services.AddressLookupService
-
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.IndFindAddressPage
@@ -37,8 +33,9 @@ import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.AddressLookupService
 import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.Future
@@ -271,5 +268,37 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must return Bad Request with error when postcode search returns no addresses" in {
+
+      when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
+        .thenReturn(Future.successful(Nil))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[AddressLookupService].toInstance(mockAddressLookupService)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indFindAddressRoute)
+            .withFormUrlEncodedBody(("postcode", "TE1 1ST"))
+
+        val view = application.injector.instanceOf[IndFindAddressView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+
+        val boundForm     = form.bind(Map("postcode" -> "TE1 1ST"))
+        val formWithError = boundForm.withError("postcode", "indFindAddress.error.postcode.notFound")
+
+        contentAsString(result) mustEqual view(formWithError, NormalMode)(request, messages(application)).toString
+
+        verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
+      }
+    }
+
   }
 }

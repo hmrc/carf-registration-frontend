@@ -48,4 +48,6 @@ object Constants {
   final val acceptedUtrLengths = Seq(utrLengthTen, utrLengthThirteen)
 
   val ukTimeZoneStringId = "Europe/London"
+
+  final val notReal0808PhoneNumber = "+448081570192"
 }

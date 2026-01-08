@@ -238,6 +238,7 @@ trait Formatters {
       requiredKey: String,
       invalidKey: String,
       lengthKey: String,
+      notRealPhoneNumberKey: String,
       args: Seq[Any] = Seq.empty
   ): Formatter[String] =
     new Formatter[String] {
@@ -257,7 +258,16 @@ trait Formatters {
               try {
                 // Using "GB" tells libphonenumber to assume GB if no country code is added
                 val number = phoneUtil.parse(value, "GB")
-                if (phoneUtil.isPossibleNumber(number)) Right(value) else Left(Seq(FormError(key, invalidKey, args)))
+
+                // isPossible  AND isValid          :   all OK.
+                // isPossible  AND NOT isValid      :   not real.
+                // NOT isPossible AND <any isValid> :   invalid
+
+                (phoneUtil.isPossibleNumber(number), phoneUtil.isValidNumber(number)) match {
+                  case (true, true)  => Right(value)
+                  case (true, false) => Left(Seq(FormError(key, notRealPhoneNumberKey, args)))
+                  case (false, _)    => Left(Seq(FormError(key, invalidKey, args)))
+                }
               } catch {
                 case _: NumberParseException => Left(Seq(FormError(key, invalidKey, args)))
               }

@@ -79,7 +79,7 @@ private[mappings] class LocalDateFormatter(
 
   private def collectErrors(key: String, cleanedData: Map[String, String], fields: BoundDateFields): Seq[FormError] = {
     val missingFieldErrors = findMissingFieldErrors(key, cleanedData)
-    val validationErrors   = findValidationErrors(fields)
+    val validationErrors   = findValidationErrors(key, fields)
     val realDateError      = findRealDateError(key, fields)
 
     missingFieldErrors ++ validationErrors ++ realDateError
@@ -97,10 +97,22 @@ private[mappings] class LocalDateFormatter(
     if (missing.isEmpty) Seq.empty else Seq(handleMissingFields(key, missing))
   }
 
-  private def findValidationErrors(fields: BoundDateFields): Seq[FormError] =
-    fields.day.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.day"))) ++
-      fields.month.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.month"))) ++
-      fields.year.left.toSeq.flatten.map(_.copy(invalidKey, args = Seq("date.error.year")))
+  private def findValidationErrors(key: String, fields: BoundDateFields): Seq[FormError] = {
+    val errorFields = Seq(
+      if (fields.day.isLeft) Some("day") else None,
+      if (fields.month.isLeft) Some("month") else None,
+      if (fields.year.isLeft) Some("year") else None
+    ).flatten
+
+    errorFields match {
+      case Nil          =>
+        Seq.empty
+      case field :: Nil =>
+        Seq(FormError(s"$key.$field", notRealDateKey))
+      case _            =>
+        Seq(FormError(key, notRealDateKey, Seq("date.error.day", "date.error.month", "date.error.year")))
+    }
+  }
 
   private def findRealDateError(key: String, fields: BoundDateFields): Seq[FormError] = {
     val maybeDay   = fields.day.toOption
@@ -134,23 +146,27 @@ private[mappings] class LocalDateFormatter(
   private def validateRealDate(key: String, day: Int, month: Int, year: Int): Seq[FormError] =
     Try(LocalDate.of(year, month, day)) match {
       case Failure(_)                               =>
-        val invalidFields =
-          Seq(
-            if (day < 1 || day > 31) Some("date.error.day") else None,
-            if (month < 1 || month > 12) Some("date.error.month") else None,
-            if (year < minDate.getYear || year > maxDate.getYear + 1000) Some("date.error.year") else None
-          ).flatten match {
-            case Nil => Seq("date.error.day", "date.error.month", "date.error.year")
-            case s   => s
-          }
-        Seq(FormError(key, notRealDateKey, invalidFields ++ args))
+        val invalids = Seq(
+          if (day < 1 || day > 31) Some("date.error.day") else None,
+          if (month < 1 || month > 12) Some("date.error.month") else None,
+          if (year < minDate.getYear || year > maxDate.getYear + 1000) Some("date.error.year") else None
+        ).flatten
+
+        val highlightArgs =
+          if (invalids.size > 1)
+            Seq("date.error.day", "date.error.month", "date.error.year")
+          else if (invalids.size == 1)
+            invalids
+          else
+            Seq("date.error.day", "date.error.month", "date.error.year")
+
+        Seq(FormError(key, notRealDateKey, highlightArgs ++ args))
       case Success(date) if !date.isBefore(maxDate) =>
         Seq(
           FormError(
             key,
             futureDateKey,
-            Seq(formatDateToString(maxDate)) ++
-              Seq("date.error.day", "date.error.month", "date.error.year") ++ args
+            Seq(formatDateToString(maxDate), "date.error.day", "date.error.month", "date.error.year") ++ args
           )
         )
       case Success(date) if date.isBefore(minDate)  =>

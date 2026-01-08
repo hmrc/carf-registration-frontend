@@ -178,9 +178,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCheckYourAnswersHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.indContactDetails(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -198,9 +198,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCheckYourAnswersHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(None)
-          when(mockCheckYourAnswersHelper.indContactDetails(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -209,10 +209,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(
+          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(
             any()
           )
-          verify(mockCheckYourAnswersHelper, times(1)).indContactDetails(eqTo(indWithNinoUserAnswers))(
+          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(
             any()
           )
         }
@@ -221,9 +221,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCheckYourAnswersHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.indContactDetails(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(None)
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -232,10 +232,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetails(eqTo(indWithNinoUserAnswers))(
+          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(
             any()
           )
-          verify(mockCheckYourAnswersHelper, times(1)).indContactDetails(eqTo(indWithNinoUserAnswers))(
+          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(
             any()
           )
         }

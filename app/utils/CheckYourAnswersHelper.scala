@@ -36,7 +36,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
       .row(userAnswers)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
 
-  def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+  def indWithNinoYourDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {
       registeringAs     <- IndividualRegistrationTypeSummary.row(userAnswers)
       haveNinoRow       <- HaveNiNumberSummary.row(userAnswers)
@@ -119,12 +119,11 @@ class CheckYourAnswersHelper @Inject() extends Logging {
     }.flatten
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.secondContact"), _))
 
-  def indContactDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+  def indContactDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {
       email        <- IndividualEmailSummary.row(userAnswers)
       havePhoneRow <- IndividualHavePhoneSummary.row(userAnswers)
       havePhone    <- userAnswers.get(IndividualHavePhonePage)
-      phone <- IndividualPhoneNumberSummary.row(userAnswers)
     } yield
       if (havePhone) {
         IndividualPhoneNumberSummary.row(userAnswers).map(Seq(email, havePhoneRow, _))

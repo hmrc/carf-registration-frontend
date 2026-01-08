@@ -17,12 +17,16 @@
 package utils
 
 import base.SpecBase
-import models.{Address, IsThisYourBusinessPageDetails, UserAnswers}
-import pages.IsThisYourBusinessPage
+import models.RegistrationType.{Individual, SoleTrader}
+import models.{Address, IsThisYourBusinessPageDetails, Name, UserAnswers}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.organisation.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import viewmodels.Section
+
+import java.time.LocalDate
 
 class CheckYourAnswersHelperSpec extends SpecBase {
 
@@ -65,6 +69,91 @@ class CheckYourAnswersHelperSpec extends SpecBase {
         val section = testHelper.getBusinessDetailsSectionMaybe(emptyUserAnswers)
 
         section mustBe None
+      }
+    }
+
+    "indWithNinoYourDetailsMaybe" - {
+      "must return a section when RegistrationType is SoleTrader and all questions have been answered correctly" in new TestData {
+        val section: Section          = testHelper.indWithNinoYourDetailsMaybe(testUserAnswersIndDetailsSoleTrader).get
+        val expectedTitle             = "Your details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Is your registered business address in the UK?",
+          "Do you have a Unique Taxpayer Reference?",
+          "Do you have a National Insurance number?",
+          "Your National Insurance number",
+          "Your name",
+          "Your date of birth"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return None when the 'Do you have a NINO' is false" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.set(HaveNiNumberPage, false).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Do you have a UTR' is true for a Sole Trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.set(HaveUTRPage, true).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Do you have a UTR' has not been answered for a Sole Trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.remove(HaveUTRPage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Is your registered address in the UK' has not been answered for a Sole Trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndDetailsSoleTrader.remove(RegisteredAddressInUkPage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when Individual registration type has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.remove(RegistrationTypePage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'Do you have a NINO' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.remove(HaveNiNumberPage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your NINO' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.remove(NiNumberPage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your name' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndDetailsSoleTrader.remove(WhatIsYourNameIndividualPage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your date of birth' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.remove(RegisterDateOfBirthPage).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return a section when RegistrationType is Individual and all questions have been answered correctly" in new TestData {
+        val section: Section          = testHelper.indWithNinoYourDetailsMaybe(testUserAnswersIndDetailsIndividual).get
+        val expectedTitle             = "Your details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Do you have a National Insurance number?",
+          "Your National Insurance number",
+          "Your name",
+          "Your date of birth"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
       }
     }
 
@@ -201,6 +290,47 @@ class CheckYourAnswersHelperSpec extends SpecBase {
         section mustBe None
       }
     }
+    "indContactDetailsMaybe" - {
+      "must return a section when all pages have been answered and user doesn't have a phone number" in new TestData {
+        val section: Section          = testHelper.indContactDetailsMaybe(testUserAnswersIndWithoutPhoneNumber).get
+        val expectedTitle             = "Contact details"
+        val expectedKeys: Seq[String] = Seq(
+          "Email address",
+          "Can we contact you by phone?"
+        )
+
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return a section when all pages have been answered and user has a phone number" in new TestData {
+        val section: Section          = testHelper.indContactDetailsMaybe(testUserAnswersIndWithPhoneNumber).get
+        val expectedTitle             = "Contact details"
+        val expectedKeys: Seq[String] = Seq(
+          "Email address",
+          "Can we contact you by phone?",
+          "Phone number"
+        )
+
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return None when user has indicated that they will provide a phone number but don't" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndWithPhoneNumber.remove(IndividualPhoneNumberPage).success.value
+        val section: Option[Section] = testHelper.indContactDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'Do you have a phone number?' page is not answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndWithPhoneNumber.remove(IndividualHavePhonePage).success.value
+        val section: Option[Section] = testHelper.indContactDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your email?' page is not answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndWithPhoneNumber.remove(IndividualEmailPage).success.value
+        val section: Option[Section] = testHelper.indContactDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+    }
   }
 
   class TestData {
@@ -282,6 +412,64 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       .success
       .value
 
+    val testUserAnswersIndDetailsSoleTrader: UserAnswers = emptyUserAnswers
+      .set(RegistrationTypePage, SoleTrader)
+      .success
+      .value
+      .set(HaveNiNumberPage, true)
+      .success
+      .value
+      .set(HaveUTRPage, false)
+      .success
+      .value
+      .set(RegisteredAddressInUkPage, false)
+      .success
+      .value
+      .set(NiNumberPage, "123")
+      .success
+      .value
+      .set(WhatIsYourNameIndividualPage, Name("Timmy", "Otthy"))
+      .success
+      .value
+      .set(RegisterDateOfBirthPage, LocalDate.of(2024, 1, 1))
+      .success
+      .value
+
+    val testUserAnswersIndDetailsIndividual: UserAnswers = emptyUserAnswers
+      .set(RegistrationTypePage, Individual)
+      .success
+      .value
+      .set(HaveNiNumberPage, true)
+      .success
+      .value
+      .set(NiNumberPage, "123")
+      .success
+      .value
+      .set(WhatIsYourNameIndividualPage, Name("Timmy", "Otthy"))
+      .success
+      .value
+      .set(RegisterDateOfBirthPage, LocalDate.of(2024, 1, 1))
+      .success
+      .value
+
+    val testUserAnswersIndWithoutPhoneNumber: UserAnswers = emptyUserAnswers
+      .set(IndividualEmailPage, "TEST EMAIL")
+      .success
+      .value
+      .set(IndividualHavePhonePage, false)
+      .success
+      .value
+
+    val testUserAnswersIndWithPhoneNumber: UserAnswers = emptyUserAnswers
+      .set(IndividualEmailPage, "TEST EMAIL")
+      .success
+      .value
+      .set(IndividualHavePhonePage, true)
+      .success
+      .value
+      .set(IndividualPhoneNumberPage, "TEST PHONE NO")
+      .success
+      .value
   }
 
 }

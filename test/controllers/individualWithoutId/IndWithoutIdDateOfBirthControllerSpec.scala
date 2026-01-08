@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.IndWithoutIdDateOfBirthPage
+import play.api.data.FormError
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
@@ -55,12 +56,9 @@ class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   "IndWithoutIdDateOfBirth Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
       running(application) {
-        val form = formProvider()(messages(application))
-
+        val form    = formProvider()(messages(application))
         val request = FakeRequest(GET, indWithoutIdDateOfBirthRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[IndWithoutIdDateOfBirthView]
@@ -71,13 +69,10 @@ class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(IndWithoutIdDateOfBirthPage, validAnswer).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
       running(application) {
-        val form = formProvider()(messages(application))
-
+        val form    = formProvider()(messages(application))
         val request = FakeRequest(GET, indWithoutIdDateOfBirthRoute)
         val view    = application.injector.instanceOf[IndWithoutIdDateOfBirthView]
         val result  = route(application, request).value
@@ -92,33 +87,24 @@ class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
           )
           .build()
-
       running(application) {
         val result = route(application, postRequest()).value
-
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
       running(application) {
-        val form = formProvider()(messages(application))
-
-        val request =
-          FakeRequest(POST, indWithoutIdDateOfBirthRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
-
+        val form      = formProvider()(messages(application))
+        val request   = FakeRequest(POST, indWithoutIdDateOfBirthRoute).withFormUrlEncodedBody(("value", "invalid value"))
         val boundForm = form.bind(Map("value" -> "invalid value"))
         val view      = application.injector.instanceOf[IndWithoutIdDateOfBirthView]
         val result    = route(application, request).value
@@ -128,8 +114,34 @@ class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must return a Bad Request and a single 'not a real date' error when multiple date parts are invalid" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val form        = formProvider()(messages(application))
+        val invalidData = Map(
+          "value.day"   -> "32",
+          "value.month" -> "13",
+          "value.year"  -> "2000"
+        )
+        val request     = FakeRequest(POST, indWithoutIdDateOfBirthRoute).withFormUrlEncodedBody(invalidData.toSeq: _*)
 
+        val expectedError = FormError(
+          key = "value",
+          messages = Seq("indWithoutIdDateOfBirth.error.not.real.date"),
+          args = Seq("day", "month", "year")
+        )
+
+        val expectedForm = form.bind(invalidData).copy(errors = Seq(expectedError))
+
+        val view   = application.injector.instanceOf[IndWithoutIdDateOfBirthView]
+        val result = route(application, request).value
+
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(expectedForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
         val request = FakeRequest(GET, indWithoutIdDateOfBirthRoute)
@@ -140,7 +152,6 @@ class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
         val result = route(application, postRequest()).value

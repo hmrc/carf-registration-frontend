@@ -32,7 +32,7 @@
     @formHelper(action = controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
         @govukDateInput(

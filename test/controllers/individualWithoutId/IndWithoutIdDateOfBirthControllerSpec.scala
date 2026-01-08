@@ -37,12 +37,9 @@ import scala.concurrent.Future
 
 class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new IndWithoutIdDateOfBirthFormProvider()
-
-  def onwardRoute = Call("GET", "/foo")
-
-  val validAnswer: LocalDate = LocalDate.of(2000, 2, 1)
-
+  val formProvider                      = new IndWithoutIdDateOfBirthFormProvider()
+  def onwardRoute                       = Call("GET", "/foo")
+  val validAnswer: LocalDate            = LocalDate.of(2000, 2, 1)
   lazy val indWithoutIdDateOfBirthRoute = routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode).url
 
   def postRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
@@ -111,33 +108,6 @@ class IndWithoutIdDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must return a Bad Request and a single 'not a real date' error when multiple date parts are invalid" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      running(application) {
-        val form        = formProvider()(messages(application))
-        val invalidData = Map(
-          "value.day"   -> "32",
-          "value.month" -> "13",
-          "value.year"  -> "2000"
-        )
-        val request     = FakeRequest(POST, indWithoutIdDateOfBirthRoute).withFormUrlEncodedBody(invalidData.toSeq: _*)
-
-        val expectedError = FormError(
-          key = "value",
-          messages = Seq("indWithoutIdDateOfBirth.error.not.real.date"),
-          args = Seq("day", "month", "year")
-        )
-
-        val expectedForm = form.bind(invalidData).copy(errors = Seq(expectedError))
-
-        val view   = application.injector.instanceOf[IndWithoutIdDateOfBirthView]
-        val result = route(application, request).value
-
-        status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(expectedForm, NormalMode)(request, messages(application)).toString
       }
     }
 

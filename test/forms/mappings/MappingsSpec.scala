@@ -427,9 +427,10 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
   }
   "phoneNumber" - {
 
-    val testRequiredKey = "firstContactPhoneNumber.error.required"
-    val testInvalidKey  = "firstContactPhoneNumber.error.invalid"
-    val testLengthKey   = "firstContactPhoneNumber.error.length"
+    val testRequiredKey           = "firstContactPhoneNumber.error.required"
+    val testInvalidKey            = "firstContactPhoneNumber.error.invalid"
+    val testLengthKey             = "firstContactPhoneNumber.error.length"
+    val testNotRealPhoneNumberKey = "firstContactPhoneNumber.error.notRealNumber"
 
     val validNumbers = Seq(
       "07123456789",
@@ -463,7 +464,8 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       "value" -> phoneNumber(
         requiredKey = testRequiredKey,
         invalidKey = testInvalidKey,
-        lengthKey = testLengthKey
+        lengthKey = testLengthKey,
+        notRealPhoneNumberKey = testNotRealPhoneNumberKey
       )
     )
 

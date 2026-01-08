@@ -124,9 +124,10 @@ class CheckYourAnswersHelper @Inject() extends Logging {
       email        <- IndividualEmailSummary.row(userAnswers)
       havePhoneRow <- IndividualHavePhoneSummary.row(userAnswers)
       havePhone    <- userAnswers.get(IndividualHavePhonePage)
+      phone <- IndividualPhoneNumberSummary.row(userAnswers)
     } yield
       if (havePhone) {
-        Some(Seq(email, havePhoneRow))
+        IndividualPhoneNumberSummary.row(userAnswers).map(Seq(email, havePhoneRow, _))
       } else {
         Some(Seq(email, havePhoneRow))
       }

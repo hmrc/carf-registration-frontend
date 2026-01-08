@@ -20,7 +20,9 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
 import models.OrganisationRegistrationType
+import models.RegistrationType.SoleTrader
 import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -37,19 +39,40 @@ class BusinessNotIdentifiedController @Inject() (
     view: BusinessNotIdentifiedView,
     appConfig: FrontendAppConfig
 ) extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    val organisationType =
-      request.userAnswers.get(RegistrationTypePage).map(OrganisationRegistrationType.fromRegistrationType)
-    val utr              = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
-    val businessName     = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
 
-    // TODO: once CARF-129 merged, merge main here, remove .gets and update tests here since that PR has some refactoring
-    (utr, businessName) match {
-      case (Some(utrValue), Some(nameValue)) =>
-        Ok(view(utrValue.uniqueTaxPayerReference, nameValue, organisationType.get, appConfig))
-      case _                                 =>
+    val companiesHouseSearchUrl: String = appConfig.companiesHouseSearchUrl
+    val registrationStartUrl: String    = controllers.routes.IndexController.onPageLoad().url
+    val findUTRUrl: String              = appConfig.findUTRUrl
+    val aeoiEmailAddress: String        = appConfig.aeoiEmailAddress
+
+    val maybePageInfo = for {
+      utr              <- request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+      businessName     <- request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+      organisationType <-
+        request.userAnswers.get(RegistrationTypePage).flatMap(OrganisationRegistrationType.fromRegistrationType)
+    } yield (utr.uniqueTaxPayerReference, businessName, organisationType)
+
+    maybePageInfo match {
+      case Some((utr, businessName, organisationType)) if !(organisationType.value == SoleTrader) =>
+        Ok(
+          view(
+            utr,
+            businessName,
+            organisationType,
+            companiesHouseSearchUrl,
+            registrationStartUrl,
+            findUTRUrl,
+            aeoiEmailAddress
+          )
+        )
+      case _                                                                                      =>
+        logger.warn(
+          s"Some information was missing from user answers (utr, business name or valid organisation type). Redirecting to journey recovery."
+        )
         Redirect(routes.JourneyRecoveryController.onPageLoad())
     }
   }

@@ -17,7 +17,7 @@
 package models
 
 import base.SpecBase
-import play.api.libs.json.{JsError, JsNumber, JsString, JsSuccess, Json}
+import play.api.libs.json.*
 
 class RegistrationTypeSpec extends SpecBase {
 

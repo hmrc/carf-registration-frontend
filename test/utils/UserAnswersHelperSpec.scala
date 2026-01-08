@@ -17,9 +17,9 @@
 package utils
 
 import base.SpecBase
-import models.UserAnswers
-import models.RegistrationType.*
 import models.JourneyType.{IndWithUtr, OrgWithUtr}
+import models.RegistrationType.*
+import models.UserAnswers
 import pages.organisation.RegistrationTypePage
 
 class UserAnswersHelperSpec extends SpecBase {

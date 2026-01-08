@@ -22,7 +22,7 @@ import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.*
 import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
@@ -73,10 +73,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveTradingName(userAnswers)
 
     case TradingNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+      _ => controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+
+    case OrganisationBusinessAddressPage =>
+      _ => controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -102,6 +102,11 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndividualEmailPage =>
       _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
+    case IndividualPhoneNumberPage         =>
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/check-answers (CARF-258)"
+        )
     case OrganisationSecondContactNamePage =>
       _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
@@ -184,7 +189,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
           controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
-            routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+            controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()
           } else {
             controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
           }
@@ -211,9 +216,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
     }
 
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
@@ -243,9 +246,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualHavePhonePage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-phone (CARF-185)"
-        )
+        controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        =>

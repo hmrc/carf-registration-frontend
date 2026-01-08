@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
+import play.api.libs.json.*
 
 enum JourneyType:
   case OrgWithUtr

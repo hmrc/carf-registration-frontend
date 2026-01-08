@@ -19,7 +19,7 @@ package controllers
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.requests.DataRequest
-import models.{BusinessDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
+import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.organisation.YourUniqueTaxpayerReferencePage
 import pages.{IndexPage, IsThisYourBusinessPage}
@@ -57,7 +57,6 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
       val maybeIndexPage   = request.userAnswers.get(IndexPage)
       val maybeYourUtrPage = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
 
@@ -70,12 +69,21 @@ class IsThisYourBusinessController @Inject() (
             isAutoMatch = true
           )
         case (_, Some(userInputUtr)) =>
-          handleBusinessLookup(
-            businessService.getBusinessWithUserInput(request.userAnswers),
-            userInputUtr.uniqueTaxPayerReference,
-            mode,
-            isAutoMatch = false
-          )
+          if (isSoleTrader(request.userAnswers)) {
+            handleIndividualLookup(
+              businessService.getIndividualByUtr(request.userAnswers),
+              userInputUtr.uniqueTaxPayerReference,
+              mode,
+              isAutoMatch = false
+            )
+          } else {
+            handleBusinessLookup(
+              businessService.getBusinessWithUserInput(request.userAnswers),
+              userInputUtr.uniqueTaxPayerReference,
+              mode,
+              isAutoMatch = false
+            )
+          }
         case (_, _)                  =>
           logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -125,10 +133,7 @@ class IsThisYourBusinessController @Inject() (
         if (isSoleTrader(request.userAnswers)) {
           logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
           Future.successful(
-            Redirect(
-              routes.PlaceholderController
-                .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-            )
+            Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad())
           )
         } else if (isAutoMatch) {
           logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
@@ -137,6 +142,35 @@ class IsThisYourBusinessController @Inject() (
           logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
           Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
+    }
+
+  private def handleIndividualLookup(
+      lookupFuture: Future[Option[IndividualDetails]],
+      utr: String,
+      mode: Mode,
+      isAutoMatch: Boolean
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    lookupFuture.flatMap {
+      case Some(individualDetails) =>
+        val existingPageDetails    = request.userAnswers.get(IsThisYourBusinessPage)
+        val soleTraderBusinessName = s"${individualDetails.firstName} ${individualDetails.lastName}"
+        val address                = individualDetails.address
+        val pageAnswer             = existingPageDetails.flatMap(_.pageAnswer)
+
+        val pageDetails               = IsThisYourBusinessPageDetails(soleTraderBusinessName, address, pageAnswer)
+        val soleTraderBusinessDetails = BusinessDetails(soleTraderBusinessName, address)
+
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield {
+          val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
+          logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
+          Ok(view(preparedForm, mode, soleTraderBusinessDetails))
+        }
+      case None                    =>
+        logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
+        Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
     }
 
   private def processFormSubmission(

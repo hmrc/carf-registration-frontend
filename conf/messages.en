@@ -334,7 +334,8 @@ informationMissing.paragraph = You must provide this information to register.
 businessNotIdentified.title = The details you entered did not match our records
 businessNotIdentified.heading = The details you entered did not match our records
 businessNotIdentified.p1 = To help us find your business, check if you have entered the right details.
-businessNotIdentified.tryAgain = If you used the wrong details, you can <a class="govuk-link" href="{0}">try again using different details</a>.
+businessNotIdentified.tryAgain = If you used the wrong details, you can
+businessNotIdentified.tryAgain.linkText = try again using different details
 businessNotIdentified.summary.utr.label = Unique Taxpayer Reference (UTR)
 businessNotIdentified.summary.name.label = Business name
 businessNotIdentified.utr.heading = Find a lost UTR
@@ -345,7 +346,8 @@ businessNotIdentified.name.bullets.heading = Some businesses:
 businessNotIdentified.name.bullet1 = are known by a trading name that is different to the registered name
 businessNotIdentified.name.bullet2 = use abbreviations in their trading or registered name
 businessNotIdentified.contact.heading = Contact HMRC to help us find your business
-businessNotIdentified.contact.p1 = If you have checked your UTR and business name again and we still cannot find your business, then email <a class="govuk-link" href="mailto:{0}">{0}</a> for help.
+businessNotIdentified.contact.p1.part1 = If you have checked your UTR and business name again and we still cannot find your business, then email
+businessNotIdentified.contact.p1.part2 = for help.
 
 businessNotIdentified.name.p1.limitedCompany = Check if you have entered your full business name as it was registered. You can find the registered business name on your incorporation certificate.
 businessNotIdentified.name.p2.limitedCompany.linkText = You can also
@@ -414,6 +416,21 @@ organisationBusinessAddress.postcode.error.invalidFormat = Enter postcode in the
 organisationBusinessAddress.postcode.error.required = Enter a real postcode
 organisationBusinessAddress.country.error.required = Select country
 
+problemSoleTraderNotIdentified.title = The details you entered did not match our records
+problemSoleTraderNotIdentified.heading = The details you entered did not match our records
+problemSoleTraderNotIdentified.p1 = To help us find your business, check if you have entered the right details.
+problemSoleTraderNotIdentified.summaryList.utrKey = Unique Taxpayer Reference (UTR)
+problemSoleTraderNotIdentified.summaryList.nameKey = Your name
+problemSoleTraderNotIdentified.p2.part1 = If you used the wrong details, you can
+problemSoleTraderNotIdentified.p2.part2 = try again using different details
+problemSoleTraderNotIdentified.subtitle1 = Find a lost UTR
+problemSoleTraderNotIdentified.p3.part1 = Refer to the guidance for
+problemSoleTraderNotIdentified.p3.part2 = finding your UTR (opens in new tab)
+problemSoleTraderNotIdentified.subtitle2 = Contact HMRC to help us find your business
+problemSoleTraderNotIdentified.p4.part1 = If you have checked your UTR and name again and we still cannot find your business, then email
+problemSoleTraderNotIdentified.p4.part2 = aeoi.enquiries@hmrc.gov.uk
+problemSoleTraderNotIdentified.p4.part3 = for help.
+
 
 indFindAddress.title = Find your address
 indFindAddress.heading = Find your address
@@ -421,14 +438,12 @@ indFindAddress.postcode = Postcode
 indFindAddress.propertyNameOrNumber = Property name or number (optional)
 indFindAddress.propertyNameOrNumber.hint = For example, The Mill, 116 or Flat 37a.
 indFindAddress.propertyNameOrNumber.change.hidden = Property name or number
-
 indFindAddress.error.postcode.required = Enter a postcode, like AA1 1AA
 indFindAddress.error.postcode.length = Postcode must be 10 characters or less
 indFindAddress.error.postcode.invalid = Postcode must only include letters a to z, numbers 0 to 9 or spaces
 indFindAddress.error.postcode.invalidFormat = Enter postcode in the right format
 indFindAddress.error.postcode.notFound = We could not find any addresses for this postcode. Enter a known postcode, or enter the address manually
 indFindAddress.postcode.change.hidden = Postcode
-
 indFindAddress.error.propertyNameOrNumber.length = Property name or number must be 35 characters or less
 indFindAddress.checkYourAnswersLabel = Find your address
 indFindAddress.enterAddressManualLink = Enter the address manually

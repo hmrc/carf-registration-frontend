@@ -49,8 +49,11 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     address = Address("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB")
   )
 
-  val soleTraderTestBusiness: BusinessDetails = BusinessDetails(
-    name = "Test Name Sole Trader",
+  val soleTraderTestIndividual: IndividualDetails = IndividualDetails(
+    safeId = "5234567890",
+    firstName = "Test first Name ST Individual",
+    middleName = None,
+    lastName = "Test last Name ST Individual",
     address = Address("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB")
   )
 
@@ -70,10 +73,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
   }
 
   "IsThisYourBusinessController" - {
-
-    "on a Sole Trader journey" - {
+    "on a Sole Trader non-auto-matched journey" - {
       "must return OK and the correct view for a successful match" in {
-        val soleTraderUtr = UniqueTaxpayerReference("1234567890")
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
         val userAnswers   = UserAnswers(userAnswersId)
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
@@ -82,8 +84,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
-          .thenReturn(Future.successful(Some(soleTraderTestBusiness)))
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Some(soleTraderTestIndividual)))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
@@ -95,10 +97,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           val view    = application.injector.instanceOf[IsThisYourBusinessView]
 
           status(result)     mustEqual OK
-          contentAsString(result) must include("Test Name Sole Trader")
-
-          verify(mockRegistrationService).getBusinessWithUserInput(eqTo(userAnswers))(any())
-
+          contentAsString(result) must include("Test first Name ST Individual")
+          verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
         }
       }
 
@@ -112,7 +112,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(None))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
@@ -123,10 +123,10 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
           val result  = route(application, request).value
 
-          status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.PlaceholderController
-            .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-            .url
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(
+            result
+          ).value        mustEqual controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad().url
         }
       }
     }

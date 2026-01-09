@@ -103,14 +103,8 @@ class CheckYourAnswersHelper @Inject() extends Logging {
           canWeContactSecondContactAnswer <- userAnswers.get(OrganisationSecondContactHavePhonePage)
         } yield
           if (canWeContactSecondContactAnswer) {
-            OrganisationSecondContactPhoneNumberSummary.row(userAnswers).map { secondPhoneNumber =>
-              Seq(
-                doYouHaveSecondContactRow,
-                secondContactName,
-                secondContactEmail,
-                canWeContactSecondContact,
-                secondPhoneNumber
-              )
+            OrganisationSecondContactPhoneNumberSummary.row(userAnswers).map {
+              Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact, _)
             }
           } else {
             Some(Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact))

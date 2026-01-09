@@ -57,7 +57,7 @@ class BusinessNotIdentifiedController @Inject() (
     } yield (utr.uniqueTaxPayerReference, businessName, organisationType)
 
     maybePageInfo match {
-      case Some((utr, businessName, organisationType)) if !(organisationType.value == SoleTrader) =>
+      case Some((utr, businessName, organisationType)) if !(organisationType.toRegistrationType == SoleTrader) =>
         Ok(
           view(
             utr,
@@ -69,7 +69,7 @@ class BusinessNotIdentifiedController @Inject() (
             aeoiEmailAddress
           )
         )
-      case _                                                                                      =>
+      case _                                                                                                   =>
         val orgType = request.userAnswers.get(RegistrationTypePage)
         logger.warn(
           s"Utr, business name or valid registration was missing from user answers <registration type: $orgType>. Redirecting to journey recovery."

@@ -27,13 +27,13 @@ class IndividualRegistrationTypeSpec extends SpecBase {
       "return SoleTrader for SoleTrader" in {
         IndividualRegistrationType.fromRegistrationType(
           RegistrationType.SoleTrader
-        ) mustBe Some(IndividualRegistrationType.SoleTrader())
+        ) mustBe Some(IndividualRegistrationType.IndividualSoleTrader)
       }
 
       "return Individual for Individual" in {
         IndividualRegistrationType.fromRegistrationType(
           RegistrationType.Individual
-        ) mustBe Some(IndividualRegistrationType.Individual())
+        ) mustBe Some(IndividualRegistrationType.IndividualNotConnectedToABusiness)
       }
 
       "return None for LimitedCompany" in {
@@ -58,17 +58,6 @@ class IndividualRegistrationTypeSpec extends SpecBase {
         IndividualRegistrationType.fromRegistrationType(
           RegistrationType.Trust
         ) mustBe None
-      }
-    }
-    "writes" - {
-      "write SoleTrader as a JSON string" in {
-        Json.toJson(IndividualRegistrationType.SoleTrader())(IndividualRegistrationType.writes) mustBe
-          JsString("SoleTrader")
-      }
-
-      "write Individual as a JSON string" in {
-        Json.toJson(IndividualRegistrationType.Individual())(IndividualRegistrationType.writes) mustBe
-          JsString("Individual")
       }
     }
   }

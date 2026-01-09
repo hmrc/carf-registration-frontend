@@ -66,7 +66,7 @@ class OrganisationRegistrationTypeController @Inject() (
           value =>
             for {
               updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(RegistrationTypePage, value.value))
+                Future.fromTry(request.userAnswers.set(RegistrationTypePage, value.toRegistrationType))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(NavigatorOnlyOrganisationRegistrationTypePage, mode, updatedAnswers))
         )

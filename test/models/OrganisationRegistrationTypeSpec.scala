@@ -26,59 +26,37 @@ class OrganisationRegistrationTypeSpec extends SpecBase {
       "return SoleTrader for SoleTrader" in {
         OrganisationRegistrationType.fromRegistrationType(
           RegistrationType.SoleTrader
-        ) mustBe Some(OrganisationRegistrationType.SoleTrader())
+        ) mustBe Some(OrganisationRegistrationType.OrganisationSoleTrader)
       }
 
       "return LimitedCompany for LimitedCompany" in {
         OrganisationRegistrationType.fromRegistrationType(
           RegistrationType.LimitedCompany
-        ) mustBe Some(OrganisationRegistrationType.LimitedCompany())
+        ) mustBe Some(OrganisationRegistrationType.OrganisationLimitedCompany)
       }
 
       "return Partnership for Partnership" in {
         OrganisationRegistrationType.fromRegistrationType(
           RegistrationType.Partnership
-        ) mustBe Some(OrganisationRegistrationType.Partnership())
+        ) mustBe Some(OrganisationRegistrationType.OrganisationPartnership)
       }
 
       "return LLP for LLP" in {
         OrganisationRegistrationType.fromRegistrationType(
           RegistrationType.LLP
-        ) mustBe Some(OrganisationRegistrationType.LLP())
+        ) mustBe Some(OrganisationRegistrationType.OrganisationLLP)
       }
 
       "return Trust for Trust" in {
         OrganisationRegistrationType.fromRegistrationType(
           RegistrationType.Trust
-        ) mustBe Some(OrganisationRegistrationType.Trust())
+        ) mustBe Some(OrganisationRegistrationType.OrganisationTrust)
       }
 
       "return None for Individual" in {
         OrganisationRegistrationType.fromRegistrationType(
           RegistrationType.Individual
         ) mustBe None
-      }
-    }
-    "writes" - {
-      "write LimitedCompany as a JSON string" in {
-        Json.toJson(OrganisationRegistrationType.LimitedCompany())(OrganisationRegistrationType.writes) mustBe
-          JsString("LimitedCompany")
-      }
-      "write Partnership as a JSON string" in {
-        Json.toJson(OrganisationRegistrationType.Partnership())(OrganisationRegistrationType.writes) mustBe
-          JsString("Partnership")
-      }
-      "write LLP as a JSON string" in {
-        Json.toJson(OrganisationRegistrationType.LLP())(OrganisationRegistrationType.writes) mustBe
-          JsString("LLP")
-      }
-      "write Trust as a JSON string" in {
-        Json.toJson(OrganisationRegistrationType.Trust())(OrganisationRegistrationType.writes) mustBe
-          JsString("Trust")
-      }
-      "write SoleTrader as a JSON string" in {
-        Json.toJson(OrganisationRegistrationType.SoleTrader())(OrganisationRegistrationType.writes) mustBe
-          JsString("SoleTrader")
       }
     }
   }

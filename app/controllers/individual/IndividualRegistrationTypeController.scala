@@ -67,7 +67,8 @@ class IndividualRegistrationTypeController @Inject() (
           individualRegistrationType =>
             for {
               updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(RegistrationTypePage, individualRegistrationType.value))
+                Future
+                  .fromTry(request.userAnswers.set(RegistrationTypePage, individualRegistrationType.toRegistrationType))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers))
         )

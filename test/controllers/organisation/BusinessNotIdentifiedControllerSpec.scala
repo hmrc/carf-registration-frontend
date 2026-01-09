@@ -31,7 +31,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
   val testUtrObject                                = UniqueTaxpayerReference(testUtrString)
   val testBusinessName                             = "Test Corp"
   val testRegType: RegistrationType                = LimitedCompany
-  val testOrgRegType: OrganisationRegistrationType = OrganisationRegistrationType.LimitedCompany()
+  val testOrgRegType: OrganisationRegistrationType = OrganisationRegistrationType.OrganisationLimitedCompany
 
   val testCompaniesHouseSearchUrl: String = "https://find-and-update.company-information.service.gov.uk/"
   val testRegistrationStartUrl: String    = "/register-for-carf"

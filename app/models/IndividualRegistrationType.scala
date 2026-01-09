@@ -16,37 +16,40 @@
 
 package models
 
+import models.RegistrationType.{Individual, SoleTrader}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsString, Writes}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait IndividualRegistrationType:
-  def value: RegistrationType
+sealed trait IndividualRegistrationType {
+  def toRegistrationType: RegistrationType
+}
 
 object IndividualRegistrationType {
-  final case class SoleTrader(value: RegistrationType = RegistrationType.SoleTrader) extends IndividualRegistrationType
+  case object IndividualSoleTrader extends IndividualRegistrationType {
+    def toRegistrationType: RegistrationType = SoleTrader
+  }
 
-  final case class Individual(value: RegistrationType = RegistrationType.Individual) extends IndividualRegistrationType
+  case object IndividualNotConnectedToABusiness extends IndividualRegistrationType {
+    def toRegistrationType: RegistrationType = Individual
+  }
 
   def fromRegistrationType(registrationType: RegistrationType): Option[IndividualRegistrationType] =
     registrationType match
-      case RegistrationType.SoleTrader => Some(SoleTrader())
-      case RegistrationType.Individual => Some(Individual())
+      case RegistrationType.SoleTrader => Some(IndividualSoleTrader)
+      case RegistrationType.Individual => Some(IndividualNotConnectedToABusiness)
       case _                           => None
 
-  implicit val writes: Writes[IndividualRegistrationType] =
-    Writes(ij => JsString(ij.value.toString))
-
   val values: Seq[IndividualRegistrationType] = Seq(
-    SoleTrader(),
-    Individual()
+    IndividualSoleTrader,
+    IndividualNotConnectedToABusiness
   )
 
   // TODO: add tests or make ticket for adding tests
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
-      content = Text(messages(s"individualRegistrationType.${value.value.messagesKey}")),
+      content = Text(messages(s"individualRegistrationType.${value.toRegistrationType.messagesKey}")),
       value = Some(value.toString),
       id = Some(s"value_$index")
     )

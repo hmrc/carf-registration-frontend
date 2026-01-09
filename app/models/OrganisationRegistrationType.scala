@@ -22,45 +22,49 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 sealed trait OrganisationRegistrationType:
-  def value: RegistrationType
+  def toRegistrationType: RegistrationType
 
 object OrganisationRegistrationType {
-  final case class LimitedCompany(value: RegistrationType = RegistrationType.LimitedCompany)
-      extends OrganisationRegistrationType
+  case object OrganisationLimitedCompany extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.LimitedCompany
+  }
 
-  final case class Partnership(value: RegistrationType = RegistrationType.Partnership)
-      extends OrganisationRegistrationType
+  case object OrganisationPartnership extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.Partnership
+  }
 
-  final case class LLP(value: RegistrationType = RegistrationType.LLP) extends OrganisationRegistrationType
+  case object OrganisationLLP extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.LLP
+  }
 
-  final case class Trust(value: RegistrationType = RegistrationType.Trust) extends OrganisationRegistrationType
+  case object OrganisationTrust extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.Trust
+  }
 
-  final case class SoleTrader(value: RegistrationType = RegistrationType.SoleTrader)
-      extends OrganisationRegistrationType
+  case object OrganisationSoleTrader extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.SoleTrader
+  }
 
   def fromRegistrationType(registrationType: RegistrationType): Option[OrganisationRegistrationType] =
     registrationType match
-      case RegistrationType.LimitedCompany => Some(LimitedCompany())
-      case RegistrationType.Partnership    => Some(Partnership())
-      case RegistrationType.LLP            => Some(LLP())
-      case RegistrationType.Trust          => Some(Trust())
-      case RegistrationType.SoleTrader     => Some(SoleTrader())
+      case RegistrationType.LimitedCompany => Some(OrganisationLimitedCompany)
+      case RegistrationType.Partnership    => Some(OrganisationPartnership)
+      case RegistrationType.LLP            => Some(OrganisationLLP)
+      case RegistrationType.Trust          => Some(OrganisationTrust)
+      case RegistrationType.SoleTrader     => Some(OrganisationSoleTrader)
       case _                               => None
 
-  implicit val writes: Writes[OrganisationRegistrationType] =
-    Writes(oj => JsString(oj.value.toString))
-
   val values: Seq[OrganisationRegistrationType] = Seq(
-    LimitedCompany(),
-    Partnership(),
-    LLP(),
-    Trust(),
-    SoleTrader()
+    OrganisationLimitedCompany,
+    OrganisationPartnership,
+    OrganisationLLP,
+    OrganisationTrust,
+    OrganisationSoleTrader
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
-      content = Text(messages(s"organisationRegistrationType.${value.value.messagesKey}")),
+      content = Text(messages(s"organisationRegistrationType.${value.toRegistrationType.messagesKey}")),
       value = Some(value.toString),
       id = Some(s"value_$index")
     )

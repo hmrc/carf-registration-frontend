@@ -17,7 +17,6 @@
 package forms.individual
 
 import forms.behaviours.DateBehaviours
-import forms.individual.RegisterDateOfBirthFormProvider
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
@@ -30,9 +29,10 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
   private val form                        = new RegisterDateOfBirthFormProvider()()
 
   private val minDate      = LocalDate.of(1901, 1, 1)
-  private val today        = LocalDate.now(ZoneOffset.UTC)
-  private val maxValidDate = today.minusDays(1)
+  private val todayDate    = LocalDate.now(ZoneOffset.UTC)
+  private val maxValidDate = todayDate.minusDays(1)
   val displayFormat        = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val allFields    = Seq("date.error.day", "date.error.month", "date.error.year")
 
   ".value" - {
     val validData = datesBetween(min = minDate, max = maxValidDate)
@@ -41,7 +41,7 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       form,
       "value",
       "registerDateOfBirth.error.required.all",
-      List("date.error.day", "date.error.month", "date.error.year")
+      allFields
     )
 
     "must bind the minimum allowed date (1901-01-01)" in {
@@ -175,38 +175,36 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "registerDateOfBirth.error.not.real.date",
-        Seq("date.error.day", "date.error.month", "date.error.year")
+        allFields
       )
     }
 
     "must reject today's date" in {
-      val formattedTodaysDate = today.format(displayFormat)
-      val data                = Map(
-        "value.day"   -> today.getDayOfMonth.toString,
-        "value.month" -> today.getMonthValue.toString,
-        "value.year"  -> today.getYear.toString
+      val data   = Map(
+        "value.day"   -> todayDate.getDayOfMonth.toString,
+        "value.month" -> todayDate.getMonthValue.toString,
+        "value.year"  -> todayDate.getYear.toString
       )
-      val result              = form.bind(data)
+      val result = form.bind(data)
       result.errors must contain only FormError(
         "value",
         "registerDateOfBirth.error.future.date",
-        Seq(formattedTodaysDate, "date.error.day", "date.error.month", "date.error.year")
+        allFields
       )
     }
 
     "must reject a date in the future" in {
-      val future              = maxValidDate.plusDays(2)
-      val formattedTodaysDate = today.format(displayFormat)
-      val data                = Map(
+      val future = maxValidDate.plusDays(2)
+      val data   = Map(
         "value.day"   -> future.getDayOfMonth.toString,
         "value.month" -> future.getMonthValue.toString,
         "value.year"  -> future.getYear.toString
       )
-      val result              = form.bind(data)
+      val result = form.bind(data)
       result.errors must contain only FormError(
         "value",
         "registerDateOfBirth.error.future.date",
-        Seq(formattedTodaysDate, "date.error.day", "date.error.month", "date.error.year")
+        allFields
       )
     }
 
@@ -221,7 +219,7 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "registerDateOfBirth.error.past.date",
-        Seq("date.error.day", "date.error.month", "date.error.year")
+        allFields
       )
     }
 

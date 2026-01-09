@@ -40,7 +40,7 @@ class IndWithoutIdDateOfBirthFormProvider @Inject() extends Mappings {
         monthAndYearRequiredKey = "indWithoutIdDateOfBirth.error.required.month.and.year",
         futureDateKey = "indWithoutIdDateOfBirth.error.future.date",
         pastDateKey = "indWithoutIdDateOfBirth.error.past.date",
-        maxDate = today,
+        maxDate = today.minusDays(1),
         minDate = LocalDate.of(1901, 1, 1)
       )
     )

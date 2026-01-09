@@ -33,6 +33,7 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
   private val minDate      = LocalDate.of(1901, 1, 1)
   private val maxValidDate = today.minusDays(1)
   val displayFormat        = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val allFields    = Seq("date.error.day", "date.error.month", "date.error.year")
 
   ".value" - {
     val validData = datesBetween(min = minDate, max = maxValidDate)
@@ -43,7 +44,7 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
       form,
       "value",
       "indWithoutIdDateOfBirth.error.required.all",
-      Seq("date.error.day", "date.error.month", "date.error.year")
+      allFields
     )
 
     "must fail with 'not real date' error for an invalid date like 30th Feb" in {
@@ -57,7 +58,7 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
         FormError(
           "value",
           "indWithoutIdDateOfBirth.error.not.real.date",
-          List("date.error.day", "date.error.month", "date.error.year")
+          allFields
         )
       )
     }
@@ -132,18 +133,17 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
     }
 
     "must reject today's date" in {
-      val formattedTodaysDate = today.format(displayFormat)
-      val data                = Map(
+      val data   = Map(
         "value.day"   -> today.getDayOfMonth.toString,
         "value.month" -> today.getMonthValue.toString,
         "value.year"  -> today.getYear.toString
       )
-      val result              = form.bind(data)
+      val result = form.bind(data)
       result.errors must contain(
         FormError(
           "value",
           "indWithoutIdDateOfBirth.error.future.date",
-          Seq(formattedTodaysDate, "date.error.day", "date.error.month", "date.error.year")
+          allFields
         )
       )
     }
@@ -160,7 +160,7 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
         FormError(
           "value",
           "indWithoutIdDateOfBirth.error.past.date",
-          Seq("date.error.day", "date.error.month", "date.error.year")
+          allFields
         )
       )
     }

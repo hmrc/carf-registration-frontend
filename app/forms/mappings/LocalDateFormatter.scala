@@ -46,17 +46,20 @@ private[mappings] class LocalDateFormatter(
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
 
+    val cleanedData = data.map { case (k, v) => k -> v.replaceAll("[\\s-]", "") }
+
     val fields = fieldKeys.map { fieldKey =>
-      val value     = data.get(s"$key.$fieldKey").getOrElse("").trim
+      val value     = cleanedData.get(s"$key.$fieldKey").getOrElse("")
       val isMissing = value.isEmpty
-      val isInvalid = !isMissing && !value.forall(_.isDigit) && monthFormatter.bind(s"$key.$fieldKey", data).isLeft
+      val isInvalid =
+        !isMissing && !value.forall(_.isDigit) && monthFormatter.bind(s"$key.$fieldKey", cleanedData).isLeft
       Field(fieldKey, value, isMissing, isInvalid)
     }
 
     handleMissing(key, fields)
       .orElse(handleInvalid(key, fields))
-      .orElse(handleRealDate(key, fields))
-      .getOrElse(constructDate(fields))
+      .orElse(handleRealDate(key, fields, cleanedData))
+      .getOrElse(constructDate(key, fields, cleanedData))
   }
 
   private def handleMissing(key: String, fields: Seq[Field]): Option[Either[Seq[FormError], LocalDate]] = {
@@ -90,11 +93,13 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  private def handleRealDate(key: String, fields: Seq[Field]): Option[Either[Seq[FormError], LocalDate]] = {
+  private def handleRealDate(
+      key: String,
+      fields: Seq[Field],
+      data: Map[String, String]
+  ): Option[Either[Seq[FormError], LocalDate]] = {
     val day   = Try(fields.find(_.key == "day").get.value.toInt).toOption
-    val month = Try(
-      monthFormatter.bind(s"$key.month", Map(s"$key.month" -> fields.find(_.key == "month").get.value)).getOrElse(0)
-    ).toOption
+    val month = Try(monthFormatter.bind(s"$key.month", data).getOrElse(0)).toOption
     val year  = Try(fields.find(_.key == "year").get.value.toInt).toOption
 
     (day, month, year) match {
@@ -125,11 +130,14 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  private def constructDate(fields: Seq[Field]): Either[Seq[FormError], LocalDate] = {
-    val day        = fields.find(_.key == "day").get.value.toInt
-    val monthValue = fields.find(_.key == "month").get.value
-    val month      = monthFormatter.bind("ignored", Map("ignored" -> monthValue)).getOrElse(0)
-    val year       = fields.find(_.key == "year").get.value.toInt
+  private def constructDate(
+      key: String,
+      fields: Seq[Field],
+      data: Map[String, String]
+  ): Either[Seq[FormError], LocalDate] = {
+    val day   = fields.find(_.key == "day").get.value.toInt
+    val month = monthFormatter.bind(s"$key.month", data).getOrElse(0)
+    val year  = fields.find(_.key == "year").get.value.toInt
     Right(LocalDate.of(year, month, day))
   }
 

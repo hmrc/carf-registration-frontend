@@ -23,14 +23,18 @@ import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
+import scala.util.Try
+import scala.util.{Failure, Success}
 import scala.util.control.Exception.nonFatalCatch
 
 trait Formatters {
 
+  private type EitherFormError = Either[Seq[FormError], String]
+
   private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] =
     new Formatter[String] {
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+      override def bind(key: String, data: Map[String, String]): EitherFormError =
         data.get(key) match {
           case None                      => Left(Seq(FormError(key, errorKey, args)))
           case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
@@ -156,7 +160,7 @@ trait Formatters {
       def formatError(key: String, errorKey: String, msgArg: String): FormError =
         if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
+      override def bind(key: String, data: Map[String, String]): EitherFormError = {
         val trimmedUtr = data.get(key).map(string => string.replaceAll("\\s", "").replaceAll("^[kK]+|[kK]+$", ""))
         trimmedUtr match {
           case None | Some("")                                => Left(Seq(formatError(key, requiredKey, msgArg)))
@@ -177,7 +181,7 @@ trait Formatters {
   private[mappings] def stringTrimFormatter(errorKey: String, msgArg: String = ""): Formatter[String] =
     new Formatter[String] {
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+      override def bind(key: String, data: Map[String, String]): EitherFormError =
         data.get(key) match {
           case None    =>
             handleEmptyInput(key)
@@ -209,7 +213,7 @@ trait Formatters {
   ): Formatter[String] =
     new Formatter[String] {
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+      override def bind(key: String, data: Map[String, String]): EitherFormError =
         data.get(key) match {
           case None                              =>
             Left(Seq(FormError(key, requiredKey, args)))
@@ -245,38 +249,32 @@ trait Formatters {
 
       private val phoneUtil = PhoneNumberUtil.getInstance()
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+      override def bind(key: String, data: Map[String, String]): EitherFormError =
+        lazy val formErrorInvalidKey = Left(Seq(FormError(key, invalidKey, args)))
         data.get(key).map(_.trim) match {
-          case None                         =>
-            Left(Seq(FormError(key, requiredKey, args)))
-          case Some(value) if value.isEmpty =>
-            Left(Seq(FormError(key, requiredKey, args)))
+          case None                         => Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.isEmpty => Left(Seq(FormError(key, requiredKey, args)))
           case Some(value)                  =>
             if (value.length > maxPhoneLength) {
               Left(Seq(FormError(key, lengthKey, args)))
             } else {
-              try {
-                // Using "GB" tells libphonenumber to assume GB if no country code is added
+              Try {
                 val number = phoneUtil.parse(value, "GB")
-
-                // isPossible  AND isValid          :   all OK.
-                // isPossible  AND NOT isValid      :   not real.
-                // NOT isPossible AND <any isValid> :   invalid
-
                 (phoneUtil.isPossibleNumber(number), phoneUtil.isValidNumber(number)) match {
                   case (true, true)  => Right(value)
                   case (true, false) => Left(Seq(FormError(key, notRealPhoneNumberKey, args)))
-                  case (false, _)    => Left(Seq(FormError(key, invalidKey, args)))
+                  case (false, _)    => formErrorInvalidKey
                 }
-              } catch {
-                case _: NumberParseException => Left(Seq(FormError(key, invalidKey, args)))
+              } match {
+                case Success(value)                   => value
+                case Failure(_: NumberParseException) => formErrorInvalidKey
+                case Failure(exception)               => formErrorInvalidKey
               }
             }
         }
 
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
-
     }
 
   protected def validatedTextFormatter(
@@ -291,7 +289,7 @@ trait Formatters {
     new Formatter[String] {
       private val dataFormatter: Formatter[String] = stringTrimFormatter(requiredKey, msgArg)
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+      override def bind(key: String, data: Map[String, String]): EitherFormError =
         dataFormatter
           .bind(key, data)
           .flatMap {

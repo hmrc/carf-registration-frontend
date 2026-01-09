@@ -50,10 +50,10 @@ class IndividualRegistrationTypeController @Inject() (
     implicit request =>
 
       val preparedForm =
-        request.userAnswers.get(RegistrationTypePage).flatMap(IndividualRegistrationType.fromRegistrationType) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
+        request.userAnswers
+          .get(RegistrationTypePage)
+          .flatMap(IndividualRegistrationType.fromRegistrationType)
+          .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
   }

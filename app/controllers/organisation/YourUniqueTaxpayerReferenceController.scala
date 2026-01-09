@@ -52,10 +52,8 @@ class YourUniqueTaxpayerReferenceController @Inject() (
         .flatMap(getTaxTypeMessageKey) match {
         case Some(messageKey) =>
           val form         = formProvider(messageKey)
-          val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage) match {
-            case None        => form
-            case Some(value) => form.fill(value)
-          }
+          val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage).fold(form)(form.fill)
+
           Ok(view(preparedForm, mode, messageKey))
 
         case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

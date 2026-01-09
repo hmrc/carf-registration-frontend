@@ -55,13 +55,15 @@ class CheckYourAnswersHelper @Inject() extends Logging {
                 registeredAddressInUk    <- userAnswers.get(RegisteredAddressInUkPage)
                 haveUtrRow               <- HaveUTRSummary.row(userAnswers)
                 haveUtr                  <- userAnswers.get(HaveUTRPage)
-              } yield
-                if (!registeredAddressInUk && !haveUtr && haveNino) { // User has to enter certain answers to get to this CYA page. This ensures it
+              } yield {
+                lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && haveNino
+                if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
                 } else {
                   logger.warn("Individual with NINO answers were not as expected")
                   None
                 }
+              }
             }.flatten
           case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
           case _                           => None

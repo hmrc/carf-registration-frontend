@@ -26,10 +26,7 @@ trait UserAnswersHelper {
   def isSoleTrader(userAnswers: UserAnswers): Boolean = {
     val registrationType: Option[RegistrationType] = userAnswers.get(RegistrationTypePage)
 
-    registrationType match {
-      case Some(SoleTrader) => true
-      case _                => false
-    }
+    registrationType.fold(false)(_ == SoleTrader)
   }
 
   def getJourneyTypeUtrOnly(userAnswers: UserAnswers): JourneyType =

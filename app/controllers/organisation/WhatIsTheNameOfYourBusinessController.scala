@@ -52,10 +52,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
         .flatMap(getBusinessTypeMessageKey) match {
         case Some(messageKey) =>
           val form         = formProvider(messageKey)
-          val preparedForm = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage) match {
-            case None        => form
-            case Some(value) => form.fill(value)
-          }
+          val preparedForm = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage).fold(form)(form.fill)
 
           Ok(view(preparedForm, mode, messageKey))
         case None             => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

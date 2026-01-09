@@ -86,10 +86,8 @@ private[mappings] class LocalDateFormatter(
   }
 
   private def buildFinalError(key: String, allErrors: Seq[FormError]): FormError = {
-    val primaryError        = selectPrimaryError(allErrors)
-    val primaryMessageArgs  = primaryError.args.filterNot(isHighlightingArg)
-    val allHighlightingArgs = allErrors.flatMap(_.args).distinct.filter(isHighlightingArg)
-    FormError(key, primaryError.message, primaryMessageArgs ++ allHighlightingArgs)
+    val primaryError = selectPrimaryError(allErrors)
+    FormError(key, primaryError.message, primaryError.args)
   }
 
   private def findMissingFieldErrors(key: String, cleanedData: Map[String, String]): Seq[FormError] = {
@@ -108,9 +106,9 @@ private[mappings] class LocalDateFormatter(
       case Nil          =>
         Seq.empty
       case field :: Nil =>
-        Seq(FormError(s"$key.$field", notRealDateKey))
+        Seq(FormError(key, invalidKey, Seq(s"date.error.$field")))
       case _            =>
-        Seq(FormError(key, notRealDateKey, Seq("date.error.day", "date.error.month", "date.error.year")))
+        Seq(FormError(key, invalidKey, Seq("date.error.day", "date.error.month", "date.error.year")))
     }
   }
 
@@ -285,15 +283,15 @@ private[mappings] class LocalDateFormatter(
       with Formatters {
     private val baseFormatter                                                              = stringFormatter(invalidKey, args)
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] = {
-      val months = Month.values.toList
+      val months = Month.values().toList
       baseFormatter
         .bind(key, data)
         .flatMap { str =>
           months
             .find(m =>
-              m.getValue.toString == str.replaceAll("^0+", "")
-                || m.toString == str.toUpperCase
-                || m.toString.take(3) == str.toUpperCase
+              m.getValue.toString == str.replaceAll("^0+", "") ||
+                m.toString == str.toUpperCase ||
+                m.toString.take(3) == str.toUpperCase
             )
             .map(x => Right(x.getValue))
             .getOrElse(Left(List(FormError(key, invalidKey, args))))

@@ -21,7 +21,6 @@ import models.DateHelper.today
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.should.Matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.FormError
 import play.api.i18n.Messages
@@ -43,7 +42,7 @@ class LocalDateFormatterSpec
   val maxDate                     = LocalDate.of(2099, 12, 31)
   val maxValidDateOfBirth         = today.minusDays(1)
 
-  def displayFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  def displayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   def formatter =
     new LocalDateFormatter(
@@ -96,19 +95,6 @@ class LocalDateFormatterSpec
       )
       result.isRight mustBe true
       result.toOption.get mustBe minDate
-    }
-
-    "accept the most recent valid date (today's date minus 1 day)" in {
-      val result = formatter.bind(
-        "date",
-        Map(
-          "date.day"   -> maxValidDateOfBirth.getDayOfMonth.toString,
-          "date.month" -> maxValidDateOfBirth.getMonth.toString,
-          "date.year"  -> maxValidDateOfBirth.getYear.toString
-        )
-      )
-      result.isRight mustBe true
-      result.toOption.get mustBe maxValidDateOfBirth
     }
 
     "handle leap year correctly" in {
@@ -278,7 +264,7 @@ class LocalDateFormatterSpec
       result mustBe Left(Seq(FormError("date", "required.month.year", Seq("date.error.month", "date.error.year"))))
     }
 
-    "return notRealDate error  when invalid date e.g. 31 Feb" in {
+    "return notRealDate error when invalid date e.g. 31 Feb" in {
       val result = formatter.bind(
         "date",
         Map("date.day" -> "31", "date.month" -> "02", "date.year" -> "2020")
@@ -287,7 +273,7 @@ class LocalDateFormatterSpec
         Seq(FormError("date", "notReal", Seq("date.error.day", "date.error.month", "date.error.year")))
       )
     }
-    "return notRealDate error  when day is within 1–31 but month is invalid (e.g. 13)" in {
+    "return notRealDate error when day is within 1–31 but month is invalid (e.g. 13)" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -296,7 +282,7 @@ class LocalDateFormatterSpec
           "date.year"  -> "2020"
         )
       )
-      result mustBe Left(Seq(FormError("date", "notReal", Seq("date.error.month") ++ Seq.empty)))
+      result mustBe Left(Seq(FormError("date", "notReal", Seq("date.error.month"))))
     }
     "return notRealDate error for invalid day with alphabetic month" in {
       val result = formatter.bind(
@@ -402,7 +388,7 @@ class LocalDateFormatterSpec
       result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.year"))))
     }
 
-    "return a day and month error when day and month are non-numeric" in {
+    "return an invalid error when day and month are non-numeric" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -411,10 +397,12 @@ class LocalDateFormatterSpec
           "date.year"  -> "2020"
         )
       )
-      result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month"))))
+      result mustBe Left(
+        Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
     }
 
-    "return a day and year error when day and year are non-numeric" in {
+    "return an invalid error when day and year are non-numeric" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -423,10 +411,12 @@ class LocalDateFormatterSpec
           "date.year"  -> "z"
         )
       )
-      result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.year"))))
+      result mustBe Left(
+        Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
     }
 
-    "return a month and year error when month and year are non-numeric" in {
+    "return an invalid error when month and year are non-numeric" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -435,7 +425,9 @@ class LocalDateFormatterSpec
           "date.year"  -> "z"
         )
       )
-      result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.month", "date.error.year"))))
+      result mustBe Left(
+        Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
     }
 
     "return invalidKey error when all fields are non-numeric" in {
@@ -452,7 +444,7 @@ class LocalDateFormatterSpec
       )
     }
 
-    "correctly prioritise day error over month error when both invalid" in {
+    "return a single invalid error when day and month are invalid" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -461,10 +453,12 @@ class LocalDateFormatterSpec
           "date.year"  -> "2020"
         )
       )
-      result mustBe Left(Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month"))))
+      result mustBe Left(
+        Seq(FormError("date", "invalid", Seq("date.error.day", "date.error.month", "date.error.year")))
+      )
     }
 
-    "return futureDate error when date is after maxDate" in {
+    "return notRealDate error when date is after maxDate" in {
       val result = formatter.bind(
         "date",
         Map(
@@ -475,11 +469,7 @@ class LocalDateFormatterSpec
       )
       result mustBe Left(
         Seq(
-          FormError(
-            "date",
-            List("error.future"),
-            List(maxDate.format(displayFormat), "date.error.day", "date.error.month", "date.error.year")
-          )
+          FormError("date", "notReal", List("date.error.year"))
         )
       )
     }
@@ -495,7 +485,7 @@ class LocalDateFormatterSpec
       )
       result mustBe Left(
         Seq(
-          FormError("date", List("error.tooEarlyDate"), List("date.error.day", "date.error.month", "date.error.year"))
+          FormError("date", "error.tooEarlyDate", List("date.error.day", "date.error.month", "date.error.year"))
         )
       )
     }

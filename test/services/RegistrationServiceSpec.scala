@@ -23,10 +23,11 @@ import models.error.ApiError
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.{Address, BusinessDetails, IndividualDetails, Name, RegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import org.scalactic.Prettifier.default
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -34,7 +35,7 @@ import scala.concurrent.Future
 class RegistrationServiceSpec extends SpecBase {
   val mockConnector: RegistrationConnector = mock[RegistrationConnector]
   val testService                          = new RegistrationService(mockConnector)
-  val testOrgType                          = OrganisationRegistrationType.LimitedCompany
+  val testOrgType: RegistrationType        = RegistrationType.LimitedCompany
   val ninoOkFullIndividualResponse         = "JX123456D"
   val ninoNotFound                         = "XX123456D"
   val ninoInternalServerError              = "YX123456D"
@@ -76,18 +77,18 @@ class RegistrationServiceSpec extends SpecBase {
     )
   )
 
-  val organisationUserAnswersUtr = UserAnswers(userAnswersId)
+  val organisationUserAnswersUtr: UserAnswers = UserAnswers(userAnswersId)
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
     .success
     .value
     .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
     .success
     .value
-    .set(OrganisationRegistrationTypePage, testOrgType)
+    .set(RegistrationTypePage, testOrgType)
     .success
     .value
 
-  val individualDetailsUtrUserAnswers = UserAnswers(userAnswersId)
+  val individualDetailsUtrUserAnswers: UserAnswers = UserAnswers(userAnswersId)
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("5234567890"))
     .success
     .value
@@ -95,12 +96,12 @@ class RegistrationServiceSpec extends SpecBase {
     .success
     .value
 
-  val utrNotPresentInIndividualDetailsUserAnswers = UserAnswers(userAnswersId)
+  val utrNotPresentInIndividualDetailsUserAnswers: UserAnswers = UserAnswers(userAnswersId)
     .set(WhatIsYourNamePage, Name("ST firstName", "ST lastName"))
     .success
     .value
 
-  val nameNotPresentIndividualDetailsUserAnswers = UserAnswers(userAnswersId)
+  val nameNotPresentIndividualDetailsUserAnswers: UserAnswers = UserAnswers(userAnswersId)
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("5234567890"))
     .success
     .value

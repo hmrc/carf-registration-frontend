@@ -16,45 +16,48 @@
 
 package models
 
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen
-import org.scalatest.OptionValues
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.{JsError, JsString, Json}
+import base.SpecBase
+import play.api.libs.json.{JsString, Json}
 
-class IndividualRegistrationTypeSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
+class IndividualRegistrationTypeSpec extends SpecBase {
 
   "IndividualRegistrationType" - {
+    "fromRegistrationType" - {
 
-    "must deserialise valid values" in {
-
-      val gen = Gen.oneOf(IndividualRegistrationType.values.toSeq)
-
-      forAll(gen) { individualRegistrationType =>
-        JsString(individualRegistrationType.toString)
-          .validate[IndividualRegistrationType]
-          .asOpt
-          .value mustEqual individualRegistrationType
+      "return SoleTrader for SoleTrader" in {
+        IndividualRegistrationType.fromRegistrationType(
+          RegistrationType.SoleTrader
+        ) mustBe Some(IndividualRegistrationType.IndividualSoleTrader)
       }
-    }
 
-    "must fail to deserialise invalid values" in {
-
-      val gen = arbitrary[String] suchThat (!IndividualRegistrationType.values.map(_.toString).contains(_))
-
-      forAll(gen) { invalidValue =>
-        JsString(invalidValue).validate[IndividualRegistrationType] mustEqual JsError("error.invalid")
+      "return Individual for Individual" in {
+        IndividualRegistrationType.fromRegistrationType(
+          RegistrationType.Individual
+        ) mustBe Some(IndividualRegistrationType.IndividualNotConnectedToABusiness)
       }
-    }
 
-    "must serialise" in {
+      "return None for LimitedCompany" in {
+        IndividualRegistrationType.fromRegistrationType(
+          RegistrationType.LimitedCompany
+        ) mustBe None
+      }
 
-      val gen = Gen.oneOf(IndividualRegistrationType.values.toSeq)
+      "return None for Partnership" in {
+        IndividualRegistrationType.fromRegistrationType(
+          RegistrationType.Partnership
+        ) mustBe None
+      }
 
-      forAll(gen) { individualRegistrationType =>
-        Json.toJson(individualRegistrationType) mustEqual JsString(individualRegistrationType.toString)
+      "return None for LLP" in {
+        IndividualRegistrationType.fromRegistrationType(
+          RegistrationType.LLP
+        ) mustBe None
+      }
+
+      "return None for Trust" in {
+        IndividualRegistrationType.fromRegistrationType(
+          RegistrationType.Trust
+        ) mustBe None
       }
     }
   }

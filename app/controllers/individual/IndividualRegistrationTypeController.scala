@@ -18,9 +18,9 @@ package controllers.individual
 
 import controllers.actions.*
 import forms.individual.IndividualRegistrationTypeFormProvider
-import models.Mode
+import models.{IndividualRegistrationType, Mode}
 import navigation.Navigator
-import pages.individual.IndividualRegistrationTypePage
+import pages.organisation.{NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -49,10 +49,11 @@ class IndividualRegistrationTypeController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(IndividualRegistrationTypePage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm =
+        request.userAnswers
+          .get(RegistrationTypePage)
+          .flatMap(IndividualRegistrationType.fromRegistrationType)
+          .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
   }
@@ -66,9 +67,10 @@ class IndividualRegistrationTypeController @Inject() (
           individualRegistrationType =>
             for {
               updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(IndividualRegistrationTypePage, individualRegistrationType))
+                Future
+                  .fromTry(request.userAnswers.set(RegistrationTypePage, individualRegistrationType.toRegistrationType))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(IndividualRegistrationTypePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers))
         )
   }
 }

@@ -16,49 +16,47 @@
 
 package models
 
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen
-import org.scalatest.OptionValues
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.{JsError, JsString, Json}
+import base.SpecBase
+import play.api.libs.json.{JsString, Json}
 
-class OrganisationRegistrationTypeSpec
-    extends AnyFreeSpec
-    with Matchers
-    with ScalaCheckPropertyChecks
-    with OptionValues {
+class OrganisationRegistrationTypeSpec extends SpecBase {
 
-  "OrganisationRegistrationType" - {
-
-    "must deserialise valid values" in {
-
-      val gen = Gen.oneOf(OrganisationRegistrationType.values.toSeq)
-
-      forAll(gen) { organisationRegistrationType =>
-        JsString(organisationRegistrationType.toString)
-          .validate[OrganisationRegistrationType]
-          .asOpt
-          .value mustEqual organisationRegistrationType
+  "OrganisationRegistration" - {
+    "fromRegistrationType" - {
+      "return SoleTrader for SoleTrader" in {
+        OrganisationRegistrationType.fromRegistrationType(
+          RegistrationType.SoleTrader
+        ) mustBe Some(OrganisationRegistrationType.OrganisationSoleTrader)
       }
-    }
 
-    "must fail to deserialise invalid values" in {
-
-      val gen = arbitrary[String] suchThat (!OrganisationRegistrationType.values.map(_.toString).contains(_))
-
-      forAll(gen) { invalidValue =>
-        JsString(invalidValue).validate[OrganisationRegistrationType] mustEqual JsError("error.invalid")
+      "return LimitedCompany for LimitedCompany" in {
+        OrganisationRegistrationType.fromRegistrationType(
+          RegistrationType.LimitedCompany
+        ) mustBe Some(OrganisationRegistrationType.OrganisationLimitedCompany)
       }
-    }
 
-    "must serialise" in {
+      "return Partnership for Partnership" in {
+        OrganisationRegistrationType.fromRegistrationType(
+          RegistrationType.Partnership
+        ) mustBe Some(OrganisationRegistrationType.OrganisationPartnership)
+      }
 
-      val gen = Gen.oneOf(OrganisationRegistrationType.values.toSeq)
+      "return LLP for LLP" in {
+        OrganisationRegistrationType.fromRegistrationType(
+          RegistrationType.LLP
+        ) mustBe Some(OrganisationRegistrationType.OrganisationLLP)
+      }
 
-      forAll(gen) { organisationRegistrationType =>
-        Json.toJson(organisationRegistrationType) mustEqual JsString(organisationRegistrationType.toString)
+      "return Trust for Trust" in {
+        OrganisationRegistrationType.fromRegistrationType(
+          RegistrationType.Trust
+        ) mustBe Some(OrganisationRegistrationType.OrganisationTrust)
+      }
+
+      "return None for Individual" in {
+        OrganisationRegistrationType.fromRegistrationType(
+          RegistrationType.Individual
+        ) mustBe None
       }
     }
   }

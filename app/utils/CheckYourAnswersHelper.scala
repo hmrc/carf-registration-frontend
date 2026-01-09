@@ -16,38 +16,115 @@
 
 package utils
 
-import models.UserAnswers
+import com.google.inject.Inject
+import models.{RegistrationType, UserAnswers}
+import pages.RegisteredAddressInUkPage
+import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
+import pages.organisation.*
+import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.checkAnswers.*
-import viewmodels.checkAnswers.individual.{NiNumberSummary, RegisterDateOfBirthSummary, WhatIsYourNameIndividualSummary}
-import viewmodels.checkAnswers.organisation.{FirstContactEmailSummary, FirstContactNameSummary, FirstContactPhoneSummary, OrganisationRegistrationTypeSummary, WhatIsYourNameSummary, YourUniqueTaxpayerReferenceSummary}
+import viewmodels.Section
+import viewmodels.checkAnswers.individual.*
+import viewmodels.checkAnswers.organisation.*
+import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 
-class CheckYourAnswersHelper(
-    val userAnswers: UserAnswers
-)(implicit val messages: Messages) {
+class CheckYourAnswersHelper @Inject() extends Logging {
 
-  def haveTradingName: Option[SummaryListRow] = HaveTradingNameSummary.row(userAnswers)
+  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    IsThisYourBusinessSummary
+      .row(userAnswers)
+      .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
 
-  def whatIsYourNameIndividual: Option[SummaryListRow] = WhatIsYourNameIndividualSummary.row(userAnswers)
+  def indWithNinoYourDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      registeringAs     <- IndividualRegistrationTypeSummary.row(userAnswers)
+      haveNinoRow       <- HaveNiNumberSummary.row(userAnswers)
+      haveNino: Boolean <- userAnswers.get(HaveNiNumberPage)
+      whatNino          <- NiNumberSummary.row(userAnswers)
+      name              <- WhatIsYourNameIndividualSummary.row(userAnswers)
+      dob               <- RegisterDateOfBirthSummary.row(userAnswers)
+      registrationType  <- userAnswers.get(RegistrationTypePage)
+    } yield
+      if (haveNino) {
+        registrationType match {
+          case RegistrationType.SoleTrader =>
+            {
+              for {
+                registeredAddressInUkRow <- RegisteredAddressInUkSummary.row(userAnswers)
+                registeredAddressInUk    <- userAnswers.get(RegisteredAddressInUkPage)
+                haveUtrRow               <- HaveUTRSummary.row(userAnswers)
+                haveUtr                  <- userAnswers.get(HaveUTRPage)
+              } yield {
+                lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && haveNino
+                if (hasCorrectAnswersForGettingHere) {
+                  Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
+                } else {
+                  logger.warn("Individual with NINO answers were not as expected")
+                  None
+                }
+              }
+            }.flatten
+          case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
+          case _                           => None
+        }
+      } else {
+        logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")
+        None
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
 
-  def registerDateOfBirth: Option[SummaryListRow] = RegisterDateOfBirthSummary.row(userAnswers)
+  def getFirstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      firstContactName               <- FirstContactNameSummary.row(userAnswers)
+      firstContactEmail              <- FirstContactEmailSummary.row(userAnswers)
+      canWeContactFirstContact       <- FirstContactPhoneSummary.row(userAnswers)
+      canWeContactFirstContactAnswer <- userAnswers.get(FirstContactPhonePage)
+    } yield
+      if (canWeContactFirstContactAnswer) {
+        FirstContactPhoneNumberSummary.row(userAnswers).map {
+          Seq(firstContactName, firstContactEmail, canWeContactFirstContact, _)
+        }
+      } else {
+        Some(Seq(firstContactName, firstContactEmail, canWeContactFirstContact))
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.firstContact"), _))
 
-  def whatIsYourNameOrganisation: Option[SummaryListRow] = WhatIsYourNameSummary.row(userAnswers)
+  def getSecondContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      doYouHaveSecondContact    <- userAnswers.get(OrganisationHaveSecondContactPage)
+      doYouHaveSecondContactRow <- OrganisationHaveSecondContactSummary.row(userAnswers)
+    } yield {
+      if (doYouHaveSecondContact) {
+        for {
+          secondContactName               <- OrganisationSecondContactNameSummary.row(userAnswers)
+          secondContactEmail              <- OrganisationSecondContactEmailSummary.row(userAnswers)
+          canWeContactSecondContact       <- OrganisationSecondContactHavePhoneSummary.row(userAnswers)
+          canWeContactSecondContactAnswer <- userAnswers.get(OrganisationSecondContactHavePhonePage)
+        } yield
+          if (canWeContactSecondContactAnswer) {
+            OrganisationSecondContactPhoneNumberSummary.row(userAnswers).map {
+              Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact, _)
+            }
+          } else {
+            Some(Seq(doYouHaveSecondContactRow, secondContactName, secondContactEmail, canWeContactSecondContact))
+          }
+      } else {
+        Some(Some(Seq(doYouHaveSecondContactRow)))
+      }
+    }.flatten
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.secondContact"), _))
 
-  def niNumber: Option[SummaryListRow] = NiNumberSummary.row(userAnswers)
-
-  def organisationRegistrationType: Option[SummaryListRow] = OrganisationRegistrationTypeSummary.row(userAnswers)
-
-  def registeredAddressInUk: Option[SummaryListRow] = RegisteredAddressInUkSummary.row(userAnswers)
-
-  def yourUniqueTaxpayerReference: Option[SummaryListRow] =
-    YourUniqueTaxpayerReferenceSummary.row(userAnswers)
-
-  def firstContactEmail: Option[SummaryListRow] = FirstContactEmailSummary.row(userAnswers)
-
-  def firstContactName: Option[SummaryListRow] = FirstContactNameSummary.row(userAnswers)
-
-  def firstContactPhone: Option[SummaryListRow] = FirstContactPhoneSummary.row(userAnswers)
-
+  def indContactDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      email        <- IndividualEmailSummary.row(userAnswers)
+      havePhoneRow <- IndividualHavePhoneSummary.row(userAnswers)
+      havePhone    <- userAnswers.get(IndividualHavePhonePage)
+    } yield
+      if (havePhone) {
+        IndividualPhoneNumberSummary.row(userAnswers).map(Seq(email, havePhoneRow, _))
+      } else {
+        Some(Seq(email, havePhoneRow))
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualContactDetails"), _))
 }

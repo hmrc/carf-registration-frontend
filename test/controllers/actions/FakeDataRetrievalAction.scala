@@ -16,8 +16,8 @@
 
 package controllers.actions
 
-import models.{UniqueTaxpayerReference, UserAnswers}
 import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.{UniqueTaxpayerReference, UserAnswers}
 import play.api.mvc.ActionTransformer
 
 import scala.concurrent.{ExecutionContext, Future}

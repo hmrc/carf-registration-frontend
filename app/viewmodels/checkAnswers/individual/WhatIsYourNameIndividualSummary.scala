@@ -31,18 +31,12 @@ object WhatIsYourNameIndividualSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(WhatIsYourNameIndividualPage).map { answer =>
 
-      val value = HtmlFormat.escape(answer.firstName).toString + "<br/>" + HtmlFormat.escape(answer.lastName).toString
+      val value = answer.fullName
 
       SummaryListRowViewModel(
         key = "whatIsYourNameIndividual.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("whatIsYourNameIndividual.change.hidden"))
-        )
-      )
+        actions = Seq.empty
+      ).withCssClass("govuk-summary-list__row govuk-summary-list__row--no-actions govuk-summary-list__row--no-border")
     }
 }

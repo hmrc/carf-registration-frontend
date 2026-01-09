@@ -15,8 +15,8 @@
  *@
 
 @import models.OrganisationRegistrationType
-@import models.OrganisationRegistrationType.{LimitedCompany, Partnership, LLP, Trust}
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import models.OrganisationRegistrationType.{OrganisationLLP, OrganisationLimitedCompany, OrganisationPartnership, OrganisationTrust}
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 
 @this(
         layout: templates.Layout,
@@ -36,10 +36,10 @@
 
 @dynamicParagraph1 = {
 @organisationType match {
-    case LimitedCompany => {
+    case OrganisationLimitedCompany => {
         <p class="govuk-body">@messages("businessNotIdentified.name.p1.limitedCompany")</p>
     }
-    case Partnership | LLP => {
+    case OrganisationPartnership | OrganisationLLP => {
         <p class="govuk-body">@messages("businessNotIdentified.name.p1.partnership")</p>
     }
     case _ => {
@@ -50,13 +50,13 @@
 
 @dynamicParagraph2 = {
 @organisationType match {
-    case LimitedCompany => {
+    case OrganisationLimitedCompany => {
         <p class="govuk-body">
             @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
             @link(companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
         </p>
     }
-    case Partnership | LLP => {
+    case OrganisationPartnership | OrganisationLLP => {
         <p class="govuk-body">
             @messages("businessNotIdentified.name.p2.partnership.linkText")
             @link(companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)

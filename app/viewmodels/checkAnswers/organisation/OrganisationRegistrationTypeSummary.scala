@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -29,7 +29,7 @@ import viewmodels.implicits.*
 object OrganisationRegistrationTypeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(OrganisationRegistrationTypePage).map { answer =>
+    answers.get(RegistrationTypePage).map { answer =>
 
       val value = ValueViewModel(
         HtmlContent(

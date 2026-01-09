@@ -19,19 +19,17 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
-import models.OrganisationRegistrationType.*
-import models.{Address, BusinessDetails, NormalMode, UniqueTaxpayerReference, UserAnswers}
+import models.RegistrationType.*
+import models.{Address, BusinessDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
-import services.RegistrationService
 import views.html.organisation.WhatIsTheNameOfYourBusinessView
 
 import scala.concurrent.Future
@@ -41,7 +39,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
   def onwardRoute = Call("GET", "/foo")
 
   private def getBusinessTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
+    userAnswers.get(RegistrationTypePage) match {
       case Some(LimitedCompany) | Some(LLP) => "whatIsTheNameOfYourBusiness.ltdLpLlp"
       case Some(Partnership)                => "whatIsTheNameOfYourBusiness.partnership"
       case _                                => "whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust"
@@ -49,8 +47,6 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
   lazy val whatIsTheNameOfYourBusinessRoute: String =
     controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode).url
-
-  final val mockRegistrationService: RegistrationService = mock[RegistrationService]
 
   val testBusinessDetails: BusinessDetails = BusinessDetails(
     name = "Test Company Ltd",
@@ -62,21 +58,20 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return OK and the correct view for a GET when option is Ltd or LLP" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 
       val businessType = getBusinessTypeMessageKey(userAnswers)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-      when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
 
       running(application) {
         val request = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
 
         val result = route(application, request).value
         val form   = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val view = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
@@ -89,21 +84,20 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return OK and the correct view for a GET when option is Partnership" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, Partnership)
+        .set(RegistrationTypePage, Partnership)
         .success
         .value
 
       val businessType = getBusinessTypeMessageKey(userAnswers)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-      when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
 
       running(application) {
         val request = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
 
         val result = route(application, request).value
         val form   = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val view = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
@@ -116,21 +110,20 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
     "must return OK and the correct view for a GET when option is unincorporatedAssociationTrust" in {
 
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, Trust)
+        .set(RegistrationTypePage, Trust)
         .success
         .value
 
       val businessType = getBusinessTypeMessageKey(userAnswers)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-      when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
 
       running(application) {
         val request = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
 
         val result = route(application, request).value
         val form   = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
 
         val view = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
@@ -144,7 +137,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
       val companyName = "Example Company Ltd"
       val userAnswers = UserAnswers(userAnswersId)
-        .set(OrganisationRegistrationTypePage, LLP)
+        .set(RegistrationTypePage, LLP)
         .success
         .value
         .set(WhatIsTheNameOfYourBusinessPage, companyName)
@@ -152,12 +145,11 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-      when(mockSessionRepository.set(userAnswers.copy(data = userAnswers.data))).thenReturn(Future.successful(true))
 
       running(application) {
         val request      = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
         val form         = new WhatIsTheNameOfYourBusinessFormProvider().apply(
-          businessType = userAnswers.get(OrganisationRegistrationTypePage).get.toString
+          businessType = userAnswers.get(RegistrationTypePage).get.toString
         )
         val view         = application.injector.instanceOf[WhatIsTheNameOfYourBusinessView]
         val businessType = getBusinessTypeMessageKey(userAnswers)
@@ -172,61 +164,120 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
       }
     }
 
+    "must redirect to journey recovery for GET when JourneyType is sole trader or individual not connected to a business" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RegistrationTypePage, SoleTrader)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to journey recovery for GET when JourneyType is empty" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, whatIsTheNameOfYourBusinessRoute)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       val companyName = "Test Company Ltd"
 
       val initialUserAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
-        .success
-        .value
-        .set(YourUniqueTaxpayerReferencePage, testUtr)
-        .success
-        .value
-
-      val finalUserAnswers = initialUserAnswers
-        .set(WhatIsTheNameOfYourBusinessPage, companyName)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      when(
-        mockRegistrationService.getBusinessWithUserInput(
-          eqTo(finalUserAnswers)
-        )(any())
-      ) thenReturn Future.successful(Some(testBusinessDetails))
-
       val application =
         applicationBuilder(userAnswers = Some(initialUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[RegistrationService].toInstance(mockRegistrationService)
-          )
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
           .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, whatIsTheNameOfYourBusinessRoute)
-            .withFormUrlEncodedBody(("value", companyName))
+        val request = FakeRequest(POST, whatIsTheNameOfYourBusinessRoute).withFormUrlEncodedBody(("value", companyName))
 
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository, times(1)).set(any())
+      }
+    }
+
+    "must redirect to journey recovery for POST when JourneyType is sole trader or individual not connected to a business" in {
+      val companyName = "Test Company Ltd"
+
+      val initialUserAnswers = emptyUserAnswers
+        .set(RegistrationTypePage, Individual)
+        .success
+        .value
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(initialUserAnswers))
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, whatIsTheNameOfYourBusinessRoute).withFormUrlEncodedBody(("value", companyName))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockSessionRepository, times(0)).set(any())
+      }
+    }
+
+    "must redirect to journey recovery for POST when JourneyType is empty" in {
+      val companyName = "Test Company Ltd"
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, whatIsTheNameOfYourBusinessRoute).withFormUrlEncodedBody(("value", companyName))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockSessionRepository, times(0)).set(any())
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val userAnswers = emptyUserAnswers
-        .set(OrganisationRegistrationTypePage, LimitedCompany)
+        .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[RegistrationService].toInstance(mockRegistrationService)
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
         )
         .build()
 

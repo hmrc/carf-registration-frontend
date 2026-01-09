@@ -32,10 +32,7 @@ object NiNumberSummary {
       SummaryListRowViewModel(
         key = "niNumber.checkYourAnswersLabel",
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.individual.routes.NiNumberController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("niNumber.change.hidden"))
-        )
-      )
+        actions = Seq.empty
+      ).withCssClass("govuk-summary-list__row govuk-summary-list__row--no-actions govuk-summary-list__row--no-border")
     }
 }

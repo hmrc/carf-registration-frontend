@@ -18,10 +18,10 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
-import models.OrganisationRegistrationType.{LLP, LimitedCompany, Partnership, Trust}
-import models.{Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.RegistrationType.*
+import models.{Mode, RegistrationType, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,41 +47,49 @@ class YourUniqueTaxpayerReferenceController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
-      val taxType = getTaxTypeMessageKey(request.userAnswers)
-      val form    = formProvider(taxType)
+      request.userAnswers
+        .get(RegistrationTypePage)
+        .flatMap(getTaxTypeMessageKey) match {
+        case Some(messageKey) =>
+          val form         = formProvider(messageKey)
+          val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage).fold(form)(form.fill)
 
-      val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
+          Ok(view(preparedForm, mode, messageKey))
+
+        case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-
-      Ok(view(preparedForm, mode, taxType))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val taxType = getTaxTypeMessageKey(request.userAnswers)
-      val form    = formProvider(taxType)
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, taxType))),
-          value =>
-            for {
-              updatedAnswers <-
-                Future.fromTry(
-                  request.userAnswers
-                    .set(YourUniqueTaxpayerReferencePage, value)
-                )
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(YourUniqueTaxpayerReferencePage, mode, updatedAnswers))
-        )
+      request.userAnswers
+        .get(RegistrationTypePage)
+        .flatMap(getTaxTypeMessageKey) match {
+        case Some(messageKey) =>
+          val form = formProvider(messageKey)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, messageKey))),
+              value =>
+                for {
+                  updatedAnswers <-
+                    Future.fromTry(
+                      request.userAnswers
+                        .set(YourUniqueTaxpayerReferencePage, value)
+                    )
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(YourUniqueTaxpayerReferencePage, mode, updatedAnswers))
+            )
+        case None             => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 
-  private def getTaxTypeMessageKey(userAnswers: UserAnswers): String =
-    userAnswers.get(OrganisationRegistrationTypePage) match {
-      case Some(LimitedCompany) | Some(Trust) => "yourUniqueTaxpayerReference.ltdUnincorporated"
-      case Some(Partnership) | Some(LLP)      => "yourUniqueTaxpayerReference.partnershipLlp"
-      case _                                  => "yourUniqueTaxpayerReference.soleTraderIndividual"
+  private def getTaxTypeMessageKey(registrationType: RegistrationType): Option[String] =
+    registrationType match {
+      case LimitedCompany | Trust => Some("yourUniqueTaxpayerReference.ltdUnincorporated")
+      case Partnership | LLP      => Some("yourUniqueTaxpayerReference.partnershipLlp")
+      case SoleTrader             => Some("yourUniqueTaxpayerReference.soleTrader")
+      case Individual             => None
     }
 }

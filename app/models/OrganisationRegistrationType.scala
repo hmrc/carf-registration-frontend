@@ -17,46 +17,54 @@
 package models
 
 import play.api.i18n.Messages
+import play.api.libs.json.{JsString, Writes}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait OrganisationRegistrationType {
-  val code: String
-}
+sealed trait OrganisationRegistrationType:
+  def toRegistrationType: RegistrationType
 
-object OrganisationRegistrationType extends Enumerable.Implicits {
-
-  case object LimitedCompany extends WithName("limitedCompany") with OrganisationRegistrationType {
-    override val code: String = "0000"
+object OrganisationRegistrationType {
+  case object OrganisationLimitedCompany extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.LimitedCompany
   }
-  case object Partnership extends WithName("partnership") with OrganisationRegistrationType {
-    override val code: String = "0001"
 
+  case object OrganisationPartnership extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.Partnership
   }
-  case object LLP extends WithName("llp") with OrganisationRegistrationType {
-    override val code: String = "0002"
 
+  case object OrganisationLLP extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.LLP
   }
-  case object Trust extends WithName("trust") with OrganisationRegistrationType {
-    override val code: String = "0003"
 
+  case object OrganisationTrust extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.Trust
   }
-  case object SoleTrader extends WithName("soleTrader") with OrganisationRegistrationType {
-    override val code: String = "0004"
 
+  case object OrganisationSoleTrader extends OrganisationRegistrationType {
+    def toRegistrationType: RegistrationType = RegistrationType.SoleTrader
   }
+
+  def fromRegistrationType(registrationType: RegistrationType): Option[OrganisationRegistrationType] =
+    registrationType match
+      case RegistrationType.LimitedCompany => Some(OrganisationLimitedCompany)
+      case RegistrationType.Partnership    => Some(OrganisationPartnership)
+      case RegistrationType.LLP            => Some(OrganisationLLP)
+      case RegistrationType.Trust          => Some(OrganisationTrust)
+      case RegistrationType.SoleTrader     => Some(OrganisationSoleTrader)
+      case _                               => None
 
   val values: Seq[OrganisationRegistrationType] = Seq(
-    LimitedCompany,
-    Partnership,
-    LLP,
-    Trust,
-    SoleTrader
+    OrganisationLimitedCompany,
+    OrganisationPartnership,
+    OrganisationLLP,
+    OrganisationTrust,
+    OrganisationSoleTrader
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
-      content = Text(messages(s"organisationRegistrationType.${value.toString}")),
+      content = Text(messages(s"organisationRegistrationType.${value.toRegistrationType.messagesKey}")),
       value = Some(value.toString),
       id = Some(s"value_$index")
     )
@@ -64,4 +72,5 @@ object OrganisationRegistrationType extends Enumerable.Implicits {
 
   implicit val enumerable: Enumerable[OrganisationRegistrationType] =
     Enumerable(values.map(v => v.toString -> v): _*)
+
 }

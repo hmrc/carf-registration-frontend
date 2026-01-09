@@ -17,8 +17,9 @@
 package forms.mappings
 
 import config.CurrencyFormatter
-import play.api.data.validation.{Constraint, Invalid, Valid}
 import org.apache.commons.validator.routines.EmailValidator
+import play.api.data.validation.{Constraint, Invalid, Valid}
+
 import java.time.LocalDate
 
 trait Constraints {

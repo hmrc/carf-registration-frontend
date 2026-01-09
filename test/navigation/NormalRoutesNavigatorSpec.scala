@@ -444,9 +444,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe routes.PlaceholderController.onPageLoad(
-            "Must redirect to /problem/sole-trader-not-identified (CARF-129)"
-          )
+          ) mustBe controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()
         }
 
         "must navigate to business not identified page when not CT auto-matched and not sole trader" in {

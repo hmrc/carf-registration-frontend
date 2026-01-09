@@ -133,10 +133,7 @@ class IsThisYourBusinessController @Inject() (
         if (isSoleTrader(request.userAnswers)) {
           logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
           Future.successful(
-            Redirect(
-              routes.PlaceholderController
-                .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-            )
+            Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad())
           )
         } else if (isAutoMatch) {
           logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
@@ -173,12 +170,7 @@ class IsThisYourBusinessController @Inject() (
         }
       case None                    =>
         logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
-        Future.successful(
-          Redirect(
-            routes.PlaceholderController
-              .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-          )
-        )
+        Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
     }
 
   private def processFormSubmission(

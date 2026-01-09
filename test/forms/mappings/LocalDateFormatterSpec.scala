@@ -16,10 +16,9 @@
 
 package forms.mappings
 
-import org.scalatest.EitherValues.convertEitherToValuable
+import org.scalatest.{EitherValues, OptionValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.OptionValues
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
@@ -27,7 +26,7 @@ import play.api.test.Helpers.stubMessages
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues with Mappings {
+class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues with Mappings with EitherValues {
 
   implicit val messages: Messages = stubMessages()
   val minDate: LocalDate          = LocalDate.of(1900, 1, 1)
@@ -75,7 +74,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
     }
 
     "must correctly bind a leap day" in {
-      val leapYearData = Map("date.day" -> "29", "date.month" -> "2", "date.year" -> "2024") // 2024 is a leap year
+      val leapYearData = Map("date.day" -> "29", "date.month" -> "2", "date.year" -> "2024")
       val result       = formatter.bind("date", leapYearData)
       result.value mustEqual LocalDate.of(2024, 2, 29)
     }
@@ -161,7 +160,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
         }
         "when the date is a leap day in a non-leap year" in {
           val notLeapYearData =
-            Map("date.day" -> "29", "date.month" -> "2", "date.year" -> "2023") // 2023 is not a leap year
+            Map("date.day" -> "29", "date.month" -> "2", "date.year" -> "2023")
           val result          = formatter.bind("date", notLeapYearData)
           result mustEqual Left(Seq(FormError("date", "error.notReal", allFields)))
         }
@@ -176,7 +175,11 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
             "date.year"  -> futureDate.getYear.toString
           )
           val result     = formatter.bind("date", data)
-          result mustEqual Left(Seq(FormError("date", "error.future", allFields)))
+
+          val displayDate  = futureDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+          val expectedArgs = Seq(displayDate) ++ allFields
+
+          result mustEqual Left(Seq(FormError("date", "error.future", expectedArgs)))
         }
 
         "when the date is in the past" in {

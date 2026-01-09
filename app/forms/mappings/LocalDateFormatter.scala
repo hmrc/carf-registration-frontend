@@ -17,6 +17,7 @@
 package forms.mappings
 
 import java.time.{LocalDate, Month}
+import java.time.format.DateTimeFormatter
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import scala.util.{Failure, Success, Try}
@@ -107,7 +108,9 @@ private[mappings] class LocalDateFormatter(
         Try(LocalDate.of(y, m, d)) match {
           case Success(date) =>
             if (date.isAfter(maxDate)) {
-              Some(Left(Seq(FormError(key, futureDateKey, fieldKeys.map(f => s"date.error.$f") ++ args))))
+              val displayDate = maxDate.plusDays(1).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+              val errorArgs   = Seq(displayDate) ++ fieldKeys.map(f => s"date.error.$f") ++ args
+              Some(Left(Seq(FormError(key, futureDateKey, errorArgs))))
             } else if (date.isBefore(minDate)) {
               Some(Left(Seq(FormError(key, pastDateKey, fieldKeys.map(f => s"date.error.$f") ++ args))))
             } else {

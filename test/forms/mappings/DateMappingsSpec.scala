@@ -17,6 +17,7 @@
 package forms.mappings
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import generators.Generators
 import models.DateHelper.today
 import org.scalacheck.Gen
@@ -52,7 +53,7 @@ class DateMappingsSpec
       monthAndYearRequiredKey = "error.required.monthAndYear",
       futureDateKey = "error.future",
       pastDateKey = "error.tooEarlyDate",
-      maxDate = today,
+      maxDate = today.minusDays(1),
       minDate = minDate
     )
   )
@@ -319,14 +320,15 @@ class DateMappingsSpec
   }
 
   "must fail to bind a future date > today's date" in {
-    val futureDate = today.plusDays(1)
-    val data       = Map(
+    val futureDate          = today
+    val data                = Map(
       "value.day"   -> futureDate.getDayOfMonth.toString,
       "value.month" -> futureDate.getMonthValue.toString,
       "value.year"  -> futureDate.getYear.toString
     )
-    val result     = form.bind(data)
-    result.errors must contain(FormError("value", "error.future", allFields))
+    val result              = form.bind(data)
+    val formattedTodaysDate = today.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+    result.errors must contain(FormError("value", "error.future", Seq(formattedTodaysDate) ++ allFields))
   }
 
   "must fail to bind a date < minDate [year < 1901]" in {

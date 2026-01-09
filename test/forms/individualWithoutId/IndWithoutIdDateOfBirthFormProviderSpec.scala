@@ -133,17 +133,18 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
     }
 
     "must reject today's date" in {
-      val data   = Map(
+      val data                = Map(
         "value.day"   -> today.getDayOfMonth.toString,
         "value.month" -> today.getMonthValue.toString,
         "value.year"  -> today.getYear.toString
       )
-      val result = form.bind(data)
+      val result              = form.bind(data)
+      val formattedTodaysDate = today.format(displayFormat)
       result.errors must contain(
         FormError(
           "value",
           "indWithoutIdDateOfBirth.error.future.date",
-          allFields
+          Seq(formattedTodaysDate) ++ allFields
         )
       )
     }

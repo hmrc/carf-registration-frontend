@@ -38,15 +38,15 @@ class IndividualPhoneNumberFormProviderSpec extends StringFieldBehaviours {
     }
 
     "must bind a valid international phone number" in {
-      val result = form.bind(Map(fieldName -> "+44 808 157 0192"))
+      val result = form.bind(Map(fieldName -> "+33 6 00 00 00 00"))
       result.errors must be(empty)
-      result.get  mustBe "+44 808 157 0192"
+      result.get  mustBe "+33 6 00 00 00 00"
     }
 
     "must bind a valid number with parentheses" in {
-      val result = form.bind(Map(fieldName -> "(01632) 960000"))
+      val result = form.bind(Map(fieldName -> "(0121) 234 5678"))
       result.errors must be(empty)
-      result.get  mustBe "(01632) 960000"
+      result.get  mustBe "(0121) 234 5678"
     }
 
     behave like mandatoryField(

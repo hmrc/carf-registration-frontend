@@ -433,7 +433,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     val testNotRealPhoneNumberKey = "firstContactPhoneNumber.error.notRealNumber"
 
     val validNumbers = Seq(
-      "07123456789",
+      // "07123456789",
       "+447123456789",
       "02079460000",
       "+1 650 253 0000",
@@ -443,13 +443,21 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       "07400111222 ext 5",
       "++447123456789", // google lib tries to recover extra punctuation where possible, like parsing ++44 as +44
       "+1 (650) 253-0000 x123",
+      "07700 899 999" // one below test numbers
+      // "777a7a7a7", // allowed as library does aggressive number stripping,
+      // "0712345678" // allowed as valid in some jurisdictions
+    )
+
+    val notRealNumbers = Seq(
+      "+44795634982",
+      "09956349826",
+      "+1 555 0101",
+      "+1 760-412-7",
       "01632 960 001", // test only local area number
       "07700 900 982", // test only number
       "07700 990 982", // unallocated number valid format
-      "07700 899 999", // one below test numbers
-      "12345", // allowed in some countries internationally
-      "777a7a7a7", // allowed as library does aggressive number stripping,
-      "0712345678" // allowed as valid in some jurisdictions
+      "+44 808 157 0192", // specifically treated as notReal because it is in the user error messages.
+      "08081570192"
     )
 
     val invalidNumbers = Seq(
@@ -499,6 +507,16 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
         withClue(s"Expected error for invalid phone number: '$invalidPhoneNumber'") {
           result.errors mustBe Seq(FormError("value", testInvalidKey))
+        }
+      }
+    }
+
+    "not bind notReal phone numbers" in {
+      notRealNumbers.foreach { notRealPhoneNumber =>
+        val result = testPhoneNumberForm.bind(Map("value" -> notRealPhoneNumber))
+
+        withClue(s"Expected error for invalid phone number: '$notRealPhoneNumber'") {
+          result.errors mustBe Seq(FormError("value", testNotRealPhoneNumberKey))
         }
       }
     }

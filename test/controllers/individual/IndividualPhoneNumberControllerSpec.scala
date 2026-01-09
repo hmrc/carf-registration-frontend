@@ -39,7 +39,7 @@ class IndividualPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = "07700 900123"
+  val validAnswer = "07400 123456"
 
   lazy val individualPhoneNumberRoute       =
     controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode).url

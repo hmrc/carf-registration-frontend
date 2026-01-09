@@ -42,8 +42,8 @@
             RadiosViewModel.yesNo(
                 field = form("value"),
                 legend = LegendViewModel(messages("firstContactPhone.heading", usersName))
-                    .withCssClass("govuk-visually-hidden")
-        ).copy(classes = "")
+                    .withCssClass("govuk-visually-hidden govuk-!-display-block")
+            ).copy(classes = "")
         )
 
         @govukButton(

@@ -16,16 +16,15 @@
 
 package forms.mappings
 
-import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
+import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil, Phonenumber}
 import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-import scala.util.Try
-import scala.util.{Failure, Success}
 import scala.util.control.Exception.nonFatalCatch
+import scala.util.{Failure, Success, Try}
 
 trait Formatters {
 
@@ -261,7 +260,7 @@ trait Formatters {
               Try {
                 val number = phoneUtil.parse(value, "GB")
                 (phoneUtil.isPossibleNumber(number), phoneUtil.isValidNumber(number)) match {
-                  case (true, true)  => Right(value)
+                  case (true, true)  => validateNot0808Number(phoneUtil, key, value, notRealPhoneNumberKey, number, args)
                   case (true, false) => Left(Seq(FormError(key, notRealPhoneNumberKey, args)))
                   case (false, _)    => formErrorInvalidKey
                 }
@@ -276,6 +275,28 @@ trait Formatters {
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
     }
+
+  // To deal with the possibility that a user *MIGHT* respond to the Invalid error message
+  // ["Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192"], by inputting
+  // "0808 157 0192" or "+44 808 157 0192" or "+448081570192" etc, we explicitly give 'not real' error for these cases.
+  // This is because the google PhoneNumberUtil validator does not consider "+44 808 157 0192" etc to be not Real,
+  // but correctly considers 01632 960 001 & 07700 900 982  as not Real numbers.
+  protected def validateNot0808Number(
+      phoneUtil: PhoneNumberUtil,
+      key: String,
+      value: String,
+      notRealErrorKey: String,
+      number: Phonenumber.PhoneNumber,
+      args: Seq[Any] = Seq.empty
+  ): Either[Seq[FormError], String] = {
+    val formattedNumber = phoneUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.E164)
+
+    if (formattedNumber == Constants.notReal0808PhoneNumber) {
+      Left(Seq(FormError(key, notRealErrorKey, args)))
+    } else {
+      Right(value)
+    }
+  }
 
   protected def validatedTextFormatter(
       requiredKey: String,

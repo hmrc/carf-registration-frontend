@@ -46,7 +46,6 @@ object IndividualRegistrationType {
     IndividualNotConnectedToABusiness
   )
 
-  // TODO: add tests or make ticket for adding tests
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
       content = Text(messages(s"individualRegistrationType.${value.toRegistrationType.messagesKey}")),

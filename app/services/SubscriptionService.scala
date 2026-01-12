@@ -42,7 +42,7 @@ class SubscriptionService @Inject() extends Logging {
       .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
       .take(1)
 
-    if (idNumber == "9" | idNumber == "Y") {
+    if (idNumber == "2" | idNumber == "B") {
       Future.successful(Right("Stub success!"))
     } else {
       Future.successful(Left(InternalServerError))

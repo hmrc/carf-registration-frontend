@@ -119,10 +119,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         )
 
     case OrganisationSecondContactPhoneNumberPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+      _ => routes.CheckYourAnswersController.onPageLoad()
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()

@@ -936,9 +936,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationSecondContactPhoneNumberPage,
           NormalMode,
           emptyUserAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }

@@ -38,7 +38,7 @@ object RegisterDateOfBirthSummary {
         actions = Seq(
           ActionItemViewModel(
             "site.changeDetails",
-            controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(CheckMode).url
+            controllers.individual.routes.NiNumberController.onPageLoad(CheckMode).url
           )
             .withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
         )

@@ -77,13 +77,13 @@ individualRegistrationType.soleTrader = Sole trader
 individualRegistrationType.individual = An individual not connected to a business
 individualRegistrationType.checkYourAnswersLabel = What are you registering as?
 individualRegistrationType.error.required = Select what you are registering as
-individualRegistrationType.change.hidden = Change your Individual Registration Type
+individualRegistrationType.change.hidden = Change what you are registering as
 
 registeredAddressInUk.title = Is your registered address in the UK?
 registeredAddressInUk.heading = Is your registered address in the UK?
 registeredAddressInUk.checkYourAnswersLabel = Is your registered business address in the UK?
 registeredAddressInUk.error.required = Select yes if your registered address is in the UK
-registeredAddressInUk.change.hidden = Change if your registered address is in the UK
+registeredAddressInUk.change.hidden = Change whether your registered address is in the UK
 
 yourUniqueTaxpayerReference.soleTrader.title = Your Self Assessment Unique Taxpayer Reference (UTR)
 yourUniqueTaxpayerReference.soleTrader.heading = Your Self Assessment Unique Taxpayer Reference (UTR)
@@ -120,7 +120,7 @@ isThisYourBusiness.title = Is this your business?
 isThisYourBusiness.heading = Is this your business?
 isThisYourBusiness.checkYourAnswersLabel = Your business
 isThisYourBusiness.error.required = Select yes if this is your business
-isThisYourBusiness.change.hidden = Change if this is your business
+isThisYourBusiness.change.hidden = Change your business
 
 haveNiNumber.title = Do you have a National Insurance number?
 haveNiNumber.heading = Do you have a National Insurance number?
@@ -249,7 +249,6 @@ indWithoutNinoCouldNotConfirmIdentity.title = We could not confirm your identity
 indWithoutNinoCouldNotConfirmIdentity.heading = We could not confirm your identity
 indWithoutNinoCouldNotConfirmIdentity.para1 = The information you have entered does not match our records.
 
-
 registerDateOfBirth.title = What is your date of birth?
 registerDateOfBirth.heading = What is your date of birth?
 registerDateOfBirth.hint = For example, 31 3 1980.
@@ -265,14 +264,14 @@ registerDateOfBirth.error.invalid = Date of birth must only include numbers 0 to
 registerDateOfBirth.error.not.real.date = Enter a real date of birth
 registerDateOfBirth.error.future.date = Date of birth must be before {0}
 registerDateOfBirth.error.past.date = Date of birth must be after 1900
-registerDateOfBirth.change.hidden = Change What is your date of birth?
+registerDateOfBirth.change.hidden = Change your National Insurance number, name and date of birth
 
 firstContactPhone.title = Can we contact your first contact by phone?
 firstContactPhone.heading = Can we contact {0} by phone?
 firstContactPhone.p1 = We will call if we have any questions about your reports.
 firstContactPhone.checkYourAnswersLabel = Can we contact the first contact by phone?
 firstContactPhone.error.required = Select yes if the first contact can be contacted by phone
-firstContactPhone.change.hidden = Change if the first contact can be contacted by phone
+firstContactPhone.change.hidden = Change if we can contact the first contact by phone
 
 firstContactPhoneNumber.title = What is the phone number for the first contact?
 firstContactPhoneNumber.heading = What is the phone number for {0}?
@@ -306,8 +305,7 @@ organisationHaveSecondContact.heading = Is there someone else we can contact if 
 organisationHaveSecondContact.hint = This can be a team mailbox or another contact.
 organisationHaveSecondContact.checkYourAnswersLabel = Do you have a second contact?
 organisationHaveSecondContact.error.required = Select yes if there is someone else we can contact
-organisationHaveSecondContact.change.hidden = Change if there is someone else we can contact
-
+organisationHaveSecondContact.change.hidden = Change if you have a second contact
 
 individualHavePhone.title = Can we contact you by phone?
 individualHavePhone.heading = Can we contact you by phone?
@@ -323,7 +321,7 @@ individualEmail.paragraph = We will use this email address to send confirmation 
 individualEmail.error.required = Enter your email address
 individualEmail.error.length = The email address must be 132 characters or less
 individualEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
-individualEmail.change.hidden = Change your email address
+individualEmail.change.hidden = Change email address
 
 organisationSecondContactEmail.title = What is the email address for the second contact?
 organisationSecondContactEmail.heading = What is the email address for {0}?
@@ -331,7 +329,7 @@ organisationSecondContactEmail.checkYourAnswersLabel = Second contact email addr
 organisationSecondContactEmail.error.required = Enter an email address for the second contact
 organisationSecondContactEmail.error.length = The email address must be 132 characters or less
 organisationSecondContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
-organisationSecondContactEmail.change.hidden = Change the email address for the second contact name
+organisationSecondContactEmail.change.hidden = Change second contact email address
 
 organisationSecondContactName.title = What is the name of the second person or team we should contact?
 organisationSecondContactName.heading = What is the name of the second person or team we should contact?
@@ -340,7 +338,7 @@ organisationSecondContactName.hint = For example, ‘Ashley Smith’ or ‘Tax t
 organisationSecondContactName.error.required = Enter a name for the second contact
 organisationSecondContactName.error.length = The name must be 35 characters or less
 organisationSecondContactName.error.invalid = The name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
-organisationSecondContactName.change.hidden = Change what is the name of the second contact
+organisationSecondContactName.change.hidden = Change second contact name
 
 informationMissing.title = Some information is missing
 informationMissing.heading = Some information is missing
@@ -378,7 +376,7 @@ organisationSecondContactHavePhone.no = No
 organisationSecondContactHavePhone.p1 = We will call if we have any questions about your reports.
 organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact the second contact by phone?
 organisationSecondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
-organisationSecondContactHavePhone.change.hidden = Change if the second contact can be contacted by phone
+organisationSecondContactHavePhone.change.hidden = Change if we can contact the second contact by phone
 
 indWithoutNinoName.title = What is your name?
 indWithoutNinoName.heading = What is your name?
@@ -402,7 +400,7 @@ individualPhoneNumber.error.required = Enter your phone number
 individualPhoneNumber.error.length = The phone number must be 24 characters or less
 individualPhoneNumber.error.invalid = Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 individualPhoneNumber.error.real = Enter a real phone number
-individualPhoneNumber.change.hidden = Change your phone number
+individualPhoneNumber.change.hidden = Change phone number
 
 organisationBusinessAddress.title = What is the main address of your business?
 organisationBusinessAddress.heading = What is the main address of your business?

@@ -36,7 +36,7 @@ object RegisteredAddressInUkSummary {
         value = ValueViewModel(value),
         actions = Seq(
           ActionItemViewModel("site.change", routes.RegisteredAddressInUkController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("registeredAddressInUkController.change.hidden"))
+            .withVisuallyHiddenText(messages("registeredAddressInUk.change.hidden"))
         )
       )
     }

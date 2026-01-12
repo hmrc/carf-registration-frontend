@@ -39,7 +39,7 @@ object IsThisYourBusinessSummary {
         key = "isThisYourBusiness.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.IsThisYourBusinessController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.PlaceholderController.onPageLoad("Redirect as per CARF-263").url)
             .withVisuallyHiddenText(messages("isThisYourBusiness.change.hidden"))
         )
       )

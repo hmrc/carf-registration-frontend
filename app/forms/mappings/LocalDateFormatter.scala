@@ -56,16 +56,15 @@ class LocalDateFormatter(
       case "year"  => yearStr.isEmpty
     }
     if (missingFields.nonEmpty) {
-      val errors = missingFields.map { fieldKey =>
-        FormError(
-          s"$key.$fieldKey",
-          fieldKey match {
-            case "day"   => dayRequiredKey
-            case "month" => monthRequiredKey
-            case "year"  => yearRequiredKey
-          },
-          args
-        )
+      val errors = missingFields.sorted match {
+        case List("day", "month", "year") => Seq(FormError(key, allRequiredKey, args))
+        case List("day", "month")         => Seq(FormError(key, dayAndMonthRequiredKey, args))
+        case List("day", "year")          => Seq(FormError(key, dayAndYearRequiredKey, args))
+        case List("month", "year")        => Seq(FormError(key, monthAndYearRequiredKey, args))
+        case List("day")                  => Seq(FormError(s"$key.day", dayRequiredKey, args))
+        case List("month")                => Seq(FormError(s"$key.month", monthRequiredKey, args))
+        case List("year")                 => Seq(FormError(s"$key.year", yearRequiredKey, args))
+        case _                            => Seq(FormError(key, allRequiredKey, args))
       }
       return Left(errors)
     }
@@ -108,14 +107,17 @@ class LocalDateFormatter(
       case Success(date) =>
         if (date.isAfter(maxDate)) {
           val displayDate = maxDate.plusDays(1).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
-          return Left(Seq(FormError(key, futureDateKey, Seq(displayDate) ++ args)))
+          val errors      = fieldKeys.map(fk => FormError(s"$key.$fk", futureDateKey, Seq(displayDate) ++ args))
+          return Left(errors)
         }
         if (date.isBefore(minDate)) {
-          return Left(Seq(FormError(key, pastDateKey, args)))
+          val errors = fieldKeys.map(fk => FormError(s"$key.$fk", pastDateKey, args))
+          return Left(errors)
         }
         Right(date)
       case Failure(_)    =>
-        Left(fieldKeys.map(fk => FormError(s"$key.$fk", notRealDateKey, args)))
+        val errors = fieldKeys.map(fk => FormError(s"$key.$fk", notRealDateKey, args))
+        Left(errors)
     }
   }
 

@@ -24,6 +24,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 object FirstContactNameSummary {
 
@@ -34,10 +35,9 @@ object FirstContactNameSummary {
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            routes.FirstContactNameController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("firstContactName.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.FirstContactNameController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("firstContactName.change.hidden"))
         )
       )
     }

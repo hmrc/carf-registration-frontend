@@ -38,10 +38,9 @@ object OrganisationSecondContactHavePhoneSummary {
         value = ValueViewModel(value),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            routes.OrganisationSecondContactHavePhoneController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("organisationSecondContactHavePhone.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.OrganisationSecondContactHavePhoneController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("organisationSecondContactHavePhone.change.hidden"))
         )
       )
     }

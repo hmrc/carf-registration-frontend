@@ -39,8 +39,10 @@ object IsThisYourBusinessSummary {
         key = "isThisYourBusiness.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.PlaceholderController.onPageLoad("Redirect as per CARF-263").url)
-            .withVisuallyHiddenText(messages("isThisYourBusiness.change.hidden"))
+          ActionItemViewModel(
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.PlaceholderController.onPageLoad("Redirect as per CARF-263").url
+          ).withVisuallyHiddenText(messages("isThisYourBusiness.change.hidden"))
         )
       )
     }

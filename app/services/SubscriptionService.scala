@@ -43,9 +43,9 @@ class SubscriptionService @Inject() extends Logging {
       .take(1)
 
     if (idNumber == "2" | idNumber == "B") {
-      Future.successful(Right("Stub success!"))
-    } else {
       Future.successful(Left(InternalServerError))
+    } else {
+      Future.successful(Right("Stub success!"))
     }
   }
 }

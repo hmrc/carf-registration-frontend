@@ -43,10 +43,9 @@ object IndividualRegistrationTypeSummary {
             value = value,
             actions = Seq(
               ActionItemViewModel(
-                "site.change",
-                controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url
-              )
-                .withVisuallyHiddenText(messages("individualRegistrationType.change.hidden"))
+                content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+                href = controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url
+              ).withVisuallyHiddenText(messages("individualRegistrationType.change.hidden"))
             )
           )
         )

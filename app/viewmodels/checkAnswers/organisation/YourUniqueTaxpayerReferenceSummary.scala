@@ -24,6 +24,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 object YourUniqueTaxpayerReferenceSummary {
 
@@ -33,7 +34,10 @@ object YourUniqueTaxpayerReferenceSummary {
         key = "yourUniqueTaxpayerReference.checkYourAnswersLabel",
         value = ValueViewModel(HtmlFormat.escape(answer.uniqueTaxPayerReference).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.YourUniqueTaxpayerReferenceController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.YourUniqueTaxpayerReferenceController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("yourUniqueTaxpayerReference.change.hidden"))
         )
       )

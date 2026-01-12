@@ -18,7 +18,6 @@ package base
 
 import config.Constants.ukTimeZoneStringId
 import connectors.AddressLookupConnector
-import services.AddressLookupService
 import controllers.actions.*
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
@@ -32,12 +31,13 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
-import queries.Settable
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{Json, Writes}
 import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
+import queries.Settable
 import repositories.SessionRepository
-import play.api.libs.json.{Json, Writes}
+import services.AddressLookupService
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -77,7 +77,13 @@ trait SpecBase
   final val mockAddressLookupService                       = mock[AddressLookupService]
 
   override def beforeEach(): Unit = {
-    reset(mockSessionRepository, mockDataRetrievalAction, mockCtUtrRetrievalAction)
+    reset(
+      mockSessionRepository,
+      mockDataRetrievalAction,
+      mockCtUtrRetrievalAction,
+      mockAddressLookupConnector,
+      mockAddressLookupService
+    )
     super.beforeEach()
   }
   protected def applicationBuilder(

@@ -80,7 +80,8 @@ class IndFindAddressController @Inject() (
                 case addresses =>
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
-                    _              <- sessionRepository.set(updatedAnswers)
+
+                    _ <- sessionRepository.set(updatedAnswers)
                   } yield redirectBasedOnAddressCount(addresses, mode)
                 // Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswers))
               }

@@ -170,8 +170,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[AddressLookupService].toInstance(mockAddressLookupService),
-            bind[Navigator].toInstance(new FakeNavigator(onwardRouteOneAddress))
+            bind[AddressLookupService].toInstance(mockAddressLookupService)
           )
           .build()
 
@@ -201,8 +200,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[AddressLookupService].toInstance(mockAddressLookupService),
-            bind[Navigator].toInstance(new FakeNavigator(onwardRouteMultipleAddresses))
+            bind[AddressLookupService].toInstance(mockAddressLookupService)
           )
           .build()
 

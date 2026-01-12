@@ -312,6 +312,7 @@ trait Formatters extends Transforms {
 
         postCode match {
           case Some(postCode) if postCode.length > maxLengthPostcode            => Left(Seq(FormError(key, lengthKey)))
+          case Some(postCode) if postCode.isEmpty                               => Left(Seq(FormError(key, requiredKey)))
           case Some(postCode) if !stripSpaces(postCode).matches(validCharRegex) =>
             Left(Seq(FormError(key, invalidCharKey)))
           case Some(postcode) if !stripSpaces(postcode).matches(regex)          => Left(Seq(FormError(key, invalidKey)))
@@ -325,25 +326,3 @@ trait Formatters extends Transforms {
 
     }
 }
-
-protected def validatedOptionalTextFormatter(
-    invalidKey: String,
-    lengthKey: String,
-    regex: String,
-    length: Int
-): Formatter[Option[String]] =
-  new Formatter[Option[String]] {
-
-    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] =
-      data.get(key) match {
-        case Some(str) if str.trim.length == 0 => Right(None)
-        case Some(str) if !str.matches(regex)  => Left(Seq(FormError(key, invalidKey)))
-        case Some(str) if str.length > length  => Left(Seq(FormError(key, lengthKey)))
-        case Some(str)                         => Right(Some(str))
-        case _                                 => Right(None)
-      }
-
-    override def unbind(key: String, value: Option[String]): Map[String, String] =
-      Map(key -> value.getOrElse(""))
-
-  }

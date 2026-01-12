@@ -17,8 +17,6 @@
 package forms.mappings
 
 import models.{Country, Enumerable}
-import play.api.data.FieldMapping
-import models.Enumerable
 import play.api.data.Forms.of
 import play.api.data.{FieldMapping, Mapping}
 import play.api.i18n.Messages
@@ -160,11 +158,4 @@ trait Mappings extends Formatters with Constraints {
   ): Mapping[String] =
     of(mandatoryPostcodeFormatter(requiredKey, lengthKey, invalidKey, regex, invalidCharKey, InvalidCharRegex))
 
-  protected def validatedOptionalText(
-      invalidKey: String,
-      lengthKey: String,
-      regex: String,
-      length: Int
-  ): FieldMapping[Option[String]] =
-    of(validatedOptionalTextFormatter(invalidKey, lengthKey, regex, length))
 }

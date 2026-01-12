@@ -83,7 +83,6 @@ class IndFindAddressController @Inject() (
 
                     _ <- sessionRepository.set(updatedAnswers)
                   } yield redirectBasedOnAddressCount(addresses, mode)
-                // Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswers))
               }
         )
 

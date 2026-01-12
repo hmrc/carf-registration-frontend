@@ -81,7 +81,7 @@ trait Mappings extends Formatters with Constraints {
         maxDate,
         minDate,
         args
-      )
+      )(messages)
     )
 
   protected def currency(

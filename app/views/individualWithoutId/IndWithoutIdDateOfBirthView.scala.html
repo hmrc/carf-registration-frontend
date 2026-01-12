@@ -31,7 +31,7 @@
 
     @formHelper(action = controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
-        @if(form.errors.nonEmpty) {
+        @if(form.hasErrors) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 

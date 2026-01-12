@@ -245,7 +245,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "onSubmit" - {
       "when the service call is successful" - {
         "must redirect to the confirmation page" in new Setup(AffinityGroup.Organisation, orgWithUtrUserAnswers) {
-          when(mockSubscriptionService.subscribe()).thenReturn(Future.successful(Right("Success!")))
+          when(mockSubscriptionService.subscribe(any())).thenReturn(Future.successful(Right("Success!")))
 
           val request                = FakeRequest(POST, cyaRoute)
           val result: Future[Result] = route(application, request).value
@@ -259,7 +259,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
       "when the service call is NOT successful" - {
         "must redirect to the journey recovery page" in new Setup(AffinityGroup.Organisation, orgWithUtrUserAnswers) {
-          when(mockSubscriptionService.subscribe()).thenReturn(Future.successful(Left(InternalServerError)))
+          when(mockSubscriptionService.subscribe(any())).thenReturn(Future.successful(Left(InternalServerError)))
 
           val request                = FakeRequest(POST, cyaRoute)
           val result: Future[Result] = route(application, request).value

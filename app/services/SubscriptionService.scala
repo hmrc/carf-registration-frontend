@@ -18,10 +18,13 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
+import models.error.ApiError.InternalServerError
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
+import pages.individual.NiNumberPage
+import pages.organisation.YourUniqueTaxpayerReferencePage
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -32,5 +35,17 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SubscriptionService @Inject() extends Logging {
 
-  def subscribe(): Future[Either[ApiError, String]] = Future.successful(Right("Stub success!"))
+  def subscribe(userAnswers: UserAnswers): Future[Either[ApiError, String]] = {
+    // For testing success and error scenarios
+    val idNumber = userAnswers
+      .get(YourUniqueTaxpayerReferencePage)
+      .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
+      .take(1)
+
+    if (idNumber == "9" | idNumber == "Y") {
+      Future.successful(Right("Stub success!"))
+    } else {
+      Future.successful(Left(InternalServerError))
+    }
+  }
 }

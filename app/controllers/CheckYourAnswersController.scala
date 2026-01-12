@@ -81,7 +81,7 @@ class CheckYourAnswersController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
-    subscriptionService.subscribe() map {
+    subscriptionService.subscribe(request.userAnswers) map {
       case Right(response) =>
         Redirect(
           controllers.routes.PlaceholderController.onPageLoad(

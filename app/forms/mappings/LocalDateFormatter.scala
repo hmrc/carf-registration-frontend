@@ -55,16 +55,42 @@ class LocalDateFormatter(
       case "month" => monthStr.isEmpty
       case "year"  => yearStr.isEmpty
     }
+
     if (missingFields.nonEmpty) {
       val errors = missingFields.sorted match {
-        case List("day", "month", "year") => Seq(FormError(key, allRequiredKey, args))
-        case List("day", "month")         => Seq(FormError(key, dayAndMonthRequiredKey, args))
-        case List("day", "year")          => Seq(FormError(key, dayAndYearRequiredKey, args))
-        case List("month", "year")        => Seq(FormError(key, monthAndYearRequiredKey, args))
-        case List("day")                  => Seq(FormError(s"$key.day", dayRequiredKey, args))
-        case List("month")                => Seq(FormError(s"$key.month", monthRequiredKey, args))
-        case List("year")                 => Seq(FormError(s"$key.year", yearRequiredKey, args))
-        case _                            => Seq(FormError(key, allRequiredKey, args))
+        case List("day", "month", "year") =>
+          Seq(
+            FormError(s"$key.day", allRequiredKey, args),
+            FormError(s"$key.month", allRequiredKey, args),
+            FormError(s"$key.year", allRequiredKey, args)
+          )
+        case List("day", "month")         =>
+          Seq(
+            FormError(s"$key.day", dayAndMonthRequiredKey, args),
+            FormError(s"$key.month", dayAndMonthRequiredKey, args)
+          )
+        case List("day", "year")          =>
+          Seq(
+            FormError(s"$key.day", dayAndYearRequiredKey, args),
+            FormError(s"$key.year", dayAndYearRequiredKey, args)
+          )
+        case List("month", "year")        =>
+          Seq(
+            FormError(s"$key.month", monthAndYearRequiredKey, args),
+            FormError(s"$key.year", monthAndYearRequiredKey, args)
+          )
+        case List("day")                  =>
+          Seq(FormError(s"$key.day", dayRequiredKey, args))
+        case List("month")                =>
+          Seq(FormError(s"$key.month", monthRequiredKey, args))
+        case List("year")                 =>
+          Seq(FormError(s"$key.year", yearRequiredKey, args))
+        case _                            =>
+          Seq(
+            FormError(s"$key.day", allRequiredKey, args),
+            FormError(s"$key.month", allRequiredKey, args),
+            FormError(s"$key.year", allRequiredKey, args)
+          )
       }
       return Left(errors)
     }

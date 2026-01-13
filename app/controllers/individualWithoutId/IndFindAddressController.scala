@@ -84,10 +84,7 @@ class IndFindAddressController @Inject() (
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
                     _              <- sessionRepository.set(updatedAnswers)
                   } yield redirectBasedOnAddressCount(addresses, mode)
-              } recover { case ex =>
-              logger.error("Address lookup service failed" + ex)
-              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            }
+              }
         )
 
   }

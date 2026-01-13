@@ -39,7 +39,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       length <- Gen.choose(1, addressMaxLength)
       chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
     } yield chars.mkString
-  }
+  }.suchThat(_ != " ")
 
   val baseFormData: Map[String, String] = Map(
     "addressLine1" -> "1 Test Street",

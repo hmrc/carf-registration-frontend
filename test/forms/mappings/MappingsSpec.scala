@@ -432,22 +432,6 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     val testLengthKey             = "firstContactPhoneNumber.error.length"
     val testNotRealPhoneNumberKey = "firstContactPhoneNumber.error.notRealNumber"
 
-    val validNumbers = Seq(
-      // "07123456789",
-      "+447123456789",
-      "02079460000",
-      "+1 650 253 0000",
-      "+33 1 42 68 53 00",
-      "+49 30 123456",
-      "+91 98765 43210",
-      "07400111222 ext 5",
-      "++447123456789", // google lib tries to recover extra punctuation where possible, like parsing ++44 as +44
-      "+1 (650) 253-0000 x123",
-      "07700 899 999" // one below test numbers
-      // "777a7a7a7", // allowed as library does aggressive number stripping,
-      // "0712345678" // allowed as valid in some jurisdictions
-    )
-
     val notRealNumbers = Seq(
       "+44795634982",
       "09956349826",
@@ -522,6 +506,22 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     }
 
     "bind valid phone numbers" in {
+      val validNumbers = Seq(
+        "07123456789",
+        "+447123456789",
+        "02079460000",
+        "+1 650 253 0000",
+        "+33 1 42 68 53 00",
+        "+49 30 123456",
+        "+91 98765 43210",
+        "07400111222 ext 5",
+        "++447123456789", // google lib tries to recover extra punctuation where possible, like parsing ++44 as +44
+        "+1 (650) 253-0000 x123",
+        "07700 899 999", // one below test numbers
+        "07700a899g999",
+        "+447700a899g999"
+      )
+
       validNumbers.foreach { validPhoneNumber =>
         val testValue = validPhoneNumber
         val result    = testPhoneNumberForm.bind(Map("value" -> testValue))

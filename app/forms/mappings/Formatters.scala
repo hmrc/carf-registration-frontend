@@ -20,20 +20,21 @@ import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil, Phon
 import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
+import play.api.Logging
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
 
-trait Formatters {
+trait Formatters extends Logging {
 
-  private type EitherFormError = Either[Seq[FormError], String]
+  private type EitherFormErrorOrValue = Either[Seq[FormError], String]
 
   private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] =
     new Formatter[String] {
 
-      override def bind(key: String, data: Map[String, String]): EitherFormError =
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
         data.get(key) match {
           case None                      => Left(Seq(FormError(key, errorKey, args)))
           case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
@@ -159,7 +160,7 @@ trait Formatters {
       def formatError(key: String, errorKey: String, msgArg: String): FormError =
         if (msgArg.isEmpty) FormError(key, errorKey) else FormError(key, errorKey, Seq(msgArg))
 
-      override def bind(key: String, data: Map[String, String]): EitherFormError = {
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue = {
         val trimmedUtr = data.get(key).map(string => string.replaceAll("\\s", "").replaceAll("^[kK]+|[kK]+$", ""))
         trimmedUtr match {
           case None | Some("")                                => Left(Seq(formatError(key, requiredKey, msgArg)))
@@ -180,7 +181,7 @@ trait Formatters {
   private[mappings] def stringTrimFormatter(errorKey: String, msgArg: String = ""): Formatter[String] =
     new Formatter[String] {
 
-      override def bind(key: String, data: Map[String, String]): EitherFormError =
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
         data.get(key) match {
           case None    =>
             handleEmptyInput(key)
@@ -212,7 +213,7 @@ trait Formatters {
   ): Formatter[String] =
     new Formatter[String] {
 
-      override def bind(key: String, data: Map[String, String]): EitherFormError =
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
         data.get(key) match {
           case None                              =>
             Left(Seq(FormError(key, requiredKey, args)))
@@ -248,8 +249,9 @@ trait Formatters {
 
       private val phoneUtil = PhoneNumberUtil.getInstance()
 
-      override def bind(key: String, data: Map[String, String]): EitherFormError =
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
         lazy val formErrorInvalidKey = Left(Seq(FormError(key, invalidKey, args)))
+
         data.get(key).map(_.trim) match {
           case None                         => Left(Seq(FormError(key, requiredKey, args)))
           case Some(value) if value.isEmpty => Left(Seq(FormError(key, requiredKey, args)))
@@ -267,7 +269,9 @@ trait Formatters {
               } match {
                 case Success(value)                   => value
                 case Failure(_: NumberParseException) => formErrorInvalidKey
-                case Failure(exception)               => formErrorInvalidKey
+                case Failure(exception)               =>
+                  logger.error(s"Unexpected phone number form error occurred with message: ${exception.getMessage}")
+                  formErrorInvalidKey
               }
             }
         }
@@ -276,11 +280,13 @@ trait Formatters {
         Map(key -> value)
     }
 
-  // To deal with the possibility that a user *MIGHT* respond to the Invalid error message
-  // ["Enter a phone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192"], by inputting
-  // "0808 157 0192" or "+44 808 157 0192" or "+448081570192" etc, we explicitly give 'not real' error for these cases.
-  // This is because the google PhoneNumberUtil validator does not consider "+44 808 157 0192" etc to be not Real,
-  // but correctly considers 01632 960 001 & 07700 900 982  as not Real numbers.
+  /** To deal with the possibility that a user *MIGHT* respond to the Invalid error message ["Enter a phone number, like
+    * 01632 960 001, 07700 900 982 or +44 808 157 0192"], by inputting "0808 157 0192" or "+44 808 157 0192" or
+    * "+448081570192" etc, we explicitly give 'not real' error for these cases. This is because the google
+    * PhoneNumberUtil validator does not consider "+44 808 157 0192" etc to be not Real, but correctly considers 01632
+    * 960 001 & 07700 900 982 as not Real numbers.
+    */
+
   protected def validateNot0808Number(
       phoneUtil: PhoneNumberUtil,
       key: String,
@@ -310,7 +316,7 @@ trait Formatters {
     new Formatter[String] {
       private val dataFormatter: Formatter[String] = stringTrimFormatter(requiredKey, msgArg)
 
-      override def bind(key: String, data: Map[String, String]): EitherFormError =
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
         dataFormatter
           .bind(key, data)
           .flatMap {

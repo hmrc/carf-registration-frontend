@@ -31,23 +31,19 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
   def postcodeSearch(postcode: String, propertyNameOrNumber: Option[String])(implicit
       ec: ExecutionContext,
       hc: HeaderCarrier
-  ): Future[Seq[AddressResponse]] = {
-
+  ): Future[Either[ApiError, Seq[AddressResponse]]] = {
     val initialRequest = SearchByPostcodeRequest(postcode = postcode, filter = propertyNameOrNumber)
 
     addressLookupConnector.searchByPostcode(initialRequest).flatMap {
       case Left(error) =>
-        Future.successful(Seq.empty)
+        Future.successful(Left(error))
 
       case Right(Nil) if propertyNameOrNumber.isDefined =>
         val fallbackRequest = SearchByPostcodeRequest(postcode = postcode, filter = None)
-        addressLookupConnector.searchByPostcode(fallbackRequest).map {
-          case Left(_)          => Seq.empty
-          case Right(addresses) => addresses
-        }
+        addressLookupConnector.searchByPostcode(fallbackRequest)
 
       case Right(addresses) =>
-        Future.successful(addresses)
+        Future.successful(Right(addresses))
     }
   }
 }

@@ -165,7 +165,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
-        .thenReturn(Future.successful(oneAddress))
+        .thenReturn(Future.successful(Right(oneAddress)))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -195,7 +195,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(addresses))
+        .thenReturn(Future.successful(Right(addresses)))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -270,7 +270,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
     "must return Bad Request with error when postcode search returns no addresses" in {
 
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(Nil))
+        .thenReturn(Future.successful(Right(Nil)))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(

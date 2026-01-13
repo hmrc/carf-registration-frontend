@@ -50,9 +50,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  private implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  private implicit val hc: HeaderCarrier    = HeaderCarrier()
-
   val service = new AddressLookupService(mockAddressLookupConnector)
 
   val sampleAddresses: Seq[AddressResponse] = Seq(
@@ -97,7 +94,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 1")).futureValue
 
-        result mustEqual singleAddress
+        result mustEqual Right(singleAddress)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 1"))))(any())
       }
@@ -109,7 +106,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("TE1 1ST", None).futureValue
 
-        result mustEqual sampleAddresses
+        result mustEqual Right(sampleAddresses)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
       }
@@ -126,7 +123,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result mustEqual sampleAddresses
+        result mustEqual Right(sampleAddresses)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -145,7 +142,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result mustEqual Seq.empty
+        result mustEqual Right(Seq.empty)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -159,7 +156,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("XX1 1XX", None).futureValue
 
-        result mustEqual Seq.empty
+        result mustEqual Right(Seq.empty)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any())
       }
@@ -175,7 +172,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
           .searchByPostcode(any())(any())
       }
 
-      "must return empty sequence when initial search returns API error" in {
+      "must return API error when initial search returns API error" in {
 
         val apiError = ApiError.BadRequestError
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", None)))(any()))
@@ -183,12 +180,12 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("INVALID", None).futureValue
 
-        result mustEqual Seq.empty
+        result mustEqual Left(apiError)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", None)))(any())
       }
 
-      "must return empty sequence when initial search with property filter returns API error" in {
+      "must return API error when initial search with property filter returns API error" in {
 
         val apiError = ApiError.BadRequestError
         when(
@@ -199,7 +196,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("INVALID", Some("Flat 1")).futureValue
 
-        result mustEqual Seq.empty
+        result mustEqual Left(apiError)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", Some("Flat 1"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -217,7 +214,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         result.getMessage mustEqual "Connection failed"
       }
 
-      "must return empty sequence when initial search with property filter returns empty and fallback returns API error" in {
+      "must return API error when initial search with property filter returns empty and fallback returns API error" in {
 
         val apiError = ApiError.BadRequestError
         when(
@@ -230,7 +227,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 555")).futureValue
 
-        result mustEqual Seq.empty
+        result mustEqual Left(apiError)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 555"))))(any())
         verify(mockAddressLookupConnector, times(1))

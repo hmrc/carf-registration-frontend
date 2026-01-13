@@ -38,7 +38,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndFindAddressController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
-    navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
@@ -72,22 +71,29 @@ class IndFindAddressController @Inject() (
             addressLookupService
               .postcodeSearch(value.postcode, value.propertyNameOrNumber)
               .flatMap {
-                case Nil =>
+                case Left(error) =>
+                  logger.error(s"Address lookup service failed: $error")
+                  Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+                case Right(Nil)  =>
                   val formError =
                     formReturned.withError(FormError("postcode", List("indFindAddress.error.postcode.notFound")))
                   Future.successful(BadRequest(view(formError, mode)))
 
-                case addresses =>
+                case Right(addresses) =>
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
-
-                    _ <- sessionRepository.set(updatedAnswers)
+                    _              <- sessionRepository.set(updatedAnswers)
                   } yield redirectBasedOnAddressCount(addresses, mode)
-              }
+              } recover { case ex =>
+              logger.error("Address lookup service failed" + ex)
+              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            }
         )
 
   }
 
+  // TODO: Once CARF-173 and CARF-312 are done, remove the following helper function and move the redirect logic to the navigator
+  // see: https://github.com/hmrc/carf-registration-frontend/pull/74#discussion_r2676959543
   private def redirectBasedOnAddressCount(addresses: Seq[AddressResponse], mode: Mode): Result =
     if (addresses.size == 1) {
       Redirect(

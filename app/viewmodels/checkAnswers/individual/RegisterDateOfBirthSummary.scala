@@ -38,7 +38,7 @@ object RegisterDateOfBirthSummary {
         value = ValueViewModel(answer.format(dateTimeFormat())),
         actions = Seq(
           ActionItemViewModel(
-            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.changeDetails")}</span>"""),
             href = controllers.individual.routes.NiNumberController.onPageLoad(CheckMode).url
           ).withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
         )

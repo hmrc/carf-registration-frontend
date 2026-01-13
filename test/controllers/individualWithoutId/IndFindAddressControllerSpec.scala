@@ -44,8 +44,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider: IndFindAddressFormProvider = new IndFindAddressFormProvider()
-  val form: Form[IndFindAddress]               = formProvider()
+  val formProvider: IndFindAddressFormProvider       = new IndFindAddressFormProvider()
+  val form: Form[IndFindAddress]                     = formProvider()
+  val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
 
   lazy val indFindAddressRoute: String =
     controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode).url

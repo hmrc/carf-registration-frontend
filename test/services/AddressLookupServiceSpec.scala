@@ -50,7 +50,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  val service = new AddressLookupService(mockAddressLookupConnector)
+  val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
+
+  val service: AddressLookupService = new AddressLookupService(mockAddressLookupConnector)
 
   val sampleAddresses: Seq[AddressResponse] = Seq(
     AddressResponse(

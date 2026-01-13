@@ -73,16 +73,12 @@ trait SpecBase
   final val mockSessionRepository: SessionRepository       = mock[SessionRepository]
   final val mockDataRetrievalAction: DataRetrievalAction   = mock[DataRetrievalAction]
   final val mockCtUtrRetrievalAction: CtUtrRetrievalAction = mock[CtUtrRetrievalAction]
-  final val mockAddressLookupConnector                     = mock[AddressLookupConnector]
-  final val mockAddressLookupService                       = mock[AddressLookupService]
 
   override def beforeEach(): Unit = {
     reset(
       mockSessionRepository,
       mockDataRetrievalAction,
-      mockCtUtrRetrievalAction,
-      mockAddressLookupConnector,
-      mockAddressLookupService
+      mockCtUtrRetrievalAction
     )
     super.beforeEach()
   }

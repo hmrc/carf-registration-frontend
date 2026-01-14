@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
-import models.IndividualRegistrationType.{Individual, SoleTrader}
+import models.RegistrationType.*
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
@@ -46,27 +46,27 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrganisationRegistrationTypePage to Registered Address in the UK page" in {
 
       navigator.nextPage(
-        OrganisationRegistrationTypePage,
+        NavigatorOnlyOrganisationRegistrationTypePage,
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Registered Address in the UK Page when user is a Sole Trader" in {
-      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, SoleTrader).success.value
+      val userAnswers = UserAnswers("id").set(RegistrationTypePage, SoleTrader).success.value
 
       navigator.nextPage(
-        IndividualRegistrationTypePage,
+        NavigatorOnlyIndividualRegistrationTypePage,
         NormalMode,
         userAnswers
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {
-      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, Individual).success.value
+      val userAnswers = UserAnswers("id").set(RegistrationTypePage, Individual).success.value
 
       navigator.nextPage(
-        IndividualRegistrationTypePage,
+        NavigatorOnlyIndividualRegistrationTypePage,
         NormalMode,
         userAnswers
       ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
@@ -76,7 +76,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -94,7 +94,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -112,7 +112,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -130,7 +130,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -194,7 +194,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
 
@@ -210,7 +210,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
 
@@ -226,7 +226,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
 
@@ -320,7 +320,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, RegistrationType.SoleTrader)
             .success
             .value
           navigator.nextPage(
@@ -342,7 +342,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, RegistrationType.SoleTrader)
             .success
             .value
           navigator.nextPage(
@@ -364,7 +364,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
             .success
             .value
 
@@ -436,7 +436,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, RegistrationType.SoleTrader)
             .success
             .value
 
@@ -459,7 +459,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
             .success
             .value
 
@@ -505,7 +505,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrgWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
           .set(OrgWithoutIdBusinessNamePage, "valid org name")
@@ -522,7 +522,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -569,7 +569,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -587,7 +587,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
@@ -605,7 +605,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
 
@@ -694,6 +694,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
             .success
             .value
+
         navigator.nextPage(
           RegisterDateOfBirthPage,
           NormalMode,
@@ -767,9 +768,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualPhoneNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
 
@@ -937,9 +936,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationSecondContactPhoneNumberPage,
           NormalMode,
           emptyUserAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }

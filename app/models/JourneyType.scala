@@ -18,16 +18,29 @@ package models
 
 import play.api.libs.json.*
 
-case class OrganisationBusinessAddress(
-    addressLine1: String,
-    addressLine2: Option[String],
-    townOrCity: String,
-    region: Option[String],
-    postcode: Option[String],
-    country: Country
-)
+enum JourneyType:
+  case OrgWithUtr
+  case OrgWithoutId
+  case IndWithNino
+  case IndWithUtr
+  case IndWithoutId
 
-object OrganisationBusinessAddress {
+object JourneyType {
 
-  implicit val format: OFormat[OrganisationBusinessAddress] = Json.format[OrganisationBusinessAddress]
+  implicit val reads: Reads[JourneyType] = Reads {
+    case JsString(value) =>
+      JourneyType.values
+        .find(_.toString == value)
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"Unknown JourneyType: $value"))
+
+    case _ =>
+      JsError("JourneyType must be a string")
+  }
+
+  implicit val writes: Writes[JourneyType] =
+    Writes(jt => JsString(jt.toString))
+
+  implicit val format: Format[JourneyType] =
+    Format(reads, writes)
 }

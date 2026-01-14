@@ -24,6 +24,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 object IndividualEmailSummary {
 
@@ -33,8 +34,10 @@ object IndividualEmailSummary {
         key = "individualEmail.checkYourAnswersLabel",
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.IndividualEmailController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("individualEmail.change.hidden"))
+          ActionItemViewModel(
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.IndividualEmailController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("individualEmail.change.hidden"))
         )
       )
     }

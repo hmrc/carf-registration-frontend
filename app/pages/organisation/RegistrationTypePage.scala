@@ -16,13 +16,17 @@
 
 package pages.organisation
 
-import models.OrganisationRegistrationType
-import pages.QuestionPage
+import models.RegistrationType
+import pages.{Page, QuestionPage}
 import play.api.libs.json.JsPath
 
-case object OrganisationRegistrationTypePage extends QuestionPage[OrganisationRegistrationType] {
+case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "organisationRegistrationType"
+  override def toString: String = "registrationType"
 }
+
+case object NavigatorOnlyIndividualRegistrationTypePage extends Page
+
+case object NavigatorOnlyOrganisationRegistrationTypePage extends Page

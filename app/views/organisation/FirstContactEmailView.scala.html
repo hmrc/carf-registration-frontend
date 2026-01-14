@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import viewmodels.InputWidth._
+@import viewmodels.InputWidth.*
 
 @this(
     layout: templates.Layout,
@@ -34,7 +34,7 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-l">@messages("firstContactEmail.heading", contactName)</h1>
+        <h1 class="govuk-heading-l long-word">@messages("firstContactEmail.heading", contactName)</h1>
 
         <p class="govuk-body">@messages("firstContactEmail.paragraph")</p>
 

@@ -18,14 +18,17 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.UserAnswers
-import pages.Page
+import models.JourneyType
+import models.JourneyType.{IndWithNino, OrgWithUtr}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckYourAnswersValidator
-import viewmodels.checkAnswers.CheckYourAnswersViewModel
+import utils.CheckYourAnswersHelper
+import viewmodels.Section
 import views.html.CheckYourAnswersView
+
+import scala.concurrent.ExecutionContext
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -33,14 +36,60 @@ class CheckYourAnswersController @Inject() (
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
+    helper: CheckYourAnswersHelper,
+    subscriptionService: SubscriptionService,
     view: CheckYourAnswersView
-) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
-    Ok(view(CheckYourAnswersViewModel.buildPages(request.userAnswers)))
+
+    val journeyType: Option[JourneyType] = request.userAnswers.journeyType
+
+    val businessDetailsSectionMaybe: Option[Section]      =
+      helper.getBusinessDetailsSectionMaybe(request.userAnswers)
+    val firstContactDetailsSectionMaybe: Option[Section]  =
+      helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
+    val secondContactDetailsSectionMaybe: Option[Section] =
+      helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
+
+    val indWithNinoYourDetails: Option[Section] =
+      helper.indWithNinoYourDetailsMaybe(request.userAnswers)
+    val indContactDetails: Option[Section]      =
+      helper.indContactDetailsMaybe(request.userAnswers)
+
+    val sectionsMaybe = journeyType match {
+      case Some(OrgWithUtr)  =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- firstContactDetailsSectionMaybe
+          section3 <- secondContactDetailsSectionMaybe
+        } yield Seq(section1, section2, section3)
+      case Some(IndWithNino) =>
+        for {
+          section1 <- indWithNinoYourDetails
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
+      case _                 => None
+    }
+
+    sectionsMaybe match {
+      case Some(sections: Seq[Section]) => Ok(view(sections))
+      case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+    }
   }
 
-  private def getMissingAnswers(userAnswers: UserAnswers): Seq[Page] = CheckYourAnswersValidator(userAnswers).validate
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
+    subscriptionService.subscribe(request.userAnswers) map {
+      case Right(response) =>
+        Redirect(
+          controllers.routes.PlaceholderController.onPageLoad(
+            "Should redirect to confirmation page /confirm-registration (CARF-259)"
+          )
+        )
+      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
 
+  }
 }

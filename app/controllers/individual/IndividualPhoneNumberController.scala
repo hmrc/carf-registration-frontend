@@ -16,9 +16,8 @@
 
 package controllers.individual
 
-import controllers.actions._
+import controllers.actions.*
 import forms.individual.IndividualPhoneNumberFormProvider
-import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
 import pages.individual.IndividualPhoneNumberPage
@@ -28,6 +27,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.IndividualPhoneNumberView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualPhoneNumberController @Inject() (

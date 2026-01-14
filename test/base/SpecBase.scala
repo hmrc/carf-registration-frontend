@@ -17,7 +17,6 @@
 package base
 
 import config.Constants.ukTimeZoneStringId
-import connectors.AddressLookupConnector
 import controllers.actions.*
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
@@ -37,7 +36,6 @@ import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import queries.Settable
 import repositories.SessionRepository
-import services.AddressLookupService
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -75,11 +73,7 @@ trait SpecBase
   final val mockCtUtrRetrievalAction: CtUtrRetrievalAction = mock[CtUtrRetrievalAction]
 
   override def beforeEach(): Unit = {
-    reset(
-      mockSessionRepository,
-      mockDataRetrievalAction,
-      mockCtUtrRetrievalAction
-    )
+    reset(mockSessionRepository, mockDataRetrievalAction, mockCtUtrRetrievalAction)
     super.beforeEach()
   }
   protected def applicationBuilder(

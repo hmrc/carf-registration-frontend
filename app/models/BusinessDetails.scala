@@ -21,9 +21,7 @@ import play.api.libs.json.*
 case class BusinessDetails(
     name: String,
     address: Address
-) {
-  def isUkBased: Boolean = address.countryCode == "GB"
-}
+)
 
 object BusinessDetails {
   implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]

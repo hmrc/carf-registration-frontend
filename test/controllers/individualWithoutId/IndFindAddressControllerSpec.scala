@@ -19,6 +19,7 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
+import models.JourneyType.IndWithoutId
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
@@ -113,8 +114,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
   )
 
   val userAnswers = UserAnswers(
-    userAnswersId,
-    Json.obj(
+    id = userAnswersId,
+    journeyType = Some(IndWithoutId),
+    data = Json.obj(
       IndFindAddressPage.toString -> Json.obj(
         "postcode"             -> "AA1 1AA",
         "propertyNameOrNumber" -> "value 2"

@@ -16,12 +16,12 @@
 
 package forms.mappings
 
+import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 
 import scala.collection.immutable.Seq as key
 import scala.util.control.Exception.nonFatalCatch

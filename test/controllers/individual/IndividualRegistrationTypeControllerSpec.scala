@@ -19,12 +19,12 @@ package controllers.individual
 import base.SpecBase
 import controllers.routes
 import forms.individual.IndividualRegistrationTypeFormProvider
-import models.{IndividualRegistrationType, NormalMode, UserAnswers}
+import models.{IndividualRegistrationType, NormalMode, RegistrationType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.IndividualRegistrationTypePage
+import pages.organisation.RegistrationTypePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -59,10 +59,12 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(IndividualRegistrationTypePage, IndividualRegistrationType.values.head)
+        .set(RegistrationTypePage, RegistrationType.SoleTrader)
         .success
         .value
+
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
       running(application) {
         val request = FakeRequest(GET, individualRegistrationTypeRoute)
         val view    = application.injector.instanceOf[IndividualRegistrationTypeView]
@@ -72,6 +74,23 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must not prepopulate the view on a GET when the question has previously been answered with an organisation registration type" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RegistrationTypePage, RegistrationType.LimitedCompany)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, individualRegistrationTypeRoute)
+        val view    = application.injector.instanceOf[IndividualRegistrationTypeView]
+        val result  = route(application, request).value
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 

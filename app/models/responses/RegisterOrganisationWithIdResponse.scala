@@ -16,8 +16,8 @@
 
 package models.responses
 
-import play.api.libs.json.{Json, OFormat}
 import models.Address
+import play.api.libs.json.{Json, OFormat}
 
 case class RegisterOrganisationWithIdResponse(
     safeId: String,

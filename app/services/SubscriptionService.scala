@@ -39,7 +39,9 @@ class SubscriptionService @Inject() extends Logging {
     // For testing success and error scenarios
     val idNumber = userAnswers
       .get(YourUniqueTaxpayerReferencePage)
-      .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
+      .fold(userAnswers.get(IndexPage).fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference))(
+        _.uniqueTaxPayerReference
+      )
       .take(1)
 
     if (idNumber == "2" | idNumber == "B") {

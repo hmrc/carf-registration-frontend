@@ -19,6 +19,7 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
+import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{IndFindAddress, NormalMode, UserAnswers}
@@ -295,6 +296,30 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
         contentAsString(result) mustEqual view(formWithError, NormalMode)(request, messages(application)).toString
 
+        verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
+      }
+    }
+
+    "must redirect to Journey Recovery when address lookup service returns an error" in {
+
+      when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
+        .thenReturn(Future.successful(Left(ApiError.BadRequestError)))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[AddressLookupService].toInstance(mockAddressLookupService)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indFindAddressRoute)
+            .withFormUrlEncodedBody(("postcode", "TE1 1ST"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
       }
     }

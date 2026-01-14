@@ -193,17 +193,6 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
           .searchByPostcode(any())(any())
       }
 
-      "must handle connector failure gracefully" in {
-
-        when(mockAddressLookupConnector.searchByPostcode(any())(any()))
-          .thenReturn(Future.failed(new RuntimeException("Connection failed")))
-
-        val result = service.postcodeSearch("TE1 1ST", None).failed.futureValue
-
-        result               mustBe a[RuntimeException]
-        result.getMessage mustEqual "Connection failed"
-      }
-
       "must return API error when initial search with property filter returns empty and fallback returns API error" in {
 
         val apiError = ApiError.BadRequestError

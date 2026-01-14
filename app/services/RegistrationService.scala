@@ -22,7 +22,7 @@ import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWit
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -86,8 +86,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     val registrationData = for {
       utr          <- userAnswers.get(YourUniqueTaxpayerReferencePage)
       businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
-      orgType      <- userAnswers.get(OrganisationRegistrationTypePage).map(_.code)
-    } yield (utr, businessName, orgType)
+      orgType      <- userAnswers.get(RegistrationTypePage)
+    } yield (utr, businessName, orgType.code)
 
     registrationData match {
       case Some((utr, businessName, orgType)) =>

@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
-import pages.organisation.OrganisationRegistrationTypePage
+import pages.organisation.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -29,7 +29,7 @@ import viewmodels.implicits.*
 object OrganisationRegistrationTypeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(OrganisationRegistrationTypePage).map { answer =>
+    answers.get(RegistrationTypePage).map { answer =>
 
       val value = ValueViewModel(
         HtmlContent(
@@ -41,7 +41,10 @@ object OrganisationRegistrationTypeSummary {
         key = "organisationRegistrationType.checkYourAnswersLabel",
         value = value,
         actions = Seq(
-          ActionItemViewModel("site.change", routes.OrganisationRegistrationTypeController.onPageLoad(CheckMode).url)
+          ActionItemViewModel(
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.OrganisationRegistrationTypeController.onPageLoad(CheckMode).url
+          )
             .withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
         )
       )

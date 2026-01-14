@@ -21,6 +21,7 @@ import models.{CheckMode, UserAnswers}
 import pages.organisation.FirstContactEmailPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -34,10 +35,9 @@ object FirstContactEmailSummary {
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            routes.FirstContactEmailController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("firstContactEmail.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.FirstContactEmailController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("firstContactEmail.change.hidden"))
         )
       )
     }

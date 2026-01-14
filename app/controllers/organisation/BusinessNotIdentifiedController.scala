@@ -19,8 +19,9 @@ package controllers.organisation
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
-import models.OrganisationRegistrationType.SoleTrader
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import models.OrganisationRegistrationType
+import models.RegistrationType.SoleTrader
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,11 +52,12 @@ class BusinessNotIdentifiedController @Inject() (
     val maybePageInfo = for {
       utr              <- request.userAnswers.get(YourUniqueTaxpayerReferencePage)
       businessName     <- request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
-      organisationType <- request.userAnswers.get(OrganisationRegistrationTypePage)
+      organisationType <-
+        request.userAnswers.get(RegistrationTypePage).flatMap(OrganisationRegistrationType.fromRegistrationType)
     } yield (utr.uniqueTaxPayerReference, businessName, organisationType)
 
     maybePageInfo match {
-      case Some((utr, businessName, organisationType)) if !(organisationType == SoleTrader) =>
+      case Some((utr, businessName, organisationType)) if !(organisationType.toRegistrationType == SoleTrader) =>
         Ok(
           view(
             utr,
@@ -67,9 +69,10 @@ class BusinessNotIdentifiedController @Inject() (
             aeoiEmailAddress
           )
         )
-      case _                                                                                =>
+      case _                                                                                                   =>
+        val orgType = request.userAnswers.get(RegistrationTypePage)
         logger.warn(
-          "Some information was missing from user answers (utr, business name or valid organisation type). Redirecting to journey recovery."
+          s"Utr, business name or valid registration was missing from user answers <registration type: $orgType>. Redirecting to journey recovery."
         )
         Redirect(routes.JourneyRecoveryController.onPageLoad())
     }

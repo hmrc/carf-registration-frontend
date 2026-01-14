@@ -47,10 +47,9 @@ object OrganisationBusinessAddressSummary {
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("organisationBusinessAddress.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("organisationBusinessAddress.change.hidden"))
         )
       )
     }

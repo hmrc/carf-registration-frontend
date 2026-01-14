@@ -14,7 +14,8 @@ GET         /there-is-a-problem                                           contro
 
 GET         /placeholder                                                  controllers.PlaceholderController.onPageLoad(message: String)
 
-GET         /register/check-your-answers                                  controllers.CheckYourAnswersController.onPageLoad()
+GET         /register/check-answers                                       controllers.CheckYourAnswersController.onPageLoad()
+POST        /register/check-answers                                       controllers.CheckYourAnswersController.onSubmit()
 
 GET         /account/sign-out-survey                                      controllers.auth.AuthController.signOut()
 GET         /account/sign-out                                             controllers.auth.AuthController.signOutNoSurvey()

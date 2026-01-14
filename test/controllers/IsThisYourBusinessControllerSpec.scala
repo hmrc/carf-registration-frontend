@@ -25,7 +25,7 @@ import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -80,7 +80,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
+          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
           .success
           .value
 
@@ -108,7 +108,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
+          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
           .success
           .value
 
@@ -207,7 +207,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, testUtr)
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
           .success
           .value
           .set(WhatIsTheNameOfYourBusinessPage, "some name")
@@ -233,7 +233,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
       "must redirect to Business Not Identified when no business is found" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(YourUniqueTaxpayerReferencePage, testUtr)
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
           .success
           .value
           .set(WhatIsTheNameOfYourBusinessPage, "some name")

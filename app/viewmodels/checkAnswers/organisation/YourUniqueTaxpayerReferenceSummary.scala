@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
 import models.{CheckMode, UserAnswers}
-import pages.organisation.YourUniqueTaxpayerReferencePage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -28,7 +28,7 @@ import viewmodels.implicits.*
 object YourUniqueTaxpayerReferenceSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(YourUniqueTaxpayerReferencePage).map { answer =>
+    answers.get(UniqueTaxpayerReferenceInUserAnswers).map { answer =>
       SummaryListRowViewModel(
         key = "yourUniqueTaxpayerReference.checkYourAnswersLabel",
         value = ValueViewModel(HtmlFormat.escape(answer.uniqueTaxPayerReference).toString),

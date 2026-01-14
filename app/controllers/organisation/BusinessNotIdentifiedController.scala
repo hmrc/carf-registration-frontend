@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
 import models.OrganisationRegistrationType.SoleTrader
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -49,7 +49,7 @@ class BusinessNotIdentifiedController @Inject() (
     val aeoiEmailAddress: String        = appConfig.aeoiEmailAddress
 
     val maybePageInfo = for {
-      utr              <- request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+      utr              <- request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
       businessName     <- request.userAnswers.get(WhatIsTheNameOfYourBusinessPage)
       organisationType <- request.userAnswers.get(OrganisationRegistrationTypePage)
     } yield (utr.uniqueTaxPayerReference, businessName, organisationType)

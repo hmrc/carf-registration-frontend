@@ -23,7 +23,7 @@ import pages.*
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, OrganisationSecondContactPhoneNumberPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, OrganisationSecondContactPhoneNumberPage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUtrPageForNavigatorOnly}
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -45,7 +45,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case HaveUTRPage =>
       userAnswers => navigateFromHaveUTR(userAnswers)
 
-    case YourUniqueTaxpayerReferencePage =>
+    case YourUtrPageForNavigatorOnly =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
 
     case WhatIsTheNameOfYourBusinessPage =>
@@ -192,7 +192,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         }
 
       case Some(false) =>
-        if (isCTAutomatched(userAnswers)) {
+        if (userAnswers.isCtAutoMatched) {
           controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
@@ -207,7 +207,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     }
 
   private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(IndexPage).isDefined
+    userAnswers.isCtAutoMatched
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {

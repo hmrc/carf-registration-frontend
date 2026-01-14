@@ -18,11 +18,12 @@ package controllers
 
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
+import models.error.ApiError
 import models.requests.DataRequest
 import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.organisation.YourUniqueTaxpayerReferencePage
-import pages.{IndexPage, IsThisYourBusinessPage}
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
+import pages.IsThisYourBusinessPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -57,34 +58,26 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val maybeIndexPage   = request.userAnswers.get(IndexPage)
-      val maybeYourUtrPage = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
-
-      (maybeIndexPage, maybeYourUtrPage) match {
-        case (Some(autoMatchUtr), _) =>
+      val maybeUtr                = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
+      val isAutoMatched: Boolean  = request.userAnswers.isCtAutoMatched
+      val journeyTypeIsSoleTrader = request.userAnswers.journeyType
+      (journeyTypeIsSoleTrader, maybeUtr) match {
+        case (false, Some(utr))         =>
           handleBusinessLookup(
-            businessService.getBusinessWithEnrolmentCtUtr(autoMatchUtr.uniqueTaxPayerReference),
-            autoMatchUtr.uniqueTaxPayerReference,
+            businessService.getBusinessWithUserInput(request.userAnswers, utr.uniqueTaxPayerReference),
+            utr.uniqueTaxPayerReference,
             mode,
-            isAutoMatch = true
+            isAutoMatch = isAutoMatched
           )
-        case (_, Some(userInputUtr)) =>
-          if (isSoleTrader(request.userAnswers)) {
-            handleIndividualLookup(
-              businessService.getIndividualByUtr(request.userAnswers),
-              userInputUtr.uniqueTaxPayerReference,
-              mode,
-              isAutoMatch = false
-            )
-          } else {
-            handleBusinessLookup(
-              businessService.getBusinessWithUserInput(request.userAnswers),
-              userInputUtr.uniqueTaxPayerReference,
-              mode,
-              isAutoMatch = false
-            )
-          }
-        case (_, _)                  =>
+        case (true, Some(userInputUtr)) =>
+          handleIndividualLookup(
+            businessService.getIndividualByUtr(request.userAnswers),
+            userInputUtr.uniqueTaxPayerReference,
+            mode,
+            isAutoMatch = isAutoMatched
+          )
+
+        case (_, _) =>
           logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
@@ -94,18 +87,35 @@ class IsThisYourBusinessController @Inject() (
     implicit request =>
       request.userAnswers.get(IsThisYourBusinessPage) match {
         case Some(existingPageDetails) =>
-          processFormSubmission(existingPageDetails, mode)
-
-        case None =>
+          val business = BusinessDetails(existingPageDetails.name, existingPageDetails.address)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => {
+                logger.warn("Form submission contained errors")
+                Future.successful(BadRequest(view(formWithErrors, mode, business)))
+              },
+              value => {
+                val updatedPageDetails = existingPageDetails.copy(pageAnswer = Some(value))
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, updatedPageDetails))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield {
+                  logger.info(s"User answered '$value' for IsThisYourBusiness with business")
+                  Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
+                }
+              }
+            )
+        case None                      =>
           logger.warn(
-            "No business details found in UserAnswers during form submission. " + "Redirecting to journey recovery."
+            "No existing details for IsThisYourBusinessPage found in UserAnswers on form submission. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
 
   private def handleBusinessLookup(
-      lookupFuture: Future[Option[BusinessDetails]],
+      lookupFuture: Future[Either[ApiError, Option[BusinessDetails]]],
       utr: String,
       mode: Mode,
       isAutoMatch: Boolean
@@ -145,20 +155,19 @@ class IsThisYourBusinessController @Inject() (
     }
 
   private def handleIndividualLookup(
-      lookupFuture: Future[Option[IndividualDetails]],
+      lookupFuture: Future[Either[ApiError, Option[IndividualDetails]]],
       utr: String,
       mode: Mode,
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
-      case Some(individualDetails) =>
-        val existingPageDetails    = request.userAnswers.get(IsThisYourBusinessPage)
-        val soleTraderBusinessName = s"${individualDetails.firstName} ${individualDetails.lastName}"
-        val address                = individualDetails.address
-        val pageAnswer             = existingPageDetails.flatMap(_.pageAnswer)
+      case Right(Some(individualDetails)) =>
+        val soleTraderBusinessDetails = BusinessDetails(individualDetails.fullName, individualDetails.address)
 
-        val pageDetails               = IsThisYourBusinessPageDetails(soleTraderBusinessName, address, pageAnswer)
-        val soleTraderBusinessDetails = BusinessDetails(soleTraderBusinessName, address)
+        val pageDetails               = IsThisYourBusinessPageDetails(
+          businessDetails = soleTraderBusinessDetails,
+          pageAnswer = request.userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer)
+        )
 
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
@@ -168,36 +177,10 @@ class IsThisYourBusinessController @Inject() (
           logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }
-      case None                    =>
+      case Right(None)                    =>
         logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
         Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
+      case Left(value) =>
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
-
-  private def processFormSubmission(
-      existingPageDetails: IsThisYourBusinessPageDetails,
-      mode: Mode
-  )(implicit request: DataRequest[AnyContent]): Future[Result] = {
-
-    val business = BusinessDetails(existingPageDetails.name, existingPageDetails.address)
-
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          logger.debug("Form submission contained errors")
-          Future.successful(BadRequest(view(formWithErrors, mode, business)))
-        },
-        value => {
-          val updatedPageDetails = existingPageDetails.copy(pageAnswer = Some(value))
-
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, updatedPageDetails))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield {
-            logger.info(s"User answered '$value' for IsThisYourBusiness with business: ${existingPageDetails.name}")
-            Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
-          }
-        }
-      )
-  }
 }

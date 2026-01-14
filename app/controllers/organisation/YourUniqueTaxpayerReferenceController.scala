@@ -21,7 +21,7 @@ import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
 import models.OrganisationRegistrationType.{LLP, LimitedCompany, Partnership, Trust}
 import models.{Mode, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import navigation.Navigator
-import pages.organisation.{OrganisationRegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, YourUtrPageForNavigatorOnly}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -50,7 +50,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
       val taxType = getTaxTypeMessageKey(request.userAnswers)
       val form    = formProvider(taxType)
 
-      val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage) match {
+      val preparedForm = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
@@ -70,11 +70,10 @@ class YourUniqueTaxpayerReferenceController @Inject() (
             for {
               updatedAnswers <-
                 Future.fromTry(
-                  request.userAnswers
-                    .set(YourUniqueTaxpayerReferencePage, value)
+                  request.userAnswers.set(UniqueTaxpayerReferenceInUserAnswers, value)
                 )
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(YourUniqueTaxpayerReferencePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(YourUtrPageForNavigatorOnly, mode, updatedAnswers))
         )
   }
 

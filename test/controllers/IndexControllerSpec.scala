@@ -21,7 +21,6 @@ import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
 import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import pages.IndexPage
 import pages.individual.HaveNiNumberPage
 import play.api.Application
 import play.api.inject.bind

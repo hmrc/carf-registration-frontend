@@ -25,6 +25,8 @@ import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(
     id: String,
+    isCtAutoMatched: Boolean = false,
+    journeyType: Boolean = false,
     data: JsObject = Json.obj(),
     lastUpdated: Instant = Instant.now
 ) {
@@ -71,6 +73,8 @@ object UserAnswers {
 
     (
       (__ \ "_id").read[String] and
+        (__ \ "isCtAutoMatched").read[Boolean] and
+        (__ \ "journeyType").read[Boolean] and
         (__ \ "data").read[JsObject] and
         (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
     )(UserAnswers.apply _)

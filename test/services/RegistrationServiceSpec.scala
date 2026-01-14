@@ -26,7 +26,7 @@ import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationW
 import models.{Address, BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -77,7 +77,7 @@ class RegistrationServiceSpec extends SpecBase {
   )
 
   val organisationUserAnswersUtr = UserAnswers(userAnswersId)
-    .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
+    .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
     .success
     .value
     .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
@@ -88,7 +88,7 @@ class RegistrationServiceSpec extends SpecBase {
     .value
 
   val individualDetailsUtrUserAnswers = UserAnswers(userAnswersId)
-    .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("5234567890"))
+    .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("5234567890"))
     .success
     .value
     .set(WhatIsYourNamePage, Name("ST firstName", "ST lastName"))
@@ -101,7 +101,7 @@ class RegistrationServiceSpec extends SpecBase {
     .value
 
   val nameNotPresentIndividualDetailsUserAnswers = UserAnswers(userAnswersId)
-    .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("5234567890"))
+    .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("5234567890"))
     .success
     .value
 

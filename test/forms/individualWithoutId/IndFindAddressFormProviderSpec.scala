@@ -55,14 +55,14 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       "xx9 9xx9",
-      FormError(fieldName, invalidKey)
+      FormError(fieldName, invalidFormat)
     )
 
     behave like fieldWithInvalidData(
       form,
       fieldName,
       "!#2",
-      FormError(fieldName, invalidFormat),
+      FormError(fieldName, invalidKey),
       Some("format")
     )
   }

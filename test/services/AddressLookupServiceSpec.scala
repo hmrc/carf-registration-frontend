@@ -86,7 +86,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
     "postcodeSearch" - {
 
-      "must return addresses when initial search with property filter succeeds" in {
+      "must return address when initial search with property filter succeeds" in {
 
         when(
           mockAddressLookupConnector
@@ -113,8 +113,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
       }
 
-      "must retry without filter when initial search with property filter returns empty results" in {
-
+      "must return addresses when retrying without filter after initial search returns empty results" in {
         when(
           mockAddressLookupConnector
             .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
@@ -161,17 +160,6 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         result mustEqual Right(Seq.empty)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any())
-      }
-
-      "must not retry when initial search without property filter returns empty results" in {
-
-        when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any()))
-          .thenReturn(Future.successful(Right(Seq.empty)))
-
-        service.postcodeSearch("XX1 1XX", None).futureValue
-
-        verify(mockAddressLookupConnector, times(1))
-          .searchByPostcode(any())(any())
       }
 
       "must return API error when initial search returns API error" in {

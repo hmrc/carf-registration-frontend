@@ -36,9 +36,9 @@ class IndFindAddressFormProvider @Inject() extends Mappings {
           mandatoryPostcode(
             "indFindAddress.error.postcode.required",
             "indFindAddress.error.postcode.length",
-            "indFindAddress.error.postcode.invalid",
-            regexPostcode,
             "indFindAddress.error.postcode.invalidFormat",
+            regexPostcode,
+            "indFindAddress.error.postcode.invalid",
             postCodeAllowedChars
           ),
         "propertyNameOrNumber" ->

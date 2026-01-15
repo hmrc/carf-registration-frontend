@@ -78,18 +78,36 @@ class LocalDateFormatter(
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
     val cleanedData = data.map { case (k, v) => k -> v.replaceAll("[\\s-]", "") }
+    val dayStr      = cleanedData.getOrElse(s"$key.day", "")
+    val monthStr    = cleanedData.getOrElse(s"$key.month", "")
+    val yearStr     = cleanedData.getOrElse(s"$key.year", "")
 
-    val dayStr   = cleanedData.get(s"$key.day").getOrElse("")
-    val monthStr = cleanedData.get(s"$key.month").getOrElse("")
-    val yearStr  = cleanedData.get(s"$key.year").getOrElse("")
+    missingFieldErrors(key, dayStr, monthStr, yearStr)
+      .orElse(nonNumericFieldErrors(key, dayStr, monthStr, yearStr))
+      .orElse(outOfRangeFieldErrors(key, dayStr, monthStr, yearStr))
+      .orElse(dateRangeErrors(key, dayStr, monthStr, yearStr))
+      .map(Left(_))
+      .getOrElse {
+        val dayInt   = Try(dayStr.toInt).getOrElse(-1)
+        val monthInt = parseMonth(monthStr).getOrElse(-1)
+        val yearInt  = Try(yearStr.toInt).getOrElse(-1)
+        Right(LocalDate.of(yearInt, monthInt, dayInt))
+      }
+  }
 
+  private def missingFieldErrors(
+      key: String,
+      dayStr: String,
+      monthStr: String,
+      yearStr: String
+  ): Option[Seq[FormError]] = {
     val missingFields = fieldKeys.filter {
       case "day"   => dayStr.isEmpty
       case "month" => monthStr.isEmpty
       case "year"  => yearStr.isEmpty
     }
-
-    if (missingFields.nonEmpty) {
+    if (missingFields.isEmpty) None
+    else {
       val errors = missingFields.sorted match {
         case List("day", "month", "year") =>
           Seq(
@@ -125,63 +143,76 @@ class LocalDateFormatter(
             FormError(s"$key.year", allRequiredKey, args)
           )
       }
-      return Left(errors)
+      Some(errors)
     }
+  }
 
-    val dayNonNumeric   = !dayStr.forall(_.isDigit)
-    val monthOpt        = parseMonth(monthStr)
-    val monthNonNumeric = monthOpt.isEmpty && !monthStr.forall(_.isDigit)
-    val yearNonNumeric  = !yearStr.forall(_.isDigit)
-
+  private def nonNumericFieldErrors(
+      key: String,
+      dayStr: String,
+      monthStr: String,
+      yearStr: String
+  ): Option[Seq[FormError]] = {
+    val dayNonNumeric    = !dayStr.forall(_.isDigit)
+    val monthOpt         = parseMonth(monthStr)
+    val monthNonNumeric  = monthOpt.isEmpty && !monthStr.forall(_.isDigit)
+    val yearNonNumeric   = !yearStr.forall(_.isDigit)
     val nonNumericFields = List(
       "day"   -> dayNonNumeric,
       "month" -> monthNonNumeric,
       "year"  -> yearNonNumeric
     ).collect { case (field, true) => field }
-    if (nonNumericFields.nonEmpty) {
-      val errors = nonNumericFields.map { fieldKey =>
-        FormError(s"$key.$fieldKey", invalidKey, args)
-      }
-      return Left(errors)
-    }
+    if (nonNumericFields.nonEmpty)
+      Some(nonNumericFields.map(fieldKey => FormError(s"$key.$fieldKey", invalidKey, args)))
+    else None
+  }
 
-    val dayInt   = Try(dayStr.toInt).getOrElse(-1)
-    val monthInt = monthOpt.getOrElse(-1)
-    val yearInt  = Try(yearStr.toInt).getOrElse(-1)
-
-    val dayOutOfRange   = !(1 to 31).contains(dayInt)
-    val monthOutOfRange = !(1 to 12).contains(monthInt)
-    val yearOutOfRange  = !(1000 to 9999).contains(yearInt)
-
+  private def outOfRangeFieldErrors(
+      key: String,
+      dayStr: String,
+      monthStr: String,
+      yearStr: String
+  ): Option[Seq[FormError]] = {
+    val dayInt           = Try(dayStr.toInt).getOrElse(-1)
+    val monthOpt         = parseMonth(monthStr)
+    val monthInt         = monthOpt.getOrElse(-1)
+    val yearInt          = Try(yearStr.toInt).getOrElse(-1)
+    val dayOutOfRange    = !(1 to 31).contains(dayInt)
+    val monthOutOfRange  = !(1 to 12).contains(monthInt)
+    val yearOutOfRange   = !(1000 to 9999).contains(yearInt)
     val outOfRangeFields = List(
       "day"   -> dayOutOfRange,
       "month" -> monthOutOfRange,
       "year"  -> yearOutOfRange
     ).collect { case (field, true) => field }
-
-    if (outOfRangeFields.size == 1) {
-      val fk = outOfRangeFields.head
-      return Left(Seq(FormError(s"$key.$fk", notRealDateKey, args)))
-    } else if (outOfRangeFields.size > 1) {
-      val errors = outOfRangeFields.map(fk => FormError(s"$key.$fk", notRealDateKey, args))
-      return Left(errors)
+    outOfRangeFields match {
+      case Nil      => None
+      case List(fk) =>
+        Some(Seq(FormError(s"$key.$fk", notRealDateKey, args)))
+      case fks      =>
+        Some(fks.map(fk => FormError(s"$key.$fk", notRealDateKey, args)))
     }
+  }
 
+  private def dateRangeErrors(
+      key: String,
+      dayStr: String,
+      monthStr: String,
+      yearStr: String
+  ): Option[Seq[FormError]] = {
+    val dayInt   = Try(dayStr.toInt).getOrElse(-1)
+    val monthInt = parseMonth(monthStr).getOrElse(-1)
+    val yearInt  = Try(yearStr.toInt).getOrElse(-1)
     Try(LocalDate.of(yearInt, monthInt, dayInt)) match {
       case Success(date) =>
         if (date.isAfter(maxDate)) {
           val displayDate = maxDate.plusDays(1).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
-          val errors      = fieldKeys.map(fk => FormError(s"$key.$fk", futureDateKey, Seq(displayDate) ++ args))
-          return Left(errors)
-        }
-        if (date.isBefore(minDate)) {
-          val errors = fieldKeys.map(fk => FormError(s"$key.$fk", pastDateKey, args))
-          return Left(errors)
-        }
-        Right(date)
+          Some(fieldKeys.map(fk => FormError(s"$key.$fk", futureDateKey, Seq(displayDate) ++ args)))
+        } else if (date.isBefore(minDate)) {
+          Some(fieldKeys.map(fk => FormError(s"$key.$fk", pastDateKey, args)))
+        } else None
       case Failure(_)    =>
-        val errors = fieldKeys.map(fk => FormError(s"$key.$fk", notRealDateKey, args))
-        Left(errors)
+        Some(fieldKeys.map(fk => FormError(s"$key.$fk", notRealDateKey, args)))
     }
   }
 

@@ -37,8 +37,9 @@ class PostcodeFormatter(
     "IM" -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
   )
 
-  private val postcodeCharsRegex = "^[A-Z0-9 ]*$"
-  private val examplePostcode    = "AA1 1AA"
+  private val cdPostcodeCharsRegex    = "^[A-Z0-9 ]*$"
+  private val nonCdPostcodeCharsRegex = "^[A-Z0-9 ]*$"
+  private val examplePostcode         = "AA1 1AA"
 
   private def getPostcodePrefix(countryCode: String): String =
     countryCode match {
@@ -48,7 +49,6 @@ class PostcodeFormatter(
 
   private def normalise(countryCode: Option[String], postcode: String): String = {
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
-
     if (isCrownDependency) {
       val noSpaces = postcode.replaceAll("\\s", "").toUpperCase
       if (noSpaces.length > 3) {
@@ -58,7 +58,7 @@ class PostcodeFormatter(
         noSpaces
       }
     } else {
-      postcode.trim
+      postcode.trim.toUpperCase
     }
   }
 
@@ -71,10 +71,12 @@ class PostcodeFormatter(
       else Right(None)
     } else if (postcode.length > 10) {
       Left(Seq(FormError("postcode", lengthKey)))
+    } else if (isCrownDependency && !postcode.matches(cdPostcodeCharsRegex)) {
+      Left(Seq(FormError("postcode", invalidCharKey)))
+    } else if (!isCrownDependency && !postcode.matches(nonCdPostcodeCharsRegex)) {
+      Left(Seq(FormError("postcode", invalidCharKey)))
     } else if (isCrownDependency && postcode == examplePostcode) {
       Left(Seq(FormError("postcode", invalidRealCrownKey)))
-    } else if (isCrownDependency && !postcode.matches(postcodeCharsRegex)) {
-      Left(Seq(FormError("postcode", invalidCharKey)))
     } else if (isCrownDependency && !postcode.startsWith(getPostcodePrefix(cc))) {
       Left(Seq(FormError("postcode", invalidFormatCrownKey)))
     } else if (isCrownDependency) {

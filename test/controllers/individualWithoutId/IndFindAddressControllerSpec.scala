@@ -19,6 +19,7 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
+import generators.Generators
 import models.JourneyType.IndWithoutId
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
@@ -42,9 +43,7 @@ import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.Future
 
-class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
-
-  def onwardRoute = Call("GET", "/foo")
+class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with Generators {
 
   val formProvider: IndFindAddressFormProvider       = new IndFindAddressFormProvider()
   val form: Form[IndFindAddress]                     = formProvider()
@@ -65,7 +64,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       address = AddressRecord(
         lines = List("Address-Line1", "Address-Line2"),
         town = "Bristol",
-        postcode = "BS6 1XX",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     )
@@ -77,7 +76,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       address = AddressRecord(
         lines = List("1 test", "1 Test Street", "Testington"),
         town = " Test Town",
-        postcode = "TE1 1ST",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     )
@@ -89,7 +88,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       address = AddressRecord(
         lines = List("1 test", "1 Test Street", "Testington"),
         town = "South Test Town",
-        postcode = "TE1 1ST",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     ),
@@ -98,7 +97,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       address = AddressRecord(
         lines = List("2 test", "2 Test Street", "Testington"),
         town = "East Test Town",
-        postcode = "TE1 1ST",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     ),
@@ -107,7 +106,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       address = AddressRecord(
         lines = List("1 test", "2 Test Street", "Testington"),
         town = "North Townshire",
-        postcode = "TE1 1ST",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     )

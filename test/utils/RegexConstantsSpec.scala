@@ -17,9 +17,9 @@
 package utils
 
 import base.SpecBase
+import config.Constants.regexPostcode
 import generators.Generators
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks.forAll
-import config.Constants.regexPostcode
 
 class RegexConstantsSpec extends SpecBase with Generators {
 
@@ -37,14 +37,11 @@ class RegexConstantsSpec extends SpecBase with Generators {
     }
     "not match for invalid postcodes" - {
       val invalidPostcodes = List(
-        // missing chars
         "SW 2AA",
         "SWA 2AA",
         "SW1A AA",
-        // too many chars
         "SW11A 2AA",
         "SW1A 12AA",
-        // whitespace
         " SW1A 2AA",
         "SW1A 2AA ",
         "SW1A  2AA"

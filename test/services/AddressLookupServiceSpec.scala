@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import connectors.AddressLookupConnector
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
+import generators.Generators
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
@@ -48,7 +49,7 @@ import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with Generators {
 
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
 
@@ -60,7 +61,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       address = AddressRecord(
         lines = List("1 Test Street"),
         town = "Test Town",
-        postcode = "TE1 1ST",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     ),
@@ -69,7 +70,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       address = AddressRecord(
         lines = List("2 Test Street"),
         town = "Test Town",
-        postcode = "TE1 1ST",
+        postcode = validPostcodes.sample.value,
         country = CountryRecord(code = "UK", name = "United Kingdom")
       )
     )

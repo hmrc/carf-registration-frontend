@@ -48,10 +48,9 @@ class IndWithoutIdDateOfBirthController @Inject() (
     implicit request =>
       val form = formProvider()
 
-      val preparedForm = request.userAnswers.get(IndWithoutIdDateOfBirthPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = request.userAnswers
+        .get(IndWithoutIdDateOfBirthPage)
+        .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
   }

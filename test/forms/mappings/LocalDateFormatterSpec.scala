@@ -257,6 +257,48 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
             )
           )
         }
+
+        "must fail with notReal error when only month is out of range" in {
+          val result = formatter.bind("date", validData.updated("date.month", "13"))
+          result mustEqual Left(Seq(FormError("date.month", "error.notReal")))
+        }
+
+        "must fail with notReal error when only year is out of range" in {
+          val result = formatter.bind("date", validData.updated("date.year", "999"))
+          result mustEqual Left(Seq(FormError("date.year", "error.notReal")))
+        }
+
+        "must fail with notReal error when day and year are out of range" in {
+          val result = formatter.bind("date", validData.updated("date.day", "32").updated("date.year", "999"))
+          result mustEqual Left(
+            Seq(
+              FormError("date.day", "error.notReal"),
+              FormError("date.year", "error.notReal")
+            )
+          )
+        }
+
+        "must fail with notReal error when month and year are out of range" in {
+          val result = formatter.bind("date", validData.updated("date.month", "13").updated("date.year", "999"))
+          result mustEqual Left(
+            Seq(
+              FormError("date.month", "error.notReal"),
+              FormError("date.year", "error.notReal")
+            )
+          )
+        }
+
+        "must fail with notReal error when all fields are out of range" in {
+          val result = formatter.bind("date", Map("date.day" -> "32", "date.month" -> "13", "date.year" -> "999"))
+          result mustEqual Left(
+            Seq(
+              FormError("date.day", "error.notReal"),
+              FormError("date.month", "error.notReal"),
+              FormError("date.year", "error.notReal")
+            )
+          )
+        }
+
       }
     }
   }

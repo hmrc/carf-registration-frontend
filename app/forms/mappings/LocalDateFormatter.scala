@@ -101,10 +101,10 @@ class LocalDateFormatter(
       monthStr: String,
       yearStr: String
   ): Option[Seq[FormError]] = {
-    val missingFields = fieldKeys.filter {
-      case "day"   => dayStr.isEmpty
-      case "month" => monthStr.isEmpty
-      case "year"  => yearStr.isEmpty
+    val missingFields = fieldKeys.collect {
+      case "day" if dayStr.isEmpty     => "day"
+      case "month" if monthStr.isEmpty => "month"
+      case "year" if yearStr.isEmpty   => "year"
     }
     if (missingFields.isEmpty) None
     else {

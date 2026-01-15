@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
-import models.IndividualRegistrationType.{Individual, SoleTrader}
+import models.IndividualRegistrationType.{IndividualNotConnectedToABusiness, IndividualSoleTrader}
 import models.RegistrationType.*
 import org.scalactic.Prettifier.default
 import pages.*

@@ -29,7 +29,6 @@ import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, Or
 import pages.organisation.*
 import java.time.LocalDate
 
-
 class NormalRoutesNavigatorSpec extends SpecBase {
 
   val navigator = new Navigator

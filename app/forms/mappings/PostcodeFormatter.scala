@@ -38,7 +38,7 @@ class PostcodeFormatter(
   )
 
   private val cdPostcodeCharsRegex    = "^[A-Z0-9 ]*$"
-  private val nonCdPostcodeCharsRegex = "^[A-Z0-9 ]*$"
+  private val nonCdPostcodeCharsRegex = "^[A-Za-z0-9 \\-]*$"
   private val examplePostcode         = "AA1 1AA"
 
   private def getPostcodePrefix(countryCode: String): String =
@@ -58,7 +58,7 @@ class PostcodeFormatter(
         noSpaces
       }
     } else {
-      postcode.trim.toUpperCase
+      postcode.trim
     }
   }
 

@@ -42,6 +42,39 @@ class LocalDateFormatter(
     extends Formatter[LocalDate] {
 
   private val fieldKeys: List[String] = List("day", "month", "year")
+  private val monthNames              = Seq(
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december"
+  )
+  private val monthShortNames         = monthNames.map(_.take(3))
+
+  private def parseMonth(monthStr: String): Option[Int] = {
+    val cleaned = monthStr.trim.replaceAll("[\\s-]", "").toLowerCase
+    if (cleaned.forall(_.isDigit)) {
+      Try(cleaned.toInt).toOption.filter(m => m >= 1 && m <= 12)
+    } else {
+      monthNames.indexOf(cleaned) match {
+        case idx if idx >= 0 => Some(idx + 1)
+        case _               =>
+          if (cleaned.length == 3) {
+            monthShortNames.indexOf(cleaned) match {
+              case idx if idx >= 0 => Some(idx + 1)
+              case _               => None
+            }
+          } else None
+      }
+    }
+  }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
     val cleanedData = data.map { case (k, v) => k -> v.replaceAll("[\\s-]", "") }
@@ -95,11 +128,16 @@ class LocalDateFormatter(
       return Left(errors)
     }
 
-    val nonNumericFields = fieldKeys.filter {
-      case "day"   => !dayStr.forall(_.isDigit)
-      case "month" => !monthStr.forall(_.isDigit)
-      case "year"  => !yearStr.forall(_.isDigit)
-    }
+    val dayNonNumeric   = !dayStr.forall(_.isDigit)
+    val monthOpt        = parseMonth(monthStr)
+    val monthNonNumeric = monthOpt.isEmpty && !monthStr.forall(_.isDigit)
+    val yearNonNumeric  = !yearStr.forall(_.isDigit)
+
+    val nonNumericFields = List(
+      "day"   -> dayNonNumeric,
+      "month" -> monthNonNumeric,
+      "year"  -> yearNonNumeric
+    ).collect { case (field, true) => field }
     if (nonNumericFields.nonEmpty) {
       val errors = nonNumericFields.map { fieldKey =>
         FormError(s"$key.$fieldKey", invalidKey, args)
@@ -108,7 +146,7 @@ class LocalDateFormatter(
     }
 
     val dayInt   = Try(dayStr.toInt).getOrElse(-1)
-    val monthInt = Try(monthStr.toInt).getOrElse(-1)
+    val monthInt = monthOpt.getOrElse(-1)
     val yearInt  = Try(yearStr.toInt).getOrElse(-1)
 
     val dayOutOfRange   = !(1 to 31).contains(dayInt)

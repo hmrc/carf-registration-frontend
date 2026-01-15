@@ -27,22 +27,24 @@ import java.time.{LocalDate, ZoneOffset}
 class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
   private implicit val messages: Messages = stubMessages()
   private val form                        = new RegisterDateOfBirthFormProvider()()
-
-  private val minDate      = LocalDate.of(1901, 1, 1)
-  private val todayDate    = LocalDate.now(ZoneOffset.UTC)
-  private val maxValidDate = todayDate.minusDays(1)
-  val displayFormat        = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  private val allFields    = Seq("date.error.day", "date.error.month", "date.error.year")
+  private val minDate                     = LocalDate.of(1901, 1, 1)
+  private val todayDate                   = LocalDate.now(ZoneOffset.UTC)
+  private val maxValidDate                = todayDate.minusDays(1)
+  val displayFormat                       = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   ".value" - {
     val validData = datesBetween(min = minDate, max = maxValidDate)
     behave like dateField(form, "value", validData)
-    behave like mandatoryDateField(
-      form,
-      "value",
-      "registerDateOfBirth.error.required.all",
-      allFields
-    )
+
+    "fail to bind an empty date" in {
+      val data   = Map("value.day" -> "", "value.month" -> "", "value.year" -> "")
+      val result = form.bind(data)
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.required.all"),
+        FormError("value.month", "registerDateOfBirth.error.required.all"),
+        FormError("value.year", "registerDateOfBirth.error.required.all")
+      )
+    }
 
     "must bind the minimum allowed date (1901-01-01)" in {
       val data   = Map(
@@ -97,7 +99,6 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
     "must bind valid dates when month provided by alphabetic name (case-insensitive)" in {
       val date       = LocalDate.of(2000, 3, 15)
       val monthNames = Seq("March", "march", "MARCH", "Mar", "mar", "MAR")
-
       monthNames.foreach { m =>
         val data   = Map(
           "value.day"   -> date.getDayOfMonth.toString,
@@ -111,31 +112,32 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
 
     "must bind valid dates with month names in random mixed case" in {
       def toMixedCase(s: String): String =
-        s.map(c => if (scala.util.Random.nextBoolean()) c.toLower else c.toUpper)
-
-      val date   = LocalDate.of(1999, 8, 25)
-      val data   = Map(
+        s.zipWithIndex.map { case (c, i) => if (i % 2 == 0) c.toLower else c.toUpper }.mkString
+      val date                           = LocalDate.of(1999, 8, 25)
+      val data                           = Map(
         "value.day"   -> date.getDayOfMonth.toString,
-        "value.month" -> toMixedCase(date.getMonth.toString),
+        "value.month" -> toMixedCase("August"),
         "value.year"  -> date.getYear.toString
       )
-      val result = form.bind(data)
+      val result                         = form.bind(data)
       result.value.value mustEqual date
     }
 
     "must reject non-numeric input" in {
       val data   = Map("value.day" -> "ten", "value.month" -> "Jan", "value.year" -> "twenty")
       val result = form.bind(data)
-      result.errors.map(_.message) must contain("registerDateOfBirth.error.invalid")
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.invalid"),
+        FormError("value.year", "registerDateOfBirth.error.invalid")
+      )
     }
 
     "must reject dates with an invalid day (e.g. invalid day 0)" in {
       val data   = Map("value.day" -> "0", "value.month" -> "12", "value.year" -> "2020")
       val result = form.bind(data)
       result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.not.real.date",
-        Seq("date.error.day")
+        "value.day",
+        "registerDateOfBirth.error.not.real.date"
       )
     }
 
@@ -143,9 +145,8 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       val data   = Map("value.day" -> "10", "value.month" -> "15", "value.year" -> "2020")
       val result = form.bind(data)
       result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.not.real.date",
-        Seq("date.error.month")
+        "value.month",
+        "registerDateOfBirth.error.not.real.date"
       )
     }
 
@@ -153,9 +154,8 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       val data   = Map("value.day" -> "10", "value.month" -> "12", "value.year" -> "x")
       val result = form.bind(data)
       result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.invalid",
-        Seq("date.error.year")
+        "value.year",
+        "registerDateOfBirth.error.invalid"
       )
     }
 
@@ -163,19 +163,30 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       val data   = Map("value.day" -> "10", "value.month" -> "JanX", "value.year" -> "2020")
       val result = form.bind(data)
       result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.invalid",
-        Seq("date.error.month")
+        "value.month",
+        "registerDateOfBirth.error.invalid"
       )
+    }
+
+    "must reject dates with an invalid month (janf, janu, januaryy, etc)" in {
+      val invalidMonths = Seq("janf", "janu", "januaryy", "augu", "augustt", "au")
+      invalidMonths.foreach { m =>
+        val data   = Map("value.day" -> "10", "value.month" -> m, "value.year" -> "2020")
+        val result = form.bind(data)
+        result.errors must contain only FormError(
+          "value.month",
+          "registerDateOfBirth.error.invalid"
+        )
+      }
     }
 
     "must reject dates which are not real dates (e.g. invalid day 31 April)" in {
       val data   = Map("value.day" -> "31", "value.month" -> "4", "value.year" -> "2020")
       val result = form.bind(data)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.not.real.date",
-        allFields
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.not.real.date"),
+        FormError("value.month", "registerDateOfBirth.error.not.real.date"),
+        FormError("value.year", "registerDateOfBirth.error.not.real.date")
       )
     }
 
@@ -187,10 +198,10 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
       )
       val result              = form.bind(data)
       val formattedTodaysDate = todayDate.format(displayFormat)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.future.date",
-        Seq(formattedTodaysDate) ++ allFields
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.future.date", Seq(formattedTodaysDate)),
+        FormError("value.month", "registerDateOfBirth.error.future.date", Seq(formattedTodaysDate)),
+        FormError("value.year", "registerDateOfBirth.error.future.date", Seq(formattedTodaysDate))
       )
     }
 
@@ -202,11 +213,11 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
         "value.year"  -> future.getYear.toString
       )
       val result              = form.bind(data)
-      val formattedTodaysDate = todayDate.format(displayFormat)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.future.date",
-        Seq(formattedTodaysDate) ++ allFields
+      val formattedFutureDate = todayDate.format(displayFormat)
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.future.date", Seq(formattedFutureDate)),
+        FormError("value.month", "registerDateOfBirth.error.future.date", Seq(formattedFutureDate)),
+        FormError("value.year", "registerDateOfBirth.error.future.date", Seq(formattedFutureDate))
       )
     }
 
@@ -218,40 +229,37 @@ class RegisterDateOfBirthFormProviderSpec extends DateBehaviours {
         "value.year"  -> tooOld.getYear.toString
       )
       val result = form.bind(data)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.past.date",
-        allFields
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.past.date"),
+        FormError("value.month", "registerDateOfBirth.error.past.date"),
+        FormError("value.year", "registerDateOfBirth.error.past.date")
       )
     }
 
     "must give correct errors when multiple fields missing [day and month]" in {
       val missingDayAndMonth = Map("value.day" -> "", "value.month" -> "", "value.year" -> "2020")
       val result             = form.bind(missingDayAndMonth)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.required.day.and.month",
-        Seq("date.error.day", "date.error.month")
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.required.day.and.month"),
+        FormError("value.month", "registerDateOfBirth.error.required.day.and.month")
       )
     }
 
     "must give correct errors when multiple fields missing [month and year]" in {
       val missingMonthAndYear = Map("value.day" -> "12", "value.month" -> "", "value.year" -> "")
       val result              = form.bind(missingMonthAndYear)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.required.month.and.year",
-        Seq("date.error.month", "date.error.year")
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.month", "registerDateOfBirth.error.required.month.and.year"),
+        FormError("value.year", "registerDateOfBirth.error.required.month.and.year")
       )
     }
 
     "must give correct errors when multiple fields missing [day and year]" in {
       val missingDayAndYear = Map("value.day" -> "", "value.month" -> "10", "value.year" -> "")
       val result            = form.bind(missingDayAndYear)
-      result.errors must contain only FormError(
-        "value",
-        "registerDateOfBirth.error.required.day.and.year",
-        Seq("date.error.day", "date.error.year")
+      result.errors must contain theSameElementsAs Seq(
+        FormError("value.day", "registerDateOfBirth.error.required.day.and.year"),
+        FormError("value.year", "registerDateOfBirth.error.required.day.and.year")
       )
     }
 

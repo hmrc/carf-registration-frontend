@@ -14,16 +14,13 @@
  * limitations under the License.
  *@
 
-@import config.FrontendAppConfig
-
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
-        link: components.Link,
-        appConfig: FrontendAppConfig
+        link: components.Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(signOutNoSurveyUrl: String, loginContinueUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("agentSignInProblem.title"))) {
 
@@ -32,5 +29,5 @@
     <p class="govuk-body">@messages("agentSignInProblem.paragraph")</p>
 
     <p class="govuk-body">@messages("agentSignInProblem.linkText")
-        @link(s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}", messages("agentSignInProblem.link"), fullStop = true)</p>
+        @link(s"$signOutNoSurveyUrl?continue=$loginContinueUrl", messages("agentSignInProblem.link"), fullStop = true)</p>
 }

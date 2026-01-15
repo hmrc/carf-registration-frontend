@@ -16,31 +16,23 @@
 
 package utils
 
-import models.{IndividualRegistrationType, OrganisationRegistrationType, UserAnswers}
-import pages.individual.IndividualRegistrationTypePage
-import pages.organisation.OrganisationRegistrationTypePage
+import models.JourneyType.{IndWithUtr, OrgWithUtr}
+import models.RegistrationType.SoleTrader
+import models.{JourneyType, RegistrationType, UserAnswers}
+import pages.organisation.RegistrationTypePage
 
 trait UserAnswersHelper {
 
   def isSoleTrader(userAnswers: UserAnswers): Boolean = {
-    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
+    val registrationType: Option[RegistrationType] = userAnswers.get(RegistrationTypePage)
 
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) => true
-      case _                                                                                                     => false
-    }
+    registrationType.fold(false)(_ == SoleTrader)
   }
 
-  def isRegisteringAsBusiness(userAnswers: UserAnswers): Boolean = {
-    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.Individual), _) | (Some(IndividualRegistrationType.SoleTrader), _) => false
-      case _                                                                                                   => true
+  def getJourneyTypeUtrOnly(userAnswers: UserAnswers): JourneyType =
+    if (isSoleTrader(userAnswers)) {
+      IndWithUtr
+    } else {
+      OrgWithUtr
     }
-  }
 }

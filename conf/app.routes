@@ -14,7 +14,8 @@ GET         /there-is-a-problem                                           contro
 
 GET         /placeholder                                                  controllers.PlaceholderController.onPageLoad(message: String)
 
-GET         /register/check-your-answers                                  controllers.CheckYourAnswersController.onPageLoad()
+GET         /register/check-answers                                       controllers.CheckYourAnswersController.onPageLoad()
+POST        /register/check-answers                                       controllers.CheckYourAnswersController.onSubmit()
 
 GET         /account/sign-out-survey                                      controllers.auth.AuthController.signOut()
 GET         /account/sign-out                                             controllers.auth.AuthController.signOutNoSurvey()
@@ -171,7 +172,19 @@ POST        /register/individual-without-id/date-of-birth                  contr
 GET         /register/individual-without-id/change-date-of-birth           controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-date-of-birth           controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = CheckMode)
 
+GET         /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-phone                             controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-phone                             controllers.individual.IndividualPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/business-without-id/business-address                controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/business-without-id/business-address                controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/business-without-id/change-business-address         controllers.orgWithoutId.OrganisationBusinessAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/business-without-id/change-business-address         controllers.orgWithoutId.OrganisationBusinessAddressController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/second-contact-phone                                controllers.organisation.OrganisationSecondContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/second-contact-phone                                controllers.organisation.OrganisationSecondContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-second-contact-phone                         controllers.organisation.OrganisationSecondContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/change-second-contact-phone                         controllers.organisation.OrganisationSecondContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/problem/sole-trader-not-identified                  controllers.individual.ProblemSoleTraderNotIdentifiedController.onPageLoad()

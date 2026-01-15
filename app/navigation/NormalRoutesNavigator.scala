@@ -17,26 +17,25 @@
 package navigation
 
 import controllers.routes
-import models.OrganisationRegistrationType.*
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
+import models.RegistrationType.{Individual, SoleTrader}
+import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, OrganisationSecondContactPhoneNumberPage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
+import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
-
 import java.time.LocalDate
 
 trait NormalRoutesNavigator extends UserAnswersHelper {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
-    case IndividualRegistrationTypePage =>
+    case NavigatorOnlyIndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case OrganisationRegistrationTypePage =>
+    case NavigatorOnlyOrganisationRegistrationTypePage =>
       _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>
@@ -73,10 +72,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromHaveTradingName(userAnswers)
 
     case TradingNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+      _ => controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+
+    case OrganisationBusinessAddressPage =>
+      _ => controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -102,6 +101,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndividualEmailPage =>
       _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
+    case IndividualPhoneNumberPage         => _ => routes.CheckYourAnswersController.onPageLoad()
     case OrganisationSecondContactNamePage =>
       _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
@@ -121,22 +121,19 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         )
 
     case OrganisationSecondContactPhoneNumberPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+      _ => routes.CheckYourAnswersController.onPageLoad()
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
-    userAnswers.get(IndividualRegistrationTypePage) match {
-      case Some(IndividualRegistrationType.SoleTrader) =>
+    userAnswers.get(RegistrationTypePage) match {
+      case Some(SoleTrader) =>
         controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
-      case Some(IndividualRegistrationType.Individual) =>
+      case Some(Individual) =>
         controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
-      case _                                           =>
+      case _                =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -157,7 +154,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(false) =>
         if (isSoleTrader(userAnswers)) {
           controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
-        } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
+        } else if (userAnswers.get(RegistrationTypePage).isDefined) {
           controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
         } else {
           routes.JourneyRecoveryController.onPageLoad()
@@ -166,19 +163,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call = {
-
-    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
-      case _                                                                                                     =>
-        controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
+    if (isSoleTrader(userAnswers)) {
+      controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
+    } else {
+      controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
-  }
 
   private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
@@ -194,7 +184,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
           controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
-            routes.PlaceholderController.onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
+            controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()
           } else {
             controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
           }
@@ -221,9 +211,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true) =>
         controllers.orgWithoutId.routes.TradingNameController.onPageLoad(NormalMode)
       case _          =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/business-without-id/business-address (CARF-162)"
-        )
+        controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
     }
 
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
@@ -253,9 +241,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndividualHavePhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndividualHavePhonePage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-phone (CARF-185)"
-        )
+        controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
       case None        =>

@@ -21,18 +21,17 @@ import forms.IsThisYourBusinessFormProvider
 import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, reset, verify, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.RegistrationService
-import uk.gov.hmrc.http.InternalServerException
 import views.html.IsThisYourBusinessView
 
 import scala.concurrent.Future
@@ -49,8 +48,11 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     address = Address("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB")
   )
 
-  val soleTraderTestBusiness: BusinessDetails = BusinessDetails(
-    name = "Test Name Sole Trader",
+  val soleTraderTestIndividual: IndividualDetails = IndividualDetails(
+    safeId = "5234567890",
+    firstName = "Test first Name ST Individual",
+    middleName = None,
+    lastName = "Test last Name ST Individual",
     address = Address("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB")
   )
 
@@ -70,20 +72,19 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
   }
 
   "IsThisYourBusinessController" - {
-
-    "on a Sole Trader journey" - {
+    "on a Sole Trader non-auto-matched journey" - {
       "must return OK and the correct view for a successful match" in {
-        val soleTraderUtr = UniqueTaxpayerReference("1234567890")
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
         val userAnswers   = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
-          .thenReturn(Future.successful(Some(soleTraderTestBusiness)))
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Some(soleTraderTestIndividual)))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
@@ -92,27 +93,24 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
         running(application) {
           val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
           val result  = route(application, request).value
-          val view    = application.injector.instanceOf[IsThisYourBusinessView]
 
           status(result)     mustEqual OK
-          contentAsString(result) must include("Test Name Sole Trader")
-
-          verify(mockRegistrationService).getBusinessWithUserInput(eqTo(userAnswers))(any())
-
+          contentAsString(result) must include("Test first Name ST Individual")
+          verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
         }
       }
 
       "must redirect to Sole Trader Not Identified page for an unsuccessful match" in {
         val soleTraderUtr = UniqueTaxpayerReference("3000000000")
         val userAnswers   = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, soleTraderUtr)
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(None))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
@@ -123,10 +121,10 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
           val result  = route(application, request).value
 
-          status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.PlaceholderController
-            .onPageLoad("Must redirect to /problem/sole-trader-not-identified (CARF-129)")
-            .url
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(
+            result
+          ).value        mustEqual controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad().url
         }
       }
     }
@@ -134,7 +132,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     "on an Organisation auto-match journey" - {
       "must return OK and the correct view when a UTR is found via IndexPage" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
           .set(IndexPage, testUtr)
@@ -163,7 +161,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(IndexPage, testUtr)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
 
@@ -204,7 +202,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     "on an Organisation manual-entry journey" - {
       "must return OK and the correct view when UTR and Business name are provided" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
           .set(YourUniqueTaxpayerReferencePage, testUtr)
@@ -239,7 +237,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .set(WhatIsTheNameOfYourBusinessPage, "some name")
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
 

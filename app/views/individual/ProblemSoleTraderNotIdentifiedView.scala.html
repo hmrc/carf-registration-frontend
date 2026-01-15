@@ -1,0 +1,69 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukSummaryList: GovukSummaryList,
+        link: components.Link,
+)
+
+@(utr: String, name: String, indexPageUrl: String, guidancePageUrl: String, aeoiEmailAddress: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("problemSoleTraderNotIdentified.title"))) {
+
+    <h1 class="govuk-heading-l">@messages("problemSoleTraderNotIdentified.heading")</h1>
+
+    <p class="govuk-body">
+    @messages("problemSoleTraderNotIdentified.p1")
+    </p>
+
+    @govukSummaryList(SummaryList(
+        rows = Seq(
+            SummaryListRow(
+                key = Key(content = Text(messages("problemSoleTraderNotIdentified.summaryList.utrKey"))),
+                value = Value(content = Text(utr))
+            ),
+            SummaryListRow(
+                key = Key(content = Text(messages("problemSoleTraderNotIdentified.summaryList.nameKey"))),
+                value = Value(content = Text(name))
+            )
+        )
+    ))
+
+    <p class="govuk-body">
+        @messages("problemSoleTraderNotIdentified.p2.part1")
+        @link(indexPageUrl, messages("problemSoleTraderNotIdentified.p2.part2"), fullStop = true)
+    </p>
+
+    <h2 class="govuk-heading-m">@messages("problemSoleTraderNotIdentified.subtitle1")</h2>
+
+    <p class="govuk-body">
+        @messages("problemSoleTraderNotIdentified.p3.part1")
+        @link(guidancePageUrl, messages("problemSoleTraderNotIdentified.p3.part2"), fullStop = true, openInNewWindow = true)
+    </p>
+
+    <h2 class="govuk-heading-m">@messages("problemSoleTraderNotIdentified.subtitle2")</h2>
+
+    <p class="govuk-body">
+        @messages("problemSoleTraderNotIdentified.p4.part1")
+        <a href="mailto:@aeoiEmailAddress" class="govuk-link">@aeoiEmailAddress</a>
+        @messages("problemSoleTraderNotIdentified.p4.part3")
+    </p>
+
+}

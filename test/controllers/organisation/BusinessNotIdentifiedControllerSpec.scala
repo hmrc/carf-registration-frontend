@@ -17,20 +17,26 @@
 package controllers.organisation
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.routes
-import models.{OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.organisation.{OrganisationRegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
+import models.RegistrationType.{LimitedCompany, SoleTrader}
+import models.{OrganisationRegistrationType, RegistrationType, UniqueTaxpayerReference, UserAnswers}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.organisation.BusinessNotIdentifiedView
 
 class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
-  val testUtrString    = "1234567890"
-  val testUtrObject    = UniqueTaxpayerReference(testUtrString)
-  val testBusinessName = "Test Corp"
-  val testOrgType      = OrganisationRegistrationType.LimitedCompany
+  val testUtrString                                = "1234567890"
+  val testUtrObject                                = UniqueTaxpayerReference(testUtrString)
+  val testBusinessName                             = "Test Corp"
+  val testRegType: RegistrationType                = LimitedCompany
+  val testOrgRegType: OrganisationRegistrationType = OrganisationRegistrationType.OrganisationLimitedCompany
+
+  val testCompaniesHouseSearchUrl: String = "https://find-and-update.company-information.service.gov.uk/"
+  val testRegistrationStartUrl: String    = "/register-for-carf"
+  val testFindUTRUrl: String              = "https://www.gov.uk/find-utr-number"
+  val testAeoiEmailAddress: String        = "aeoi.enquiries@hmrc.gov.uk"
 
   val userAnswersWithData: UserAnswers = emptyUserAnswers
     .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
@@ -39,7 +45,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
     .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
     .success
     .value
-    .set(OrganisationRegistrationTypePage, testOrgType)
+    .set(RegistrationTypePage, testRegType)
     .success
     .value
 
@@ -54,16 +60,18 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view      = application.injector.instanceOf[BusinessNotIdentifiedView]
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val view = application.injector.instanceOf[BusinessNotIdentifiedView]
 
         status(result) mustEqual OK
 
         contentAsString(result) mustEqual view(
-          testUtrString,
-          testBusinessName,
-          Some(testOrgType),
-          appConfig
+          utr = testUtrString,
+          businessName = testBusinessName,
+          organisationType = testOrgRegType,
+          companiesHouseSearchUrl = testCompaniesHouseSearchUrl,
+          registrationStartUrl = testRegistrationStartUrl,
+          findUTRUrl = testFindUTRUrl,
+          aeoiEmailAddress = testAeoiEmailAddress
         )(request, messages(application)).toString
       }
     }
@@ -72,6 +80,9 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
       val userAnswersWithoutUtr = emptyUserAnswers
         .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+        .success
+        .value
+        .set(RegistrationTypePage, testRegType)
         .success
         .value
 
@@ -91,6 +102,56 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
       val userAnswersWithoutName = emptyUserAnswers
         .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .success
+        .value
+        .set(RegistrationTypePage, testRegType)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithoutName)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if Business type is missing" in {
+
+      val userAnswersWithoutName = emptyUserAnswers
+        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithoutName)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if Business type is Sole Trader" in {
+
+      val userAnswersWithoutName = emptyUserAnswers
+        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .success
+        .value
+        .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+        .success
+        .value
+        .set(RegistrationTypePage, SoleTrader)
         .success
         .value
 

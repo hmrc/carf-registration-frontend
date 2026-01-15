@@ -18,6 +18,7 @@ package controllers.individual
 
 import controllers.actions.*
 import forms.individual.NiNumberFormProvider
+import models.JourneyType.IndWithNino
 import models.Mode
 import navigation.Navigator
 import pages.individual.NiNumberPage
@@ -66,7 +67,7 @@ class NiNumberController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(NiNumberPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
+              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(IndWithNino)))
             } yield Redirect(navigator.nextPage(NiNumberPage, mode, updatedAnswers))
         )
   }

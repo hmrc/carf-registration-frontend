@@ -20,16 +20,26 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.*
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.*
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.*
+@import views.html.helper.CSPNonce
 
 @this(
     appConfig: FrontendAppConfig,
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     alphaBanner: StandardAlphaBanner,
+    autocompleteCss: HmrcAccessibleAutocompleteCss,
+    autocompleteJavascript: HmrcAccessibleAutocompleteJavascript,
     hmrcStandardPage: HmrcStandardPage
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(
+        pageTitle: String,
+        showBackLink: Boolean = true,
+        timeout: Boolean = true,
+        showSignOut: Boolean = true,
+        showHmrcBanner: Boolean = false,
+        showAutoComplete: Boolean = false
+)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
 
@@ -49,6 +59,11 @@
 }
 
 @additionalScripts = {
+    @if(showAutoComplete) {
+        @autocompleteJavascript()
+        @autocompleteCss()
+        <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
+    }
     <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="all" rel="stylesheet" type="text/css">
 }
 

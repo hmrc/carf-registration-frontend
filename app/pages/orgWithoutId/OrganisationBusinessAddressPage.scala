@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package pages.individual
+package pages.orgWithoutId
 
-import models.IndividualRegistrationType
+import models.OrganisationBusinessAddress
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IndividualRegistrationTypePage extends QuestionPage[IndividualRegistrationType] {
+case object OrganisationBusinessAddressPage extends QuestionPage[OrganisationBusinessAddress] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "individualRegistrationType"
+  override def toString: String = "organisationBusinessAddress"
 }

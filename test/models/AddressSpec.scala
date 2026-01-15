@@ -45,7 +45,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
     "renderHTML" - {
 
       "must render UK address correctly without country code" in {
-        val result = ukAddress.renderHTML(isUkBased = true)
+        val result = ukAddress.renderHTML
 
         result must include("123 Main Street")
         result must include("Birmingham")
@@ -56,7 +56,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
       }
 
       "must render non-UK address correctly with country code" in {
-        val result = nonUkAddress.renderHTML(isUkBased = false)
+        val result = nonUkAddress.renderHTML
 
         result must include("321 Pear")
         result must include("New York")
@@ -77,7 +77,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
           countryCode = "FR"
         )
 
-        val result = minimalAddress.renderHTML(isUkBased = false)
+        val result = minimalAddress.renderHTML
 
         result mustEqual """<span class="govuk-!-margin-bottom-0">1 Apple Street</span><br>FR"""
       }
@@ -92,13 +92,22 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
           countryCode = "DE"
         )
 
-        val result = addressWithEmpties.renderHTML(isUkBased = false)
+        val result = addressWithEmpties.renderHTML
 
         result must include("123 Orange Street")
         result must include("Valid Line")
         result must include("12345")
         result must include("DE")
         result must not include """<span class="govuk-!-margin-bottom-0"></span>"""
+      }
+    }
+
+    "isUkBased" - {
+      "must return true for a GB country code" in {
+        ukAddress.isUkBased mustBe true
+      }
+      "must return false for a non-GB country code" in {
+        nonUkAddress.isUkBased mustBe false
       }
     }
   }

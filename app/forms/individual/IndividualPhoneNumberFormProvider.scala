@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package pages.organisation
+package forms.individual
 
-import models.OrganisationRegistrationType
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
-case object OrganisationRegistrationTypePage extends QuestionPage[OrganisationRegistrationType] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class IndividualPhoneNumberFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "organisationRegistrationType"
+  def apply(): Form[String] =
+    Form(
+      "value" -> phoneNumber(
+        requiredKey = "individualPhoneNumber.error.required",
+        invalidKey = "individualPhoneNumber.error.invalid",
+        lengthKey = "individualPhoneNumber.error.length"
+      )
+    )
 }

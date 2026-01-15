@@ -24,6 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 object RegisterDateOfBirthSummary {
 
@@ -37,10 +38,9 @@ object RegisterDateOfBirthSummary {
         value = ValueViewModel(answer.format(dateTimeFormat())),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.changeDetails")}</span>"""),
+            href = controllers.individual.routes.NiNumberController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
         )
       )
     }

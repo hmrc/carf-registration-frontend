@@ -14,11 +14,9 @@
  * limitations under the License.
  *@
 
-@import config.FrontendAppConfig
-@import models.*
 @import models.OrganisationRegistrationType
-@import models.OrganisationRegistrationType.{LimitedCompany, Partnership, LLP, Trust}
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import models.OrganisationRegistrationType.{OrganisationLLP, OrganisationLimitedCompany, OrganisationPartnership, OrganisationTrust}
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 
 @this(
         layout: templates.Layout,
@@ -29,9 +27,44 @@
 @(
         utr: String,
         businessName: String,
-        organisationType: Option[OrganisationRegistrationType],
-        appConfig: FrontendAppConfig
+        organisationType: OrganisationRegistrationType,
+        companiesHouseSearchUrl: String,
+        registrationStartUrl: String,
+        findUTRUrl: String,
+        aeoiEmailAddress: String
 )(implicit request: Request[_], messages: Messages)
+
+@dynamicParagraph1 = {
+@organisationType match {
+    case OrganisationLimitedCompany => {
+        <p class="govuk-body">@messages("businessNotIdentified.name.p1.limitedCompany")</p>
+    }
+    case OrganisationPartnership | OrganisationLLP => {
+        <p class="govuk-body">@messages("businessNotIdentified.name.p1.partnership")</p>
+    }
+    case _ => {
+        <p class="govuk-body">@messages("businessNotIdentified.name.p1.default")</p>
+    }
+}
+}
+
+@dynamicParagraph2 = {
+@organisationType match {
+    case OrganisationLimitedCompany => {
+        <p class="govuk-body">
+            @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
+            @link(companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
+        </p>
+    }
+    case OrganisationPartnership | OrganisationLLP => {
+        <p class="govuk-body">
+            @messages("businessNotIdentified.name.p2.partnership.linkText")
+            @link(companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)
+        </p>
+    }
+    case _ => {}
+}
+}
 
 @layout(pageTitle = titleNoForm(messages("businessNotIdentified.title"))) {
 
@@ -53,28 +86,19 @@
     ))
 
     <p class="govuk-body">
-    @Html(messages("businessNotIdentified.tryAgain", appConfig.registrationStartUrl))
+        @messages("businessNotIdentified.tryAgain")
+        @link(registrationStartUrl, messages("businessNotIdentified.tryAgain.linkText"), fullStop = true)
     </p>
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.utr.heading")</h2>
     <p class="govuk-body">
         @messages("businessNotIdentified.utr.linkText")
-        @link(appConfig.findUTRUrl, messages("businessNotIdentified.utr.link"), openInNewWindow = true, fullStop = true)
+        @link(findUTRUrl, messages("businessNotIdentified.utr.link"), openInNewWindow = true, fullStop = true)
     </p>
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.name.heading")</h2>
 
-    @organisationType match {
-        case Some(LimitedCompany) => {
-            <p class="govuk-body">@messages("businessNotIdentified.name.p1.limitedCompany")</p>
-        }
-        case Some(Partnership) | Some(LLP) => {
-            <p class="govuk-body">@messages("businessNotIdentified.name.p1.partnership")</p>
-        }
-        case _ => {
-            <p class="govuk-body">@messages("businessNotIdentified.name.p1.default")</p>
-        }
-    }
+    @dynamicParagraph1
 
     <p class="govuk-body govuk-!-margin-bottom-2">@messages("businessNotIdentified.name.bullets.heading")</p>
     <ul class="govuk-list govuk-list--bullet">
@@ -82,24 +106,13 @@
         <li>@messages("businessNotIdentified.name.bullet2")</li>
     </ul>
 
-    @organisationType match {
-        case Some(LimitedCompany) => {
-            <p class="govuk-body">
-                @messages("businessNotIdentified.name.p2.limitedCompany.linkText")
-                @link(appConfig.companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.limitedCompany.link"), openInNewWindow = true, fullStop = true)
-            </p>
-        }
-        case Some(Partnership) | Some(LLP) => {
-            <p class="govuk-body">
-                @messages("businessNotIdentified.name.p2.partnership.linkText")
-                @link(appConfig.companiesHouseSearchUrl, messages("businessNotIdentified.name.p2.partnership.link"), openInNewWindow = true, fullStop = true)
-            </p>
-        }
-      case _ => { }
-    }
+    @dynamicParagraph2
 
     <h2 class="govuk-heading-m">@messages("businessNotIdentified.contact.heading")</h2>
+
     <p class="govuk-body">
-    @Html(messages("businessNotIdentified.contact.p1", appConfig.aoeiEmailAddress))
+        @messages("businessNotIdentified.contact.p1.part1")
+        <a href="mailto:@aeoiEmailAddress" class="govuk-link">@aeoiEmailAddress</a>
+        @messages("businessNotIdentified.contact.p1.part2")
     </p>
 }

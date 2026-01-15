@@ -27,7 +27,9 @@ case class Address(
     countryCode: String
 ) {
 
-  def renderHTML(isUkBased: Boolean): String = {
+  def isUkBased: Boolean = countryCode == "GB"
+
+  val renderHTML: String = {
     val addressLines = Seq(
       Some(addressLine1),
       addressLine2,

@@ -20,6 +20,8 @@ import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.IsThisYourBusinessPage
 import play.api.i18n.Messages
+import play.twirl.api.Html
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -27,16 +29,20 @@ import viewmodels.implicits.*
 object IsThisYourBusinessSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer).map { answer =>
+    answers.get(IsThisYourBusinessPage).map { answer =>
 
-      val value = if (answer) "site.yes" else "site.no"
+      val value = HtmlContent(
+        s"<p class='govuk-body govuk-!-margin-bottom-2'>${answer.name}</p><p class='govuk-body'>${answer.address.renderHTML}</p>"
+      )
 
       SummaryListRowViewModel(
         key = "isThisYourBusiness.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.IsThisYourBusinessController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("isThisYourBusiness.change.hidden"))
+          ActionItemViewModel(
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = routes.PlaceholderController.onPageLoad("Redirect as per CARF-263").url
+          ).withVisuallyHiddenText(messages("isThisYourBusiness.change.hidden"))
         )
       )
     }

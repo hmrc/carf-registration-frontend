@@ -41,6 +41,9 @@ object Constants {
   final val ninoRegex       =
     "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
 
+  final val regexPostcode        = """^[A-Za-z]{1,2}\d[A-Za-z0-9]?\s?\d[A-Za-z]{2}$"""
+  final val postCodeAllowedChars = """^[A-Za-z0-9 ]*$"""
+
   private val utrLengthTen: Int      = 10
   private val utrLengthThirteen: Int = 13
   val maxPhoneLength: Int            = 24
@@ -50,4 +53,5 @@ object Constants {
   val ukTimeZoneStringId = "Europe/London"
 
   final val notReal0808PhoneNumber = "+448081570192"
+
 }

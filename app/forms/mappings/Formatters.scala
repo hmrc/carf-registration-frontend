@@ -27,7 +27,7 @@ import play.api.data.format.Formatter
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
 
-trait Formatters extends Logging {
+trait Formatters extends Transforms with Logging {
 
   private type EitherFormErrorOrValue = Either[Seq[FormError], String]
 
@@ -328,5 +328,35 @@ trait Formatters extends Logging {
 
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)
+    }
+
+  private[mappings] def mandatoryPostcodeFormatter(
+      requiredKey: String,
+      lengthKey: String,
+      invalidKey: String,
+      regex: String,
+      invalidCharKey: String,
+      validCharRegex: String
+  ): Formatter[String] =
+    new Formatter[String] {
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
+        val postCode          = postCodeDataTransform(data.get(key))
+        val maxLengthPostcode = 10
+
+        postCode match {
+          case Some(postCode) if postCode.length > maxLengthPostcode            => Left(Seq(FormError(key, lengthKey)))
+          case Some(postCode) if postCode.isEmpty                               => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode) if !stripSpaces(postCode).matches(validCharRegex) =>
+            Left(Seq(FormError(key, invalidCharKey)))
+          case Some(postcode) if !stripSpaces(postcode).matches(regex)          => Left(Seq(FormError(key, invalidKey)))
+          case Some(postcode)                                                   => Right(validPostCodeFormat(stripSpaces(postcode)))
+          case _                                                                => Left(Seq(FormError(key, requiredKey)))
+        }
+      }
+
+      override def unbind(key: String, value: String): Map[String, String] =
+        Map(key -> value)
+
     }
 }

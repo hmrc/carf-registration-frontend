@@ -71,4 +71,12 @@ trait ModelGenerators {
     Arbitrary {
       Gen.oneOf(IndividualRegistrationType.values.toSeq)
     }
+
+  implicit lazy val arbitraryIndFindAddress: Arbitrary[IndFindAddress] =
+    Arbitrary {
+      for {
+        postcode             <- arbitrary[String]
+        propertyNameOrNumber <- arbitrary[String]
+      } yield IndFindAddress(postcode, Some(propertyNameOrNumber))
+    }
 }

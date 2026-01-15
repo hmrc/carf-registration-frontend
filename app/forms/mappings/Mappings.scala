@@ -144,9 +144,10 @@ trait Mappings extends Formatters with Constraints {
       requiredKey: String,
       invalidKey: String,
       lengthKey: String,
+      notRealPhoneNumberKey: String,
       args: Seq[Any] = Seq.empty
   ): FieldMapping[String] =
-    of(phoneNumberFormatter(requiredKey, invalidKey, lengthKey, args))
+    of(phoneNumberFormatter(requiredKey, invalidKey, lengthKey, notRealPhoneNumberKey, args))
 
   protected def mandatoryPostcode(
       requiredKey: String,

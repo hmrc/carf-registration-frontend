@@ -52,4 +52,6 @@ object Constants {
 
   val ukTimeZoneStringId = "Europe/London"
 
+  final val notReal0808PhoneNumber = "+448081570192"
+
 }

@@ -30,9 +30,9 @@ class IndWithoutIdDateOfBirthFormProviderSpec extends DateBehaviours {
   private implicit val messages: Messages = stubMessages()
   private val form                        = new IndWithoutIdDateOfBirthFormProvider()()
 
-  private val minDate      = LocalDate.of(1901, 1, 1)
-  private val maxValidDate = today.minusDays(1)
-  val displayFormat        = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val minDate       = LocalDate.of(1901, 1, 1)
+  private val maxValidDate  = today.minusDays(1)
+  private val displayFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   ".value" - {
     val validData = datesBetween(min = minDate, max = maxValidDate)

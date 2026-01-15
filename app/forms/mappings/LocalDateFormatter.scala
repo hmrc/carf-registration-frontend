@@ -25,7 +25,6 @@ import models.DateHelper.formatDateToString
 import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
-
 class LocalDateFormatter(
     invalidKey: String,
     notRealDateKey: String,

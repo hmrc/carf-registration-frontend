@@ -191,8 +191,10 @@ class LocalDateFormatter(
     ).collect { case (field, true) => field }
 
     outOfRangeFields match {
-      case Nil => None
-      case _   =>
+      case Nil               => None
+      case List(singleField) =>
+        Some(Seq(FormError(s"$key.$singleField", notRealDateKey, args)))
+      case _                 =>
         Some(fieldKeys.map(fk => FormError(s"$key.$fk", notRealDateKey, args)))
     }
   }

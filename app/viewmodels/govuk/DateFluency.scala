@@ -79,7 +79,14 @@ trait DateFluency {
         fieldset = Some(fieldset),
         items = items,
         id = field.id,
-        errorMessage = errorMessage(field)
+        errorMessage = {
+          val fieldErrors = Seq(field("day"), field("month"), field("year")).flatMap(_.error)
+          fieldErrors.headOption.map { error =>
+            uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage(
+              content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(messages(error.message, error.args: _*))
+            )
+          }
+        }
       )
     }
   }

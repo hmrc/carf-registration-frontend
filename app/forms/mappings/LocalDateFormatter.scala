@@ -175,24 +175,25 @@ class LocalDateFormatter(
       monthStr: String,
       yearStr: String
   ): Option[Seq[FormError]] = {
-    val dayInt           = Try(dayStr.toInt).getOrElse(-1)
-    val monthOpt         = parseMonth(monthStr)
-    val monthInt         = monthOpt.getOrElse(-1)
-    val yearInt          = Try(yearStr.toInt).getOrElse(-1)
-    val dayOutOfRange    = !(1 to 31).contains(dayInt)
-    val monthOutOfRange  = !(1 to 12).contains(monthInt)
-    val yearOutOfRange   = !(1000 to 9999).contains(yearInt)
+    val dayInt   = Try(dayStr.toInt).getOrElse(-1)
+    val monthOpt = parseMonth(monthStr)
+    val monthInt = monthOpt.getOrElse(-1)
+    val yearInt  = Try(yearStr.toInt).getOrElse(-1)
+
+    val dayOutOfRange   = !(1 to 31).contains(dayInt)
+    val monthOutOfRange = !(1 to 12).contains(monthInt)
+    val yearOutOfRange  = !(1000 to 9999).contains(yearInt)
+
     val outOfRangeFields = List(
       "day"   -> dayOutOfRange,
       "month" -> monthOutOfRange,
       "year"  -> yearOutOfRange
     ).collect { case (field, true) => field }
+
     outOfRangeFields match {
-      case Nil      => None
-      case List(fk) =>
-        Some(Seq(FormError(s"$key.$fk", notRealDateKey, args)))
-      case fks      =>
-        Some(fks.map(fk => FormError(s"$key.$fk", notRealDateKey, args)))
+      case Nil => None
+      case _   =>
+        Some(fieldKeys.map(fk => FormError(s"$key.$fk", notRealDateKey, args)))
     }
   }
 

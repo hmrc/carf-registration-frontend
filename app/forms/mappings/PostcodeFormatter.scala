@@ -66,26 +66,26 @@ class PostcodeFormatter(
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
     val cc                = countryCode.getOrElse("")
 
-    (isCrownDependency, postcode, cc) match {
-      case (true, "", _)                                         =>
+    (isCrownDependency, postcode) match {
+      case (true, "")                                        =>
         Left(Seq(FormError("postcode", requiredCrownKey)))
-      case (_, p, _) if p.length > 10                            =>
+      case (_, p) if p.length > 10                           =>
         Left(Seq(FormError("postcode", lengthKey)))
-      case (true, p, _) if !p.matches(cdPostcodeCharsRegex)      =>
+      case (true, p) if !p.matches(cdPostcodeCharsRegex)     =>
         Left(Seq(FormError("postcode", invalidCharKey)))
-      case (false, p, _) if !p.matches(nonCdPostcodeCharsRegex)  =>
+      case (false, p) if !p.matches(nonCdPostcodeCharsRegex) =>
         Left(Seq(FormError("postcode", invalidCharKey)))
-      case (true, p, _) if p == examplePostcode                  =>
+      case (true, p) if p == examplePostcode                 =>
         Left(Seq(FormError("postcode", invalidRealCrownKey)))
-      case (true, p, cc) if !p.startsWith(getPostcodePrefix(cc)) =>
+      case (true, p) if !p.startsWith(getPostcodePrefix(cc)) =>
         Left(Seq(FormError("postcode", invalidFormatCrownKey)))
-      case (true, p, cc)                                         =>
+      case (true, p)                                         =>
         realCrownDependencyPostcodeRegex.get(cc) match {
           case Some(regex) if p.matches(regex) => Right(Some(p))
           case Some(_)                         => Left(Seq(FormError("postcode", invalidRealCrownKey)))
           case None                            => Left(Seq(FormError("postcode", invalidFormatCrownKey)))
         }
-      case _                                                     =>
+      case _                                                 =>
         Right(Some(postcode))
     }
   }

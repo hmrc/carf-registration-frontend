@@ -37,10 +37,10 @@ class FirstContactNameFormProviderSpec extends StringFieldBehaviours {
       Seq(' ', '&', '\'', '\\', '`', '^', '-')
 
   val tradingNameGen: Gen[String] =
-    for {
+    (for {
       length <- Gen.choose(1, maxLength)
       chars  <- Gen.listOfN(length, Gen.oneOf(validTradingNameChars))
-    } yield chars.mkString
+    } yield chars.mkString).suchThat(_.trim.nonEmpty)
 
   ".value" - {
 

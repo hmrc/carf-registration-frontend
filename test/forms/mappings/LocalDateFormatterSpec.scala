@@ -199,12 +199,14 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
             )
           )
         }
+
         "when multiple inputs are out of bounds (e.g. day=32, month=13)" in {
           val result = formatter.bind("date", validData.updated("date.day", "32").updated("date.month", "13"))
           result mustEqual Left(
             Seq(
               FormError("date.day", "error.notReal"),
-              FormError("date.month", "error.notReal")
+              FormError("date.month", "error.notReal"),
+              FormError("date.year", "error.notReal")
             )
           )
         }
@@ -273,6 +275,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
           result mustEqual Left(
             Seq(
               FormError("date.day", "error.notReal"),
+              FormError("date.month", "error.notReal"),
               FormError("date.year", "error.notReal")
             )
           )
@@ -282,6 +285,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
           val result = formatter.bind("date", validData.updated("date.month", "13").updated("date.year", "999"))
           result mustEqual Left(
             Seq(
+              FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),
               FormError("date.year", "error.notReal")
             )

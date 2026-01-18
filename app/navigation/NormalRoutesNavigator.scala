@@ -123,9 +123,24 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
 
+    case WhereDoYouLivePage =>
+      userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(WhereDoYouLivePage) match {
+      case Some(true)  =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/find-address (CARF-172)"
+        )
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
+        )
+    }
 
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(RegistrationTypePage) match {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,46 @@
  * limitations under the License.
  */
 
-package controllers.individual
+package controllers.individualWithoutId
 
 import controllers.actions.*
-import forms.individual.NiNumberFormProvider
-import models.JourneyType.IndWithNino
+import forms.WhereDoYouLiveFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.individual.NiNumberPage
+import pages.WhereDoYouLivePage
+import play.api.Logging
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.individual.NiNumberView
+import views.html.WhereDoYouLiveView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class NiNumberController @Inject() (
+class WhereDoYouLiveController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: NiNumberFormProvider,
+    formProvider: WhereDoYouLiveFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: NiNumberView
+    view: WhereDoYouLiveView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(NiNumberPage).fold(form)(form.fill)
+      val preparedForm =
+        request.userAnswers.get(WhereDoYouLivePage).fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
   }
@@ -60,12 +63,15 @@ class NiNumberController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors => {
+            logger.debug("Where do you live form submission contained errors")
+            Future.successful(BadRequest(view(formWithErrors, mode)))
+          },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(NiNumberPage, value))
-              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(IndWithNino)))
-            } yield Redirect(navigator.nextPage(NiNumberPage, mode, updatedAnswers))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhereDoYouLivePage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(WhereDoYouLivePage, mode, updatedAnswers))
         )
   }
 }

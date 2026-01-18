@@ -115,10 +115,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
     case IndWithoutIdDateOfBirthPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/where-do-you-live (CARF-171)"
-        )
+      _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad()
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()

@@ -18,14 +18,34 @@ package models.requests
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterOrganisationWithIdRequest(
-    requiresNameMatch: Boolean,
-    IDNumber: String,
-    IDType: String,
-    organisationName: Option[String],
-    organisationType: Option[String]
-)
+sealed trait RegisterOrganisationWithIdRequest {
+  val requiresNameMatch: Boolean
+  val IDNumber: String
+  val IDType: String
+}
 
 object RegisterOrganisationWithIdRequest {
   implicit val format: OFormat[RegisterOrganisationWithIdRequest] = Json.format[RegisterOrganisationWithIdRequest]
+}
+
+case class RegOrgWithIdNonAutoMatchRequest(
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String,
+    organisationName: String,
+    organisationType: String
+) extends RegisterOrganisationWithIdRequest
+
+object RegOrgWithIdNonAutoMatchRequest {
+  implicit val format: OFormat[RegOrgWithIdNonAutoMatchRequest] = Json.format[RegOrgWithIdNonAutoMatchRequest]
+}
+
+case class RegOrgWithIdCTAutoMatchRequest(
+                                            requiresNameMatch: Boolean,
+                                            IDNumber: String,
+                                            IDType: String
+                                          ) extends RegisterOrganisationWithIdRequest
+
+object RegOrgWithIdCTAutoMatchRequest {
+  implicit val format: OFormat[RegOrgWithIdCTAutoMatchRequest] = Json.format[RegOrgWithIdCTAutoMatchRequest]
 }

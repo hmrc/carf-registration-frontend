@@ -111,7 +111,7 @@ class IsThisYourBusinessController @Inject() (
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture
-      .flatMap { // TODO to save on unnecessary calls we should check if IsThisYourBusinessPageDetails is already populated as people can press back and it will call again
+      .flatMap {
         case Some(business) =>
           val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
 

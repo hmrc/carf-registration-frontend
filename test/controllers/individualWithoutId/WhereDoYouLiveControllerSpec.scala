@@ -33,6 +33,7 @@
 package controllers.individualWithoutId
 
 import base.SpecBase
+import controllers.routes
 import forms.{IsThisYourBusinessFormProvider, WhereDoYouLiveFormProvider}
 import models.*
 import navigation.{FakeNavigator, Navigator}
@@ -56,9 +57,9 @@ class WhereDoYouLiveControllerSpec extends SpecBase with MockitoSugar with Scala
   def onwardRoute: Call = Call("GET", "/foo")
 
   lazy private val whereDoYouLiveRouteGet: String  =
-    controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad().url
+    controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode).url
   lazy private val whereDoYouLiveRoutePost: String =
-    controllers.individualWithoutId.routes.WhereDoYouLiveController.onSubmit().url
+    controllers.individualWithoutId.routes.WhereDoYouLiveController.onSubmit(NormalMode).url
 
   "WhereDoYouLiveController" - {
     "on a Sole Trader without ID journey" - {
@@ -119,7 +120,7 @@ class WhereDoYouLiveControllerSpec extends SpecBase with MockitoSugar with Scala
       }
 
       "must return a Bad Request when invalid data is submitted" in {
-        val setUserAnswers = Option(UserAnswers(userAnswersId).set(WhereDoYouLivePage, true).success.value)
+        val setUserAnswers = Option(UserAnswers(userAnswersId))
 
         val application = applicationBuilder(userAnswers = setUserAnswers)
           .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
@@ -132,6 +133,32 @@ class WhereDoYouLiveControllerSpec extends SpecBase with MockitoSugar with Scala
           val result  = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
+        }
+      }
+
+      "must return redirect to Journey recovery if user answers is not present" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val request = FakeRequest(GET, whereDoYouLiveRouteGet)
+          val result  = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey recovery when user answers is empty (None)" in {
+        val unsetUserAnswers = None
+
+        val application = applicationBuilder(userAnswers = unsetUserAnswers).build()
+
+        running(application) {
+          val request = FakeRequest(POST, whereDoYouLiveRoutePost).withFormUrlEncodedBody(("value", "true"))
+          val result  = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }

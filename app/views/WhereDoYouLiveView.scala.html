@@ -26,7 +26,7 @@
 
 @layout(pageTitle = title(form, messages("whereDoYouLive.title"))) {
 
-    @formHelper(action = controllers.individualWithoutId.routes.WhereDoYouLiveController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.individualWithoutId.routes.WhereDoYouLiveController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

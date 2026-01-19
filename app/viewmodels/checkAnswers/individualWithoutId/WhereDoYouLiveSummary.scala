@@ -24,7 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object WhereDoYouLiveSummary { // TODO Use on Check your answers implementation
+object WhereDoYouLiveSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(WhereDoYouLivePage).map { answer =>
@@ -35,7 +35,7 @@ object WhereDoYouLiveSummary { // TODO Use on Check your answers implementation
         key = "whereDoYouLive.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.WhereDoYouLiveController.onPageLoad().url)
+          ActionItemViewModel("site.change", routes.WhereDoYouLiveController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("whereDoYouLive.change.hidden"))
         )
       )

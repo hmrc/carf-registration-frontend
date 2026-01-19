@@ -191,3 +191,5 @@ GET         /register/problem/sole-trader-not-identified                  contro
 
 GET         /register/individual-without-id/where-do-you-live             controllers.individualWithoutId.WhereDoYouLiveController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-without-id/where-do-you-live             controllers.individualWithoutId.WhereDoYouLiveController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-where-do-you-live      controllers.individualWithoutId.WhereDoYouLiveController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-where-do-you-live      controllers.individualWithoutId.WhereDoYouLiveController.onSubmit(mode: Mode = CheckMode)

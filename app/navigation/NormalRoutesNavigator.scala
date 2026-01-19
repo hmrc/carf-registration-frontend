@@ -115,7 +115,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
     case IndWithoutIdDateOfBirthPage =>
-      _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad()
+      _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()

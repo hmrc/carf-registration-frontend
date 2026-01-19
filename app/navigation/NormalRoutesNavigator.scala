@@ -137,6 +137,8 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
         )
+      case _           =>
+        routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =

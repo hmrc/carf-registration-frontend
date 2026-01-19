@@ -445,3 +445,8 @@ problemSoleTraderNotIdentified.subtitle2 = Contact HMRC to help us find your bus
 problemSoleTraderNotIdentified.p4.part1 = If you have checked your UTR and name again and we still cannot find your business, then email
 problemSoleTraderNotIdentified.p4.part2 = aeoi.enquiries@hmrc.gov.uk
 problemSoleTraderNotIdentified.p4.part3 = for help.
+
+indReviewConfirmAddress.title = Review and confirm your address
+indReviewConfirmAddress.heading = Review and confirm your address
+indReviewConfirmAddress.editAddress = Edit address
+indReviewConfirmAddress.confirmAddress = Confirm address

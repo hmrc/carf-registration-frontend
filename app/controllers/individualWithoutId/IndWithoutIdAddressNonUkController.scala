@@ -40,6 +40,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
     requireData: DataRequiredAction,
     formProvider: IndWithoutIdAddressNonUkFormProvider,
     val controllerComponents: MessagesControllerComponents,
+    countryListFactory: CountryListFactory,
     view: IndWithoutIdAddressNonUkView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController

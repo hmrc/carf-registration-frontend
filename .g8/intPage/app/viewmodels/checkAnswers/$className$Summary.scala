@@ -19,7 +19,7 @@ object $className$Summary  {
           value   = ValueViewModel(answer.toString),
           actions = Seq(
             ActionItemViewModel(
-            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            content = HtmlContent(s"""<span aria-hidden='true'>\${messages("site.change")}</span>"""),
             href = 
 routes.$className$Controller.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("$className;format="decap"$.change.hidden"))

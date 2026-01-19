@@ -167,6 +167,11 @@ POST        /register/individual-without-id/name                          contro
 GET         /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
 
+GET         /register/individual-without-id/date-of-birth                  controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/date-of-birth                  controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-date-of-birth           controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-date-of-birth           controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = CheckMode)
+
 GET         /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onSubmit(mode: Mode = NormalMode)
 GET         /register/change-individual-phone                             controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = CheckMode)

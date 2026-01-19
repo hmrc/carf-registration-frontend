@@ -18,17 +18,16 @@ package models
 
 import play.api.libs.json._
 
-case class IndWithoutIdAddressNonUk (
-                                      addressLine1: String,
-                                      addressLine2: Option[String],
-                                      townOrCity: String,
-                                      region: Option[String],
-                                      postcode: Option[String],
-                                      country: Country
-                                    )
+case class IndWithoutIdAddressNonUk(
+    addressLine1: String,
+    addressLine2: Option[String],
+    townOrCity: String,
+    region: Option[String],
+    postcode: Option[String],
+    country: Country
+)
 
 object IndWithoutIdAddressNonUk {
 
   implicit val format: OFormat[IndWithoutIdAddressNonUk] = Json.format[IndWithoutIdAddressNonUk]
 }
-

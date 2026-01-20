@@ -24,7 +24,7 @@ import models.RegistrationType.*
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
 import java.time.LocalDate

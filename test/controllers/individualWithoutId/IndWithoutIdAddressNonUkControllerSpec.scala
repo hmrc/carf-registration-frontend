@@ -70,12 +70,10 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
     Country("FR", "France")
   )
 
-  val userAnswers = UserAnswers(
-    userAnswersId,
-    Json.obj(
-      IndWithoutIdAddressNonUkPage.toString -> Json.toJson(validAddress)
-    )
-  )
+  val userAnswers = UserAnswers(userAnswersId)
+    .set(IndWithoutIdAddressNonUkPage, validAddress)
+    .success
+    .value
 
   "IndWithoutIdAddressNonUk Controller" - {
 
@@ -136,7 +134,7 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
               ("addressLine1", "123 Main Street"),
               ("addressLine2", "Apt 4"),
               ("townOrCity", "Paris"),
-              ("region", "Flower region"),
+              ("region", "Ile-de-France"),
               ("postcode", "75001"),
               ("country", "FR")
             )

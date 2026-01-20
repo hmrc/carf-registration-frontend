@@ -22,7 +22,7 @@ import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, IndWithoutIdAddressNonUkPage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
@@ -116,7 +116,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     case IndWithoutIdAddressNonUkPage =>
       _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      
+
     case IndWithoutIdDateOfBirthPage =>
       _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
 

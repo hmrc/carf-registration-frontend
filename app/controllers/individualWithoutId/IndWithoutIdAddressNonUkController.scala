@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package controllers.individualWithoutId
 
 import controllers.actions.*
@@ -60,19 +59,17 @@ class IndWithoutIdAddressNonUkController @Inject() (
             case None        => form
             case Some(value) => form.fill(value)
           }
-          Future.successful(
-            Ok(
-              view(
-                preparedForm,
-                mode,
-                countryListFactory.countrySelectList(preparedForm.data, countries)
-              )
+          Ok(
+            view(
+              preparedForm,
+              mode,
+              countryListFactory.countrySelectList(preparedForm.data, countries)
             )
           )
 
         case None =>
           logger.error("Could not retrieve countries list from JSON file.")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
   }
 

@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package forms.individualWithoutId
 
 import config.Constants.{addressMaxLength, addressRegex}
 import forms.mappings.Mappings
 import models.{Country, IndWithoutIdAddressNonUk}
 import play.api.data.Form
-import play.api.data.Forms.*
+import play.api.data.Forms._
 
 import javax.inject.Inject
 
@@ -60,10 +59,14 @@ class IndWithoutIdAddressNonUkFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "postcode"     -> postcode(
-        countryList = countryList,
-        lengthKey = "indWithoutIdAddressNonUk.postcode.error.length",
-        invalidCharKey = "indWithoutIdAddressNonUk.postcode.error.invalid"
+      "postcode"     -> optional(
+        text()
+          .verifying(
+            firstError(
+              maxLength(10, "indWithoutIdAddressNonUk.postcode.error.length"),
+              regexp("^[A-Za-z0-9 ]*$", "indWithoutIdAddressNonUk.postcode.error.invalid")
+            )
+          )
       ),
       "country"      -> text("indWithoutIdAddressNonUk.country.error.required")
         .verifying("indWithoutIdAddressNonUk.country.error.required", code => countryList.exists(_.code == code))

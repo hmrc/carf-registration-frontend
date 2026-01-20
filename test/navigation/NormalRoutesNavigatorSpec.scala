@@ -19,15 +19,14 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
+import models.IndividualRegistrationType.{IndividualNotConnectedToABusiness, IndividualSoleTrader}
 import models.RegistrationType.*
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import play.api.libs.json.Json
-
 import java.time.LocalDate
 
 class NormalRoutesNavigatorSpec extends SpecBase {
@@ -904,7 +903,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "IndWithoutNinoName navigation" - {
-      "must navigate from IndWithoutNinoName to IndWithoutNinoDateOfBirth for Individual or Sole Trader Without NINO  and valid name" in {
+      "must navigate from IndWithoutNinoName to IndWithoutIdDateOfBirth for Individual or Sole Trader Without NINO and valid name" in {
         val userAnswers =
           emptyUserAnswers
             .set(IndWithoutNinoNamePage, Name("givenName example", "familyName example"))
@@ -914,8 +913,24 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndWithoutNinoNamePage,
           NormalMode,
           userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
+      }
+    }
+
+    "IndWithoutIdDateOfBirth navigation" - {
+      "must navigate from IndWithoutIdDateOfBirth to the 'Where do you live' placeholder" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(IndWithoutIdDateOfBirthPage, LocalDate.now())
+            .success
+            .value
+
+        navigator.nextPage(
+          IndWithoutIdDateOfBirthPage,
+          NormalMode,
+          userAnswers
         ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
+          "Must redirect to /register/individual-without-id/where-do-you-live (CARF-171)"
         )
       }
     }

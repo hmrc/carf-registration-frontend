@@ -27,6 +27,7 @@ import viewmodels.ErrorMessageAwareness
 object date extends DateFluency
 
 trait DateFluency {
+
   object DateViewModel extends ErrorMessageAwareness {
     def apply(
         field: Field,
@@ -41,16 +42,14 @@ trait DateFluency {
         field: Field,
         fieldset: Fieldset
     )(implicit messages: Messages): DateInput = {
-      val errorClass       = "govuk-input--error"
-      val dayError         = field.error.exists(_.args.contains("date.error.day"))
-      val monthError       = field.error.exists(_.args.contains("date.error.month"))
-      val yearError        = field.error.exists(_.args.contains("date.error.year"))
-      val anySpecificError = dayError || monthError || yearError
-      val allFieldsError   = field.error.isDefined && !anySpecificError
+      val errorClass = "govuk-input--error"
+      val dayError   = field("day").error.isDefined
+      val monthError = field("month").error.isDefined
+      val yearError  = field("year").error.isDefined
 
-      val dayErrorClass   = if (dayError || allFieldsError) errorClass else ""
-      val monthErrorClass = if (monthError || allFieldsError) errorClass else ""
-      val yearErrorClass  = if (yearError || allFieldsError) errorClass else ""
+      val dayErrorClass   = if (dayError) errorClass else ""
+      val monthErrorClass = if (monthError) errorClass else ""
+      val yearErrorClass  = if (yearError) errorClass else ""
 
       val items = Seq(
         InputItem(
@@ -75,11 +74,19 @@ trait DateFluency {
           classes = s"govuk-input--width-4 $yearErrorClass".trim
         )
       )
+
       DateInput(
         fieldset = Some(fieldset),
         items = items,
         id = field.id,
-        errorMessage = errorMessage(field)
+        errorMessage = {
+          val fieldErrors = Seq(field("day"), field("month"), field("year")).flatMap(_.error)
+          fieldErrors.headOption.map { error =>
+            uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage(
+              content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(messages(error.message, error.args: _*))
+            )
+          }
+        }
       )
     }
   }
@@ -101,7 +108,7 @@ trait DateFluency {
       date.copy(attributes = date.attributes + attribute)
 
     def asDateOfBirth(): DateInput =
-      date.copy(items = date.items map { item =>
+      date.copy(items = date.items.map { item =>
         val name = item.id.split('.').last
         item.copy(autocomplete = Some(s"bday-$name"))
       })

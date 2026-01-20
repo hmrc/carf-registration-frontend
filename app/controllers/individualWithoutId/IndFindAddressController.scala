@@ -17,11 +17,11 @@
 package controllers.individualWithoutId
 
 import controllers.actions.*
-import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.responses.AddressResponse
 import models.{IndFindAddress, Mode}
 import navigation.Navigator
+import pages.AddressLookupPage
 import pages.individualWithoutId.IndFindAddressPage
 import play.api.Logging
 import play.api.data.{Form, FormError}
@@ -38,6 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndFindAddressController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
+    navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
@@ -81,29 +82,18 @@ class IndFindAddressController @Inject() (
 
                 case Right(addresses) =>
                   for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield redirectBasedOnAddressCount(addresses, mode)
+                    updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
+                    updatedAnswersWithAddress <- Future.fromTry(
+                                                   updatedAnswers.set(
+                                                     AddressLookupPage,
+                                                     addresses
+                                                   )
+                                                 )
+                    _                         <- sessionRepository.set(updatedAnswersWithAddress)
+                  } yield Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswersWithAddress))
               }
         )
 
   }
-
-  // TODO: Once CARF-173 and CARF-312 are done, remove the following helper function and move the redirect logic to the navigator
-  // see: https://github.com/hmrc/carf-registration-frontend/pull/74#discussion_r2676959543
-  private def redirectBasedOnAddressCount(addresses: Seq[AddressResponse], mode: Mode): Result =
-    if (addresses.size == 1) {
-      Redirect(
-        routes.PlaceholderController.onPageLoad(
-          s"Must redirect to /register/individual-without-id/review-address (CARF-173)"
-        )
-      )
-    } else {
-      Redirect(
-        routes.PlaceholderController.onPageLoad(
-          s"Must redirect to /register/individual-without-id/choose-address (CARF-312)"
-        )
-      )
-    }
 
 }

@@ -16,23 +16,19 @@
 
 package controllers.individualWithoutId
 
-import connectors.AddressLookupConnector
 import controllers.actions.*
 import controllers.routes
-//import forms.individualWithoutId.IndReviewConfirmAddressFormProvider
 import models.Mode
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import navigation.Navigator
+import models.responses.AddressResponse
 import pages.AddressLookupPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individualWithoutId.IndReviewConfirmAddressView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class IndReviewConfirmAddressController @Inject() (
     override val messagesApi: MessagesApi,
@@ -41,8 +37,7 @@ class IndReviewConfirmAddressController @Inject() (
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: IndReviewConfirmAddressView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+) extends FrontendBaseController
     with I18nSupport
     with Logging {
 
@@ -54,18 +49,6 @@ class IndReviewConfirmAddressController @Inject() (
         controllers.routes.PlaceholderController
           .onPageLoad("Must redirect to /register/individual-without-id/address")
           .url
-
-      val value: Seq[AddressResponse] = Seq(
-        AddressResponse(
-          id = "GB790091234501",
-          address = AddressRecord(
-            List("1 Test Street"),
-            "Testtown",
-            "BB00 0BB",
-            CountryRecord("GB", "United Kingdom")
-          )
-        )
-      )
 
       request.userAnswers.get(AddressLookupPage) match {
         case Some(value) =>

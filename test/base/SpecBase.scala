@@ -38,6 +38,8 @@ import queries.Settable
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
+import generators.Generators
+import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 
 import java.time.{Clock, Instant, ZoneId}
 import scala.concurrent.ExecutionContext
@@ -52,7 +54,8 @@ trait SpecBase
     with EitherValues
     with IntegrationPatience
     with BeforeAndAfterEach
-    with MockitoSugar {
+    with MockitoSugar
+    with Generators {
 
   val userAnswersId: String            = "id"
   val testUtr: UniqueTaxpayerReference = UniqueTaxpayerReference("1234567890")
@@ -100,4 +103,47 @@ trait SpecBase
   }
 
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
+
+  val oneAddress: Seq[AddressResponse] = Seq(
+    AddressResponse(
+      id = "123",
+      address = AddressRecord(
+        lines = List("1 test", "1 Test Street", "Testington"),
+        town = " Test Town",
+        postcode = validPostcodes.sample.value,
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    )
+  )
+
+  val multipleAddresses: Seq[AddressResponse] = Seq(
+    AddressResponse(
+      id = "123",
+      address = AddressRecord(
+        lines = List("1 test", "1 Test Street", "Testington"),
+        town = "South Test Town",
+        postcode = validPostcodes.sample.value,
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    ),
+    AddressResponse(
+      id = "124",
+      address = AddressRecord(
+        lines = List("2 test", "2 Test Street", "Testington"),
+        town = "East Test Town",
+        postcode = validPostcodes.sample.value,
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    ),
+    AddressResponse(
+      id = "125",
+      address = AddressRecord(
+        lines = List("1 test", "2 Test Street", "Testington"),
+        town = "North Townshire",
+        postcode = validPostcodes.sample.value,
+        country = CountryRecord(code = "UK", name = "United Kingdom")
+      )
+    )
+  )
+
 }

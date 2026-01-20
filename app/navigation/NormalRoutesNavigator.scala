@@ -21,11 +21,12 @@ import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
+
 import java.time.LocalDate
 
 trait NormalRoutesNavigator extends UserAnswersHelper {
@@ -119,6 +120,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/where-do-you-live (CARF-171)"
         )
+
+    case IndFindAddressPage =>
+      userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
@@ -257,4 +261,17 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(AddressLookupPage) match {
+      case Some(addresses) if addresses.size == 1 =>
+        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad()
+      case Some(_)                                =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
+        )
+      case None                                   =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
 }

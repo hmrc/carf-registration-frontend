@@ -24,9 +24,10 @@ import models.RegistrationType.*
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
+
 import java.time.LocalDate
 
 class NormalRoutesNavigatorSpec extends SpecBase {
@@ -953,6 +954,49 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           emptyUserAnswers
         ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
+    }
+
+    "IndFindAddressPage navigation" - {
+      "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(AddressLookupPage, oneAddress)
+            .success
+            .value
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad()
+      }
+
+      "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(AddressLookupPage, multipleAddresses)
+            .success
+            .value
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
+        )
+      }
+
+      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
     }
   }
 }

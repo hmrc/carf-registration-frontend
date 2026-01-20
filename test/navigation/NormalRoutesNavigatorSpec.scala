@@ -917,6 +917,31 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "IndWithoutIdAddressNonUkPage navigation" - {
+      "must navigate from IndWithoutIdAddressNonUkPage to IndividualEmailController" in {
+        val userAnswers = emptyUserAnswers
+          .set(
+            IndWithoutIdAddressNonUkPage,
+            IndWithoutIdAddressNonUk(
+              "123 Main St",
+              Some("Apt 4"),
+              "Paris",
+              Some("Ile-de-France"),
+              Some("75001"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          IndWithoutIdAddressNonUkPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
     "IndWithoutIdDateOfBirth navigation" - {
       "must navigate from IndWithoutIdDateOfBirth to the 'Where do you live' placeholder" in {
         val userAnswers =

@@ -31,11 +31,13 @@
 
     <h1 class="govuk-heading-l">@messages("indReviewConfirmAddress.heading")</h1>
 
-    <div class="govuk-body">
-        <p class="govuk-body govuk-!-margin-bottom-0">@Html(address.address.lines.mkString("<br>"))</p>
+    <div class="govuk-body" translate="no">
+        @address.address.lines.map { line =>
+            <span class="govuk-!-margin-bottom-0">@line</span><br/>
+        }
         <p class="govuk-body govuk-!-margin-bottom-0">@address.address.town</p>
         <p class="govuk-body govuk-!-margin-bottom-0">@address.address.postcode</p>
-        <p class="govuk-body govuk-!-margin-bottom-0">@address.address.country.name</p>
+        @address.address.country.name
     </div>
 
     <p class="govuk-body">@link(editAddressLink, "indReviewConfirmAddress.editAddress", id = Some("manualAddressLink"))</p>

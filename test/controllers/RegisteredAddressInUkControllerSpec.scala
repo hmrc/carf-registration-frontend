@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import controllers.routes
 import forms.RegisteredAddressInUkFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -30,7 +29,6 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.RegisteredAddressInUkView
 

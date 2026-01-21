@@ -188,3 +188,8 @@ GET         /register/change-second-contact-phone                         contro
 POST        /register/change-second-contact-phone                         controllers.organisation.OrganisationSecondContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/sole-trader-not-identified                  controllers.individual.ProblemSoleTraderNotIdentifiedController.onPageLoad()
+
+GET         /register/individual-without-id/where-do-you-live             controllers.individualWithoutId.WhereDoYouLiveController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/where-do-you-live             controllers.individualWithoutId.WhereDoYouLiveController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-where-do-you-live      controllers.individualWithoutId.WhereDoYouLiveController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-where-do-you-live      controllers.individualWithoutId.WhereDoYouLiveController.onSubmit(mode: Mode = CheckMode)

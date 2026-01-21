@@ -167,10 +167,10 @@ POST        /register/individual-without-id/name                          contro
 GET         /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-name                   controllers.individualWithoutId.IndWithoutNinoNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/individual-without-id/date-of-birth                  controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/individual-without-id/date-of-birth                  controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = NormalMode)
-GET         /register/individual-without-id/change-date-of-birth           controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/individual-without-id/change-date-of-birth           controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-without-id/date-of-birth                 controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/date-of-birth                 controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-date-of-birth          controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-date-of-birth          controllers.individualWithoutId.IndWithoutIdDateOfBirthController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-phone                                    controllers.individual.IndividualPhoneNumberController.onSubmit(mode: Mode = NormalMode)
@@ -195,3 +195,6 @@ GET         /register/individual-without-id/change-find-address           contro
 POST        /register/individual-without-id/change-find-address           controllers.individualWithoutId.IndFindAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/individual-without-id/review-address                controllers.individualWithoutId.IndReviewConfirmAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/review-address                controllers.individualWithoutId.IndReviewConfirmAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-review-address         controllers.individualWithoutId.IndReviewConfirmAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-review-address         controllers.individualWithoutId.IndReviewConfirmAddressController.onSubmit(mode: Mode = CheckMode)

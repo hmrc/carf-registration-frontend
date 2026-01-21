@@ -968,7 +968,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndFindAddressPage,
           NormalMode,
           userAnswers
-        ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad()
+        ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
       }
 
       "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
@@ -997,6 +997,35 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+    }
+
+    "IndReviewConfirmAddressPage navigation" - {
+      "must navigate from IndReviewConfirmAddressPage to the 'IndividualEmailPage' page" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(AddressLookupPage, oneAddress)
+            .success
+            .value
+            .set(IndReviewConfirmAddressPage, true)
+            .success
+            .value
+
+        navigator.nextPage(
+          IndReviewConfirmAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndReviewConfirmAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
   }
 }

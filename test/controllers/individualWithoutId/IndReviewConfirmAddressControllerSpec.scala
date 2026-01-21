@@ -17,14 +17,30 @@
 package controllers.individualWithoutId
 
 import base.SpecBase
-import models.NormalMode
+import forms.individualWithoutId.IndReviewConfirmAddressFormProvider
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
+import models.{Name, NormalMode}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.AddressLookupPage
+import play.api.data.Form
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.individualWithoutId.IndReviewConfirmAddressView
 
-class IndReviewConfirmAddressControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
+
+  def onwardRoute                                       = Call("GET", "/foo")
+  val formProvider: IndReviewConfirmAddressFormProvider = new IndReviewConfirmAddressFormProvider()
+  val form: Form[Boolean]                               = formProvider()
+
+  lazy val indReviewConfirmAddressRoute: String =
+    controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode).url
 
   "IndReviewConfirmAddress Controller" - {
 
@@ -47,7 +63,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(
           GET,
-          controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad().url
+          indReviewConfirmAddressRoute
         )
 
         val result = route(application, request).value
@@ -56,10 +72,9 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
         val editAddressLink = controllers.routes.PlaceholderController
           .onPageLoad("Must redirect to /register/individual-without-id/address")
           .url
-        val nextPageLink    = controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(address, NormalMode, editAddressLink, nextPageLink)(
+        contentAsString(result) mustEqual view(form, address, NormalMode, editAddressLink)(
           request,
           messages(application)
         ).toString
@@ -73,7 +88,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(
           GET,
-          controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad().url
+          indReviewConfirmAddressRoute
         )
 
         val result = route(application, request).value
@@ -90,8 +105,109 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(
           GET,
-          controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad().url
+          indReviewConfirmAddressRoute
         )
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted" in {
+
+      val address = AddressResponse(
+        id = "GB790091234501",
+        address = AddressRecord(
+          List("1 Test Street", "Line 2"),
+          "Testtown",
+          "BB00 0BB",
+          CountryRecord("GB", "United Kingdom")
+        )
+      )
+
+      val userAnswers = emptyUserAnswers.set(AddressLookupPage, Seq(address)).success.value
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indReviewConfirmAddressRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(mockSessionRepository, times(1)).set(any())
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+
+      val address = AddressResponse(
+        id = "GB790091234501",
+        address = AddressRecord(
+          List("1 Test Street", "Line 2"),
+          "Testtown",
+          "BB00 0BB",
+          CountryRecord("GB", "United Kingdom")
+        )
+      )
+
+      val userAnswers = emptyUserAnswers.set(AddressLookupPage, Seq(address)).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indReviewConfirmAddressRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view            = application.injector.instanceOf[IndReviewConfirmAddressView]
+        val editAddressLink = controllers.routes.PlaceholderController
+          .onPageLoad("Must redirect to /register/individual-without-id/address")
+          .url
+
+        val result = route(application, request).value
+
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, address, NormalMode, editAddressLink)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST with form errors when address is not found" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indReviewConfirmAddressRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST when no userAnswers exist" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indReviewConfirmAddressRoute)
+            .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 

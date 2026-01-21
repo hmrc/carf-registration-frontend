@@ -25,25 +25,30 @@
         link: components.Link
 )
 
-@(address: AddressResponse, mode: Mode, editAddressLink: String, nextPageLink: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], address: AddressResponse, mode: Mode, editAddressLink: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("indReviewConfirmAddress.title"))) {
+@layout(pageTitle = title(form, messages("indReviewConfirmAddress.title"))) {
 
-    <h1 class="govuk-heading-l">@messages("indReviewConfirmAddress.heading")</h1>
+    @formHelper(action = controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onSubmit(mode)) {
 
-    <div class="govuk-body" translate="no">
-        @address.address.lines.map { line =>
-            <span class="govuk-!-margin-bottom-0">@line</span><br/>
-        }
-        <p class="govuk-body govuk-!-margin-bottom-0">@address.address.town</p>
-        <p class="govuk-body govuk-!-margin-bottom-0">@address.address.postcode</p>
-        @address.address.country.name
-    </div>
 
-    <p class="govuk-body">@link(editAddressLink, "indReviewConfirmAddress.editAddress", id = Some("manualAddressLink"))</p>
+        <h1 class="govuk-heading-l">@messages("indReviewConfirmAddress.heading")</h1>
 
-    @govukButton(
-        ButtonViewModel(messages("indReviewConfirmAddress.confirmAddress")).withAttribute("id" -> "submit").asLink(nextPageLink)
-    )
+        <div class="govuk-body" translate="no">
+            @address.address.lines.map { line =>
+                <span class="govuk-!-margin-bottom-0">@line</span> <br/>
+            }
+            <p class="govuk-body govuk-!-margin-bottom-0">@address.address.town</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">@address.address.postcode</p>
+            @address.address.country.name
+        </div>
 
+        <p class="govuk-body">@link(editAddressLink, "indReviewConfirmAddress.editAddress", id = Some("manualAddressLink"))</p>
+        <input type="hidden" name="value" value="true" />
+
+        @govukButton(
+            ButtonViewModel(messages("indReviewConfirmAddress.confirmAddress")).withAttribute("id" -> "submit")
+        )
+
+    }
 }

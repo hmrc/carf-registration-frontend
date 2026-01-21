@@ -124,6 +124,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndFindAddressPage =>
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
+    case IndReviewConfirmAddressPage =>
+      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
+
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
 
@@ -265,13 +268,20 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
     userAnswers.get(AddressLookupPage) match {
       case Some(addresses) if addresses.size == 1 =>
-        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad()
+        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
       case Some(_)                                =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
         )
       case None                                   =>
         routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndReviewConfirmAddressPage) match {
+      case Some(true) =>
+        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      case _          => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

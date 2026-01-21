@@ -120,7 +120,8 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
     "must redirect to the next page when postcode has returned one address" in {
 
-      val onwardRouteOneAddress = controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad()
+      val onwardRouteOneAddress =
+        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))

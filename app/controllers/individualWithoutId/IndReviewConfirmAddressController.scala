@@ -18,44 +18,83 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
+import forms.individualWithoutId.IndReviewConfirmAddressFormProvider
 import models.Mode
 import models.responses.AddressResponse
+import navigation.Navigator
 import pages.AddressLookupPage
+import pages.individualWithoutId.IndReviewConfirmAddressPage
 import play.api.Logging
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individualWithoutId.IndReviewConfirmAddressView
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndReviewConfirmAddressController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    formProvider: IndReviewConfirmAddressFormProvider,
+    navigator: Navigator,
+    sessionRepository: SessionRepository,
     val controllerComponents: MessagesControllerComponents,
     view: IndReviewConfirmAddressView
-) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
+
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
-      val nextPageLink: String    = controllers.individual.routes.IndividualEmailController.onPageLoad(mode).url
       val editAddressLink: String =
         controllers.routes.PlaceholderController
           .onPageLoad("Must redirect to /register/individual-without-id/address")
           .url
 
       request.userAnswers.get(AddressLookupPage) match {
-        case Some(value) =>
-          Future.successful(Ok(view(value.head, mode, editAddressLink, nextPageLink)))
-        case None        =>
+        case Some(addresses) if addresses.nonEmpty =>
+          Future.successful(Ok(view(form, addresses.head, mode, editAddressLink)))
+        case _                                     =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+    implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            request.userAnswers.get(AddressLookupPage) match {
+              case Some(addresses) if addresses.nonEmpty =>
+                val editAddressLink = controllers.routes.PlaceholderController
+                  .onPageLoad("Must redirect to /register/individual-without-id/address")
+                  .url
+                Future.successful(BadRequest(view(formWithErrors, addresses.head, mode, editAddressLink)))
+              case _                                     =>
+                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            },
+          value =>
+            request.userAnswers.get(AddressLookupPage) match {
+              case Some(addresses) if addresses.nonEmpty =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(IndReviewConfirmAddressPage, value))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPage, mode, updatedAnswers))
+              case _                                     =>
+                logger.error("No address found in user answers")
+                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            }
+        )
   }
 
 }

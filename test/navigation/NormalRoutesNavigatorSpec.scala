@@ -954,7 +954,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "WhereDoYouLive navigation" - {
-      "must navigate from WhereDoYouLive to the 'find-address' placeholder" in {
+      "must navigate from WhereDoYouLive to the FindAddressPage" in {
         val userAnswers =
           emptyUserAnswers
             .set(WhereDoYouLivePage, true)
@@ -965,9 +965,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           WhereDoYouLivePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/find-address (CARF-172)"
-        )
+        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
       }
 
       "must navigate from WhereDoYouLive to the 'address-non-uk' placeholder" in {

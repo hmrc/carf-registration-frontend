@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package forms.mappings
+package forms
 
-trait Transforms {
+import javax.inject.Inject
 
-  protected def stripSpaces(string: String): String =
-    string.trim.replaceAll(" ", "")
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  protected def validPostCodeFormat(validPostCode: String): String =
-    if (!validPostCode.contains(" ")) {
-      val tail = validPostCode.substring(validPostCode.length - 3)
-      val head = validPostCode.substring(0, validPostCode.length - 3)
-      s"$head $tail".toUpperCase
-    } else { validPostCode.toUpperCase }
+class WhereDoYouLiveFormProvider @Inject() extends Mappings {
 
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("whereDoYouLive.error.required")
+    )
 }

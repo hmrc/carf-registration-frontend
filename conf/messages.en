@@ -463,6 +463,9 @@ problemSoleTraderNotIdentified.p4.part1 = If you have checked your UTR and name 
 problemSoleTraderNotIdentified.p4.part2 = aeoi.enquiries@hmrc.gov.uk
 problemSoleTraderNotIdentified.p4.part3 = for help.
 
+whereDoYouLive.title = Do you live in the UK, Jersey, Guernsey or the Isle of Man?
+whereDoYouLive.heading = Do you live in the UK, Jersey, Guernsey or the Isle of Man?
+whereDoYouLive.error.required = Select yes if you live in the UK, Jersey, Guernsey or the Isle of Man
 
 indFindAddress.title = Find your address
 indFindAddress.heading = Find your address

@@ -930,9 +930,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndWithoutIdDateOfBirthPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/where-do-you-live (CARF-171)"
-        )
+        ) mustBe controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
       }
     }
 
@@ -953,6 +951,48 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           emptyUserAnswers
         ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "WhereDoYouLive navigation" - {
+      "must navigate from WhereDoYouLive to the FindAddressPage" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(WhereDoYouLivePage, true)
+            .success
+            .value
+
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      }
+
+      "must navigate from WhereDoYouLive to the 'address-non-uk' placeholder" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(WhereDoYouLivePage, false)
+            .success
+            .value
+
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
+        )
+      }
+
+      "must navigate from WhereDoYouLive to the Journey recovery if user answers in unset" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 

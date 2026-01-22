@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
-package forms.mappings
+package forms
 
-trait Transforms {
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-  protected def stripSpaces(string: String): String =
-    string.trim.replaceAll(" ", "")
+class WhereDoYouLiveFormProviderSpec extends BooleanFieldBehaviours {
 
-  protected def validPostCodeFormat(validPostCode: String): String =
-    if (!validPostCode.contains(" ")) {
-      val tail = validPostCode.substring(validPostCode.length - 3)
-      val head = validPostCode.substring(0, validPostCode.length - 3)
-      s"$head $tail".toUpperCase
-    } else { validPostCode.toUpperCase }
+  val requiredKey = "whereDoYouLive.error.required"
+  val invalidKey  = "error.boolean"
 
+  val form = new WhereDoYouLiveFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

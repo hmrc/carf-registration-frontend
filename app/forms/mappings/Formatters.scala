@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -341,17 +341,16 @@ trait Formatters extends Transforms with Logging {
     new Formatter[String] {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val postCode          = postCodeDataTransform(data.get(key))
+        val postCode          = data.get(key).map(_.trim.replaceAll("\\s+", ""))
         val maxLengthPostcode = 10
 
         postCode match {
-          case Some(postCode) if postCode.length > maxLengthPostcode            => Left(Seq(FormError(key, lengthKey)))
-          case Some(postCode) if postCode.isEmpty                               => Left(Seq(FormError(key, requiredKey)))
-          case Some(postCode) if !stripSpaces(postCode).matches(validCharRegex) =>
-            Left(Seq(FormError(key, invalidCharKey)))
-          case Some(postcode) if !stripSpaces(postcode).matches(regex)          => Left(Seq(FormError(key, invalidKey)))
-          case Some(postcode)                                                   => Right(validPostCodeFormat(stripSpaces(postcode)))
-          case _                                                                => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode) if postCode.isEmpty                    => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode) if !postCode.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
+          case Some(postCode) if !postCode.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
+          case Some(postCode) if postCode.length > maxLengthPostcode => Left(Seq(FormError(key, lengthKey)))
+          case Some(postCode)                                        => Right(validPostCodeFormat(postCode))
+          case _                                                     => Left(Seq(FormError(key, requiredKey)))
         }
       }
 

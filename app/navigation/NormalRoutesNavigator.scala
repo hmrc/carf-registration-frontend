@@ -116,10 +116,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
     case IndWithoutIdDateOfBirthPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/where-do-you-live (CARF-171)"
-        )
+      _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
 
     case IndFindAddressPage =>
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
@@ -130,9 +127,24 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
 
+    case WhereDoYouLivePage =>
+      userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(WhereDoYouLivePage) match {
+      case Some(true)  =>
+        controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
+        )
+      case _           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(RegistrationTypePage) match {

@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package forms.mappings
+package pages
 
-trait Transforms {
+import play.api.libs.json.JsPath
 
-  protected def stripSpaces(string: String): String =
-    string.trim.replaceAll(" ", "")
+case object WhereDoYouLivePage extends QuestionPage[Boolean] {
 
-  protected def validPostCodeFormat(validPostCode: String): String =
-    if (!validPostCode.contains(" ")) {
-      val tail = validPostCode.substring(validPostCode.length - 3)
-      val head = validPostCode.substring(0, validPostCode.length - 3)
-      s"$head $tail".toUpperCase
-    } else { validPostCode.toUpperCase }
+  override def path: JsPath = JsPath \ toString
 
+  override def toString: String = "whereDoYouLive"
 }

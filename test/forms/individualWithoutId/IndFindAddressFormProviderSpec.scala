@@ -38,13 +38,6 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       validPostcodes
     )
 
-    behave like fieldWithMaxLengthAlphanumeric(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey)
-    )
-
     behave like mandatoryField(
       form,
       fieldName,
@@ -65,6 +58,16 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       FormError(fieldName, invalidKey),
       Some("format")
     )
+
+    "must not bind postcodes longer than 10 characters" in {
+      val result = form.bind(Map(fieldName -> "SW1A 1AAAA"))
+      result.errors must contain(FormError(fieldName, invalidFormat))
+    }
+
+    "must bind postcodes with leading, trailing spaces and spaces between characters" in {
+      val result = form.bind(Map(fieldName -> "  S W   1A 1AA  "))
+      result.errors.filter(_.key == fieldName) mustBe empty
+    }
   }
 
   ".propertyNameOrNumber" - {

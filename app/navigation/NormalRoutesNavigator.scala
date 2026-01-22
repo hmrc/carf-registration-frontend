@@ -21,7 +21,7 @@ import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.mvc.Call
@@ -130,9 +130,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
   private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
     userAnswers.get(WhereDoYouLivePage) match {
       case Some(true)  =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/find-address (CARF-172)"
-        )
+        controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"

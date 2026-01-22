@@ -60,10 +60,9 @@ class IndReviewConfirmAddressController @Inject() (
           .onPageLoad("Must redirect to /register/individual-without-id/address")
           .url
 
-      request.userAnswers.get(AddressLookupPage) match {
-        case Some(addresses) if addresses.nonEmpty =>
-          Future.successful(Ok(view(form, addresses.head, mode, editAddressLink)))
-        case _                                     =>
+      request.userAnswers.get(AddressLookupPage).flatMap(_.headOption) match {
+        case Some(address) => Future.successful(Ok(view(form, address, mode, editAddressLink)))
+        case _             =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }

@@ -269,11 +269,11 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(AddressLookupPage) match {
       case Some(addresses) if addresses.size == 1 =>
         controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
-      case Some(_)                                =>
+      case Some(addresses) if addresses.size > 1  =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
         )
-      case None                                   =>
+      case _                                      =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 

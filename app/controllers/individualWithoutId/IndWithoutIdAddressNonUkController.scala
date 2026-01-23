@@ -47,9 +47,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
     with I18nSupport
     with Logging {
 
-  private val countriesList: Option[Seq[Country]] = countryListFactory.countryList.map { countries =>
-    countries.filterNot(_.code == "GB")
-  }
+  private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>

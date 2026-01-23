@@ -1046,7 +1046,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(AddressLookupPage, oneAddress)
             .success
             .value
-            .set(IndReviewConfirmAddressPage, true)
+            .set(IndReviewConfirmAddressPage, oneAddress.head)
             .success
             .value
 

@@ -291,9 +291,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
   private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers): Call =
     userAnswers.get(IndReviewConfirmAddressPage) match {
-      case Some(true) =>
+      case Some(addressResponse) =>
         controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      case _          => routes.JourneyRecoveryController.onPageLoad()
+      case _                     => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

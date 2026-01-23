@@ -63,7 +63,10 @@ class IndWithoutIdAddressNonUkFormProvider @Inject() extends Mappings {
       "country"      -> text("indWithoutIdAddressNonUk.country.error.required")
         .verifying("indWithoutIdAddressNonUk.country.error.required", code => countryList.exists(_.code == code))
         .transform[Country](
-          code => countryList.find(_.code == code).get,
+          code =>
+            countryList
+              .find(_.code == code)
+              .getOrElse(throw new InternalError(s"Country code [$code] not found in country list")),
           country => country.code
         )
     )(IndWithoutIdAddressNonUk.apply)(x =>

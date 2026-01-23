@@ -96,14 +96,19 @@ class OrganisationBusinessAddressController @Inject() (
                   )
                 ),
               value =>
-                for {
+                (for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
                   _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
+                } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers)))
+                  .recover { case ex: InternalError =>
+                    logger.error("Internal error in country transformation", ex)
+                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                  }
             )
         case None            =>
           logger.error("Could not retrieve countries list from JSON file.")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }
+
 }

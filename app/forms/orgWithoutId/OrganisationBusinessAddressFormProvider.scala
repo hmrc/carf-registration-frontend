@@ -71,7 +71,10 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
       "country"      -> text("organisationBusinessAddress.country.error.required")
         .verifying("organisationBusinessAddress.country.error.required", code => countryList.exists(_.code == code))
         .transform[Country](
-          code => countryList.find(_.code == code).get,
+          code =>
+            countryList
+              .find(_.code == code)
+              .getOrElse(throw new InternalError(s"Country code [$code] not found in country list")),
           country => country.code
         )
     )(OrganisationBusinessAddress.apply)(x =>

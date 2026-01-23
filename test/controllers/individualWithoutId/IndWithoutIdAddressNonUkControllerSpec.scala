@@ -43,6 +43,8 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
   val mockCountryListFactory = mock[CountryListFactory]
   val countries              = Seq(Country("FR", "France"), Country("DE", "Germany"))
 
+  when(mockCountryListFactory.countryListWithoutUKCountries).thenReturn(Some(countries))
+
   when(mockCountryListFactory.countryList).thenReturn(
     Some(
       Seq(
@@ -207,6 +209,7 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
 
     "must redirect to Journey Recovery when countries list cannot be retrieved" in {
       val mockCountryListFactoryEmpty = mock[CountryListFactory]
+      when(mockCountryListFactoryEmpty.countryListWithoutUKCountries).thenReturn(None)
       when(mockCountryListFactoryEmpty.countryList).thenReturn(None)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))

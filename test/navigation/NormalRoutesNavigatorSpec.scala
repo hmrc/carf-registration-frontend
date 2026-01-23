@@ -993,20 +993,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
       }
 
-      "must navigate from WhereDoYouLive to the 'address-non-uk' placeholder" in {
-        val userAnswers =
-          emptyUserAnswers
-            .set(WhereDoYouLivePage, false)
-            .success
-            .value
-
+      "must navigate from WhereDoYouLive to the 'address-non-uk' page" in {
+        val userAnswers = emptyUserAnswers
+          .set(WhereDoYouLivePage, false)
+          .success
+          .value
         navigator.nextPage(
           WhereDoYouLivePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
-        )
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
       }
 
       "must navigate from WhereDoYouLive to the Journey recovery if user answers in unset" in {

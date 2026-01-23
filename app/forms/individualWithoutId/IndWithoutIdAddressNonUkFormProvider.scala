@@ -35,14 +35,11 @@ class IndWithoutIdAddressNonUkFormProvider @Inject() extends Mappings {
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "addressLine2" -> optional(
-        text()
-          .verifying(
-            firstError(
-              maxLength(addressMaxLength, "indWithoutIdAddressNonUk.addressLine2.error.length"),
-              regexp(addressRegex, "indWithoutIdAddressNonUk.addressLine2.error.invalid")
-            )
-          )
+      "addressLine2" -> validatedOptionalText(
+        lengthKey = "indWithoutIdAddressNonUk.addressLine2.error.length",
+        invalidKey = "indWithoutIdAddressNonUk.addressLine2.error.invalid",
+        maxLength = addressMaxLength,
+        regex = addressRegex
       ),
       "townOrCity"   -> validatedText(
         requiredKey = "indWithoutIdAddressNonUk.townOrCity.error.required",
@@ -51,23 +48,17 @@ class IndWithoutIdAddressNonUkFormProvider @Inject() extends Mappings {
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "region"       -> optional(
-        text()
-          .verifying(
-            firstError(
-              maxLength(addressMaxLength, "indWithoutIdAddressNonUk.region.error.length"),
-              regexp(addressRegex, "indWithoutIdAddressNonUk.region.error.invalid")
-            )
-          )
+      "region"       -> validatedOptionalText(
+        lengthKey = "indWithoutIdAddressNonUk.region.error.length",
+        invalidKey = "indWithoutIdAddressNonUk.region.error.invalid",
+        maxLength = addressMaxLength,
+        regex = addressRegex
       ),
-      "postcode"     -> optional(
-        text()
-          .verifying(
-            firstError(
-              maxLength(10, "indWithoutIdAddressNonUk.postcode.error.length"),
-              regexp("^[A-Za-z0-9 ]*$", "indWithoutIdAddressNonUk.postcode.error.invalid")
-            )
-          )
+      "postcode"     -> validatedOptionalText(
+        lengthKey = "indWithoutIdAddressNonUk.postcode.error.length",
+        invalidKey = "indWithoutIdAddressNonUk.postcode.error.invalid",
+        maxLength = 10,
+        regex = "^[A-Za-z0-9 ]*$"
       ),
       "country"      -> text("indWithoutIdAddressNonUk.country.error.required")
         .verifying("indWithoutIdAddressNonUk.country.error.required", code => countryList.exists(_.code == code))

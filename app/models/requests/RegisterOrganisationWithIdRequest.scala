@@ -41,10 +41,10 @@ object RegOrgWithIdNonAutoMatchRequest {
 }
 
 case class RegOrgWithIdCTAutoMatchRequest(
-                                            requiresNameMatch: Boolean,
-                                            IDNumber: String,
-                                            IDType: String
-                                          ) extends RegisterOrganisationWithIdRequest
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String
+) extends RegisterOrganisationWithIdRequest
 
 object RegOrgWithIdCTAutoMatchRequest {
   implicit val format: OFormat[RegOrgWithIdCTAutoMatchRequest] = Json.format[RegOrgWithIdCTAutoMatchRequest]

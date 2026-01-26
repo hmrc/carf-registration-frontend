@@ -348,10 +348,12 @@ trait Formatters extends Transforms with Logging {
           case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
           case Some(postCode)                     =>
             val sanitisedPostcode = postCode.replaceAll("\\s+", "")
-            if (sanitisedPostcode.length > maxLengthPostcode) Left(Seq(FormError(key, lengthKey)))
-            else if (!sanitisedPostcode.matches(validCharRegex)) Left(Seq(FormError(key, invalidCharKey)))
-            else if (!sanitisedPostcode.matches(regex)) Left(Seq(FormError(key, invalidKey)))
-            else Right(validPostCodeFormat(sanitisedPostcode))
+            sanitisedPostcode match {
+              case s if s.length > maxLengthPostcode => Left(Seq(FormError(key, lengthKey)))
+              case s if !s.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
+              case s if !s.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
+              case s                                 => Right(validPostCodeFormat(s))
+            }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
         }
       }

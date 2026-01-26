@@ -50,10 +50,7 @@ class NiNumberController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(NiNumberPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = request.userAnswers.get(NiNumberPage).fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
   }

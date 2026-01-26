@@ -67,7 +67,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockRegistrationService, mockSessionRepository)
+    reset(mockRegistrationService)
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
   }
 

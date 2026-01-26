@@ -47,7 +47,7 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
       .map {
-        case response if response.status == OK =>
+        case response if response.status equals OK =>
           Try(response.json.as[Seq[AddressResponse]]) match {
             case Success(data)      =>
               Right(data)
@@ -57,11 +57,10 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
               )
               Left(ApiError.JsonValidationError)
           }
-        case response                          =>
+        case response                              =>
           logger.warn(
             s"Unexpected response: status code: ${response.status}, with message: ${response.body} from uri: $searchByPostcodeUrl"
           )
           Left(ApiError.InternalServerError)
       }
-
 }

@@ -37,3 +37,5 @@ bin
 .vscode
 .bsp
 project/metals.sbt
+.scala-build/
+app/forms/mappings/.scala-build/

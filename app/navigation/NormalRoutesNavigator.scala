@@ -21,12 +21,11 @@ import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
-
 import java.time.LocalDate
 
 trait NormalRoutesNavigator extends UserAnswersHelper {
@@ -113,17 +112,32 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromOrganisationSecondContactHavePhonePage(userAnswers)
 
     case IndWithoutNinoNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
-        )
+      _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
+
+    case IndWithoutIdDateOfBirthPage =>
+      _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
 
+    case WhereDoYouLivePage =>
+      userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(WhereDoYouLivePage) match {
+      case Some(true)  =>
+        controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
+        )
+      case _           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
     userAnswers.get(RegistrationTypePage) match {

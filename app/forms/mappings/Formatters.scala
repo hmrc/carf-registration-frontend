@@ -341,16 +341,18 @@ trait Formatters extends Transforms with Logging {
     new Formatter[String] {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val postCode          = data.get(key).map(_.trim.replaceAll("\\s+", ""))
+        val postCode          = data.get(key).map(_.trim)
         val maxLengthPostcode = 10
 
         postCode match {
-          case Some(postCode) if postCode.isEmpty                    => Left(Seq(FormError(key, requiredKey)))
-          case Some(postCode) if !postCode.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
-          case Some(postCode) if !postCode.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
-          case Some(postCode) if postCode.length > maxLengthPostcode => Left(Seq(FormError(key, lengthKey)))
-          case Some(postCode)                                        => Right(validPostCodeFormat(postCode))
-          case _                                                     => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode)                     =>
+            val sanitisedPostcode = postCode.replaceAll("\\s+", "")
+            if (sanitisedPostcode.length > maxLengthPostcode) Left(Seq(FormError(key, lengthKey)))
+            else if (!sanitisedPostcode.matches(validCharRegex)) Left(Seq(FormError(key, invalidCharKey)))
+            else if (!sanitisedPostcode.matches(regex)) Left(Seq(FormError(key, invalidKey)))
+            else Right(validPostCodeFormat(sanitisedPostcode))
+          case _                                  => Left(Seq(FormError(key, requiredKey)))
         }
       }
 

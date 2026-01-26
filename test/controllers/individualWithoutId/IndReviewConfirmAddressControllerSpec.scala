@@ -24,6 +24,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.AddressLookupPage
+import pages.individualWithoutId.IndReviewConfirmAddressPage
 import play.api.data.Form
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -171,6 +172,89 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when multiple addresses are found in userAnswers" in {
+
+      val address1 = AddressResponse(
+        id = "GB790091234501",
+        address = AddressRecord(
+          List("1 Test Street", "Line 2"),
+          "Testtown",
+          "BB00 0BB",
+          CountryRecord("GB", "United Kingdom")
+        )
+      )
+
+      val address2 = AddressResponse(
+        id = "GB790091234502",
+        address = AddressRecord(
+          List("2 Test Street", "Line 3"),
+          "Testtown",
+          "BB00 0BB",
+          CountryRecord("GB", "United Kingdom")
+        )
+      )
+
+      val userAnswers = emptyUserAnswers.set(AddressLookupPage, Seq(address1, address2)).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(
+          GET,
+          indReviewConfirmAddressRoute
+        )
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must clear (.remove) IndReviewConfirmAddressPage data on page load when an address is found" in {
+
+      val address = AddressResponse(
+        id = "GB790091234501",
+        address = AddressRecord(
+          List("1 Test Street", "Line 2"),
+          "Testtown",
+          "BB00 0BB",
+          CountryRecord("GB", "United Kingdom")
+        )
+      )
+
+      val userAnswers = emptyUserAnswers
+        .set(AddressLookupPage, Seq(address))
+        .success
+        .value
+        .set(IndReviewConfirmAddressPage, address)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(
+          GET,
+          indReviewConfirmAddressRoute
+        )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val view            = application.injector.instanceOf[IndReviewConfirmAddressView]
+        val editAddressLink = controllers.routes.PlaceholderController
+          .onPageLoad("Must redirect to /register/individual-without-id/address")
+          .url
+
+        contentAsString(result) mustEqual view(address, NormalMode, editAddressLink)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

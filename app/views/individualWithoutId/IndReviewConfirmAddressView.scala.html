@@ -32,14 +32,14 @@
 
     <h1 class="govuk-heading-l">@messages("indReviewConfirmAddress.heading")</h1>
 
-    <div class="govuk-body" translate="no">
+    <p class="govuk-body" translate="no">
         @address.address.lines.map { line =>
             <span class="govuk-!-margin-bottom-0">@line</span> <br/>
         }
-        <p class="govuk-body govuk-!-margin-bottom-0">@address.address.town</p>
-        <p class="govuk-body govuk-!-margin-bottom-0">@address.address.postcode</p>
+        <span class="govuk-!-margin-bottom-0">@address.address.town</span><br/>
+        <span class="govuk-!-margin-bottom-0">@address.address.postcode</span><br/>
         @address.address.country.name
-    </div>
+    </p>
 
     <p class="govuk-body">@link(editAddressLink, "indReviewConfirmAddress.editAddress", id = Some("manualAddressLink"))</p>
     <input type="hidden" name="value" value="true" />

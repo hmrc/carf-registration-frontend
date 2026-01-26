@@ -18,6 +18,8 @@ package base
 
 import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
+import generators.Generators
+import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -38,8 +40,6 @@ import queries.Settable
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
-import generators.Generators
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 
 import java.time.{Clock, Instant, ZoneId}
 import scala.concurrent.ExecutionContext
@@ -104,7 +104,7 @@ trait SpecBase
 
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
 
-  val oneAddress: Seq[AddressResponse] = Seq(
+  lazy val oneAddress: Seq[AddressResponse] = Seq(
     AddressResponse(
       id = "123",
       address = AddressRecord(
@@ -116,7 +116,7 @@ trait SpecBase
     )
   )
 
-  val multipleAddresses: Seq[AddressResponse] = Seq(
+  lazy val multipleAddresses: Seq[AddressResponse] = Seq(
     AddressResponse(
       id = "123",
       address = AddressRecord(

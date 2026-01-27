@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -341,16 +341,20 @@ trait Formatters extends Transforms with Logging {
     new Formatter[String] {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
-        val postCode          = data.get(key).map(_.trim.replaceAll("\\s+", ""))
+        val postCode          = data.get(key).map(_.trim)
         val maxLengthPostcode = 10
 
         postCode match {
-          case Some(postCode) if postCode.isEmpty                    => Left(Seq(FormError(key, requiredKey)))
-          case Some(postCode) if !postCode.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
-          case Some(postCode) if !postCode.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
-          case Some(postCode) if postCode.length > maxLengthPostcode => Left(Seq(FormError(key, lengthKey)))
-          case Some(postCode)                                        => Right(validPostCodeFormat(postCode))
-          case _                                                     => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
+          case Some(postCode)                     =>
+            val sanitisedPostcode = postCode.replaceAll("\\s+", "")
+            sanitisedPostcode match {
+              case s if s.length > maxLengthPostcode => Left(Seq(FormError(key, lengthKey)))
+              case s if !s.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
+              case s if !s.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
+              case s                                 => Right(validPostCodeFormat(s))
+            }
+          case _                                  => Left(Seq(FormError(key, requiredKey)))
         }
       }
 

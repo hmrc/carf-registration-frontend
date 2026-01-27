@@ -70,48 +70,6 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
     )
   )
 
-  val oneAddress: Seq[AddressResponse] = Seq(
-    AddressResponse(
-      id = "123",
-      address = AddressRecord(
-        lines = List("1 test", "1 Test Street", "Testington"),
-        town = " Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    )
-  )
-
-  val addresses: Seq[AddressResponse] = Seq(
-    AddressResponse(
-      id = "123",
-      address = AddressRecord(
-        lines = List("1 test", "1 Test Street", "Testington"),
-        town = "South Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    ),
-    AddressResponse(
-      id = "124",
-      address = AddressRecord(
-        lines = List("2 test", "2 Test Street", "Testington"),
-        town = "East Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    ),
-    AddressResponse(
-      id = "125",
-      address = AddressRecord(
-        lines = List("1 test", "2 Test Street", "Testington"),
-        town = "North Townshire",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    )
-  )
-
   val userAnswers = UserAnswers(
     id = userAnswersId,
     journeyType = Some(IndWithoutId),
@@ -162,9 +120,8 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
     "must redirect to the next page when postcode has returned one address" in {
 
-      val onwardRouteOneAddress = routes.PlaceholderController.onPageLoad(
-        s"Must redirect to /register/individual-without-id/review-address (CARF-173)"
-      )
+      val onwardRouteOneAddress =
+        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
@@ -198,7 +155,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(Right(addresses)))
+        .thenReturn(Future.successful(Right(multipleAddresses)))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))

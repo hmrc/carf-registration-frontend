@@ -225,5 +225,30 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to Journey Recovery for POST when countries list cannot be retrieved" in {
+      val mockCountryListFactoryEmpty = mock[CountryListFactory]
+      when(mockCountryListFactoryEmpty.countryListWithoutUKCountries).thenReturn(None)
+      when(mockCountryListFactoryEmpty.countryList).thenReturn(None)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactoryEmpty))
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indWithoutIdAddressNonUkRoute)
+            .withFormUrlEncodedBody(
+              ("addressLine1", "123 Main Street"),
+              ("townOrCity", "Paris"),
+              ("country", "FR")
+            )
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
   }
 }

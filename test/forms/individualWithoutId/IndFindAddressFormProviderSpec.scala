@@ -60,8 +60,8 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
     )
 
     "must not bind postcodes longer than 10 characters" in {
-      val result = form.bind(Map(fieldName -> "SW1A 1AAAA"))
-      result.errors must contain(FormError(fieldName, invalidFormat))
+      val result = form.bind(Map(fieldName -> "SW1A 1AAAAAAA"))
+      result.errors must contain(FormError(fieldName, lengthKey))
     }
 
     "must bind postcodes with leading, trailing spaces and spaces between characters" in {

@@ -482,3 +482,8 @@ indFindAddress.postcode.change.hidden = Postcode
 indFindAddress.error.propertyNameOrNumber.length = Property name or number must be 35 characters or less
 indFindAddress.checkYourAnswersLabel = Find your address
 indFindAddress.enterAddressManualLink = Enter the address manually
+
+indReviewConfirmAddress.title = Review and confirm your address
+indReviewConfirmAddress.heading = Review and confirm your address
+indReviewConfirmAddress.editAddress = Edit address
+indReviewConfirmAddress.confirmAddress = Confirm address

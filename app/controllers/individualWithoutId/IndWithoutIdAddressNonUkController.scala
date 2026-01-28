@@ -91,14 +91,10 @@ class IndWithoutIdAddressNonUkController @Inject() (
                   )
                 ),
               value =>
-                (for {
+                for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressNonUkPage, value))
                   _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswers)))
-                  .recover { case ex: InternalError =>
-                    logger.error("Internal error in country transformation", ex)
-                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-                  }
+                } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswers))
             )
         case None            =>
           logger.error("Could not retrieve countries list from JSON file.")

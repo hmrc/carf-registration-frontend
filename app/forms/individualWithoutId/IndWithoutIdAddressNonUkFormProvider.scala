@@ -61,12 +61,12 @@ class IndWithoutIdAddressNonUkFormProvider @Inject() extends Mappings {
         regex = "^[A-Za-z0-9 ]*$"
       ),
       "country"      -> text("indWithoutIdAddressNonUk.country.error.required")
-        .verifying("indWithoutIdAddressNonUk.country.error.required", code => countryList.exists(_.code == code))
+        .verifying("indWithoutIdAddressNonUk.country.error.required", value => countryList.exists(_.code == value))
         .transform[Country](
-          code =>
+          value =>
             countryList
-              .find(_.code == code)
-              .getOrElse(throw new InternalError(s"Country code [$code] not found in country list")),
+              .find(_.code.contains(value))
+              .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
           country => country.code
         )
     )(IndWithoutIdAddressNonUk.apply)(x =>

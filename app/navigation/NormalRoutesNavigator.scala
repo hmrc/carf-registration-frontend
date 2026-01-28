@@ -21,11 +21,12 @@ import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
+
 import java.time.LocalDate
 
 trait NormalRoutesNavigator extends UserAnswersHelper {
@@ -119,6 +120,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     case IndWithoutIdDateOfBirthPage =>
       _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
+
+    case IndFindAddressPage =>
+      userAnswers => navigateFromIndFindAddressPage(userAnswers)
+
+    case IndReviewConfirmAddressPage =>
+      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
@@ -270,4 +277,24 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(AddressLookupPage) match {
+      case Some(addresses) if addresses.size == 1 =>
+        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
+      case Some(addresses) if addresses.size > 1  =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
+        )
+      case _                                      =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndReviewConfirmAddressPage) match {
+      case Some(addressResponse) =>
+        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      case _                     => routes.JourneyRecoveryController.onPageLoad()
+    }
+
 }

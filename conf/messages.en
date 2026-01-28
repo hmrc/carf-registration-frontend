@@ -483,6 +483,11 @@ indFindAddress.error.propertyNameOrNumber.length = Property name or number must 
 indFindAddress.checkYourAnswersLabel = Find your address
 indFindAddress.enterAddressManualLink = Enter the address manually
 
+indReviewConfirmAddress.title = Review and confirm your address
+indReviewConfirmAddress.heading = Review and confirm your address
+indReviewConfirmAddress.editAddress = Edit address
+indReviewConfirmAddress.confirmAddress = Confirm address
+
 indWithoutIdAddressNonUk.title = What is your address?
 indWithoutIdAddressNonUk.heading = What is your address?
 indWithoutIdAddressNonUk.addressLine1 = Address line 1

@@ -19,10 +19,10 @@ package services
 import base.SpecBase
 import cats.data.EitherT
 import connectors.RegistrationConnector
-import models.error.{ApiError, DataError}
 import models.error.ApiError.{InternalServerError, NotFoundError}
+import models.error.{ApiError, DataError}
 import models.requests.*
-import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
+import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{Address, BusinessDetails, IndividualDetails, Name, RegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
@@ -41,7 +41,7 @@ class RegistrationServiceSpec extends SpecBase {
   val ninoInternalServerError              = "YX123456D"
   val validBirthDate: LocalDate            = LocalDate.of(2000, 1, 1)
 
-  val testAddress = Address(
+  val testAddress = AddressRegistrationResponse(
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Birmingham"),
     addressLine3 = None,
@@ -67,7 +67,7 @@ class RegistrationServiceSpec extends SpecBase {
     safeId = "testSafeId",
     code = Some("0000"),
     organisationName = "Agent ABC Ltd",
-    address = Address(
+    address = AddressRegistrationResponse(
       addressLine1 = "2 High Street",
       addressLine2 = Some("Birmingham"),
       addressLine3 = None,

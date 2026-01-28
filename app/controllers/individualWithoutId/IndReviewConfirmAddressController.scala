@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
-import models.Mode
+import models.{Mode, NormalMode}
 import models.responses.AddressResponse
 import navigation.Navigator
 import pages.AddressLookupPage
@@ -51,8 +51,8 @@ class IndReviewConfirmAddressController @Inject() (
     implicit request =>
 
       val editAddressLink: String =
-        controllers.routes.PlaceholderController
-          .onPageLoad("Must redirect to /register/individual-without-id/address")
+        controllers.individualWithoutId.routes.AddressController
+          .onPageLoad(NormalMode)
           .url
 
       request.userAnswers.get(AddressLookupPage) match {

@@ -14,13 +14,15 @@
  * limitations under the License.
  *@
 
+@import models.responses.renderHTML
+
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
         link: components.Link
 )
 
-@(businessName: String, address: Address, signOutUrl: String)(implicit request: Request[_], messages: Messages)
+@(businessName: String, address: models.responses.AddressRegistrationResponse, signOutUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("problemDifferentBusiness.title"))) {
 

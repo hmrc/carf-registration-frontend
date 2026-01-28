@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json.*
+import models.countries.*
 
 case class OrganisationBusinessAddress(
     addressLine1: String,

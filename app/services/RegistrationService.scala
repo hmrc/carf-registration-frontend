@@ -34,6 +34,11 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
+  def getIndividualWithoutNino(name: Name, dob: LocalDate)(implicit
+      hc: HeaderCarrier
+  ): Future[Option[IndividualDetails]] =
+    Future(Option.empty[IndividualDetails])
+
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
   ): Future[Either[CarfError, IndividualDetails]] = {

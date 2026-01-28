@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Json, OFormat}
+import models.AddressUK
+import play.api.libs.json.JsPath
 
-case class Country(code: String, description: String, alternativeName: Option[String] = None)
+case object AddressPage extends QuestionPage[AddressUK] {
 
-object Country {
+  override def path: JsPath = JsPath \ toString
 
-  val GB = Country("GB", "United Kingdom")
-
-  implicit val format: OFormat[Country] = Json.format[Country]
+  override def toString: String = "address"
 }

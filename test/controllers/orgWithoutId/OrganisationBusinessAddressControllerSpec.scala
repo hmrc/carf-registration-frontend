@@ -19,7 +19,8 @@ package controllers.orgWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.orgWithoutId.OrganisationBusinessAddressFormProvider
-import models.{Country, NormalMode, OrganisationBusinessAddress, UserAnswers}
+import models.countries.*
+import models.{NormalMode, OrganisationBusinessAddress, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}

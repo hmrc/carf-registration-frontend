@@ -16,11 +16,11 @@
 
 package forms.mappings
 
-import models.Country
+import models.countries.*
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-class PostcodeFormatter(
+case class PostcodeFormatter(
     countryList: Seq[Country],
     lengthKey: String,
     invalidCharKey: String,
@@ -37,8 +37,8 @@ class PostcodeFormatter(
     "IM" -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
   )
 
-  private val postcodeCharsRegex = "^[A-Z0-9 ]*$"
-  private val examplePostcode    = "AA1 1AA"
+  private val postcodeCharsRegex     = "^[A-Z0-9 ]*$"
+  private val exampleNonRealPostcode = "AA1 1AA"
 
   private def getPostcodePrefix(countryCode: String): String =
     countryCode match {
@@ -66,12 +66,13 @@ class PostcodeFormatter(
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
     val cc                = countryCode.getOrElse("")
 
-    if (postcode.isEmpty) {
-      if (isCrownDependency) Left(Seq(FormError("postcode", requiredCrownKey)))
-      else Right(None)
+    if (postcode.isEmpty && isCrownDependency) { // TODO refactoring next commit
+      Left(Seq(FormError("postcode", requiredCrownKey)))
+    } else if (postcode.isEmpty) {
+      Right(None)
     } else if (postcode.length > 10) {
       Left(Seq(FormError("postcode", lengthKey)))
-    } else if (isCrownDependency && postcode == examplePostcode) {
+    } else if (isCrownDependency && postcode == exampleNonRealPostcode) {
       Left(Seq(FormError("postcode", invalidRealCrownKey)))
     } else if (isCrownDependency && !postcode.matches(postcodeCharsRegex)) {
       Left(Seq(FormError("postcode", invalidCharKey)))

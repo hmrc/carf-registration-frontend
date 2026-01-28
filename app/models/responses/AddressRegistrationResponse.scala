@@ -14,34 +14,35 @@
  * limitations under the License.
  */
 
-package models
+package models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Address(
+case class AddressRegistrationResponse(
     addressLine1: String,
     addressLine2: Option[String],
     addressLine3: Option[String],
     addressLine4: Option[String],
     postalCode: Option[String],
     countryCode: String
-) {
+)
 
-  def isUkBased: Boolean = countryCode == "GB"
+extension (address: AddressRegistrationResponse) {
+  def isUkBased: Boolean = address.countryCode == "GB"
 
-  val renderHTML: String = {
+  def renderHTML: String = {
     val addressLines = Seq(
-      Some(addressLine1),
-      addressLine2,
-      addressLine3,
-      addressLine4,
-      postalCode
+      Some(address.addressLine1),
+      address.addressLine2,
+      address.addressLine3,
+      address.addressLine4,
+      address.postalCode
     ).flatten.filter(_.nonEmpty)
 
     val allLines = if (isUkBased) {
       addressLines
     } else {
-      addressLines :+ countryCode
+      addressLines :+ address.countryCode
     }
 
     val htmlLines = allLines.zipWithIndex.map { case (line, index) =>
@@ -56,6 +57,6 @@ case class Address(
   }
 }
 
-object Address {
-  implicit val format: OFormat[Address] = Json.format[Address]
+object AddressRegistrationResponse {
+  implicit val format: OFormat[AddressRegistrationResponse] = Json.format[AddressRegistrationResponse]
 }

@@ -18,7 +18,7 @@ package utils
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.Country
+import models.countries.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.Inspectors.forAll

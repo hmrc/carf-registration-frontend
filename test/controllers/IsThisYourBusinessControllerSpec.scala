@@ -21,6 +21,7 @@ import forms.IsThisYourBusinessFormProvider
 import models.*
 import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.error.ApiError.{InternalServerError, NotFoundError}
+import models.responses.AddressRegistrationResponse
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -47,7 +48,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
   val businessTestBusiness: BusinessDetails = BusinessDetails(
     name = "Test Business Ltd",
-    address = Address("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB")
+    address = AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB")
   )
 
   val soleTraderTestIndividual: IndividualDetails = IndividualDetails(
@@ -55,7 +56,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     firstName = "Test first Name ST Individual",
     middleName = None,
     lastName = "Test last Name ST Individual",
-    address = Address("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB")
+    address = AddressRegistrationResponse("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB")
   )
 
   val testPageDetails: IsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(

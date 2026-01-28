@@ -18,6 +18,7 @@ package controllers.organisation
 
 import base.SpecBase
 import controllers.routes
+import models.responses.AddressRegistrationResponse
 import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails}
 import pages.IsThisYourBusinessPage
 import play.api.test.FakeRequest
@@ -34,7 +35,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
   "ProblemDifferentBusiness Controller" - {
     "must return OK and not display country code for a GB address, & show correct view for a GET" in {
       val businessName = "Agent ABC Ltd"
-      val address      = Address(
+      val address      = AddressRegistrationResponse(
         addressLine1 = "2 High Street",
         addressLine2 = Some("Birmingham"),
         addressLine3 = None,
@@ -65,7 +66,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
 
     "must return OK and display country code for a non-GB address, & show correct  view for a GET" in {
       val businessName = "Agent USA Ltd"
-      val address      = Address(
+      val address      = AddressRegistrationResponse(
         addressLine1 = "2 Wall Street",
         addressLine2 = Some("New York City"),
         addressLine3 = None,

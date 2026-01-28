@@ -18,7 +18,8 @@ package forms.orgWithoutId
 
 import config.Constants.{addressMaxLength, addressRegex}
 import forms.mappings.Mappings
-import models.{Country, OrganisationBusinessAddress}
+import models.countries.*
+import models.OrganisationBusinessAddress
 import play.api.data.Form
 import play.api.data.Forms.*
 

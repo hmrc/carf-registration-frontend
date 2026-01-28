@@ -21,7 +21,8 @@ import controllers.routes
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
 import models.JourneyType.OrgWithUtr
 import models.RegistrationType.*
-import models.{Address, BusinessDetails, NormalMode, UserAnswers}
+import models.responses.AddressRegistrationResponse
+import models.{BusinessDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
@@ -51,7 +52,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
   val testBusinessDetails: BusinessDetails = BusinessDetails(
     name = "Test Company Ltd",
-    address = Address("1 Test Road", None, None, None, Some("LU4 1ST"), "GB")
+    address = AddressRegistrationResponse("1 Test Road", None, None, None, Some("LU4 1ST"), "GB") // reg
   )
 
   "WhatIsTheNameOfYourBusiness Controller" - {

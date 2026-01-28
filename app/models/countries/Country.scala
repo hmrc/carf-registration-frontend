@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package models.responses
+package models.countries
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterIndividualWithIdResponse(
-    safeId: String,
-    firstName: String,
-    lastName: String,
-    middleName: Option[String],
-    address: AddressRegistrationResponse
-)
+case class Country(code: String, description: String, alternativeName: Option[String] = None)
 
-object RegisterIndividualWithIdResponse {
-  implicit val format: OFormat[RegisterIndividualWithIdResponse] = Json.format[RegisterIndividualWithIdResponse]
+val GB = Country("GB", "United Kingdom")
+
+val UK = Country("UK", "United Kingdom")
+
+val GG = Country("GG", "Guernsey")
+
+val JE = Country("JE", "Jersey")
+
+val IM = Country("IM", "Isle of Man")
+
+object Country {
+  implicit val format: OFormat[Country] = Json.format[Country]
 }

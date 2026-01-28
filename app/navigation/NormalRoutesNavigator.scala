@@ -133,9 +133,18 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case WhereDoYouLivePage =>
       userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
+    case AddressPage => userAnswers => navigateFromAddressPage(userAnswers)
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers
+      .get(AddressPage)
+      .fold {
+        routes.JourneyRecoveryController.onPageLoad()
+      }(_ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode))
 
   private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
     userAnswers.get(WhereDoYouLivePage) match {

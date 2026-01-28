@@ -16,10 +16,12 @@
 
 package forms.mappings
 
-import models.{Country, Enumerable}
+import models.countries.*
+import models.Enumerable
 import play.api.data.Forms.of
-import play.api.data.{FieldMapping, Mapping}
+import play.api.data.{FieldMapping, FormError, Mapping}
 import play.api.i18n.Messages
+import play.api.data.format.Formatter
 
 import java.time.LocalDate
 
@@ -149,6 +151,25 @@ trait Mappings extends Formatters with Constraints {
       )
     )
 
+  protected def postcodeNoneEmpty(
+      countryList: Seq[Country],
+      lengthKey: String,
+      invalidCharKey: String,
+      requiredCrownKey: String,
+      invalidFormatCrownKey: String,
+      invalidRealCrownKey: String
+  ): FieldMapping[String] =
+    of(
+      PostcodeFormatterNoneEmpty(
+        countryList,
+        lengthKey,
+        invalidCharKey,
+        requiredCrownKey,
+        invalidFormatCrownKey,
+        invalidRealCrownKey
+      )
+    )
+
   protected def phoneNumber(
       requiredKey: String,
       invalidKey: String,
@@ -168,4 +189,27 @@ trait Mappings extends Formatters with Constraints {
   ): Mapping[String] =
     of(mandatoryPostcodeFormatter(requiredKey, lengthKey, invalidKey, regex, invalidCharKey, InvalidCharRegex))
 
+  /** Created because I needed a Postcode formatter without Option[T] and without too much boilerplate. Keeping the
+    * consistency of the Address model and a one-to-one relationship through to form -> provider -> model. Used mainly
+    * for type representation rather than functionality
+    */
+
+  private case class PostcodeFormatterNoneEmpty(
+      countryList: Seq[Country],
+      lengthKey: String,
+      invalidCharKey: String,
+      requiredCrownKey: String,
+      invalidFormatCrownKey: String,
+      invalidRealCrownKey: String
+  ) extends Formatter[String] {
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
+      val boundPostcodeFormatter: Either[Seq[FormError], Option[String]] =
+        postcode(countryList, lengthKey, invalidCharKey, requiredCrownKey, invalidFormatCrownKey, invalidRealCrownKey)
+          .bind(data)
+
+      boundPostcodeFormatter.map(_.fold("")(identity))
+    }
+
+    override def unbind(key: String, value: String): Map[String, String] = Map(key -> value)
+  }
 }

@@ -32,25 +32,25 @@ class AddressFormProvider @Inject() extends Mappings {
   def apply(countryList: => Seq[Country]): Form[AddressUK] = Form(
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
-        maxLength(35, "address.error.addressLine1.length"),
-        regexp(addressRegex, "address.error.addressLine1.invalid")
+        maxLength(35, "address.addressLine1.error.length"),
+        regexp(addressRegex, "address.addressLine1.error.invalid")
       ),
       "addressLine2" -> optional(
-        text("address.error.addressLine2.required")
+        text("address.addressLine2.error.required")
           .verifying(
-            maxLength(35, "address.error.addressLine2.length"),
-            regexp(addressRegex, "address.error.addressLine2.invalid")
+            maxLength(35, "address.addressLine2.error.length"),
+            regexp(addressRegex, "address.addressLine2.error.invalid")
           )
       ),
-      "townOrCity"   -> text("address.error.townOrCity.required").verifying(
-        maxLength(35, "address.error.townOrCity.length"),
-        regexp(addressRegex, "address.error.townOrCity.invalid")
+      "townOrCity"   -> text("address.townOrCity.error.required").verifying(
+        maxLength(35, "address.townOrCity.error.length"),
+        regexp(addressRegex, "address.townOrCity.error.invalid")
       ),
       "county"       -> optional(
-        text("address.error.county.required")
+        text("address.county.error.required")
           .verifying(
-            maxLength(35, "address.error.county.length"),
-            regexp(addressRegex, "address.error.county.invalid")
+            maxLength(35, "address.county.error.length"),
+            regexp(addressRegex, "address.county.error.invalid")
           )
       ),
       "postcode"     -> postcodeNoneEmpty(

@@ -37,9 +37,10 @@ case class PostcodeFormatter(
     "IM" -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
   )
 
-  private val postcodeCharsRegex     = "^[A-Z0-9 ]*$"
-  private val exampleNonRealPostcode = "AA1 1AA"
-
+  private val cdPostcodeCharsRegex    = "^[A-Z0-9 ]*$"
+  private val nonCdPostcodeCharsRegex = "^[A-Za-z0-9 \\-]*$"
+  private val examplePostcode         = "AA1 1AA"
+  
   private def getPostcodePrefix(countryCode: String): String =
     countryCode match {
       case "GG"  => "GY"
@@ -66,26 +67,27 @@ case class PostcodeFormatter(
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
     val cc                = countryCode.getOrElse("")
 
-    if (postcode.isEmpty && isCrownDependency) { // TODO refactoring next commit
-      Left(Seq(FormError("postcode", requiredCrownKey)))
-    } else if (postcode.isEmpty) {
-      Right(None)
-    } else if (postcode.length > 10) {
-      Left(Seq(FormError("postcode", lengthKey)))
-    } else if (isCrownDependency && postcode == exampleNonRealPostcode) {
-      Left(Seq(FormError("postcode", invalidRealCrownKey)))
-    } else if (isCrownDependency && !postcode.matches(postcodeCharsRegex)) {
-      Left(Seq(FormError("postcode", invalidCharKey)))
-    } else if (isCrownDependency && !postcode.startsWith(getPostcodePrefix(cc))) {
-      Left(Seq(FormError("postcode", invalidFormatCrownKey)))
-    } else if (isCrownDependency) {
-      realCrownDependencyPostcodeRegex.get(cc) match {
-        case Some(regex) if postcode.matches(regex) => Right(Some(postcode))
-        case Some(_)                                => Left(Seq(FormError("postcode", invalidRealCrownKey)))
-        case None                                   => Left(Seq(FormError("postcode", invalidFormatCrownKey)))
-      }
-    } else {
-      Right(Some(postcode))
+    (isCrownDependency, postcode) match {
+      case (true, "")                                        =>
+        Left(Seq(FormError("postcode", requiredCrownKey)))
+      case (_, p) if p.length > 10                           =>
+        Left(Seq(FormError("postcode", lengthKey)))
+      case (true, p) if !p.matches(cdPostcodeCharsRegex)     =>
+        Left(Seq(FormError("postcode", invalidCharKey)))
+      case (false, p) if !p.matches(nonCdPostcodeCharsRegex) =>
+        Left(Seq(FormError("postcode", invalidCharKey)))
+      case (true, p) if p == examplePostcode                 =>
+        Left(Seq(FormError("postcode", invalidRealCrownKey)))
+      case (true, p) if !p.startsWith(getPostcodePrefix(cc)) =>
+        Left(Seq(FormError("postcode", invalidFormatCrownKey)))
+      case (true, p)                                         =>
+        realCrownDependencyPostcodeRegex.get(cc) match {
+          case Some(regex) if p.matches(regex) => Right(Some(p))
+          case Some(_)                         => Left(Seq(FormError("postcode", invalidRealCrownKey)))
+          case None                            => Left(Seq(FormError("postcode", invalidFormatCrownKey)))
+        }
+      case _                                                 =>
+        Right(Some(postcode))
     }
   }
 

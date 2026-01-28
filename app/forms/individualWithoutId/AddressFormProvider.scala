@@ -16,10 +16,9 @@
 
 package forms.individualWithoutId
 
-import config.Constants.addressRegex
+import config.Constants.{addressRegex, postCodeAllowedChars, regexPostcode}
 import forms.mappings.Mappings
 import models.AddressUK
-import models.countries.*
 import play.api.data.Form
 import play.api.data.Forms.*
 
@@ -29,7 +28,7 @@ class AddressFormProvider @Inject() extends Mappings {
 
   inline val maxLength = 35
 
-  def apply(countryList: => Seq[Country]): Form[AddressUK] = Form(
+  def apply(): Form[AddressUK] = Form(
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
         maxLength(35, "address.addressLine1.error.length"),
@@ -53,15 +52,16 @@ class AddressFormProvider @Inject() extends Mappings {
             regexp(addressRegex, "address.county.error.invalid")
           )
       ),
-      "postcode"     -> postcodeNoneEmpty(
-        countryList = countryList,
-        lengthKey = "address.postcode.error.length",
-        invalidCharKey = "address.postcode.error.invalid",
-        requiredCrownKey = "address.postcode.error.required",
-        invalidFormatCrownKey = "address.postcode.error.invalidFormat",
-        invalidRealCrownKey = "address.postcode.error.notReal"
+      "postcode"     -> mandatoryPostcode(
+        "address.postcode.error.required",
+        "address.postcode.error.length",
+        "address.postcode.error.invalidFormat",
+        regexPostcode,
+        "address.postcode.error.invalid",
+        postCodeAllowedChars,
+        Some("address.postcode.error.notReal")
       ),
       "country"      -> text("address.country.error.required")
-    )(AddressUK.apply)(x => Some(x.addressLine1, x.addressLine2, x.townOrCity, x.county, x.postCode, x.postCode))
+    )(AddressUK.apply)(x => Some(x.addressLine1, x.addressLine2, x.townOrCity, x.county, x.postCode, x.countryCode))
   )
 }

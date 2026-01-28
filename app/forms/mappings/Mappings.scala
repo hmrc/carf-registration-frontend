@@ -185,9 +185,20 @@ trait Mappings extends Formatters with Constraints {
       invalidKey: String,
       regex: String,
       invalidCharKey: String,
-      InvalidCharRegex: String
+      InvalidCharRegex: String,
+      notRealKey: Option[String]
   ): Mapping[String] =
-    of(mandatoryPostcodeFormatter(requiredKey, lengthKey, invalidKey, regex, invalidCharKey, InvalidCharRegex))
+    of(
+      mandatoryPostcodeFormatter(
+        requiredKey,
+        lengthKey,
+        invalidKey,
+        regex,
+        invalidCharKey,
+        InvalidCharRegex,
+        notRealKey
+      )
+    )
 
   /** Created because I needed a Postcode formatter without Option[T] and without too much boilerplate. Keeping the
     * consistency of the Address model and a one-to-one relationship through to form -> provider -> model. Used mainly

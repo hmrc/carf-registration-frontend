@@ -54,7 +54,7 @@ class AddressController @Inject() (
     countryListFactory.countryCodesForUkCountries
       .filterNot(_.code == "GB")
       .toSeq
-  private final def form: Form[AddressUK]                            = formProvider(ukCountries)
+  private final def form: Form[AddressUK]                            = formProvider()
   private final def countryListWithFilledForm(form: Form[AddressUK]) =
     countryListFactory.countrySelectList(form.data, ukCountries)
 

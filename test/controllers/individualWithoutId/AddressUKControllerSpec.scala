@@ -48,7 +48,7 @@ class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheck
   private val mockCountries: Set[Country] = Set(uk, france, jersey)
 
   private val formProvider = new AddressFormProvider()
-  private val form         = formProvider(mockCountries.toSeq)
+  private val form         = formProvider()
 
   private lazy val addressRoute = controllers.individualWithoutId.routes.AddressController.onPageLoad(NormalMode).url
 

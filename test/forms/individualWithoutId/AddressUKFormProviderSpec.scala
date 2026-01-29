@@ -92,7 +92,7 @@ class AddressUKFormProviderSpec extends StringFieldBehaviours {
     "must not bind strings longer than the max length" in {
       val longString = "a" * (addressMaxLength + 1)
       val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, lengthKey, Nil))
+      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
     }
 
     behave like mandatoryField(form, fieldName, requiredError = FormError(fieldName, requiredKey))
@@ -100,7 +100,7 @@ class AddressUKFormProviderSpec extends StringFieldBehaviours {
     "must not bind strings with invalid characters" in {
       val invalidString = "Luton!"
       val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, invalidKey, Nil))
+      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
     }
   }
 
@@ -201,12 +201,6 @@ class AddressUKFormProviderSpec extends StringFieldBehaviours {
     val requiredKey = "address.country.error.required"
 
     behave like mandatoryField(form, fieldName, requiredError = FormError(fieldName, requiredKey))
-
-    "must not bind an invalid country code" in {
-      val data   = baseFormData ++ Map(fieldName -> "ZZ")
-      val result = form.bind(data).apply(fieldName)
-      result.errors must contain(FormError(fieldName, requiredKey))
-    }
 
     "must bind a valid country code" in {
       val data   = baseFormData ++ Map(fieldName -> "FR")

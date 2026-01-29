@@ -15,6 +15,10 @@
  *@
 
 @import viewmodels.InputWidth._
+@import models.Mode
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+@import views.html.templates.Layout
 
 @this(
     layout: templates.Layout,
@@ -27,7 +31,7 @@
 
 @(form: Form[_], mode: Mode, countries: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("address.title"))) {
+@layout(pageTitle = title(form, messages("address.title")), showAutoComplete = true) {
 
     @formHelper(action = controllers.individualWithoutId.routes.AddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

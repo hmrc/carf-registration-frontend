@@ -16,7 +16,7 @@
 
 package models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, Writes}
 
 sealed trait RegisterOrganisationWithIdRequest {
   val requiresNameMatch: Boolean
@@ -25,7 +25,12 @@ sealed trait RegisterOrganisationWithIdRequest {
 }
 
 object RegisterOrganisationWithIdRequest {
-  implicit val format: OFormat[RegisterOrganisationWithIdRequest] = Json.format[RegisterOrganisationWithIdRequest]
+  implicit val writes: Writes[RegisterOrganisationWithIdRequest] = Writes {
+    case r: RegOrgWithIdNonAutoMatchRequest =>
+      Json.toJson(r)(RegOrgWithIdNonAutoMatchRequest.format)
+    case r: RegOrgWithIdCTAutoMatchRequest  =>
+      Json.toJson(r)(RegOrgWithIdCTAutoMatchRequest.format)
+  }
 }
 
 case class RegOrgWithIdNonAutoMatchRequest(

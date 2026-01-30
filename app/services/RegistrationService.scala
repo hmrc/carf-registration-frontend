@@ -70,7 +70,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   }
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
-    val request = RegOrgWithIdCTAutoMatchRequest(
+    val request: RegOrgWithIdCTAutoMatchRequest = RegOrgWithIdCTAutoMatchRequest(
       requiresNameMatch = false,
       IDNumber = utr,
       IDType = "UTR"

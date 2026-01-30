@@ -147,7 +147,7 @@ class AddressUKFormProviderSpec extends StringFieldBehaviours {
       val formData = Map(
         "addressLine1" -> "addressLine1",
         "townOrCity"   -> "town",
-        "country"      -> "UK",
+        "country"      -> "GB",
         "postcode"     -> postcode
       )
       val result   = form.bind(formData)
@@ -190,7 +190,7 @@ class AddressUKFormProviderSpec extends StringFieldBehaviours {
 
     "must be valid if postcode is provided in a valid format" in {
       val formData =
-        Map("addressLine1" -> "addressLine1", "townOrCity" -> "town", "country" -> "UK", "postcode" -> "NW4 1QS")
+        Map("addressLine1" -> "addressLine1", "townOrCity" -> "town", "country" -> "GB", "postcode" -> "NW4 1QS")
       val result   = form.bind(formData)
       result.hasErrors mustBe false
     }

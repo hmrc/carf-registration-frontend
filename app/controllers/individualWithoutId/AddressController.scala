@@ -18,12 +18,12 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.AddressFormProvider
+import models.countries.{Country, GB}
 import models.requests.DataRequest
-import models.responses.{AddressRecord, AddressResponse}
-import models.{AddressUK, IndFindAddress, Mode}
+import models.responses.AddressResponse
+import models.{AddressUK, Mode}
 import navigation.Navigator
 import pages.{AddressLookupPage, AddressPage}
-import pages.individualWithoutId.IndFindAddressPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -50,10 +50,12 @@ class AddressController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private final def ukCountries                                      =
-    countryListFactory.countryCodesForUkCountries
-      .filterNot(_.code == "GB")
-      .toSeq
+  private final def ukCountries =
+    countryListFactory.countryCodesForUkCountries.collect {
+      case x if x.code == "UK" => GB
+      case x                   => x
+    }.toSeq
+
   private final def form: Form[AddressUK]                            = formProvider()
   private final def countryListWithFilledForm(form: Form[AddressUK]) =
     countryListFactory.countrySelectList(form.data, ukCountries)

@@ -37,7 +37,7 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
       length <- Gen.choose(1, addressMaxLength)
       chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
     } yield chars.mkString
-  }
+  }.suchThat(_ != " ")
 
   val validPostcodeStringGen: Gen[String] = {
     val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 "

@@ -203,3 +203,5 @@ GET         /register/individual-without-id/review-address                      
 GET         /register/individual-without-id/review-address-submit               controllers.individualWithoutId.IndReviewConfirmAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /register/individual-without-id/change-review-address               controllers.individualWithoutId.IndReviewConfirmAddressController.onPageLoad(mode: Mode = CheckMode)
 GET         /register/individual-without-id/change-review-address-submit        controllers.individualWithoutId.IndReviewConfirmAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/confirm-registration                                      controllers.RegistrationConfirmationController.onPageLoad(mode: Mode = NormalMode)

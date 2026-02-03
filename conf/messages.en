@@ -487,3 +487,13 @@ indReviewConfirmAddress.title = Review and confirm your address
 indReviewConfirmAddress.heading = Review and confirm your address
 indReviewConfirmAddress.editAddress = Edit address
 indReviewConfirmAddress.confirmAddress = Confirm address
+
+registrationConfirmation.title = Registration successful
+registrationConfirmation.heading = Registration successful
+registrationConfirmation.para.1 = You’ll need to provide your CARF user ID when emailing aeoi.enquiries@hmrc.gov.uk for support.
+registrationConfirmation.para.2 = We have also sent a confirmation email to [email address].
+registrationConfirmation.subheading.1 = What you should do next
+registrationConfirmation.para.3 = To send cryptoasset reports, you must add a cryptoasset service provider.
+registrationConfirmation.subheading.2 = Before you go
+registrationConfirmation.para.4 = Your feedback helps us make our service better.
+registrationConfirmation.para.5 = Take a short survey to share your feedback on this service.

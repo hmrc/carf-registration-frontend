@@ -35,8 +35,10 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
     val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 &.,'-"
     for {
       length <- Gen.choose(1, addressMaxLength)
-      chars  <- Gen.listOfN(length, Gen.oneOf(allowedChars))
-    } yield chars.mkString
+      raw    <- Gen.listOfN(length, Gen.oneOf(allowedChars)).map(_.mkString)
+      trimmed = raw.trim
+      if trimmed.nonEmpty
+    } yield trimmed
   }
 
   val validPostcodeStringGen: Gen[String] = {
@@ -121,6 +123,12 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
       val invalidString = "Paris!"
       val result        = form.bind(baseFormData + (fieldName -> invalidString)).apply(fieldName)
       result.errors must contain(FormError(fieldName, invalidKey, List()))
+    }
+
+    "must bind when value has leading/trailing spaces" in {
+      val value  = "  Paris  "
+      val result = form.bind(baseFormData + (fieldName -> value)).apply(fieldName)
+      result.errors mustBe empty
     }
   }
 

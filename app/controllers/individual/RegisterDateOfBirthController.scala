@@ -53,10 +53,8 @@ class RegisterDateOfBirthController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
       val form         = formProvider()
-      val preparedForm = request.userAnswers.get(RegisterDateOfBirthPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = request.userAnswers.get(RegisterDateOfBirthPage).fold(form)(form.fill)
+
       Ok(view(preparedForm, mode))
   }
 

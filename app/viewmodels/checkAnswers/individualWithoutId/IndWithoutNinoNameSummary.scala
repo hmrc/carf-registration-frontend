@@ -38,10 +38,9 @@ object IndWithoutNinoNameSummary {
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("indWithoutNinoName.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("indWithoutNinoName.change.hidden"))
         )
       )
     }

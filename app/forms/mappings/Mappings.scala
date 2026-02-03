@@ -17,8 +17,8 @@
 package forms.mappings
 
 import models.{Country, Enumerable}
-import play.api.data.FieldMapping
 import play.api.data.Forms.of
+import play.api.data.{FieldMapping, Mapping}
 import play.api.i18n.Messages
 
 import java.time.LocalDate
@@ -113,6 +113,15 @@ trait Mappings extends Formatters with Constraints {
   ): FieldMapping[String] =
     of(validatedTextFormatter(requiredKey, invalidKey, lengthKey, regex, maxLength, minLength, msgArg))
 
+  protected def validatedOptionalText(
+      lengthKey: String,
+      invalidKey: String,
+      regex: String,
+      maxLength: Int,
+      msgArg: String = ""
+  ): FieldMapping[Option[String]] =
+    of(validatedOptionalTextFormatter(lengthKey, invalidKey, regex, maxLength, msgArg))
+
   protected def nationalInsuranceNumber(
       requiredKey: String,
       invalidFormatKey: String,
@@ -144,7 +153,19 @@ trait Mappings extends Formatters with Constraints {
       requiredKey: String,
       invalidKey: String,
       lengthKey: String,
+      notRealPhoneNumberKey: String,
       args: Seq[Any] = Seq.empty
   ): FieldMapping[String] =
-    of(phoneNumberFormatter(requiredKey, invalidKey, lengthKey, args))
+    of(phoneNumberFormatter(requiredKey, invalidKey, lengthKey, notRealPhoneNumberKey, args))
+
+  protected def mandatoryPostcode(
+      requiredKey: String,
+      lengthKey: String,
+      invalidKey: String,
+      regex: String,
+      invalidCharKey: String,
+      InvalidCharRegex: String
+  ): Mapping[String] =
+    of(mandatoryPostcodeFormatter(requiredKey, lengthKey, invalidKey, regex, invalidCharKey, InvalidCharRegex))
+
 }

@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.orgWithoutId.OrgWithoutIdBusinessNameView
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,10 +49,7 @@ class OrgWithoutIdBusinessNameController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(OrgWithoutIdBusinessNamePage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = request.userAnswers.get(OrgWithoutIdBusinessNamePage).fold(form)(form.fill)
       Ok(view(preparedForm, mode))
   }
 

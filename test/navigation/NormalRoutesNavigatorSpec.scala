@@ -19,14 +19,14 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
-import models.IndividualRegistrationType.{Individual, SoleTrader}
+import models.IndividualRegistrationType.{IndividualNotConnectedToABusiness, IndividualSoleTrader}
+import models.RegistrationType.*
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import play.api.libs.json.Json
 
 import java.time.LocalDate
 
@@ -46,27 +46,27 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrganisationRegistrationTypePage to Registered Address in the UK page" in {
 
       navigator.nextPage(
-        OrganisationRegistrationTypePage,
+        NavigatorOnlyOrganisationRegistrationTypePage,
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Registered Address in the UK Page when user is a Sole Trader" in {
-      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, SoleTrader).success.value
+      val userAnswers = UserAnswers("id").set(RegistrationTypePage, SoleTrader).success.value
 
       navigator.nextPage(
-        IndividualRegistrationTypePage,
+        NavigatorOnlyIndividualRegistrationTypePage,
         NormalMode,
         userAnswers
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
     "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {
-      val userAnswers = UserAnswers("id").set(IndividualRegistrationTypePage, Individual).success.value
+      val userAnswers = UserAnswers("id").set(RegistrationTypePage, Individual).success.value
 
       navigator.nextPage(
-        IndividualRegistrationTypePage,
+        NavigatorOnlyIndividualRegistrationTypePage,
         NormalMode,
         userAnswers
       ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
@@ -76,7 +76,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -94,7 +94,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -112,7 +112,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -130,7 +130,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -194,7 +194,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
 
@@ -210,7 +210,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
 
@@ -226,7 +226,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(HaveUTRPage, false)
           .success
           .value
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
 
@@ -320,7 +320,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, RegistrationType.SoleTrader)
             .success
             .value
           navigator.nextPage(
@@ -342,7 +342,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, RegistrationType.SoleTrader)
             .success
             .value
           navigator.nextPage(
@@ -364,7 +364,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
             .success
             .value
 
@@ -436,7 +436,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+            .set(RegistrationTypePage, RegistrationType.SoleTrader)
             .success
             .value
 
@@ -459,7 +459,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             )
             .success
             .value
-            .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
             .success
             .value
 
@@ -505,7 +505,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrgWithoutIdBusinessNamePage to Does your business trade under a different name?" in {
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LLP)
+          .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
           .set(OrgWithoutIdBusinessNamePage, "valid org name")
@@ -522,7 +522,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.LimitedCompany)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -569,7 +569,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(IndividualRegistrationTypePage, IndividualRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -587,7 +587,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
           .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
@@ -605,7 +605,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       val updatedAnswers =
         emptyUserAnswers
-          .set(OrganisationRegistrationTypePage, OrganisationRegistrationType.SoleTrader)
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
 
@@ -694,6 +694,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(RegisterDateOfBirthPage, LocalDate.of(2000, 1, 1))
             .success
             .value
+
         navigator.nextPage(
           RegisterDateOfBirthPage,
           NormalMode,
@@ -767,9 +768,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndividualPhoneNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
 
@@ -905,7 +904,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "IndWithoutNinoName navigation" - {
-      "must navigate from IndWithoutNinoName to IndWithoutNinoDateOfBirth for Individual or Sole Trader Without NINO  and valid name" in {
+      "must navigate from IndWithoutNinoName to IndWithoutIdDateOfBirth for Individual or Sole Trader Without NINO and valid name" in {
         val userAnswers =
           emptyUserAnswers
             .set(IndWithoutNinoNamePage, Name("givenName example", "familyName example"))
@@ -915,9 +914,48 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndWithoutNinoNamePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
-        )
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
+      }
+    }
+
+    "IndWithoutIdAddressNonUkPage navigation" - {
+      "must navigate from IndWithoutIdAddressNonUkPage to IndividualEmailController" in {
+        val userAnswers = emptyUserAnswers
+          .set(
+            IndWithoutIdAddressNonUkPage,
+            IndWithoutIdAddressNonUk(
+              "123 Main St",
+              Some("Apt 4"),
+              "Paris",
+              Some("Ile-de-France"),
+              Some("75001"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          IndWithoutIdAddressNonUkPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
+    "IndWithoutIdDateOfBirth navigation" - {
+      "must navigate from IndWithoutIdDateOfBirth to the 'Where do you live' placeholder" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(IndWithoutIdDateOfBirthPage, LocalDate.now())
+            .success
+            .value
+
+        navigator.nextPage(
+          IndWithoutIdDateOfBirthPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
       }
     }
 
@@ -937,9 +975,117 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationSecondContactPhoneNumberPage,
           NormalMode,
           emptyUserAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "WhereDoYouLive navigation" - {
+      "must navigate from WhereDoYouLive to the FindAddressPage" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(WhereDoYouLivePage, true)
+            .success
+            .value
+
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      }
+
+      "must navigate from WhereDoYouLive to the 'address-non-uk' page" in {
+        val userAnswers = emptyUserAnswers
+          .set(WhereDoYouLivePage, false)
+          .success
+          .value
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
+      }
+
+      "must navigate from WhereDoYouLive to the Journey recovery if user answers in unset" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndFindAddressPage navigation" - {
+      "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(AddressLookupPage, oneAddress)
+            .success
+            .value
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
+      }
+
+      "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(AddressLookupPage, multipleAddresses)
+            .success
+            .value
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
         ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
+          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
         )
+      }
+
+      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+    }
+
+    "IndReviewConfirmAddressPage navigation" - {
+      "must navigate from IndReviewConfirmAddressPage to the 'IndividualEmailPage' page" in {
+        val userAnswers =
+          emptyUserAnswers
+            .set(AddressLookupPage, oneAddress)
+            .success
+            .value
+            .set(IndReviewConfirmAddressPage, oneAddress.head)
+            .success
+            .value
+
+        navigator.nextPage(
+          IndReviewConfirmAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndReviewConfirmAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

@@ -17,13 +17,13 @@
 package navigation
 
 import controllers.routes
-import models.OrganisationRegistrationType.*
-import models.{IndividualRegistrationType, NormalMode, OrganisationRegistrationType, UserAnswers}
+import models.RegistrationType.{Individual, SoleTrader}
+import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, IndividualRegistrationTypePage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
-import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.individual.*
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
-import pages.organisation.{FirstContactEmailPage, FirstContactNamePage, FirstContactPhoneNumberPage, FirstContactPhonePage, HaveUTRPage, OrganisationHaveSecondContactPage, OrganisationRegistrationTypePage, OrganisationSecondContactEmailPage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage, OrganisationSecondContactPhoneNumberPage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUtrPageForNavigatorOnly}
+import pages.organisation.*
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
@@ -33,10 +33,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
-    case IndividualRegistrationTypePage =>
+    case NavigatorOnlyIndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case OrganisationRegistrationTypePage =>
+    case NavigatorOnlyOrganisationRegistrationTypePage =>
       _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>
@@ -102,11 +102,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndividualEmailPage =>
       _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
-    case IndividualPhoneNumberPage         =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+    case IndividualPhoneNumberPage         => _ => routes.CheckYourAnswersController.onPageLoad()
     case OrganisationSecondContactNamePage =>
       _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
@@ -117,28 +113,47 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromOrganisationSecondContactHavePhonePage(userAnswers)
 
     case IndWithoutNinoNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/date-of-birth (CARF-170)"
-        )
+      _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
+
+    case IndWithoutIdAddressNonUkPage =>
+      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+
+    case IndWithoutIdDateOfBirthPage =>
+      _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
+
+    case IndFindAddressPage =>
+      userAnswers => navigateFromIndFindAddressPage(userAnswers)
+
+    case IndReviewConfirmAddressPage =>
+      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
 
     case OrganisationSecondContactPhoneNumberPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/check-answers (CARF-258)"
-        )
+      _ => routes.CheckYourAnswersController.onPageLoad()
+
+    case WhereDoYouLivePage =>
+      userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
+  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(WhereDoYouLivePage) match {
+      case Some(true)  =>
+        controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      case Some(false) =>
+        controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
+      case _           =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
   private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
-    userAnswers.get(IndividualRegistrationTypePage) match {
-      case Some(IndividualRegistrationType.SoleTrader) =>
+    userAnswers.get(RegistrationTypePage) match {
+      case Some(SoleTrader) =>
         controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
-      case Some(IndividualRegistrationType.Individual) =>
+      case Some(Individual) =>
         controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
-      case _                                           =>
+      case _                =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -159,7 +174,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(false) =>
         if (isSoleTrader(userAnswers)) {
           controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
-        } else if (userAnswers.get(OrganisationRegistrationTypePage).isDefined) {
+        } else if (userAnswers.get(RegistrationTypePage).isDefined) {
           controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
         } else {
           routes.JourneyRecoveryController.onPageLoad()
@@ -168,19 +183,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call = {
-
-    val individualRegistrationType: Option[IndividualRegistrationType]     = userAnswers.get(IndividualRegistrationTypePage)
-    val organisationRegistrationType: Option[OrganisationRegistrationType] =
-      userAnswers.get(OrganisationRegistrationTypePage)
-
-    (individualRegistrationType, organisationRegistrationType) match {
-      case (Some(IndividualRegistrationType.SoleTrader), _) | (_, Some(OrganisationRegistrationType.SoleTrader)) =>
-        controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
-      case _                                                                                                     =>
-        controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
+  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
+    if (isSoleTrader(userAnswers)) {
+      controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
+    } else {
+      controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
-  }
 
   private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
@@ -205,9 +213,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def isCTAutomatched(userAnswers: UserAnswers): Boolean =
-    userAnswers.isCtAutoMatched
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveNiNumberPage) match {
@@ -269,4 +274,24 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(AddressLookupPage) match {
+      case Some(addresses) if addresses.size == 1 =>
+        controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
+      case Some(addresses) if addresses.size > 1  =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
+        )
+      case _                                      =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndReviewConfirmAddressPage) match {
+      case Some(addressResponse) =>
+        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      case _                     => routes.JourneyRecoveryController.onPageLoad()
+    }
+
 }

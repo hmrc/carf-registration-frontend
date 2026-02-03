@@ -17,6 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
+import models.JourneyType.OrgWithUtr
 import models.UserAnswers
 import org.mockito.Mockito.when
 import org.mongodb.scala.SingleObservableFuture
@@ -50,7 +51,12 @@ class SessionRepositorySpec
   private val instant          = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
-  private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
+  private val userAnswers = UserAnswers(
+    id = "id",
+    data = Json.obj("foo" -> "bar"),
+    journeyType = Some(OrgWithUtr),
+    lastUpdated = Instant.ofEpochSecond(1)
+  )
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L

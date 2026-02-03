@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package pages.organisation
+package pages.individualWithoutId
 
-import models.OrganisationRegistrationType
+import models.responses.AddressResponse
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object OrganisationRegistrationTypePage extends QuestionPage[OrganisationRegistrationType] {
+case object IndReviewConfirmAddressPage extends QuestionPage[AddressResponse] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "organisationRegistrationType"
+  override def toString: String = "indReviewConfirmAddress"
 }

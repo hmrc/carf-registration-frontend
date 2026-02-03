@@ -22,6 +22,18 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
+  implicit lazy val arbitraryIndWithoutIdAddressNonUk: Arbitrary[IndWithoutIdAddressNonUk] =
+    Arbitrary {
+      for {
+        addressLine1 <- addressStringGen
+        addressLine2 <- Gen.option(addressStringGen)
+        townOrCity   <- addressStringGen
+        region       <- Gen.option(addressStringGen)
+        postcode     <- Gen.option(postcodeStringGen)
+        country      <- arbitrary[Country]
+      } yield IndWithoutIdAddressNonUk(addressLine1, addressLine2, townOrCity, region, postcode, country)
+    }
+
   val addressStringGen: Gen[String] = Gen.alphaNumStr.suchThat(_.nonEmpty).map(_.take(35))
 
   val postcodeStringGen: Gen[String] = Gen.alphaNumStr.suchThat(_.nonEmpty).map(_.take(10))
@@ -70,5 +82,13 @@ trait ModelGenerators {
   implicit lazy val arbitraryIndividualRegistrationType: Arbitrary[IndividualRegistrationType] =
     Arbitrary {
       Gen.oneOf(IndividualRegistrationType.values.toSeq)
+    }
+
+  implicit lazy val arbitraryIndFindAddress: Arbitrary[IndFindAddress] =
+    Arbitrary {
+      for {
+        postcode             <- arbitrary[String]
+        propertyNameOrNumber <- arbitrary[String]
+      } yield IndFindAddress(postcode, Some(propertyNameOrNumber))
     }
 }

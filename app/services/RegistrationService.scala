@@ -24,6 +24,7 @@ import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationW
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
+import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -78,8 +79,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     if (userAnswers.isCtAutoMatched) {
       val registrationData = for {
         businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
-        orgType      <- userAnswers.get(OrganisationRegistrationTypePage).map(_.code)
-      } yield (businessName, orgType)
+        orgType      <- userAnswers.get(RegistrationTypePage)
+      } yield (businessName, orgType.code)
 
       registrationData match {
         case Some((businessName, orgType)) =>

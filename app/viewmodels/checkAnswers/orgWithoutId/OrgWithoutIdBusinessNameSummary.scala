@@ -36,10 +36,9 @@ object OrgWithoutIdBusinessNameSummary {
         value = value,
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("businessName.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("businessName.change.hidden"))
         )
       )
     }

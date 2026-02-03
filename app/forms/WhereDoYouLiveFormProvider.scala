@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package pages.individual
+package forms
 
-import models.IndividualRegistrationType
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import javax.inject.Inject
 
-case object IndividualRegistrationTypePage extends QuestionPage[IndividualRegistrationType] {
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  override def path: JsPath = JsPath \ toString
+class WhereDoYouLiveFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "individualRegistrationType"
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("whereDoYouLive.error.required")
+    )
 }

@@ -29,7 +29,8 @@ class IndividualPhoneNumberFormProvider @Inject() extends Mappings {
       "value" -> phoneNumber(
         requiredKey = "individualPhoneNumber.error.required",
         invalidKey = "individualPhoneNumber.error.invalid",
-        lengthKey = "individualPhoneNumber.error.length"
+        lengthKey = "individualPhoneNumber.error.length",
+        notRealPhoneNumberKey = "firstContactPhoneNumber.error.notRealNumber"
       )
     )
 }

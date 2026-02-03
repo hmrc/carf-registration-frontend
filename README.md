@@ -12,6 +12,8 @@ Prerequisites:
 - SBT
 - MongoDB
 - Service Manager
+- Node Version manager (nvm)
+- NodeJs
 
 Commands:
 

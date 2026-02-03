@@ -121,38 +121,38 @@ class IsThisYourBusinessController @Inject() (
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
-      case Some(business) =>
-        val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
+        case Some(business) =>
+          val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
 
-        val pageDetails = IsThisYourBusinessPageDetails(
-          name = business.name,
-          address = business.address,
-          pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
-        )
-
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield {
-          val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
-          logger.info(s"Business data found and cached for UTR: $utr.")
-          Ok(view(preparedForm, mode, business))
-        }
-
-      case None =>
-        if (isSoleTrader(request.userAnswers)) {
-          logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
-          Future.successful(
-            Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad())
+          val pageDetails = IsThisYourBusinessPageDetails(
+            name = business.name,
+            address = business.address,
+            pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
           )
-        } else if (isAutoMatch) {
-          logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-        } else {
-          logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
-          Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
-        }
-    }
+
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield {
+            val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
+            logger.info(s"Business data found and cached for UTR: $utr.")
+            Ok(view(preparedForm, mode, business))
+          }
+
+        case None =>
+          if (isSoleTrader(request.userAnswers)) {
+            logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
+            Future.successful(
+              Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad())
+            )
+          } else if (isAutoMatch) {
+            logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+          } else {
+            logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
+            Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
+          }
+      }
 
   private def handleIndividualLookup(
       lookupFuture: Future[Either[ApiError, Option[IndividualDetails]]],

@@ -25,12 +25,12 @@ import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
-import scala.util.{Failure, Success, Try}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
@@ -47,7 +47,7 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
       .map {
-        case response if response.status == OK =>
+        case response if response.status equals OK =>
           Try(response.json.as[Seq[AddressResponse]]) match {
             case Success(data)      =>
               Right(data)
@@ -57,11 +57,10 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
               )
               Left(ApiError.JsonValidationError)
           }
-        case response                          =>
+        case response                              =>
           logger.warn(
             s"Unexpected response: status code: ${response.status}, with message: ${response.body} from uri: $searchByPostcodeUrl"
           )
           Left(ApiError.InternalServerError)
       }
-
 }

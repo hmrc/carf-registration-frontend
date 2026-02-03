@@ -16,32 +16,39 @@
 
 package models
 
+import models.RegistrationType.{Individual, SoleTrader}
 import play.api.i18n.Messages
+import play.api.libs.json.{JsString, Writes}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait IndividualRegistrationType
-
-sealed trait HasCode extends IndividualRegistrationType {
-  def code: String
+sealed trait IndividualRegistrationType {
+  def toRegistrationType: RegistrationType
 }
 
-object IndividualRegistrationType extends Enumerable.Implicits {
-
-  case object SoleTrader extends WithName("soleTrader") with HasCode {
-    override val code: String = "0004"
+object IndividualRegistrationType {
+  case object IndividualSoleTrader extends IndividualRegistrationType {
+    def toRegistrationType: RegistrationType = SoleTrader
   }
 
-  case object Individual extends WithName("individual") with IndividualRegistrationType {}
+  case object IndividualNotConnectedToABusiness extends IndividualRegistrationType {
+    def toRegistrationType: RegistrationType = Individual
+  }
+
+  def fromRegistrationType(registrationType: RegistrationType): Option[IndividualRegistrationType] =
+    registrationType match
+      case RegistrationType.SoleTrader => Some(IndividualSoleTrader)
+      case RegistrationType.Individual => Some(IndividualNotConnectedToABusiness)
+      case _                           => None
 
   val values: Seq[IndividualRegistrationType] = Seq(
-    SoleTrader,
-    Individual
+    IndividualSoleTrader,
+    IndividualNotConnectedToABusiness
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
-      content = Text(messages(s"individualRegistrationType.${value.toString}")),
+      content = Text(messages(s"individualRegistrationType.${value.toRegistrationType.messagesKey}")),
       value = Some(value.toString),
       id = Some(s"value_$index")
     )

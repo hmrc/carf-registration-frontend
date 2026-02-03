@@ -17,14 +17,13 @@
 package services
 
 import connectors.RegistrationConnector
-import models.error.ApiError
+import models.error.{ApiError, CarfError, DataError}
 import models.error.ApiError.NotFoundError
 import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
-import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
-import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -37,7 +36,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
-  ): Future[Option[IndividualDetails]] = {
+  ): Future[Either[CarfError, IndividualDetails]] = {
     val request = RegisterIndividualWithNinoRequest(
       requiresNameMatch = true,
       IDNumber = nino,
@@ -49,7 +48,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     handleIndividualRegistrationResponse(connector.individualWithNino(request).value)
   }
 
-  def getIndividualByUtr(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Option[IndividualDetails]] = {
+  def getIndividualByUtr(
+      userAnswers: UserAnswers
+  )(implicit hc: HeaderCarrier): Future[Either[CarfError, IndividualDetails]] = {
     val registrationData = for {
       utr  <- userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
       name <- userAnswers.get(WhatIsYourNamePage)
@@ -67,21 +68,19 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         handleIndividualRegistrationResponse(connector.individualWithUtr(request).value)
       case None              =>
         logger.warn("Required Individual data was missing from UserAnswers.")
-        Future.successful(None)
+        Future.successful(Left(DataError))
     }
   }
 
-  // TODO combine this with getBusinessWithEnrolmentCtUtr with an if statement to simplify the controller a bit
   def getBusinessWithUserInput(
       userAnswers: UserAnswers,
       utr: String
-  )(implicit hc: HeaderCarrier): Future[Either[ApiError, Option[BusinessDetails]]] =
-    if (userAnswers.isCtAutoMatched) {
+  )(implicit hc: HeaderCarrier): Future[Either[CarfError, BusinessDetails]] =
+    if (!userAnswers.isCtAutoMatched) {
       val registrationData = for {
         businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
         orgType      <- userAnswers.get(RegistrationTypePage)
       } yield (businessName, orgType.code)
-
       registrationData match {
         case Some((businessName, orgType)) =>
           val request = RegisterOrganisationWithIdRequest(
@@ -94,7 +93,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           handleOrganisationRegistrationResponse(connector.organisationWithUtr(request).value)
         case None                          =>
           logger.warn("Required data was missing from UserAnswers.")
-          Future.successful(Left(NotFoundError))
+          Future.successful(Left(DataError))
       }
     } else {
       val request = RegisterOrganisationWithIdRequest(
@@ -109,27 +108,24 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
   private def handleOrganisationRegistrationResponse(
       responseFuture: Future[Either[ApiError, RegisterOrganisationWithIdResponse]]
-  ): Future[Either[ApiError, Option[BusinessDetails]]] =
+  ): Future[Either[ApiError, BusinessDetails]] =
     responseFuture.flatMap {
-      case Right(response)              =>
+      case Right(response)       =>
         logger.info("Successfully retrieved organisation details.")
-        Future.successful(Right(Some(BusinessDetails(name = response.organisationName, address = response.address))))
-      case Left(ApiError.NotFoundError) =>
-        logger.warn("Not Found (404) for organisation details.")
-        Future.successful(Right(None))
-      case Left(error: ApiError)        =>
+        Future.successful(Right(BusinessDetails(name = response.organisationName, address = response.address)))
+      case Left(error: ApiError) =>
         logger.error(s"Failed to retrieve organisation details: $error")
         Future.successful(Left(error))
     }
 
   private def handleIndividualRegistrationResponse(
       responseFuture: Future[Either[ApiError, RegisterIndividualWithIdResponse]]
-  ): Future[Option[IndividualDetails]] =
+  ): Future[Either[ApiError, IndividualDetails]] =
     responseFuture.flatMap {
-      case Right(response)              =>
+      case Right(response)       =>
         logger.info("Successfully retrieved Individual details.")
         Future.successful(
-          Some(
+          Right(
             IndividualDetails(
               safeId = response.safeId,
               firstName = response.firstName,
@@ -139,11 +135,8 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
             )
           )
         )
-      case Left(ApiError.NotFoundError) =>
-        logger.warn("Not Found (404) for Individual details.")
-        Future.successful(None)
-      case Left(error)                  =>
+      case Left(error: ApiError) =>
         logger.error(s"Failed to retrieve Individual details: $error")
-        Future.failed(new Exception("Unexpected error!"))
+        Future.successful(Left(error))
     }
 }

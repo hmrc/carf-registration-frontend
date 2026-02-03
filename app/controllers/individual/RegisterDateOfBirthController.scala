@@ -20,10 +20,12 @@ import controllers.actions.*
 import controllers.routes
 import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
+import models.error.ApiError.NotFoundError
 import models.requests.DataRequest
 import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -48,7 +50,8 @@ class RegisterDateOfBirthController @Inject() (
     service: RegistrationService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
     implicit request =>
@@ -90,14 +93,17 @@ class RegisterDateOfBirthController @Inject() (
         service
           .getIndividualByNino(nino, name, dob)
           .flatMap {
-            case Some(individualDetails) =>
+            case Right(individualDetails) =>
               Future.successful(Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers)))
-            case None                    =>
+            case Left(NotFoundError)      =>
               Future.successful(
                 Redirect(
                   controllers.individualWithoutId.routes.IndWithoutNinoCouldNotConfirmIdentityController.onPageLoad()
                 )
               )
+            case Left(error)              =>
+              logger.warn(s"Unexpected error. Error: $error")
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           }
       case _                                   =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

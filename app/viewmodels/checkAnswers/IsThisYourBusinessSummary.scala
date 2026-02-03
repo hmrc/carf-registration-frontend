@@ -32,7 +32,7 @@ object IsThisYourBusinessSummary {
     answers.get(IsThisYourBusinessPage).map { answer =>
 
       val value = HtmlContent(
-        s"<p class='govuk-body govuk-!-margin-bottom-2'>${answer.name}</p><p class='govuk-body'>${answer.address.renderHTML}</p>"
+        s"<p class='govuk-body govuk-!-margin-bottom-2'>${answer.businessDetails.name}</p><p class='govuk-body'>${answer.businessDetails.address.renderHTML}</p>"
       )
 
       SummaryListRowViewModel(

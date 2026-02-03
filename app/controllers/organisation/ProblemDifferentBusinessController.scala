@@ -45,8 +45,8 @@ class ProblemDifferentBusinessController @Inject() (
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
     request.userAnswers.get(IsThisYourBusinessPage) match {
       case Some(existingPageDetails) =>
-        val businessName       = existingPageDetails.name
-        val address            = existingPageDetails.address
+        val businessName       = existingPageDetails.businessDetails.name
+        val address            = existingPageDetails.businessDetails.address
         val signOutUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
 
         Future.successful(Ok(view(businessName, address, signOutUrl)))

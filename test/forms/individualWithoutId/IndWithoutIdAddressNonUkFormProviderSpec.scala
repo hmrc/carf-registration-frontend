@@ -33,13 +33,11 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
 
   val validAddressStringGen: Gen[String] = {
     val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 &.,'-"
-    val pattern      = addressRegex.r.pattern
-
     for {
       length <- Gen.choose(1, addressMaxLength)
       raw    <- Gen.listOfN(length, Gen.oneOf(allowedChars)).map(_.mkString)
       trimmed = raw.trim
-      if trimmed.nonEmpty && pattern.matcher(trimmed).matches()
+      if trimmed.nonEmpty
     } yield trimmed
   }
 

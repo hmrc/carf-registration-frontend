@@ -497,3 +497,6 @@ registrationConfirmation.para.3 = To send cryptoasset reports, you must add a cr
 registrationConfirmation.subheading.2 = Before you go
 registrationConfirmation.para.4 = Your feedback helps us make our service better.
 registrationConfirmation.para.5 = Take a short survey to share your feedback on this service.
+
+page.unavailable.title = Page Unavailable
+page.unavailable.heading = Page Unavailable

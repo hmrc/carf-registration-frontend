@@ -17,6 +17,10 @@
 package utils
 
 import base.SpecBase
+import models.RegistrationType.{Individual, SoleTrader}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, Name, UserAnswers}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
 import models.responses.AddressRegistrationResponse

@@ -17,14 +17,11 @@
 @import viewmodels.InputWidth._
 
 @this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
-    govukInput: GovukInput,
-    govukButton: GovukButton
+    layout: templates.Layout
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(subscriptionId: String, emailSent: Boolean, addProviderUrl: String, surveyUrl: String, mode: Mode)
+(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("registrationConfirmation.title"))) {
 

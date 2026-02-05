@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
+import models.JourneyType.OrgWithUtr
 import models.{NormalMode, UserAnswers}
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
@@ -53,11 +54,14 @@ class IndexController @Inject() (
           request.utr match {
             case Some(utr) =>
               for {
-                autoMatchedUserAnswers <- Future.fromTry(
-                                            request.userAnswers
-                                              .getOrElse(UserAnswers(id = request.userId, isCtAutoMatched = true))
-                                              .set(UniqueTaxpayerReferenceInUserAnswers, utr)
-                                          )
+                autoMatchedUserAnswers <-
+                  Future.fromTry(
+                    request.userAnswers
+                      .getOrElse(
+                        UserAnswers(id = request.userId, isCtAutoMatched = true, journeyType = Some(OrgWithUtr))
+                      )
+                      .set(UniqueTaxpayerReferenceInUserAnswers, utr)
+                  )
                 _                      <- sessionRepository.set(autoMatchedUserAnswers)
               } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
             case None      =>

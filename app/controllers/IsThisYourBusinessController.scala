@@ -60,28 +60,30 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val maybeUtr                = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
-      val journeyTypeIsSoleTrader = request.userAnswers.journeyType.fold(false)(_ == SoleTrader)
-      val isAutoMatched: Boolean  = request.userAnswers.isCtAutoMatched
+      val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
+      val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == SoleTrader)
+      val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched
+
       // TODO: correctly set journey type everywhere relevant
-      (journeyTypeIsSoleTrader, maybeUtr) match {
-        case (false, Some(utr))         =>
+      (maybeJourneyTypeSoleTrader, maybeUtr) match {
+        case (Some(false), Some(utr))         =>
           handleBusinessLookup(
             businessService.getBusinessWithUserInput(request.userAnswers, utr.uniqueTaxPayerReference),
             utr.uniqueTaxPayerReference,
             mode,
             isAutoMatch = isAutoMatched
           )
-        case (true, Some(userInputUtr)) =>
+        case (Some(true), Some(userInputUtr)) =>
           handleIndividualLookup(
             businessService.getIndividualByUtr(request.userAnswers),
             userInputUtr.uniqueTaxPayerReference,
-            mode,
-            isAutoMatch = isAutoMatched
+            mode
           )
 
         case (_, _) =>
-          logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
+          logger.warn(
+            s"No UTR or no JourneyType <$maybeJourneyTypeSoleTrader> found in user answers. Redirecting to journey recovery."
+          )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
@@ -163,8 +165,7 @@ class IsThisYourBusinessController @Inject() (
   private def handleIndividualLookup(
       lookupFuture: Future[Either[CarfError, IndividualDetails]],
       utr: String,
-      mode: Mode,
-      isAutoMatch: Boolean
+      mode: Mode
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
       case Right(individualDetails) =>

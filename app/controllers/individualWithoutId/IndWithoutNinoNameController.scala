@@ -18,6 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutNinoNameFormProvider
+import models.JourneyType.IndWithoutId
 import models.{Mode, Name}
 import navigation.Navigator
 import pages.individualWithoutId.IndWithoutNinoNamePage
@@ -63,7 +64,10 @@ class IndWithoutNinoNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutNinoNamePage, value))
+              updatedAnswers <-
+                Future.fromTry(
+                  request.userAnswers.copy(journeyType = Some(IndWithoutId)).set(IndWithoutNinoNamePage, value)
+                )
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(IndWithoutNinoNamePage, mode, updatedAnswers))
         )

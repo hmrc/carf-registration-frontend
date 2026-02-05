@@ -63,8 +63,9 @@ class NiNumberController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(NiNumberPage, value))
-              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(IndWithNino)))
+              updatedAnswers <-
+                Future.fromTry(request.userAnswers.copy(journeyType = Some(IndWithNino)).set(NiNumberPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(NiNumberPage, mode, updatedAnswers))
         )
   }

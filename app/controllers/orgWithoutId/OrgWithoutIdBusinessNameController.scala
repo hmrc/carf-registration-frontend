@@ -18,6 +18,7 @@ package controllers.orgWithoutId
 
 import controllers.actions.*
 import forms.orgWithoutId.OrgWithoutIdBusinessNameFormProvider
+import models.JourneyType.OrgWithoutId
 import models.Mode
 import navigation.Navigator
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
@@ -61,7 +62,10 @@ class OrgWithoutIdBusinessNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrgWithoutIdBusinessNamePage, value))
+              updatedAnswers <-
+                Future.fromTry(
+                  request.userAnswers.copy(journeyType = Some(OrgWithoutId)).set(OrgWithoutIdBusinessNamePage, value)
+                )
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(OrgWithoutIdBusinessNamePage, mode, updatedAnswers))
         )

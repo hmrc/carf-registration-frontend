@@ -77,7 +77,7 @@ class OrganisationHaveSecondContactController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationHaveSecondContactPage, value))
-              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(getJourneyTypeUtrOnly(updatedAnswers))))
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(OrganisationHaveSecondContactPage, mode, updatedAnswers))
         )
   }

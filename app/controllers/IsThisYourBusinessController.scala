@@ -18,6 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
+import models.JourneyType.IndWithUtr
 import models.RegistrationType.SoleTrader
 import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError}
@@ -61,10 +62,9 @@ class IsThisYourBusinessController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
       val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
-      val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == SoleTrader)
+      val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == IndWithUtr)
       val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched
 
-      // TODO: correctly set journey type everywhere relevant
       (maybeJourneyTypeSoleTrader, maybeUtr) match {
         case (Some(false), Some(utr))         =>
           handleBusinessLookup(

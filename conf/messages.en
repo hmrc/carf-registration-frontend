@@ -489,14 +489,24 @@ indReviewConfirmAddress.editAddress = Edit address
 indReviewConfirmAddress.confirmAddress = Confirm address
 
 registrationConfirmation.title = Registration successful
-registrationConfirmation.heading = Registration successful
-registrationConfirmation.para.1 = You’ll need to provide your CARF user ID when emailing aeoi.enquiries@hmrc.gov.uk for support.
-registrationConfirmation.para.2 = We have also sent a confirmation email to [email address].
-registrationConfirmation.subheading.1 = What you should do next
-registrationConfirmation.para.3 = To send cryptoasset reports, you must add a cryptoasset service provider.
-registrationConfirmation.subheading.2 = Before you go
-registrationConfirmation.para.4 = Your feedback helps us make our service better.
-registrationConfirmation.para.5 = Take a short survey to share your feedback on this service.
+registrationConfirmation.label.heading = Registration successful
+registrationConfirmation.carfUserId.label= Your CARF user ID
+registrationConfirmation.carfUserId.id = [insert carf id]
+registrationConfirmation.support.text.preLink = You’ll need to provide your CARF user ID when emailing
+registrationConfirmation.support.text.link = aeoi.enquiries@hmrc.gov.uk
+registrationConfirmation.support.text.postLink = for support.
+
+registrationConfirmation.1.email.sent = We have also sent a confirmation email to [email address].
+registrationConfirmation.2.email.sent = We have also sent a confirmation email to [email address] and [email address 2].
+
+registrationConfirmation.next.heading = What you should do next
+registrationConfirmation.next.text = To send cryptoasset reports, you must
+registrationConfirmation.next.text.postLink = add a cryptoasset service provider.
+
+registrationConfirmation.feedback.heading = Before you go
+registrationConfirmation.feedback.text = Your feedback helps us make our service better.
+registrationConfirmation.feedback.link = Take a short survey
+registrationConfirmation.feedback.postLink = to share your feedback on this service.
 
 page.unavailable.title = Page Unavailable
 page.unavailable.heading = Page Unavailable

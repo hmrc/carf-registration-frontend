@@ -22,6 +22,7 @@ import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
 import pages.individual.HaveNiNumberPage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Result
@@ -37,7 +38,8 @@ class IndexControllerSpec extends SpecBase {
 
   val testExistingUserAnswers: UserAnswers        =
     UserAnswers(id = "test-id", lastUpdated = clock.instant()).set(HaveNiNumberPage, true).success.value
-  val testExistingUserAnswersWithUtr: UserAnswers = testExistingUserAnswers.set(IndexPage, testUtr).success.value
+  val testExistingUserAnswersWithUtr: UserAnswers =
+    testExistingUserAnswers.set(UniqueTaxpayerReferenceInUserAnswers, testUtr).success.value
 
   "Index Controller" - {
     "individual user must" - {
@@ -92,7 +94,7 @@ class IndexControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual controllers.routes.IsThisYourBusinessController
           .onPageLoad(NormalMode)
           .url
-        verify(mockSessionRepository).set(argThat(ua => ua.get(IndexPage).contains(testUtr)))
+        verify(mockSessionRepository).set(argThat(ua => ua.get(UniqueTaxpayerReferenceInUserAnswers).contains(testUtr)))
       }
 
       "persist user answers if they exist in the request" in new Setup(

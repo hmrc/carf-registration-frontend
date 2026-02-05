@@ -72,7 +72,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     }
   }
 
-  def getBusinessWithUserInput(
+  def getBusinessWithUtr(
       userAnswers: UserAnswers,
       utr: String
   )(implicit hc: HeaderCarrier): Future[Either[CarfError, BusinessDetails]] =

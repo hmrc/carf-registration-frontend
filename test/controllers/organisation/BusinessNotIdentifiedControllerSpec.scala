@@ -20,9 +20,7 @@ import base.SpecBase
 import controllers.routes
 import models.RegistrationType.{LimitedCompany, SoleTrader}
 import models.{OrganisationRegistrationType, RegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
-import models.{OrganisationRegistrationType, UniqueTaxpayerReference, UserAnswers}
-import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
+import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.organisation.BusinessNotIdentifiedView

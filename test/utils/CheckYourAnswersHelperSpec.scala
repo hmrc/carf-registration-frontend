@@ -18,7 +18,7 @@ package utils
 
 import base.SpecBase
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{Address, IsThisYourBusinessPageDetails, Name, UserAnswers}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, Name, UserAnswers}
 import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import pages.organisation.*
@@ -346,7 +346,10 @@ class CheckYourAnswersHelperSpec extends SpecBase {
     val testUserAnswersWithBusinessDetails: UserAnswers = emptyUserAnswers
       .set(
         IsThisYourBusinessPage,
-        IsThisYourBusinessPageDetails(name = "TEST NAME", address = testAddress, pageAnswer = Some(true))
+        IsThisYourBusinessPageDetails(
+          businessDetails = BusinessDetails(name = "TEST NAME", address = testAddress),
+          pageAnswer = Some(true)
+        )
       )
       .success
       .value

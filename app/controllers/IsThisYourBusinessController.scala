@@ -68,7 +68,7 @@ class IsThisYourBusinessController @Inject() (
       (maybeJourneyTypeSoleTrader, maybeUtr) match {
         case (Some(false), Some(utr))         =>
           handleBusinessLookup(
-            businessService.getBusinessWithUserInput(request.userAnswers, utr.uniqueTaxPayerReference),
+            businessService.getBusinessWithUtr(request.userAnswers, utr.uniqueTaxPayerReference),
             utr.uniqueTaxPayerReference,
             mode,
             isAutoMatch = isAutoMatched

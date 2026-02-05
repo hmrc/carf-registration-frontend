@@ -25,8 +25,7 @@ import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage, YourUniqueTaxpayerReferencePage}
-import pages.organisation.{OrganisationRegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
+import pages.organisation.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -58,8 +57,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
   )
 
   val testPageDetails: IsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(
-    name = businessTestBusiness.name,
-    address = businessTestBusiness.address,
+    businessDetails = BusinessDetails(name = businessTestBusiness.name, address = businessTestBusiness.address),
     pageAnswer = None
   )
 
@@ -130,21 +128,24 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       }
     }
 
-    "on an Organisation auto-match journey" - {
-      "must return OK and the correct view when a UTR is found via IndexPage" in {
+    "on an Organisation auto match journey" - {
+      "must return OK and the correct view when a UTR is found via user answers" in {
         val userAnswers = UserAnswers(userAnswersId)
+          .copy(isCtAutoMatched = true)
           .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
-          .set(IndexPage, testUtr)
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithEnrolmentCtUtr(eqTo(testUtr.uniqueTaxPayerReference))(any()))
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtr.uniqueTaxPayerReference))(any()))
           .thenReturn(Future.successful(Some(businessTestBusiness)))
+
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
           .build()
+
         running(application) {
           val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
           val result  = route(application, request).value
@@ -159,14 +160,15 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
       "must redirect to Journey Recovery when the service finds no business" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(IndexPage, testUtr)
+          .copy(isCtAutoMatched = true)
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
           .success
           .value
           .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithEnrolmentCtUtr(any())(any()))
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtr.uniqueTaxPayerReference))(any()))
           .thenReturn(Future.successful(None))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
@@ -183,9 +185,13 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       }
 
       "must return an Internal Server Error when the registration service fails" in {
-        val userAnswers = UserAnswers(userAnswersId).set(IndexPage, testUtr).success.value
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(isCtAutoMatched = true)
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .success
+          .value
 
-        when(mockRegistrationService.getBusinessWithEnrolmentCtUtr(any())(any()))
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtr.uniqueTaxPayerReference))(any()))
           .thenReturn(Future.failed(new Exception("bang")))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
@@ -213,8 +219,11 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithUserInput(eqTo(userAnswers))(any()))
+        when(
+          mockRegistrationService.getBusinessWithUtr(eqTo(userAnswers), eqTo(testUtr.uniqueTaxPayerReference))(any())
+        )
           .thenReturn(Future.successful(Some(businessTestBusiness)))
+
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
           .build()
@@ -242,7 +251,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .success
           .value
 
-        when(mockRegistrationService.getBusinessWithUserInput(any())(any()))
+        when(
+          mockRegistrationService.getBusinessWithUtr(eqTo(userAnswers), eqTo(testUtr.uniqueTaxPayerReference))(any())
+        )
           .thenReturn(Future.successful(None))
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))

@@ -14,33 +14,63 @@
  * limitations under the License.
  *@
 
-@import viewmodels.InputWidth._
+@import components._
+@import config.FrontendAppConfig
 
 @this(
-    layout: templates.Layout
+        layout: templates.Layout,
+        govukPanel: GovukPanel,
+        link: components.Link,
+        appConfig: FrontendAppConfig
 )
 
-@(subscriptionId: String, emailSent: Boolean, addProviderUrl: String, surveyUrl: String, mode: Mode)
+@(subscriptionId: String, primaryEmail: String, secondaryEmailOpt: Option[String], addProviderUrl: String, mode: Mode)
 (implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("registrationConfirmation.title"))) {
+@layout(pageTitle = titleNoForm(messages("registrationConfirmation.title")), showBackLink = false) {
 
-    @formHelper(action = routes.RegistrationConfirmationController.onSubmit(mode)) {
+    @govukPanel(Panel(
+        title = Text(messages("registrationConfirmation.label.heading")),
+        content = HtmlContent(s"${messages("registrationConfirmation.carfUserId.label")}<br><strong>$subscriptionId</strong>")
+    ))
 
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
+    <p class="govuk-body">
+        @messages("registrationConfirmation.support.text.preLink")
+        @link("mailto:" + appConfig.aeoiEmailAddress, "registrationConfirmation.support.text.link")
+        @messages("registrationConfirmation.support.text.postLink")
+    </p>
+
+    @defining(
+        secondaryEmailOpt match {
+            case Some(second) =>
+                messages("registrationConfirmation.2.email.sent")
+                .replace("[email address]", primaryEmail)
+                .replace("[email address 2]", second)
+            case None =>
+                messages("registrationConfirmation.1.email.sent")
+                .replace("[email address]", primaryEmail)
         }
-
-        @govukInput(
-            InputViewModel(
-                field = form("value"),
-                label = LabelViewModel(messages("registrationConfirmation.heading")).asPageHeading()
-            )
-            .withWidth(Full)
-        )
-
-        @govukButton(
-            ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
-        )
+    ) { emailSentence =>
+        <p class="govuk-body">@emailSentence</p>
     }
+
+
+    <h2 class="govuk-heading-m">@messages("registrationConfirmation.next.heading")</h2>
+    <p class="govuk-body">
+        @messages("registrationConfirmation.next.text")
+        @link(
+            addProviderUrl,
+            "registrationConfirmation.next.text.postLink",
+            id = Some("add-provider-link"),
+            fullStop = true
+        )
+    </p>
+
+    <h2 class="govuk-heading-m">@messages("registrationConfirmation.feedback.heading")</h2>
+    <p class="govuk-body">@messages("registrationConfirmation.feedback.text")</p>
+    <p class="govuk-body">
+        @link(appConfig.exitSurveyUrl, "registrationConfirmation.feedback.link", id = Some("exit-survey-link"))
+        @messages("registrationConfirmation.feedback.link")
+        @messages("registrationConfirmation.feedback.postLink")
+    </p>
 }

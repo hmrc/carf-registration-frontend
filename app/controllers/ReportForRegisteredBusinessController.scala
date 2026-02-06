@@ -21,9 +21,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class ReportForRegisteredBusinessController @Inject() (
-                                                        placeholder: controllers.PlaceholderController,
-                                                        val controllerComponents: MessagesControllerComponents
-                                                      ) extends FrontendBaseController {
+    placeholder: controllers.PlaceholderController,
+    val controllerComponents: MessagesControllerComponents
+) extends FrontendBaseController {
 
   def onPageLoad(): Action[AnyContent] =
     placeholder.onPageLoad("Report for registered business page – not yet implemented")

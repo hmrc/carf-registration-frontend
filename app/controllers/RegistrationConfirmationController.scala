@@ -16,54 +16,96 @@
 
 package controllers
 
-import controllers.actions._
-import forms.RegistrationConfirmationFormProvider
+import controllers.actions.*
 import javax.inject.Inject
-import models.Mode
-import navigation.Navigator
-import pages.RegistrationConfirmationPage
+import models.{Mode, UserAnswers}
+import pages.*
+import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EmailService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 class RegistrationConfirmationController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
-    navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    emailService: EmailService,
     val controllerComponents: MessagesControllerComponents,
     view: RegistrationConfirmationView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
-  val form = formProvider()
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(RegistrationConfirmationPage).fold(form)(form.fill)
+      val subscriptionIdOpt = request.userAnswers.get(SubscriptionIdPage)
+      val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
 
-      Ok(view(preparedForm, mode))
+      (subscriptionIdOpt, primaryEmailOpt) match {
+        case (Some(subscriptionId), Some(primaryEmail)) =>
+          val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
+
+          val wasCtAutomatched = request.userAnswers.get(IndexPage).isDefined
+
+          val addProviderUrl = if (wasCtAutomatched) {
+            controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
+          } else {
+            controllers.routes.OrganisationOrIndividualController.onPageLoad().url
+          }
+
+          val emailList = secondaryEmailOpt match {
+            case Some(secondaryEmail) => List(primaryEmail, secondaryEmail)
+            case None                 => List(primaryEmail)
+          }
+
+          val idNumber = getIdNumber(request.userAnswers)
+
+          emailService.sendRegistrationConfirmation(emailList, subscriptionId.value, idNumber).flatMap { _ =>
+
+            val updatedAnswers = request.userAnswers.set(SubmissionSucceededPage, true)
+
+            updatedAnswers match {
+              case Success(answers) =>
+                // Persist the updated answers
+                sessionRepository.set(answers).map { _ =>
+                  Ok(
+                    view(
+                      subscriptionId = subscriptionId.value,
+                      primaryEmail = primaryEmail,
+                      secondaryEmailOpt = secondaryEmailOpt,
+                      addProviderUrl = addProviderUrl,
+                      mode = mode
+                    )
+                  )
+                }
+              case Failure(_)       =>
+                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            }
+          }
+
+        case _ =>
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(RegistrationConfirmationPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(RegistrationConfirmationPage, mode, updatedAnswers))
-        )
-  }
+  private def getIdNumber(userAnswers: UserAnswers): String =
+    (userAnswers.get(IndexPage), userAnswers.get(YourUniqueTaxpayerReferencePage)) match {
+      case (Some(indexData), _) => indexData.uniqueTaxPayerReference
+      case (_, Some(utrData))   => utrData.uniqueTaxPayerReference
+      case (None, None)         =>
+        logger.warn("[RegistrationConfirmation] No ID number found in UserAnswers - using default for email stub")
+        "1234567890"
+    }
+
 }

@@ -207,3 +207,6 @@ GET         /register/individual-without-id/change-review-address               
 GET         /register/individual-without-id/change-review-address-submit        controllers.individualWithoutId.IndReviewConfirmAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/confirm-registration                                      controllers.RegistrationConfirmationController.onPageLoad(mode: Mode = NormalMode)
+
+GET         /report-for-registered-business                                     controllers.ReportForRegisteredBusinessController.onPageLoad(mode: Mode = NormalMode)
+GET         /organisation-or-individual                                         controllers.OrganisationOrIndividualController.onPageLoad(mode: Mode = NormalMode)

@@ -251,8 +251,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           val result: Future[Result] = route(application, request).value
 
           status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.PlaceholderController
-            .onPageLoad("Should redirect to confirmation page /confirm-registration (CARF-259)")
+          redirectLocation(result).value mustEqual routes.RegistrationConfirmationController
+            .onPageLoad()
             .url
 
         }

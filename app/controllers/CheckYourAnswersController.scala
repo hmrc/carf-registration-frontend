@@ -84,9 +84,7 @@ class CheckYourAnswersController @Inject() (
     subscriptionService.subscribe(request.userAnswers) map {
       case Right(response) =>
         Redirect(
-          controllers.routes.PlaceholderController.onPageLoad(
-            "Should redirect to confirmation page /confirm-registration (CARF-259)"
-          )
+          controllers.routes.RegistrationConfirmationController.onPageLoad()
         )
       case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }

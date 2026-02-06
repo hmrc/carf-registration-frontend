@@ -84,8 +84,7 @@ class RegistrationConfirmationController @Inject() (
                       subscriptionId = subscriptionId.value,
                       primaryEmail = primaryEmail,
                       secondaryEmailOpt = secondaryEmailOpt,
-                      addProviderUrl = addProviderUrl,
-                      mode = mode
+                      addProviderUrl = addProviderUrl
                     )
                   )
                 }

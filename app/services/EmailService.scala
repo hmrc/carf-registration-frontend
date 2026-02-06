@@ -32,7 +32,7 @@ class EmailService @Inject() ()(implicit ec: ExecutionContext) extends Logging {
     * @param idNumber
     *   UTR or NINO to determine stub behavior
     */
-  
+
   def sendRegistrationConfirmation(emails: List[String], subscriptionId: String, idNumber: String): Future[Unit] = {
     val firstChar  = idNumber.take(1).toUpperCase
     val shouldFail = firstChar == "9" || firstChar == "Y"

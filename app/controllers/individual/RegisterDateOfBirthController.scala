@@ -68,15 +68,11 @@ class RegisterDateOfBirthController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
-            {
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisterDateOfBirthPage, value))
-                _              <- sessionRepository.set(updatedAnswers)
-                result         <- handleValidFormSubmission(updatedAnswers, mode)
-              } yield result
-            }.recover { case _ =>
-              Redirect(routes.JourneyRecoveryController.onPageLoad())
-            }
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisterDateOfBirthPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+              result         <- handleValidFormSubmission(updatedAnswers, mode)
+            } yield result
         )
     }
 

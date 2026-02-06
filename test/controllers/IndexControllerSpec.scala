@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
+import models.JourneyType.OrgWithUtr
 import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
@@ -79,7 +80,7 @@ class IndexControllerSpec extends SpecBase {
     }
 
     "organisation user with ct-utr from enrolments must" - {
-      "be handled correctly" in new Setup(
+      "create user answers with isCtAutoMatched and journey type set, and redirect to the 'Is this your business?' page" in new Setup(
         Organisation,
         Some(testUtrString)
       ) {
@@ -94,7 +95,12 @@ class IndexControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual controllers.routes.IsThisYourBusinessController
           .onPageLoad(NormalMode)
           .url
-        verify(mockSessionRepository).set(argThat(ua => ua.get(UniqueTaxpayerReferenceInUserAnswers).contains(testUtr)))
+        verify(mockSessionRepository).set(
+          argThat(ua =>
+            ua.get(UniqueTaxpayerReferenceInUserAnswers).contains(testUtr) &&
+              ua.isCtAutoMatched && ua.journeyType.contains(OrgWithUtr)
+          )
+        )
       }
 
       "persist user answers if they exist in the request" in new Setup(

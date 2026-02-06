@@ -19,10 +19,11 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.WhatIsYourNameFormProvider
+import models.JourneyType.IndWithUtr
 import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.organisation.WhatIsYourNamePage
 import play.api.Application
@@ -32,7 +33,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.organisation.WhatIsYourNameView
 
 import scala.concurrent.Future
@@ -97,7 +97,7 @@ class WhatIsYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and set journey type when valid data is submitted" in {
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -117,6 +117,7 @@ class WhatIsYourNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(IndWithUtr)))
       }
     }
 

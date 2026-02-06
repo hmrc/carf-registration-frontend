@@ -20,10 +20,11 @@ import base.SpecBase
 import base.TestConstants.{businessNameWithInvalidChars, invalidBusinessNameExceeds105Chars, validBusinessName105Chars}
 import controllers.routes
 import forms.orgWithoutId.OrgWithoutIdBusinessNameFormProvider
+import models.JourneyType.OrgWithoutId
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
@@ -77,25 +78,30 @@ class OrgWithoutIdBusinessNameControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and set journey type when valid data is submitted" in {
       val userAnswersValidBusinessName = UserAnswers(userAnswersId)
         .set(OrgWithoutIdBusinessNamePage, "valid answer organisation")
         .success
         .value
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application                  =
+
+      val application =
         applicationBuilder(userAnswers = Some(userAnswersValidBusinessName), affinityGroup = Organisation)
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
           )
           .build()
+
       running(application) {
         val request =
           FakeRequest(POST, orgWithoutIdBusinessNameRoute)
             .withFormUrlEncodedBody(("value", validBusinessName105Chars))
         val result  = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(OrgWithoutId)))
       }
     }
 

@@ -142,12 +142,7 @@ class IsThisYourBusinessController @Inject() (
         }
 
       case Left(NotFoundError) =>
-        if (isSoleTrader(request.userAnswers)) {
-          logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
-          Future.successful(
-            Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad())
-          )
-        } else if (isAutoMatch) {
+        if (isAutoMatch) {
           logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {

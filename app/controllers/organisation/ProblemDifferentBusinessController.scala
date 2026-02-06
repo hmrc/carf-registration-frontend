@@ -37,8 +37,7 @@ class ProblemDifferentBusinessController @Inject() (
     appConfig: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     view: ProblemDifferentBusinessView
-)
-    extends FrontendBaseController
+) extends FrontendBaseController
     with I18nSupport
     with Logging {
 

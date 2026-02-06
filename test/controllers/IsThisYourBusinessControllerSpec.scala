@@ -102,6 +102,53 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
         }
       }
 
+      "must prepopulate the page if it has been answered previously" in {
+        val soleTraderUtr       = UniqueTaxpayerReference("5234567890")
+        val testBusinessDetails = BusinessDetails("testName", soleTraderTestIndividual.address)
+        val userAnswers         = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(IndWithUtr))
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .success
+          .value
+          .set(
+            IsThisYourBusinessPage,
+            IsThisYourBusinessPageDetails(testBusinessDetails, Some(true))
+          )
+          .success
+          .value
+
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          val view = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            form.fill(true),
+            NormalMode,
+            BusinessDetails(
+              s"${soleTraderTestIndividual.firstName} ${soleTraderTestIndividual.lastName}",
+              soleTraderTestIndividual.address
+            )
+          )(
+            request,
+            messages(application)
+          ).toString
+          verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
+        }
+      }
+
       "must redirect to Sole Trader Not Identified page for an unsuccessful match" in {
         val soleTraderUtr = UniqueTaxpayerReference("3000000000")
         val userAnswers   = UserAnswers(userAnswersId)
@@ -189,6 +236,56 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
             request,
             messages(application)
           ).toString
+          verify(mockRegistrationService, times(1)).getBusinessWithUtr(any(), eqTo(testUtrString))(
+            any()
+          )
+        }
+      }
+
+      "must prepopulate the page if it has been answered previously" in {
+        val testBusinessDetails = BusinessDetails("testName", businessTestBusiness.address)
+
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(OrgWithUtr))
+          .copy(isCtAutoMatched = true)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .success
+          .value
+          .set(
+            IsThisYourBusinessPage,
+            IsThisYourBusinessPageDetails(testBusinessDetails, Some(true))
+          )
+          .success
+          .value
+
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
+          .thenReturn(Future.successful(Right(businessTestBusiness)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          val view = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            form.fill(true),
+            NormalMode,
+            BusinessDetails(businessTestBusiness.name, businessTestBusiness.address)
+          )(
+            request,
+            messages(application)
+          ).toString
+          verify(mockRegistrationService, times(1)).getBusinessWithUtr(any(), eqTo(testUtrString))(
+            any()
+          )
         }
       }
 

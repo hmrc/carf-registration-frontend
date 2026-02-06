@@ -1,135 +1,121 @@
 package controllers
 
 import base.SpecBase
-import forms.RegistrationConfirmationFormProvider
-import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.{SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RegistrationConfirmationPage
+import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage}
+import pages.{IndexPage, SubmissionSucceededPage, SubscriptionIdPage}
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
+import services.EmailService
 import views.html.RegistrationConfirmationView
+import org.scalatest.OptionValues._
 
 import scala.concurrent.Future
+import scala.util.Success
 
 class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  val mockSessionRepository: SessionRepository = mock[SessionRepository]
+  val mockEmailService: EmailService = mock[EmailService]
+  val mockView: RegistrationConfirmationView = mock[RegistrationConfirmationView]
 
-  val formProvider = new RegistrationConfirmationFormProvider()
-  val form         = formProvider()
+  val subscriptionId = SubscriptionId("sub-123")
+  val primaryEmail = "primary@email.com"
+  val secondaryEmail = "secondary@email.com"
+  val idNumber = "1234567890"
+  val confirmationHtml = play.twirl.api.Html("<h1>Success!</h1>")
 
-  lazy val registrationConfirmationRoute = routes.RegistrationConfirmationController.onPageLoad(NormalMode).url
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionRepository, mockEmailService, mockView)
+  }
 
-  "RegistrationConfirmation Controller" - {
+  "RegistrationConfirmationController" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must render confirmation view and send email when all required data is present" in {
+      val userAnswers = emptyUserAnswers
+        .set(SubscriptionIdPage, subscriptionId).success.value
+        .set(FirstContactEmailPage, primaryEmail).success.value
+        .set(OrganisationSecondContactEmailPage, secondaryEmail).success.value
+        .set(IndexPage, UniqueTaxpayerReference(idNumber)).success.value
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
+        .thenReturn(Future.successful(()))
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      when(mockView.apply(any(), any(), any(), any())(any(), any()))
+        .thenReturn(confirmationHtml)
+
+      val application = applicationBuilder(Some(userAnswers))
+        .overrides(
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EmailService].toInstance(mockEmailService),
+          bind[RegistrationConfirmationView].toInstance(mockView)
+        )
+        .build()
 
       running(application) {
-        val request = FakeRequest(GET, registrationConfirmationRoute)
-
+        val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RegistrationConfirmationView]
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        status(result) mustEqual OK
+        contentAsString(result) must include ("Success!")
+        verify(mockEmailService).sendRegistrationConfirmation(any(), any(), any())
+        verify(mockSessionRepository).set(any())
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must redirect to Journey Recovery if required data is missing" in {
+      val userAnswers = emptyUserAnswers // Missing SubscriptionIdPage, etc.
 
-      val userAnswers = UserAnswers(userAnswersId).set(RegistrationConfirmationPage, "answer").success.value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, registrationConfirmationRoute)
-
-        val view = application.injector.instanceOf[RegistrationConfirmationView]
-
-        val result = route(application, request).value
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to the next page when valid data is submitted" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-          )
-          .build()
+      val application = applicationBuilder(Some(userAnswers))
+        .overrides(
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EmailService].toInstance(mockEmailService),
+          bind[RegistrationConfirmationView].toInstance(mockView)
+        )
+        .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, registrationConfirmationRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
+        val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
         val result = route(application, request).value
 
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
-    }
-
-    "must return a Bad Request and errors when invalid data is submitted" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, registrationConfirmationRoute)
-            .withFormUrlEncodedBody(("value", ""))
-
-        val boundForm = form.bind(Map("value" -> ""))
-
-        val view = application.injector.instanceOf[RegistrationConfirmationView]
-
-        val result = route(application, request).value
-
-        status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, registrationConfirmationRoute)
-
-        val result = route(application, request).value
-
-        status(result)                 mustEqual SEE_OTHER
+        status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+    "must redirect to Journey Recovery if persistence fails" in {
+      val userAnswers = emptyUserAnswers
+        .set(SubscriptionIdPage, subscriptionId).success.value
+        .set(FirstContactEmailPage, primaryEmail).success.value
 
-      val application = applicationBuilder(userAnswers = None).build()
+      when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
+        .thenReturn(Future.successful(()))
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.failed(new RuntimeException("DB error")))
+
+      val application = applicationBuilder(Some(userAnswers))
+        .overrides(
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EmailService].toInstance(mockEmailService),
+          bind[RegistrationConfirmationView].toInstance(mockView)
+        )
+        .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, registrationConfirmationRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
+        val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
         val result = route(application, request).value
 
-        status(result)                 mustEqual SEE_OTHER
+        status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

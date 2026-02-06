@@ -46,56 +46,55 @@ class RegistrationConfirmationController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
 
-      val subscriptionIdOpt = request.userAnswers.get(SubscriptionIdPage)
-      val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
+    val subscriptionIdOpt = request.userAnswers.get(SubscriptionIdPage)
+    val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
 
-      (subscriptionIdOpt, primaryEmailOpt) match {
-        case (Some(subscriptionId), Some(primaryEmail)) =>
-          val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
+    (subscriptionIdOpt, primaryEmailOpt) match {
+      case (Some(subscriptionId), Some(primaryEmail)) =>
+        val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
 
-          val wasCtAutomatched = request.userAnswers.get(IndexPage).isDefined
+        val wasCtAutomatched = request.userAnswers.get(IndexPage).isDefined
 
-          val addProviderUrl = if (wasCtAutomatched) {
-            controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
-          } else {
-            controllers.routes.OrganisationOrIndividualController.onPageLoad().url
-          }
+        val addProviderUrl = if (wasCtAutomatched) {
+          controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
+        } else {
+          controllers.routes.OrganisationOrIndividualController.onPageLoad().url
+        }
 
-          val emailList = secondaryEmailOpt match {
-            case Some(secondaryEmail) => List(primaryEmail, secondaryEmail)
-            case None                 => List(primaryEmail)
-          }
+        val emailList = secondaryEmailOpt match {
+          case Some(secondaryEmail) => List(primaryEmail, secondaryEmail)
+          case None                 => List(primaryEmail)
+        }
 
-          val idNumber = getIdNumber(request.userAnswers)
+        val idNumber = getIdNumber(request.userAnswers)
 
-          emailService.sendRegistrationConfirmation(emailList, subscriptionId.value, idNumber).flatMap { _ =>
+        emailService.sendRegistrationConfirmation(emailList, subscriptionId.value, idNumber).flatMap { _ =>
 
-            val updatedAnswers = request.userAnswers.set(SubmissionSucceededPage, true)
+          val updatedAnswers = request.userAnswers.set(SubmissionSucceededPage, true)
 
-            updatedAnswers match {
-              case Success(answers) =>
-                // Persist the updated answers
-                sessionRepository.set(answers).map { _ =>
-                  Ok(
-                    view(
-                      subscriptionId = subscriptionId.value,
-                      primaryEmail = primaryEmail,
-                      secondaryEmailOpt = secondaryEmailOpt,
-                      addProviderUrl = addProviderUrl
-                    )
+          updatedAnswers match {
+            case Success(answers) =>
+              // Persist the updated answers
+              sessionRepository.set(answers).map { _ =>
+                Ok(
+                  view(
+                    subscriptionId = subscriptionId.value,
+                    primaryEmail = primaryEmail,
+                    secondaryEmailOpt = secondaryEmailOpt,
+                    addProviderUrl = addProviderUrl
                   )
-                }
-              case Failure(_)       =>
-                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-            }
+                )
+              }
+            case Failure(_)       =>
+              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           }
+        }
 
-        case _ =>
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      }
+      case _ =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 
   private def getIdNumber(userAnswers: UserAnswers): String =

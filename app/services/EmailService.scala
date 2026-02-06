@@ -16,26 +16,34 @@
 
 package services
 
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import play.api.Logging
+import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait EmailResult
-
-object EmailResult {
-  case object Sent extends EmailResult
-  final case class Failed(reason: String) extends EmailResult
-}
-
-trait EmailService {
+@Singleton
+class EmailService @Inject() ()(implicit ec: ExecutionContext) extends Logging {
 
   /** Sends a registration confirmation email to the provided addresses.
     *
     * @param emails
-    *   List of email addresses to notify (must include the mandatory primary address; optional second address may be
-    *   included)
+    *   List of email addresses to notify
     * @param subscriptionId
     *   The CARF User ID (subscription ID) to include in the email content
-    * @return
-    *   Future of EmailResult indicating success or failure
+    * @param idNumber
+    *   UTR or NINO to determine stub behavior
     */
-  def sendRegistrationConfirmation(emails: List[String], subscriptionId: String): Future[EmailResult]
+  
+  def sendRegistrationConfirmation(emails: List[String], subscriptionId: String, idNumber: String): Future[Unit] = {
+    val firstChar  = idNumber.take(1).toUpperCase
+    val shouldFail = firstChar == "9" || firstChar == "Y"
+
+    if (shouldFail) {
+      logger.warn("[EmailService] Failed to send registration confirmation")
+    } else {
+      logger.info("[EmailService] Successfully sent registration confirmation")
+    }
+
+    Future.successful(())
+  }
+
 }

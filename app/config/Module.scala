@@ -18,7 +18,6 @@ package config
 
 import com.google.inject.AbstractModule
 import controllers.actions.*
-import services.{EmailService, StubEmailService}
 
 import java.time.{Clock, ZoneId, ZoneOffset}
 
@@ -35,8 +34,6 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.system(ZoneId.of(Constants.ukTimeZoneStringId)))
-
-    bind(classOf[EmailService]).to(classOf[StubEmailService])
 
   }
 }

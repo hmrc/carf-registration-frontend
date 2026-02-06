@@ -28,35 +28,20 @@ class SubmissionLockAction @Inject() (
 )(implicit ec: ExecutionContext)
     extends ActionFilter[OptionalDataRequest] {
 
-  // Paths still allowed after successful submission
-  private val allowedPaths: Set[String] = Set(
-    "/register/confirm-registration",
-    "/problem/page-unavailable",
-    "/account/sign-out-survey",
-    "/account/sign-out",
-    "/account/signed-out"
-  )
-
   override protected def executionContext: ExecutionContext = ec
 
   override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
-    val path = request.path
+    val submitted = request.userAnswers match {
+      case Some(ua) => ua.get(SubmissionSucceededPage).contains(true)
+      case None     => false
+    }
 
-    if (allowedPaths.exists(path.startsWith)) {
-      Future.successful(None)
+    if (submitted) {
+      Future.successful(
+        Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad()))
+      )
     } else {
-      val submitted = request.userAnswers match {
-        case Some(ua) => ua.get(SubmissionSucceededPage).contains(true)
-        case None     => false
-      }
-
-      if (submitted) {
-        Future.successful(
-          Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad()))
-        )
-      } else {
-        Future.successful(None)
-      }
+      Future.successful(None)
     }
   }
 }

@@ -19,14 +19,13 @@ package controllers
 import controllers.actions.*
 import forms.IsThisYourBusinessFormProvider
 import models.JourneyType.IndWithUtr
-import models.RegistrationType.SoleTrader
 import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError}
 import models.requests.DataRequest
 import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import pages.IsThisYourBusinessPage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -113,9 +112,7 @@ class IsThisYourBusinessController @Inject() (
               }
             )
         case None                      =>
-          logger.warn(
-            "No existing details for IsThisYourBusinessPage found in UserAnswers on form submission. Redirecting to journey recovery."
-          )
+          logger.warn("[IsThisYourBusinessPage] No business details found. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }

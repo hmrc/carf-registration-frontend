@@ -22,6 +22,7 @@ import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.organisation.{OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -46,6 +47,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
+    with Logging
     with UserAnswersHelper {
 
   val form: Form[Boolean] = formProvider()
@@ -60,7 +62,9 @@ class OrganisationSecondContactHavePhoneController @Inject() (
 
       request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
-        case None            => Redirect(routes.JourneyRecoveryController.onPageLoad())
+        case None            =>
+          logger.warn("[OrganisationSecondContactHavePhoneController] Name not found in user answers on page load")
+          Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
   }
 
@@ -72,7 +76,9 @@ class OrganisationSecondContactHavePhoneController @Inject() (
           formWithErrors =>
             request.userAnswers.get(OrganisationSecondContactNamePage) match {
               case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
-              case None            => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              case None            =>
+                logger.warn("[OrganisationSecondContactHavePhoneController] Name not found in user answers on submit")
+                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>
             for {

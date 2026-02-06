@@ -17,7 +17,6 @@
 package controllers.individualWithoutId
 
 import controllers.actions.*
-import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.responses.AddressResponse
 import models.{IndFindAddress, Mode}
@@ -27,7 +26,7 @@ import pages.individualWithoutId.IndFindAddressPage
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.AddressLookupService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

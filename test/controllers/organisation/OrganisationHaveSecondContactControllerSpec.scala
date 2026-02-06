@@ -101,9 +101,8 @@ class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoS
       }
     }
 
-    "must redirect to the next page when valid data is submitted and set journey type in user answers to org with utr" in {
-      val expectedUserAnswers =
-        emptyUserAnswers.set(OrganisationHaveSecondContactPage, true).success.value.copy(journeyType = Some(OrgWithUtr))
+    "must redirect to the next page when valid data is submitted" in {
+      val expectedUserAnswers = emptyUserAnswers.set(OrganisationHaveSecondContactPage, true).success.value
 
       when(mockSessionRepository.set(eqTo(expectedUserAnswers))) thenReturn Future.successful(true)
 

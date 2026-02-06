@@ -27,8 +27,6 @@ import views.html.organisation.BusinessNotIdentifiedView
 
 class BusinessNotIdentifiedControllerSpec extends SpecBase {
 
-  val testUtrString                                = "1234567890"
-  val testUtrObject                                = UniqueTaxpayerReference(testUtrString)
   val testBusinessName                             = "Test Corp"
   val testRegType: RegistrationType                = LimitedCompany
   val testOrgRegType: OrganisationRegistrationType = OrganisationRegistrationType.OrganisationLimitedCompany

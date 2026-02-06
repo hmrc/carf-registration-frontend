@@ -81,7 +81,7 @@ class IndexControllerSpec extends SpecBase {
     "organisation user with ct-utr from enrolments must" - {
       "be handled correctly" in new Setup(
         Organisation,
-        Some(testUtr.uniqueTaxPayerReference)
+        Some(testUtrString)
       ) {
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
@@ -99,7 +99,7 @@ class IndexControllerSpec extends SpecBase {
 
       "persist user answers if they exist in the request" in new Setup(
         Organisation,
-        Some(testUtr.uniqueTaxPayerReference),
+        Some(testUtrString),
         Some(testExistingUserAnswers)
       ) {
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))

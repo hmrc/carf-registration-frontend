@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
 import models.JourneyType.OrgWithUtr
 import models.RegistrationType.*
-import models.{Mode, OrganisationRegistrationType, RegistrationType}
+import models.{Mode, RegistrationType}
 import navigation.Navigator
 import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.i18n.{I18nSupport, MessagesApi}

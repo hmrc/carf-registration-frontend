@@ -78,7 +78,7 @@ class RegistrationServiceSpec extends SpecBase {
   )
 
   val organisationUserAnswersUtr: UserAnswers = UserAnswers(userAnswersId)
-    .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtr.uniqueTaxPayerReference))
+    .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrString))
     .success
     .value
     .set(WhatIsTheNameOfYourBusinessPage, orgUkBusinessResponse.organisationName)
@@ -116,7 +116,7 @@ class RegistrationServiceSpec extends SpecBase {
       "return business details when the connector finds a match" in {
         val expectedRequest = RegisterOrganisationWithIdRequest(
           requiresNameMatch = false,
-          IDNumber = testUtr.uniqueTaxPayerReference,
+          IDNumber = testUtrString,
           IDType = "UTR",
           organisationName = None,
           organisationType = None
@@ -125,10 +125,10 @@ class RegistrationServiceSpec extends SpecBase {
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
 
         val result = testService
-          .getBusinessWithUtr(emptyUserAnswers.copy(isCtAutoMatched = true), testUtr.uniqueTaxPayerReference)
+          .getBusinessWithUtr(emptyUserAnswers.copy(isCtAutoMatched = true), testUtrString)
           .futureValue
 
-        result mustBe Some(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
+        result mustBe Right(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
         verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
       }
 
@@ -137,7 +137,7 @@ class RegistrationServiceSpec extends SpecBase {
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](NotFoundError))
 
         val result = testService
-          .getBusinessWithUtr(emptyUserAnswers.copy(isCtAutoMatched = true), testUtr.uniqueTaxPayerReference)
+          .getBusinessWithUtr(emptyUserAnswers.copy(isCtAutoMatched = true), testUtrString)
           .futureValue
 
         result mustBe Left(NotFoundError)
@@ -148,7 +148,7 @@ class RegistrationServiceSpec extends SpecBase {
       "return business details when UserAnswers is complete and connector finds a match" in {
         val expectedRequest = RegisterOrganisationWithIdRequest(
           requiresNameMatch = true,
-          IDNumber = testUtr.uniqueTaxPayerReference,
+          IDNumber = testUtrString,
           IDType = "UTR",
           organisationName = Some(orgUkBusinessResponse.organisationName),
           organisationType = Some(testOrgType.code)
@@ -158,16 +158,16 @@ class RegistrationServiceSpec extends SpecBase {
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
 
         val result =
-          testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtr.uniqueTaxPayerReference).futureValue
+          testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtrString).futureValue
 
-        result mustBe Some(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
+        result mustBe Right(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
         verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
       }
 
       "return a data error when UserAnswers is missing data" in {
         val incompleteUserAnswers = UserAnswers(userAnswersId)
 
-        val result = testService.getBusinessWithUtr(incompleteUserAnswers, testUtr.uniqueTaxPayerReference).futureValue
+        val result = testService.getBusinessWithUtr(incompleteUserAnswers, testUtrString).futureValue
 
         result mustBe Left(DataError)
         verify(mockConnector, never()).organisationWithUtr(any())(any())
@@ -177,7 +177,7 @@ class RegistrationServiceSpec extends SpecBase {
         when(mockConnector.organisationWithUtr(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](InternalServerError))
         val result =
-          testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtr.uniqueTaxPayerReference).futureValue
+          testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtrString).futureValue
 
         result mustBe Left(InternalServerError)
       }
@@ -192,7 +192,7 @@ class RegistrationServiceSpec extends SpecBase {
           .getIndividualByNino(ninoOkFullIndividualResponse, validName, validBirthDate)
           .futureValue
 
-        result mustBe Some(
+        result mustBe Right(
           IndividualDetails(
             safeId = "testSafeId",
             firstName = "Floriane",
@@ -226,7 +226,7 @@ class RegistrationServiceSpec extends SpecBase {
 
         val result = testService.getIndividualByUtr(individualDetailsUtrUserAnswers).futureValue
 
-        result mustBe Some(
+        result mustBe Right(
           IndividualDetails(
             safeId = "testSafeId",
             firstName = "Floriane",

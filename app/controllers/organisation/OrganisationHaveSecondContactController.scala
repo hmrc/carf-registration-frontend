@@ -19,7 +19,7 @@ package controllers.organisation
 import controllers.actions.*
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{JourneyType, Mode}
+import models.Mode
 import navigation.Navigator
 import pages.organisation.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form

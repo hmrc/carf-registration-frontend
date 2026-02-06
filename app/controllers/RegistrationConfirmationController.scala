@@ -46,7 +46,7 @@ class RegistrationConfirmationController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
       val subscriptionIdOpt = request.userAnswers.get(SubscriptionIdPage)

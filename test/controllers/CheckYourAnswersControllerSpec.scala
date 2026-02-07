@@ -17,9 +17,9 @@
 package controllers
 
 import base.SpecBase
-import models.JourneyType.{IndWithNino, OrgWithUtr}
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
 import models.error.ApiError.InternalServerError
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, JourneyType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -43,6 +43,7 @@ import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
+  val stWithUtrUserAnswers: UserAnswers   = emptyUserAnswers.copy(journeyType = Some(IndWithUtr))
   val orgWithUtrUserAnswers: UserAnswers  = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
   val indWithNinoUserAnswers: UserAnswers = emptyUserAnswers.copy(journeyType = Some(IndWithNino))
   lazy val cyaRoute: String               = routes.CheckYourAnswersController.onPageLoad().url
@@ -238,6 +239,87 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(
             any()
           )
+        }
+      }
+
+      "when journey is sole trader with utr" - {
+        "must return OK and the correct view for a GET when all answers have been answered as expected" in new Setup(
+          AffinityGroup.Individual,
+          stWithUtrUserAnswers
+        ) {
+          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(Seq(testSection, testSection))(
+            request,
+            messages(application)
+          ).toString
+        }
+
+        "must redirect to information missing page for a GET when 'business details' data is missing" in new Setup(
+          AffinityGroup.Individual,
+          stWithUtrUserAnswers
+        ) {
+          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
+            .thenReturn(None)
+          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
+          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(
+            any()
+          )
+          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(
+            any()
+          )
+        }
+
+        "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
+          AffinityGroup.Individual,
+          stWithUtrUserAnswers
+        ) {
+          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any()))
+            .thenReturn(None)
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
+          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(
+            any()
+          )
+          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(
+            any()
+          )
+        }
+      }
+
+      "when journey type is missing from user answers" - {
+        "should redirect to some information is missing" in new Setup(
+          AffinityGroup.Individual,
+          emptyUserAnswers
+        ) {
+          val request                = FakeRequest(GET, cyaRoute)
+          val result: Future[Result] = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
         }
       }
     }

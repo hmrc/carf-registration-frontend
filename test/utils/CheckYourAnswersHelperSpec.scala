@@ -25,6 +25,8 @@ import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
 import models.responses.AddressRegistrationResponse
 import models.{BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.RegistrationType.{Individual, LLP, SoleTrader}
+import models.{Address, BusinessDetails, Country, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*

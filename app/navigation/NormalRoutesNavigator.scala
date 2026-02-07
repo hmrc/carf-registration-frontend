@@ -115,6 +115,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndWithoutNinoNamePage =>
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
+    case IndWithoutIdAddressNonUkPage =>
+      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+
     case IndWithoutIdDateOfBirthPage =>
       _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
 
@@ -139,9 +142,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(true)  =>
         controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
-        )
+        controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
       case _           =>
         routes.JourneyRecoveryController.onPageLoad()
     }

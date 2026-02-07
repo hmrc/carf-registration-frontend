@@ -69,9 +69,12 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
         invalidRealCrownKey = "organisationBusinessAddress.postcode.error.required"
       ),
       "country"      -> text("organisationBusinessAddress.country.error.required")
-        .verifying("organisationBusinessAddress.country.error.required", code => countryList.exists(_.code == code))
+        .verifying("organisationBusinessAddress.country.error.required", value => countryList.exists(_.code == value))
         .transform[Country](
-          code => countryList.find(_.code == code).get,
+          value =>
+            countryList
+              .find(_.code.contains(value))
+              .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
           country => country.code
         )
     )(OrganisationBusinessAddress.apply)(x =>

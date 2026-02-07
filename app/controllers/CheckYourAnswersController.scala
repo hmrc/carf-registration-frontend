@@ -21,6 +21,8 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.JourneyType
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
 import play.api.Logging
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
@@ -77,6 +79,11 @@ class CheckYourAnswersController @Inject() (
           section1 <- indWithNinoYourDetails
           section2 <- indContactDetails
         } yield Seq(section1, section2)
+      case Some(IndWithUtr)  =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
       case Some(IndWithUtr)   =>
         for {
           section1 <- businessDetailsSectionMaybe
@@ -95,7 +102,9 @@ class CheckYourAnswersController @Inject() (
 
     sectionsMaybe match {
       case Some(sections: Seq[Section]) => Ok(view(sections))
-      case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+      case None                         =>
+        logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
+        Redirect(controllers.routes.InformationMissingController.onPageLoad())
     }
   }
 

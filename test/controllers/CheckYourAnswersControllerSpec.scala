@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
 import models.error.ApiError.InternalServerError
 import models.{CheckMode, JourneyType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}

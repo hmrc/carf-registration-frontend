@@ -21,6 +21,8 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.JourneyType
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
 import play.api.Logging
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
@@ -35,10 +37,10 @@ class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     helper: CheckYourAnswersHelper,
+    submissionLock: SubmissionLockAction,
     subscriptionService: SubscriptionService,
     view: CheckYourAnswersView
 )(implicit ec: ExecutionContext)
@@ -46,70 +48,72 @@ class CheckYourAnswersController @Inject() (
     with Logging
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
-    implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
-      val journeyType: Option[JourneyType] = request.userAnswers.journeyType
+    val journeyType: Option[JourneyType] = request.userAnswers.journeyType
 
-      val businessDetailsSectionMaybe: Option[Section] =
-        helper.getBusinessDetailsSectionMaybe(request.userAnswers)
+    val businessDetailsSectionMaybe: Option[Section] =
+      helper.getBusinessDetailsSectionMaybe(request.userAnswers)
 
-      val orgWithoutIdDetailsMaybe: Option[Section] =
-        helper.getOrgWithoutIdDetailsMaybe(request.userAnswers)
+    val orgWithoutIdDetailsMaybe: Option[Section] =
+      helper.getOrgWithoutIdDetailsMaybe(request.userAnswers)
 
-      val firstContactDetailsSectionMaybe: Option[Section]  =
-        helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
-      val secondContactDetailsSectionMaybe: Option[Section] =
-        helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
+    val firstContactDetailsSectionMaybe: Option[Section]  =
+      helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
+    val secondContactDetailsSectionMaybe: Option[Section] =
+      helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
-      val indWithNinoYourDetails: Option[Section] =
-        helper.indWithNinoYourDetailsMaybe(request.userAnswers)
-      val indContactDetails: Option[Section]      =
-        helper.indContactDetailsMaybe(request.userAnswers)
+    val indWithNinoYourDetails: Option[Section] =
+      helper.indWithNinoYourDetailsMaybe(request.userAnswers)
+    val indContactDetails: Option[Section]      =
+      helper.indContactDetailsMaybe(request.userAnswers)
 
-      val sectionsMaybe = journeyType match {
-        case Some(OrgWithUtr)   =>
-          for {
-            section1 <- businessDetailsSectionMaybe
-            section2 <- firstContactDetailsSectionMaybe
-            section3 <- secondContactDetailsSectionMaybe
-          } yield Seq(section1, section2, section3)
-        case Some(IndWithNino)  =>
-          for {
-            section1 <- indWithNinoYourDetails
-            section2 <- indContactDetails
-          } yield Seq(section1, section2)
-        case Some(IndWithUtr)   =>
-          for {
-            section1 <- businessDetailsSectionMaybe
-            section2 <- indContactDetails
-          } yield Seq(section1, section2)
-        case Some(OrgWithoutId) =>
-          for {
-            section1 <- orgWithoutIdDetailsMaybe
-            section2 <- firstContactDetailsSectionMaybe
-            section3 <- secondContactDetailsSectionMaybe
-          } yield Seq(section1, section2, section3)
-        case _                  =>
-          logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
-          None
-      }
+    val sectionsMaybe = journeyType match {
+      case Some(OrgWithUtr)   =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- firstContactDetailsSectionMaybe
+          section3 <- secondContactDetailsSectionMaybe
+        } yield Seq(section1, section2, section3)
+      case Some(IndWithNino)  =>
+        for {
+          section1 <- indWithNinoYourDetails
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
+      case Some(IndWithUtr)  =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
+      case Some(IndWithUtr)   =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
+      case Some(OrgWithoutId) =>
+        for {
+          section1 <- orgWithoutIdDetailsMaybe
+          section2 <- firstContactDetailsSectionMaybe
+          section3 <- secondContactDetailsSectionMaybe
+        } yield Seq(section1, section2, section3)
+      case _                  =>
+        logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
+        None
+    }
 
-      sectionsMaybe match {
-        case Some(sections: Seq[Section]) => Ok(view(sections))
-        case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
-      }
+    sectionsMaybe match {
+      case Some(sections: Seq[Section]) => Ok(view(sections))
+      case None                         =>
+        logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
+        Redirect(controllers.routes.InformationMissingController.onPageLoad())
+    }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
-    implicit request =>
-      subscriptionService.subscribe(request.userAnswers) map {
-        case Right(response) =>
-          Redirect(
-            controllers.routes.RegistrationConfirmationController.onPageLoad()
-          )
-        case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
+    subscriptionService.subscribe(request.userAnswers) map {
+      case Right(response) => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
 
   }
 }

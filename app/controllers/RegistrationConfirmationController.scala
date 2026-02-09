@@ -48,7 +48,7 @@ class RegistrationConfirmationController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
 
-    val subscriptionIdOpt = request.userAnswers.get(SubscriptionIdPage)
+    val subscriptionIdOpt = Some("XXCAR0012345678")
     val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
 
     (subscriptionIdOpt, primaryEmailOpt) match {
@@ -70,7 +70,7 @@ class RegistrationConfirmationController @Inject() (
 
         val idNumber = getIdNumber(request.userAnswers)
 
-        emailService.sendRegistrationConfirmation(emailList, subscriptionId.value, idNumber).flatMap { _ =>
+        emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumber).flatMap { _ =>
 
           val updatedAnswers = request.userAnswers.set(SubmissionSucceededPage, true)
 
@@ -80,7 +80,7 @@ class RegistrationConfirmationController @Inject() (
               sessionRepository.set(answers).map { _ =>
                 Ok(
                   view(
-                    subscriptionId = subscriptionId.value,
+                    subscriptionId = subscriptionId,
                     primaryEmail = primaryEmail,
                     secondaryEmailOpt = secondaryEmailOpt,
                     addProviderUrl = addProviderUrl

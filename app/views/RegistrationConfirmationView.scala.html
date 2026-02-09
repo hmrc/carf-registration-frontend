@@ -24,8 +24,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(subscriptionId: String, primaryEmail: String, secondaryEmailOpt: Option[String], addProviderUrl: String)
-(implicit request: Request[_], messages: Messages)
+@(subscriptionId: String, primaryEmail: String, secondaryEmailOpt: Option[String], addProviderUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("registrationConfirmation.title")), showBackLink = false) {
 

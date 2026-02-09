@@ -77,16 +77,21 @@ class RegistrationConfirmationController @Inject() (
           updatedAnswers match {
             case Success(answers) =>
               // Persist the updated answers
-              sessionRepository.set(answers).map { _ =>
-                Ok(
-                  view(
-                    subscriptionId = subscriptionId,
-                    primaryEmail = primaryEmail,
-                    secondaryEmailOpt = secondaryEmailOpt,
-                    addProviderUrl = addProviderUrl
+              sessionRepository
+                .set(answers)
+                .map { _ =>
+                  Ok(
+                    view(
+                      subscriptionId = subscriptionId,
+                      primaryEmail = primaryEmail,
+                      secondaryEmailOpt = secondaryEmailOpt,
+                      addProviderUrl = addProviderUrl
+                    )
                   )
-                )
-              }
+                }
+                .recover { case _ =>
+                  Redirect(routes.JourneyRecoveryController.onPageLoad())
+                }
             case Failure(_)       =>
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           }

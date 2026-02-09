@@ -16,32 +16,19 @@
 
 package controllers.actions
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc._
-import scala.concurrent.{ExecutionContext, Future}
 import models.requests.OptionalDataRequest
-import pages.SubmissionSucceededPage
+import play.api.mvc.{ActionFilter, Result}
+import javax.inject.Inject
 
-@Singleton
-class SubmissionLockAction @Inject() (
-    val parser: BodyParsers.Default
-)(implicit ec: ExecutionContext)
-    extends SubmissionLock {
+import scala.concurrent.{ExecutionContext, Future}
+
+class FakeSubmissionLockAction @Inject() ()(implicit ec: ExecutionContext)
+  extends SubmissionLock {
 
   override protected def executionContext: ExecutionContext = ec
 
-  override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
-    val submitted = request.userAnswers match {
-      case Some(ua) => ua.get(SubmissionSucceededPage).contains(true)
-      case None     => false
-    }
-
-    if (submitted) {
-      Future.successful(
-        Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad()))
-      )
-    } else {
-      Future.successful(None)
-    }
-  }
+  override protected def filter[A](
+                                    request: OptionalDataRequest[A]
+                                  ): Future[Option[Result]] =
+    Future.successful(None)
 }

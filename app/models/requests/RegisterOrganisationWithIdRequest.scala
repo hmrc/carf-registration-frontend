@@ -16,16 +16,41 @@
 
 package models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, Writes}
 
-case class RegisterOrganisationWithIdRequest(
+sealed trait RegisterOrganisationWithIdRequest {
+  val requiresNameMatch: Boolean
+  val IDNumber: String
+  val IDType: String
+}
+
+object RegisterOrganisationWithIdRequest {
+  implicit val writes: Writes[RegisterOrganisationWithIdRequest] = Writes {
+    case r: RegOrgWithIdNonAutoMatchRequest =>
+      Json.toJson(r)(RegOrgWithIdNonAutoMatchRequest.format)
+    case r: RegOrgWithIdCTAutoMatchRequest  =>
+      Json.toJson(r)(RegOrgWithIdCTAutoMatchRequest.format)
+  }
+}
+
+case class RegOrgWithIdNonAutoMatchRequest(
     requiresNameMatch: Boolean,
     IDNumber: String,
     IDType: String,
-    organisationName: Option[String],
-    organisationType: Option[String]
-)
+    organisationName: String,
+    organisationType: String
+) extends RegisterOrganisationWithIdRequest
 
-object RegisterOrganisationWithIdRequest {
-  implicit val format: OFormat[RegisterOrganisationWithIdRequest] = Json.format[RegisterOrganisationWithIdRequest]
+object RegOrgWithIdNonAutoMatchRequest {
+  implicit val format: OFormat[RegOrgWithIdNonAutoMatchRequest] = Json.format[RegOrgWithIdNonAutoMatchRequest]
+}
+
+case class RegOrgWithIdCTAutoMatchRequest(
+    requiresNameMatch: Boolean,
+    IDNumber: String,
+    IDType: String
+) extends RegisterOrganisationWithIdRequest
+
+object RegOrgWithIdCTAutoMatchRequest {
+  implicit val format: OFormat[RegOrgWithIdCTAutoMatchRequest] = Json.format[RegOrgWithIdCTAutoMatchRequest]
 }

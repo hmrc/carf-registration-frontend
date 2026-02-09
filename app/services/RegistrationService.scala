@@ -18,7 +18,7 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegOrgWithIdCTAutoMatchRequest, RegOrgWithIdNonAutoMatchRequest, RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
@@ -70,14 +70,12 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   }
 
   def getBusinessWithEnrolmentCtUtr(utr: String)(implicit hc: HeaderCarrier): Future[Option[BusinessDetails]] = {
-    val request = RegisterOrganisationWithIdRequest(
+    val request: RegOrgWithIdCTAutoMatchRequest = RegOrgWithIdCTAutoMatchRequest(
       requiresNameMatch = false,
       IDNumber = utr,
-      IDType = "UTR",
-      organisationName = None,
-      organisationType = None
+      IDType = "UTR"
     )
-    handleOrganisationRegistrationResponse(connector.organisationWithUtr(request).value)
+    handleOrganisationRegistrationResponse(connector.organisationWithUtrCTAutoMatch(request).value)
   }
 
   def getBusinessWithUserInput(
@@ -91,14 +89,14 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
     registrationData match {
       case Some((utr, businessName, orgType)) =>
-        val request = RegisterOrganisationWithIdRequest(
+        val request = RegOrgWithIdNonAutoMatchRequest(
           requiresNameMatch = true,
           IDNumber = utr.uniqueTaxPayerReference,
           IDType = "UTR",
-          organisationName = Some(businessName),
-          organisationType = Some(orgType)
+          organisationName = businessName,
+          organisationType = orgType
         )
-        handleOrganisationRegistrationResponse(connector.organisationWithUtr(request).value)
+        handleOrganisationRegistrationResponse(connector.organisationWithUtrNonAutoMatch(request).value)
       case None                               =>
         logger.warn("Required data was missing from UserAnswers.")
         Future.successful(None)

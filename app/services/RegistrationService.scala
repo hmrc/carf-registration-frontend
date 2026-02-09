@@ -17,9 +17,9 @@
 package services
 
 import connectors.RegistrationConnector
-import models.error.{ApiError, CarfError, DataError}
 import models.error.ApiError.NotFoundError
-import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
+import models.error.{ApiError, CarfError, DataError}
+import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
@@ -81,29 +81,28 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         businessName <- userAnswers.get(WhatIsTheNameOfYourBusinessPage)
         orgType      <- userAnswers.get(RegistrationTypePage)
       } yield (businessName, orgType.code)
+
       registrationData match {
         case Some((businessName, orgType)) =>
-          val request = RegisterOrganisationWithIdRequest(
+          val request = RegOrgWithIdNonAutoMatchRequest(
             requiresNameMatch = true,
             IDNumber = utr,
             IDType = "UTR",
-            organisationName = Some(businessName),
-            organisationType = Some(orgType)
+            organisationName = businessName,
+            organisationType = orgType
           )
-          handleOrganisationRegistrationResponse(connector.organisationWithUtr(request).value)
+          handleOrganisationRegistrationResponse(connector.organisationWithUtrNonAutoMatch(request).value)
         case None                          =>
           logger.warn("Required data was missing from UserAnswers.")
           Future.successful(Left(DataError))
       }
     } else {
-      val request = RegisterOrganisationWithIdRequest(
+      val request = RegOrgWithIdCTAutoMatchRequest(
         requiresNameMatch = false,
         IDNumber = utr,
-        IDType = "UTR",
-        organisationName = None,
-        organisationType = None
+        IDType = "UTR"
       )
-      handleOrganisationRegistrationResponse(connector.organisationWithUtr(request).value)
+      handleOrganisationRegistrationResponse(connector.organisationWithUtrCTAutoMatch(request).value)
     }
 
   private def handleOrganisationRegistrationResponse(

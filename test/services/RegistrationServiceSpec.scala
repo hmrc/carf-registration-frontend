@@ -21,7 +21,7 @@ import cats.data.EitherT
 import connectors.RegistrationConnector
 import models.error.{ApiError, DataError}
 import models.error.ApiError.{InternalServerError, NotFoundError}
-import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
+import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{Address, BusinessDetails, IndividualDetails, Name, RegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -114,14 +114,13 @@ class RegistrationServiceSpec extends SpecBase {
   "RegistrationService" - {
     "getBusinessWithUtr when the user has a ct enrolment should" - {
       "return business details when the connector finds a match" in {
-        val expectedRequest = RegisterOrganisationWithIdRequest(
+        val expectedRequest = RegOrgWithIdCTAutoMatchRequest(
           requiresNameMatch = false,
           IDNumber = testUtrString,
-          IDType = "UTR",
-          organisationName = None,
-          organisationType = None
+          IDType = "UTR"
         )
-        when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
+
+        when(mockConnector.organisationWithUtrCTAutoMatch(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
 
         val result = testService
@@ -129,11 +128,11 @@ class RegistrationServiceSpec extends SpecBase {
           .futureValue
 
         result mustBe Right(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
-        verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
+        verify(mockConnector).organisationWithUtrCTAutoMatch(eqTo(expectedRequest))(any())
       }
 
       "return a not found error when the connector does not find a match" in {
-        when(mockConnector.organisationWithUtr(any())(any()))
+        when(mockConnector.organisationWithUtrCTAutoMatch(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](NotFoundError))
 
         val result = testService
@@ -146,35 +145,33 @@ class RegistrationServiceSpec extends SpecBase {
 
     "getBusinessWithUtr when the user is on the manual entry journey" - {
       "return business details when UserAnswers is complete and connector finds a match" in {
-        val expectedRequest = RegisterOrganisationWithIdRequest(
+        val expectedRequest = RegOrgWithIdNonAutoMatchRequest(
           requiresNameMatch = true,
           IDNumber = testUtrString,
           IDType = "UTR",
-          organisationName = Some(orgUkBusinessResponse.organisationName),
-          organisationType = Some(testOrgType.code)
+          organisationName = orgUkBusinessResponse.organisationName,
+          organisationType = testOrgType.code
         )
 
-        when(mockConnector.organisationWithUtr(eqTo(expectedRequest))(any()))
+        when(mockConnector.organisationWithUtrNonAutoMatch(eqTo(expectedRequest))(any()))
           .thenReturn(EitherT.rightT[Future, ApiError](orgUkBusinessResponse))
 
-        val result =
-          testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtrString).futureValue
+        val result = testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtrString).futureValue
 
         result mustBe Right(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
-        verify(mockConnector).organisationWithUtr(eqTo(expectedRequest))(any())
+        verify(mockConnector).organisationWithUtrNonAutoMatch(eqTo(expectedRequest))(any())
       }
 
       "return a data error when UserAnswers is missing data" in {
         val incompleteUserAnswers = UserAnswers(userAnswersId)
-
-        val result = testService.getBusinessWithUtr(incompleteUserAnswers, testUtrString).futureValue
+        val result                = testService.getBusinessWithUtr(incompleteUserAnswers, testUtrString).futureValue
 
         result mustBe Left(DataError)
-        verify(mockConnector, never()).organisationWithUtr(any())(any())
+        verify(mockConnector, never()).organisationWithUtrNonAutoMatch(any())(any())
       }
 
       "return an internal server error when one is returned by the connector" in {
-        when(mockConnector.organisationWithUtr(any())(any()))
+        when(mockConnector.organisationWithUtrNonAutoMatch(any())(any()))
           .thenReturn(EitherT.leftT[Future, RegisterOrganisationWithIdResponse](InternalServerError))
         val result =
           testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtrString).futureValue

@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithIdRequest, RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
+import models.requests.{RegOrgWithIdCTAutoMatchRequest, RegOrgWithIdNonAutoMatchRequest, RegisterIndividualWithIdRequest, RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -78,10 +78,15 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         }
     }
 
-  def organisationWithUtr(
-      request: RegisterOrganisationWithIdRequest
+  def organisationWithUtrNonAutoMatch(
+      request: RegOrgWithIdNonAutoMatchRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
-    registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr")
+    registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr/user-entered")
+
+  def organisationWithUtrCTAutoMatch(
+      request: RegOrgWithIdCTAutoMatchRequest
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
+    registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr/ct-auto-match")
 
   private def registerOrganisationWithId(
       request: RegisterOrganisationWithIdRequest,

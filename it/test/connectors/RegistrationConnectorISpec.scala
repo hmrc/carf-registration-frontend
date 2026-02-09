@@ -22,6 +22,7 @@ import models.Address
 import models.error.ApiError
 import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
+import models.requests.{RegOrgWithIdCTAutoMatchRequest, RegOrgWithIdNonAutoMatchRequest}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
@@ -72,12 +73,18 @@ class RegistrationConnectorISpec
     address = addressResponse
   )
 
-  val validOrganisationRequestBody: RegisterOrganisationWithIdRequest = RegisterOrganisationWithIdRequest(
+  val validOrganisationNonAutoMatchRequestBody: RegOrgWithIdNonAutoMatchRequest = RegOrgWithIdNonAutoMatchRequest(
     requiresNameMatch = true,
     IDNumber = "testIDNumber",
     IDType = "testIDType",
-    organisationName = Some("Monsters Inc"),
-    organisationType = Some("0001")
+    organisationName = "Monsters Inc",
+    organisationType = "0001"
+  )
+
+  val validOrganisationCTAutoMatchRequestBody: RegOrgWithIdCTAutoMatchRequest = RegOrgWithIdCTAutoMatchRequest(
+    requiresNameMatch = false,
+    IDNumber = "testIDNumber",
+    IDType = "0002"
   )
 
   val validOrganisationResponse: RegisterOrganisationWithIdResponse = RegisterOrganisationWithIdResponse(
@@ -195,10 +202,10 @@ class RegistrationConnectorISpec
     }
   }
 
-  "organisationWithUtr" should {
+  "organisationWithUtrNonAutoMatch" should {
     "successfully retrieve a name and address" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr"))
+        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -206,14 +213,14 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.organisationWithUtr(validOrganisationRequestBody).value.futureValue
+      val result = connector.organisationWithUtrNonAutoMatch(validOrganisationNonAutoMatchRequestBody).value.futureValue
 
       result shouldBe Right(validOrganisationResponse)
     }
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr"))
+        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -221,14 +228,14 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.organisationWithUtr(validOrganisationRequestBody).value.futureValue
+      val result = connector.organisationWithUtrNonAutoMatch(validOrganisationNonAutoMatchRequestBody).value.futureValue
 
       result shouldBe Left(ApiError.JsonValidationError)
     }
 
     "return a not found error if 404 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr"))
+        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(NOT_FOUND)
@@ -236,14 +243,14 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.organisationWithUtr(validOrganisationRequestBody).value.futureValue
+      val result = connector.organisationWithUtrNonAutoMatch(validOrganisationNonAutoMatchRequestBody).value.futureValue
 
       result shouldBe Left(ApiError.NotFoundError)
     }
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr"))
+        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -251,9 +258,72 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.organisationWithUtr(validOrganisationRequestBody).value.futureValue
+      val result = connector.organisationWithUtrNonAutoMatch(validOrganisationNonAutoMatchRequestBody).value.futureValue
 
       result shouldBe Left(ApiError.InternalServerError)
     }
   }
+
+  "organisationWithUtrCTAutoMatch" should {
+    "successfully retrieve a name and address" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(validOrganisationResponse).toString)
+          )
+      )
+
+      val result = connector.organisationWithUtrCTAutoMatch(validOrganisationCTAutoMatchRequestBody).value.futureValue
+
+      result shouldBe Right(validOrganisationResponse)
+    }
+
+    "return a Json validation error if unexpected response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson("invalid response").toString)
+          )
+      )
+
+      val result = connector.organisationWithUtrCTAutoMatch(validOrganisationCTAutoMatchRequestBody).value.futureValue
+
+      result shouldBe Left(ApiError.JsonValidationError)
+    }
+
+    "return a not found error if 404 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+
+      val result = connector.organisationWithUtrCTAutoMatch(validOrganisationCTAutoMatchRequestBody).value.futureValue
+
+      result shouldBe Left(ApiError.NotFoundError)
+    }
+
+    "return an internal server error if 500 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+
+      val result = connector.organisationWithUtrCTAutoMatch(validOrganisationCTAutoMatchRequestBody).value.futureValue
+
+      result shouldBe Left(ApiError.InternalServerError)
+    }
+  }
+
 }

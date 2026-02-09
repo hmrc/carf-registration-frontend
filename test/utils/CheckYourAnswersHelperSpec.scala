@@ -19,9 +19,9 @@ package utils
 import base.SpecBase
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, Name, UserAnswers}
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.organisation.*
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import viewmodels.Section

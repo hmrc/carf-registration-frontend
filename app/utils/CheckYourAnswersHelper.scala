@@ -94,7 +94,8 @@ class CheckYourAnswersHelper @Inject() extends Logging {
               }
             }.flatten
           case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
-          case _                           => None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
+          case _                           =>
+            None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
         }
       } else {
         logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")

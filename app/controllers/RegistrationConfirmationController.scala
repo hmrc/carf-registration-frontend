@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import javax.inject.Inject
-import models.{Mode, UserAnswers}
+import models.UserAnswers
 import pages.*
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, YourUniqueTaxpayerReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}

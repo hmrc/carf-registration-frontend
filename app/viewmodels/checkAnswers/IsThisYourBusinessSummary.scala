@@ -17,10 +17,9 @@
 package viewmodels.checkAnswers
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.UserAnswers
 import pages.IsThisYourBusinessPage
 import play.api.i18n.Messages
-import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -32,7 +31,7 @@ object IsThisYourBusinessSummary {
     answers.get(IsThisYourBusinessPage).map { answer =>
 
       val value = HtmlContent(
-        s"<p class='govuk-body govuk-!-margin-bottom-2'>${answer.name}</p><p class='govuk-body'>${answer.address.renderHTML}</p>"
+        s"<p class='govuk-body govuk-!-margin-bottom-2'>${answer.businessDetails.name}</p><p class='govuk-body'>${answer.businessDetails.address.renderHTML}</p>"
       )
 
       SummaryListRowViewModel(

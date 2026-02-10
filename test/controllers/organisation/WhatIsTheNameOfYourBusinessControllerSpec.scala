@@ -19,13 +19,14 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
+import models.JourneyType.OrgWithUtr
 import models.RegistrationType.*
 import models.{Address, BusinessDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
+import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -196,7 +197,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and set journey type when valid data is submitted" in {
       val companyName = "Test Company Ltd"
 
       val initialUserAnswers = emptyUserAnswers
@@ -218,7 +219,7 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockSessionRepository, times(1)).set(any())
+        verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(OrgWithUtr)))
       }
     }
 

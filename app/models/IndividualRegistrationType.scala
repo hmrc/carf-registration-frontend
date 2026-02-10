@@ -36,10 +36,11 @@ object IndividualRegistrationType {
   }
 
   def fromRegistrationType(registrationType: RegistrationType): Option[IndividualRegistrationType] =
-    registrationType match
+    registrationType match {
       case RegistrationType.SoleTrader => Some(IndividualSoleTrader)
       case RegistrationType.Individual => Some(IndividualNotConnectedToABusiness)
       case _                           => None
+    }
 
   val values: Seq[IndividualRegistrationType] = Seq(
     IndividualSoleTrader,

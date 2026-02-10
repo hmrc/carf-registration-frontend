@@ -20,7 +20,11 @@ import play.api.http.Status.SERVICE_UNAVAILABLE
 import uk.gov.hmrc.http.HttpErrorFunctions.{is4xx, is5xx}
 import uk.gov.hmrc.http.HttpReads
 
-sealed trait ApiError
+sealed trait CarfError
+
+case object DataError extends CarfError
+
+sealed trait ApiError extends CarfError
 
 object ApiError {
 

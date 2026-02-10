@@ -19,15 +19,14 @@ package controllers.individual
 import base.SpecBase
 import controllers.routes
 import models.{Name, UniqueTaxpayerReference, UserAnswers}
-import pages.organisation.{WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsYourNamePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.individual.ProblemSoleTraderNotIdentifiedView
 
 class ProblemSoleTraderNotIdentifiedControllerSpec extends SpecBase {
 
-  val testUtrString: String = "1234567890"
-  val testName              = "Timmy Turnips"
+  val testName = "Timmy Turnips"
 
   val testIndexPageUrl: String     = controllers.routes.IndexController.onPageLoad().url
   val guidancePageUrl: String      = "https://www.gov.uk/find-utr-number"
@@ -38,7 +37,7 @@ class ProblemSoleTraderNotIdentifiedControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET when required data is present" in {
 
       val userAnswersWithData: UserAnswers = emptyUserAnswers
-        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(testUtrString))
+        .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrString))
         .success
         .value
         .set(WhatIsYourNamePage, Name(firstName = "Timmy", lastName = "Turnips"))
@@ -90,7 +89,7 @@ class ProblemSoleTraderNotIdentifiedControllerSpec extends SpecBase {
     "must redirect to Journey Recovery for a GET if Name is not present" in {
 
       val userAnswersNoName: UserAnswers = emptyUserAnswers
-        .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference(uniqueTaxPayerReference = testUtrString))
+        .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(uniqueTaxPayerReference = testUtrString))
         .success
         .value
 

@@ -25,7 +25,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{RegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -139,7 +139,7 @@ class YourUniqueTaxpayerReferenceControllerSpec extends SpecBase with MockitoSug
         .set(RegistrationTypePage, LimitedCompany)
         .success
         .value
-        .set(YourUniqueTaxpayerReferencePage, utr)
+        .set(UniqueTaxpayerReferenceInUserAnswers, utr)
         .success
         .value
 

@@ -72,73 +72,73 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
     }
 
-    "must go from YourUniqueTaxpayerReferencePage to What is the registered name of your business for non soleTrader" in {
+    "must go from the utr entry page to What is the registered name of your business for non soleTrader" in {
 
       val updatedAnswers =
         emptyUserAnswers
           .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 
       navigator.nextPage(
-        YourUniqueTaxpayerReferencePage,
+        YourUtrPageForNavigatorOnly,
         NormalMode,
         updatedAnswers
       ) mustBe controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
     }
 
-    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an organisation" in {
+    "must go from the utr entry page to What is your name page for soleTrader as an organisation" in {
 
       val updatedAnswers =
         emptyUserAnswers
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 
       navigator.nextPage(
-        YourUniqueTaxpayerReferencePage,
+        YourUtrPageForNavigatorOnly,
         NormalMode,
         updatedAnswers
       ) mustBe controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
     }
 
-    "must go from YourUniqueTaxpayerReferencePage to What is your name page for soleTrader as an individual" in {
+    "must go from the utr entry page to What is your name page for soleTrader as an individual" in {
 
       val updatedAnswers =
         emptyUserAnswers
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 
       navigator.nextPage(
-        YourUniqueTaxpayerReferencePage,
+        YourUtrPageForNavigatorOnly,
         NormalMode,
         updatedAnswers
       ) mustBe controllers.organisation.routes.WhatIsYourNameController.onPageLoad(NormalMode)
     }
 
-    "must go from YourUniqueTaxpayerReferencePage to What is your business name page for anything other than soleTrader" in {
+    "must go from the utr entry page to What is your business name page for anything other than soleTrader" in {
 
       val updatedAnswers =
         emptyUserAnswers
           .set(RegistrationTypePage, RegistrationType.LLP)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 
       navigator.nextPage(
-        YourUniqueTaxpayerReferencePage,
+        YourUtrPageForNavigatorOnly,
         NormalMode,
         updatedAnswers
       ) mustBe controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode)
@@ -313,8 +313,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(true)
               )
             )
@@ -335,8 +335,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(true)
               )
             )
@@ -357,8 +357,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(true)
               )
             )
@@ -380,8 +380,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(true)
               )
             )
@@ -403,17 +403,18 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           val testUtr = UniqueTaxpayerReference("1234567890")
 
           val userAnswers = UserAnswers("id")
+            .copy(isCtAutoMatched = true)
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(false)
               )
             )
             .success
             .value
-            .set(IndexPage, testUtr)
+            .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
             .success
             .value
 
@@ -429,8 +430,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(false)
               )
             )
@@ -452,8 +453,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(false)
               )
             )
@@ -475,8 +476,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                "Test Business",
-                Address("Test Line 1", None, None, None, None, "GB"),
+                businessDetails =
+                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
                 Some(false)
               )
             )
@@ -525,7 +526,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 
@@ -572,7 +573,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 
@@ -590,7 +591,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
-          .set(YourUniqueTaxpayerReferencePage, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
           .success
           .value
 

@@ -24,7 +24,7 @@ import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.individual.NiNumberPage
-import pages.organisation.YourUniqueTaxpayerReferencePage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -38,10 +38,8 @@ class SubscriptionService @Inject() extends Logging {
   def subscribe(userAnswers: UserAnswers): Future[Either[ApiError, String]] = {
     // For testing success and error scenarios
     val idNumber = userAnswers
-      .get(YourUniqueTaxpayerReferencePage)
-      .fold(userAnswers.get(IndexPage).fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference))(
-        _.uniqueTaxPayerReference
-      )
+      .get(UniqueTaxpayerReferenceInUserAnswers)
+      .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
       .take(1)
 
     if (idNumber == "2" | idNumber == "B") {

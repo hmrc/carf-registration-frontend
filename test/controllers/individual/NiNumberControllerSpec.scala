@@ -19,17 +19,17 @@ package controllers.individual
 import base.SpecBase
 import controllers.routes
 import forms.individual.NiNumberFormProvider
+import models.JourneyType.IndWithNino
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.NiNumberPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.individual.NiNumberView
 
 import scala.concurrent.Future
@@ -82,7 +82,7 @@ class NiNumberControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and set journey type when valid data is submitted" in {
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -102,6 +102,7 @@ class NiNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(IndWithNino)))
       }
     }
 

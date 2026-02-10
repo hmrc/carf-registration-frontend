@@ -19,7 +19,7 @@ package controllers.organisation
 import controllers.actions.*
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{JourneyType, Mode}
+import models.Mode
 import navigation.Navigator
 import pages.organisation.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form
@@ -77,7 +77,7 @@ class OrganisationHaveSecondContactController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationHaveSecondContactPage, value))
-              _              <- sessionRepository.set(updatedAnswers.copy(journeyType = Some(getJourneyTypeUtrOnly(updatedAnswers))))
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(OrganisationHaveSecondContactPage, mode, updatedAnswers))
         )
   }

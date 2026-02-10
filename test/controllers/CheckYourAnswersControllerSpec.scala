@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
 import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
@@ -46,6 +47,7 @@ import scala.concurrent.Future
 class CheckYourAnswersControllerSpec extends SpecBase {
 
   val stWithUtrUserAnswers: UserAnswers    = emptyUserAnswers.copy(journeyType = Some(IndWithUtr))
+  val stWithoutIdUserAnswers: UserAnswers  = emptyUserAnswers.copy(journeyType = Some(IndWithoutId))
   val orgWithUtrUserAnswers: UserAnswers   = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
   val orgWithoutIdUserAnswers: UserAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithoutId))
   val indWithNinoUserAnswers: UserAnswers  = emptyUserAnswers.copy(journeyType = Some(IndWithNino))
@@ -265,6 +267,62 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
           verify(mockCYAHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any())
           verify(mockCYAHelper, times(1)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any())
+        }
+      }
+
+      "when journey is sole trader without id" - {
+        "must return OK and the correct view for a GET when all answers have been answered as expected" in new Setup(
+          AffinityGroup.Individual,
+          stWithoutIdUserAnswers
+        ) {
+          when(mockCYAHelper.indWithoutIdYourDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())).thenReturn(Some(testSection))
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(Seq(testSection, testSection))(
+            request,
+            messages(application)
+          ).toString
+        }
+
+        "must redirect to information missing page for a GET when 'business details' data is missing" in new Setup(
+          AffinityGroup.Individual,
+          stWithoutIdUserAnswers
+        ) {
+          when(mockCYAHelper.indWithoutIdYourDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())).thenReturn(Some(testSection))
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
+          verify(mockCYAHelper, times(1)).indWithoutIdYourDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).indContactDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())
+        }
+
+        "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
+          AffinityGroup.Individual,
+          stWithoutIdUserAnswers
+        ) {
+          when(mockCYAHelper.indWithoutIdYourDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any()))
+            .thenReturn(Some(testSection))
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())).thenReturn(None)
+
+          val request                    = FakeRequest(GET, cyaRoute)
+          val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
+          val result: Future[Result]     = route(application, request).value
+
+          status(result)               mustEqual SEE_OTHER
+          redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
+          verify(mockCYAHelper, times(1)).indWithoutIdYourDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).indContactDetailsMaybe(eqTo(stWithoutIdUserAnswers))(any())
         }
       }
 

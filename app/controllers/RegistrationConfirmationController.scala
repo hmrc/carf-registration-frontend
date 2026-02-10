@@ -20,7 +20,7 @@ import controllers.actions.*
 import javax.inject.Inject
 import models.UserAnswers
 import pages.*
-import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -50,14 +50,16 @@ class RegistrationConfirmationController @Inject() (
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
 
+      // TODO add real subscirption id in future ticket
       val subscriptionIdOpt = Some("XXCAR0012345678")
       val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
+      val idNumberOpt       = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
 
-      (subscriptionIdOpt, primaryEmailOpt) match {
-        case (Some(subscriptionId), Some(primaryEmail)) =>
+      (subscriptionIdOpt, primaryEmailOpt, idNumberOpt) match {
+        case (Some(subscriptionId), Some(primaryEmail), Some(idNumber)) =>
           val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
 
-          val wasCtAutomatched = request.userAnswers.get(IndexPage).isDefined
+          val wasCtAutomatched = request.userAnswers.isCtAutoMatched
 
           val addProviderUrl = if (wasCtAutomatched) {
             controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
@@ -69,8 +71,6 @@ class RegistrationConfirmationController @Inject() (
             case Some(secondaryEmail) => List(primaryEmail, secondaryEmail)
             case None                 => List(primaryEmail)
           }
-
-          val idNumber = getIdNumber(request.userAnswers)
 
           emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumber).flatMap { _ =>
 
@@ -102,15 +102,6 @@ class RegistrationConfirmationController @Inject() (
         case _ =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
-    }
-
-  private def getIdNumber(userAnswers: UserAnswers): String =
-    (userAnswers.get(IndexPage), userAnswers.get(YourUniqueTaxpayerReferencePage)) match {
-      case (Some(indexData), _) => indexData.uniqueTaxPayerReference
-      case (_, Some(utrData))   => utrData.uniqueTaxPayerReference
-      case (None, None)         =>
-        logger.warn("[RegistrationConfirmation] No ID number found in UserAnswers - using default for email stub")
-        "1234567890"
     }
 
 }

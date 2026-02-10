@@ -17,18 +17,18 @@
 package controllers
 
 import base.SpecBase
-import models.{SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import models.{SubscriptionId, UniqueTaxpayerReference}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage}
-import pages.{IndexPage, SubscriptionIdPage}
+import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
+import pages.SubscriptionIdPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.EmailService
 import views.html.RegistrationConfirmationView
-import org.scalatest.OptionValues._
+import org.scalatest.OptionValues.*
 
 import scala.concurrent.Future
 
@@ -61,7 +61,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         .set(OrganisationSecondContactEmailPage, secondaryEmail)
         .success
         .value
-        .set(IndexPage, UniqueTaxpayerReference(idNumber))
+        .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(idNumber))
         .success
         .value
 

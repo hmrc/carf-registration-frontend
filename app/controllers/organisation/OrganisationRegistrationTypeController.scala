@@ -36,6 +36,7 @@ class OrganisationRegistrationTypeController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: OrganisationRegistrationTypeFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -46,8 +47,8 @@ class OrganisationRegistrationTypeController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers
         .get(RegistrationTypePage)
@@ -55,7 +56,7 @@ class OrganisationRegistrationTypeController @Inject() (
         .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

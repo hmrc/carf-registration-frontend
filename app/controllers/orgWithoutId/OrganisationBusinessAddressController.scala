@@ -38,6 +38,7 @@ class OrganisationBusinessAddressController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: OrganisationBusinessAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -52,8 +53,8 @@ class OrganisationBusinessAddressController @Inject() (
     countries.filterNot(_.code == "GB")
   }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
       countriesList match {
         case Some(countries) =>
           val form         = formProvider(countries)
@@ -75,7 +76,7 @@ class OrganisationBusinessAddressController @Inject() (
           logger.error("Could not retrieve countries list from JSON file.")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

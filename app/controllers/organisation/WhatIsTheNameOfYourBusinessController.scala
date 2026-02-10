@@ -37,6 +37,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: WhatIsTheNameOfYourBusinessFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -45,8 +46,8 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       request.userAnswers
         .get(RegistrationTypePage)
         .flatMap(getBusinessTypeMessageKey) match {
@@ -58,7 +59,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
         case None             => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
 
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

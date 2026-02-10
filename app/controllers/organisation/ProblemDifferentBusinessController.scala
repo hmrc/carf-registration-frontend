@@ -33,6 +33,7 @@ class ProblemDifferentBusinessController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     appConfig: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
@@ -42,17 +43,18 @@ class ProblemDifferentBusinessController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
-    request.userAnswers.get(IsThisYourBusinessPage) match {
-      case Some(existingPageDetails) =>
-        val businessName       = existingPageDetails.name
-        val address            = existingPageDetails.address
-        val signOutUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
+    implicit request =>
+      request.userAnswers.get(IsThisYourBusinessPage) match {
+        case Some(existingPageDetails) =>
+          val businessName       = existingPageDetails.name
+          val address            = existingPageDetails.address
+          val signOutUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
 
-        Future.successful(Ok(view(businessName, address, signOutUrl)))
-      case None                      =>
-        logger.warn("Business details expected but not found. Redirecting to journey recovery.")
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    }
+          Future.successful(Ok(view(businessName, address, signOutUrl)))
+        case None                      =>
+          logger.warn("Business details expected but not found. Redirecting to journey recovery.")
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 }

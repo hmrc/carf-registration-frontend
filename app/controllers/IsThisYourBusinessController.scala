@@ -42,6 +42,7 @@ class IsThisYourBusinessController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IsThisYourBusinessFormProvider,
     businessService: RegistrationService,
@@ -55,8 +56,8 @@ class IsThisYourBusinessController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
       val maybeIndexPage   = request.userAnswers.get(IndexPage)
       val maybeYourUtrPage = request.userAnswers.get(YourUniqueTaxpayerReferencePage)
 
@@ -88,7 +89,7 @@ class IsThisYourBusinessController @Inject() (
           logger.warn("No UTR found in user answers. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

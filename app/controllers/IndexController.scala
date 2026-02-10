@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.{NormalMode, UserAnswers}
 import pages.IndexPage
 import play.api.Logging
@@ -35,6 +35,7 @@ class IndexController @Inject() (
     checkEnrolment: CheckEnrolledToServiceAction,
     retrieveCtUTR: CtUtrRetrievalAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -42,32 +43,33 @@ class IndexController @Inject() (
     with Logging {
 
   def onPageLoad(): Action[AnyContent] =
-    (identify() andThen checkEnrolment andThen retrieveCtUTR() andThen getData()).async { implicit request =>
-      request.affinityGroup match {
-        case AffinityGroup.Individual =>
-          for {
-            _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-          } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+    (identify() andThen checkEnrolment andThen retrieveCtUTR() andThen getData() andThen submissionLock).async {
+      implicit request =>
+        request.affinityGroup match {
+          case AffinityGroup.Individual =>
+            for {
+              _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+            } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
 
-        case _ =>
-          request.utr match {
-            case Some(utr) =>
-              for {
-                autoMatchedUserAnswers <- Future.fromTry(
-                                            request.userAnswers
-                                              .getOrElse(UserAnswers(id = request.userId))
-                                              .set(IndexPage, utr)
-                                          )
-                _                      <- sessionRepository.set(autoMatchedUserAnswers)
-              } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
-            case None      =>
-              for {
-                _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-              } yield Redirect(
-                controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
-              )
+          case _ =>
+            request.utr match {
+              case Some(utr) =>
+                for {
+                  autoMatchedUserAnswers <- Future.fromTry(
+                                              request.userAnswers
+                                                .getOrElse(UserAnswers(id = request.userId))
+                                                .set(IndexPage, utr)
+                                            )
+                  _                      <- sessionRepository.set(autoMatchedUserAnswers)
+                } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
+              case None      =>
+                for {
+                  _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+                } yield Redirect(
+                  controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
+                )
 
-          }
-      }
+            }
+        }
     }
 }

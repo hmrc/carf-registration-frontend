@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType
 import models.JourneyType.{IndWithNino, OrgWithUtr}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,6 +34,7 @@ class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     helper: CheckYourAnswersHelper,
@@ -43,41 +44,42 @@ class CheckYourAnswersController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
+    implicit request =>
 
-    val journeyType: Option[JourneyType] = request.userAnswers.journeyType
+      val journeyType: Option[JourneyType] = request.userAnswers.journeyType
 
-    val businessDetailsSectionMaybe: Option[Section]      =
-      helper.getBusinessDetailsSectionMaybe(request.userAnswers)
-    val firstContactDetailsSectionMaybe: Option[Section]  =
-      helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
-    val secondContactDetailsSectionMaybe: Option[Section] =
-      helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
+      val businessDetailsSectionMaybe: Option[Section]      =
+        helper.getBusinessDetailsSectionMaybe(request.userAnswers)
+      val firstContactDetailsSectionMaybe: Option[Section]  =
+        helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
+      val secondContactDetailsSectionMaybe: Option[Section] =
+        helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
-    val indWithNinoYourDetails: Option[Section] =
-      helper.indWithNinoYourDetailsMaybe(request.userAnswers)
-    val indContactDetails: Option[Section]      =
-      helper.indContactDetailsMaybe(request.userAnswers)
+      val indWithNinoYourDetails: Option[Section] =
+        helper.indWithNinoYourDetailsMaybe(request.userAnswers)
+      val indContactDetails: Option[Section]      =
+        helper.indContactDetailsMaybe(request.userAnswers)
 
-    val sectionsMaybe = journeyType match {
-      case Some(OrgWithUtr)  =>
-        for {
-          section1 <- businessDetailsSectionMaybe
-          section2 <- firstContactDetailsSectionMaybe
-          section3 <- secondContactDetailsSectionMaybe
-        } yield Seq(section1, section2, section3)
-      case Some(IndWithNino) =>
-        for {
-          section1 <- indWithNinoYourDetails
-          section2 <- indContactDetails
-        } yield Seq(section1, section2)
-      case _                 => None
-    }
+      val sectionsMaybe = journeyType match {
+        case Some(OrgWithUtr)  =>
+          for {
+            section1 <- businessDetailsSectionMaybe
+            section2 <- firstContactDetailsSectionMaybe
+            section3 <- secondContactDetailsSectionMaybe
+          } yield Seq(section1, section2, section3)
+        case Some(IndWithNino) =>
+          for {
+            section1 <- indWithNinoYourDetails
+            section2 <- indContactDetails
+          } yield Seq(section1, section2)
+        case _                 => None
+      }
 
-    sectionsMaybe match {
-      case Some(sections: Seq[Section]) => Ok(view(sections))
-      case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
-    }
+      sectionsMaybe match {
+        case Some(sections: Seq[Section]) => Ok(view(sections))
+        case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+      }
   }
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>

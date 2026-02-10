@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import play.api.i18n.Messages
@@ -31,7 +30,7 @@ object IndWithoutNinoNameSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(IndWithoutNinoNamePage).map { answer =>
 
-      val value = HtmlFormat.escape(answer.firstName).toString + "<br/>" + HtmlFormat.escape(answer.lastName).toString
+      val value = HtmlFormat.escape(answer.firstName).toString + " " + HtmlFormat.escape(answer.lastName).toString
 
       SummaryListRowViewModel(
         key = "indWithoutNinoName.checkYourAnswersLabel",

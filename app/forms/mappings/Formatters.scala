@@ -249,7 +249,7 @@ trait Formatters extends Transforms with Logging {
 
       private val phoneUtil = PhoneNumberUtil.getInstance()
 
-      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
+      override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue = {
         lazy val formErrorInvalidKey = Left(Seq(FormError(key, invalidKey, args)))
 
         data.get(key).map(_.trim) match {
@@ -275,6 +275,7 @@ trait Formatters extends Transforms with Logging {
               }
             }
         }
+      }
 
       override def unbind(key: String, value: String): Map[String, String] =
         Map(key -> value)

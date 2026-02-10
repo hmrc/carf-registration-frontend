@@ -18,6 +18,7 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.WhatIsYourNameFormProvider
+import models.JourneyType.IndWithUtr
 import models.{Mode, Name}
 import navigation.Navigator
 import pages.organisation.WhatIsYourNamePage
@@ -66,7 +67,8 @@ class WhatIsYourNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsYourNamePage, value))
+              updatedAnswers <-
+                Future.fromTry(request.userAnswers.copy(journeyType = Some(IndWithUtr)).set(WhatIsYourNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(WhatIsYourNamePage, mode, updatedAnswers))
         )

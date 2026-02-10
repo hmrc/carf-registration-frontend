@@ -21,7 +21,7 @@ import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
 import models.RegistrationType.*
 import models.{Mode, RegistrationType, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.organisation.{RegistrationTypePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, YourUtrPageForNavigatorOnly}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -53,7 +53,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
         .flatMap(getTaxTypeMessageKey) match {
         case Some(messageKey) =>
           val form         = formProvider(messageKey)
-          val preparedForm = request.userAnswers.get(YourUniqueTaxpayerReferencePage).fold(form)(form.fill)
+          val preparedForm = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).fold(form)(form.fill)
 
           Ok(view(preparedForm, mode, messageKey))
 
@@ -74,13 +74,9 @@ class YourUniqueTaxpayerReferenceController @Inject() (
               formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, messageKey))),
               value =>
                 for {
-                  updatedAnswers <-
-                    Future.fromTry(
-                      request.userAnswers
-                        .set(YourUniqueTaxpayerReferencePage, value)
-                    )
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(UniqueTaxpayerReferenceInUserAnswers, value))
                   _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(YourUniqueTaxpayerReferencePage, mode, updatedAnswers))
+                } yield Redirect(navigator.nextPage(YourUtrPageForNavigatorOnly, mode, updatedAnswers))
             )
         case None             => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }

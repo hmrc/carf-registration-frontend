@@ -19,7 +19,7 @@ package controllers.individual
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
-import pages.organisation.{WhatIsYourNamePage, YourUniqueTaxpayerReferencePage}
+import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsYourNamePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -46,7 +46,7 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
     val aeoiEmailAddress: String = appConfig.aeoiEmailAddress
 
     val pageInfo = for {
-      utr  <- request.userAnswers.get(YourUniqueTaxpayerReferencePage)
+      utr  <- request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
       name <- request.userAnswers.get(WhatIsYourNamePage)
     } yield (utr.uniqueTaxPayerReference, name.fullName)
 

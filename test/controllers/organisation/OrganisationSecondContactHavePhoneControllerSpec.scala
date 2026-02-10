@@ -91,12 +91,11 @@ class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with Moc
           .set(OrganisationSecondContactHavePhonePage, true)
           .success
           .value
-          .copy(journeyType = Some(OrgWithUtr))
 
       when(mockSessionRepository.set(eqTo(expectedUserAnswers))) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(userAnswersWithSecondNameTest))
+        applicationBuilder(userAnswers = Some(expectedUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[Clock].toInstance(clock)

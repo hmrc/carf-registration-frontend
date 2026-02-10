@@ -17,12 +17,14 @@
 package pages.organisation
 
 import models.UniqueTaxpayerReference
-import pages.QuestionPage
+import pages.{Page, QuestionPage}
 import play.api.libs.json.JsPath
 
-case object YourUniqueTaxpayerReferencePage extends QuestionPage[UniqueTaxpayerReference] {
+case object UniqueTaxpayerReferenceInUserAnswers extends QuestionPage[UniqueTaxpayerReference] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "yourUniqueTaxpayerReference"
+  override def toString: String = "utr"
 }
+
+case object YourUtrPageForNavigatorOnly extends Page

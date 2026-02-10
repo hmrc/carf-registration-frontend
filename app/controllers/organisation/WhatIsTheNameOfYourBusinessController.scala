@@ -18,8 +18,9 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
+import models.JourneyType.OrgWithUtr
 import models.RegistrationType.*
-import models.{Mode, OrganisationRegistrationType, RegistrationType}
+import models.{Mode, RegistrationType}
 import navigation.Navigator
 import pages.organisation.{RegistrationTypePage, WhatIsTheNameOfYourBusinessPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -74,7 +75,11 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
               formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, messageKey))),
               value =>
                 for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheNameOfYourBusinessPage, value))
+                  updatedAnswers <- Future.fromTry(
+                                      request.userAnswers
+                                        .copy(journeyType = Some(OrgWithUtr))
+                                        .set(WhatIsTheNameOfYourBusinessPage, value)
+                                    )
                   _              <- sessionRepository.set(updatedAnswers)
                 } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
             )

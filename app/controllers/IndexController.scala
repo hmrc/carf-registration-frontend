@@ -16,9 +16,10 @@
 
 package controllers
 
+import models.JourneyType.OrgWithUtr
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.{NormalMode, UserAnswers}
-import pages.IndexPage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,23 +52,26 @@ class IndexController @Inject() (
               _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
             } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
 
-          case _ =>
-            request.utr match {
-              case Some(utr) =>
-                for {
-                  autoMatchedUserAnswers <- Future.fromTry(
-                                              request.userAnswers
-                                                .getOrElse(UserAnswers(id = request.userId))
-                                                .set(IndexPage, utr)
-                                            )
-                  _                      <- sessionRepository.set(autoMatchedUserAnswers)
-                } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
-              case None      =>
-                for {
-                  _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-                } yield Redirect(
-                  controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
-                )
+        case _ =>
+          request.utr match {
+            case Some(utr) =>
+              for {
+                autoMatchedUserAnswers <-
+                  Future.fromTry(
+                    request.userAnswers
+                      .getOrElse(
+                        UserAnswers(id = request.userId, isCtAutoMatched = true, journeyType = Some(OrgWithUtr))
+                      )
+                      .set(UniqueTaxpayerReferenceInUserAnswers, utr)
+                  )
+                _                      <- sessionRepository.set(autoMatchedUserAnswers)
+              } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
+            case None      =>
+              for {
+                _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
+              } yield Redirect(
+                controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
+              )
 
             }
         }

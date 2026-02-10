@@ -21,9 +21,9 @@ import play.api.libs.json.{JsString, Writes}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait OrganisationRegistrationType:
+sealed trait OrganisationRegistrationType {
   def toRegistrationType: RegistrationType
-
+}
 object OrganisationRegistrationType {
   case object OrganisationLimitedCompany extends OrganisationRegistrationType {
     def toRegistrationType: RegistrationType = RegistrationType.LimitedCompany
@@ -46,13 +46,14 @@ object OrganisationRegistrationType {
   }
 
   def fromRegistrationType(registrationType: RegistrationType): Option[OrganisationRegistrationType] =
-    registrationType match
+    registrationType match {
       case RegistrationType.LimitedCompany => Some(OrganisationLimitedCompany)
       case RegistrationType.Partnership    => Some(OrganisationPartnership)
       case RegistrationType.LLP            => Some(OrganisationLLP)
       case RegistrationType.Trust          => Some(OrganisationTrust)
       case RegistrationType.SoleTrader     => Some(OrganisationSoleTrader)
       case _                               => None
+    }
 
   val values: Seq[OrganisationRegistrationType] = Seq(
     OrganisationLimitedCompany,
@@ -70,7 +71,5 @@ object OrganisationRegistrationType {
     )
   }
 
-  implicit val enumerable: Enumerable[OrganisationRegistrationType] =
-    Enumerable(values.map(v => v.toString -> v): _*)
-
+  implicit val enumerable: Enumerable[OrganisationRegistrationType] = Enumerable(values.map(v => v.toString -> v): _*)
 }

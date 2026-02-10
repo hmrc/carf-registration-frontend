@@ -59,6 +59,7 @@ trait SpecBase
 
   val userAnswersId: String            = "id"
   val testUtr: UniqueTaxpayerReference = UniqueTaxpayerReference("1234567890")
+  val testUtrString: String            = testUtr.uniqueTaxPayerReference
   val testInternalId: String           = "12345"
 
   private val UtcZoneId          = "UTC"

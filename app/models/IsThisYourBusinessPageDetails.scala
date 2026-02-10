@@ -19,8 +19,7 @@ package models
 import play.api.libs.json.*
 
 case class IsThisYourBusinessPageDetails(
-    name: String,
-    address: Address,
+    businessDetails: BusinessDetails,
     pageAnswer: Option[Boolean]
 )
 

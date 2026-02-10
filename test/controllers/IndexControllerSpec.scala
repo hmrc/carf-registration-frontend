@@ -18,11 +18,12 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
+import models.JourneyType.OrgWithUtr
 import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import pages.IndexPage
 import pages.individual.HaveNiNumberPage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Result
@@ -38,7 +39,8 @@ class IndexControllerSpec extends SpecBase {
 
   val testExistingUserAnswers: UserAnswers        =
     UserAnswers(id = "test-id", lastUpdated = clock.instant()).set(HaveNiNumberPage, true).success.value
-  val testExistingUserAnswersWithUtr: UserAnswers = testExistingUserAnswers.set(IndexPage, testUtr).success.value
+  val testExistingUserAnswersWithUtr: UserAnswers =
+    testExistingUserAnswers.set(UniqueTaxpayerReferenceInUserAnswers, testUtr).success.value
 
   "Index Controller" - {
     "individual user must" - {
@@ -78,9 +80,9 @@ class IndexControllerSpec extends SpecBase {
     }
 
     "organisation user with ct-utr from enrolments must" - {
-      "be handled correctly" in new Setup(
+      "create user answers with isCtAutoMatched and journey type set, and redirect to the 'Is this your business?' page" in new Setup(
         Organisation,
-        Some(testUtr.uniqueTaxPayerReference)
+        Some(testUtrString)
       ) {
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
@@ -93,12 +95,17 @@ class IndexControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual controllers.routes.IsThisYourBusinessController
           .onPageLoad(NormalMode)
           .url
-        verify(mockSessionRepository).set(argThat(ua => ua.get(IndexPage).contains(testUtr)))
+        verify(mockSessionRepository).set(
+          argThat(ua =>
+            ua.get(UniqueTaxpayerReferenceInUserAnswers).contains(testUtr) &&
+              ua.isCtAutoMatched && ua.journeyType.contains(OrgWithUtr)
+          )
+        )
       }
 
       "persist user answers if they exist in the request" in new Setup(
         Organisation,
-        Some(testUtr.uniqueTaxPayerReference),
+        Some(testUtrString),
         Some(testExistingUserAnswers)
       ) {
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))

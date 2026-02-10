@@ -19,10 +19,11 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndWithoutNinoNameFormProvider
+import models.JourneyType.IndWithoutId
 import models.{Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import play.api.data.Form
@@ -80,14 +81,16 @@ class IndWithoutNinoNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and set journey type when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
       val application =
         applicationBuilder(userAnswers = Some(validNameUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
           )
           .build()
+
       running(application) {
         val request =
           FakeRequest(POST, indWithoutNinoNameRoute)
@@ -96,8 +99,10 @@ class IndWithoutNinoNameControllerSpec extends SpecBase with MockitoSugar {
               ("familyName", "familyName IndWithoutNinoName")
             )
         val result  = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(IndWithoutId)))
       }
     }
 

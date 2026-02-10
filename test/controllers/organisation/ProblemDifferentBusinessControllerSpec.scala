@@ -18,7 +18,7 @@ package controllers.organisation
 
 import base.SpecBase
 import controllers.routes
-import models.{Address, IsThisYourBusinessPageDetails}
+import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails}
 import pages.IsThisYourBusinessPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -43,8 +43,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         countryCode = "GB"
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
-        name = businessName,
-        address = address,
+        businessDetails = BusinessDetails(name = businessName, address = address),
         pageAnswer = Some(true)
       )
       val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value
@@ -75,8 +74,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         countryCode = "US"
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
-        name = businessName,
-        address = address,
+        businessDetails = BusinessDetails(name = businessName, address = address),
         pageAnswer = Some(true)
       )
       val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value

@@ -17,37 +17,17 @@
 package services
 
 import base.SpecBase
-import config.FrontendAppConfig
 import connectors.AddressLookupConnector
-import controllers.routes
-import forms.individualWithoutId.IndFindAddressFormProvider
 import generators.Generators
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{IndFindAddress, NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individualWithoutId.IndFindAddressPage
-import play.api.Logging
-import play.api.data.Form
-import play.api.http.Status.OK
-import play.api.inject.bind
-import play.api.libs.json.Json
-import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.mvc.Call
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import repositories.SessionRepository
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpReads.Implicits.*
-import uk.gov.hmrc.http.client.HttpClientV2
-import views.html.individualWithoutId.IndFindAddressView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with Generators {
 

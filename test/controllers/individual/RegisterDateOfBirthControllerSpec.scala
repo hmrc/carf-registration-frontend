@@ -20,6 +20,7 @@ import base.SpecBase
 import controllers.routes
 import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
+import models.error.ApiError.NotFoundError
 import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -129,12 +130,11 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted, service must return valid IndividualDetails)" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    "must redirect to the next page when valid data is submitted and the service returns valid IndividualDetails" in {
       val mockRegistrationService = mock[RegistrationService]
-      when(
-        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.successful(Some(validIndividualDetails)))
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validIndividualDetails)))
 
       val application =
         applicationBuilder(userAnswers = Some(buildUserAnswers(nino = Some(validNino), name = Some(validName))))
@@ -151,12 +151,12 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to CouldNotConfirmIdentity page when the service returns NotFoundError (404)" in {
+    "must redirect to CouldNotConfirmIdentity page when the service returns NotFoundError" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val mockRegistrationService = mock[RegistrationService]
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.successful(None))
+      ).thenReturn(Future.successful(Left(NotFoundError)))
 
       val application = applicationBuilder(userAnswers =
         Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))
@@ -178,9 +178,9 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when the service returns InternalServerError (500)" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    "must redirect to Journey Recovery when the service returns InternalServerError" in {
       val mockRegistrationService = mock[RegistrationService]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(
         mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
       ).thenReturn(Future.successful(Left(ApiError.InternalServerError)))
@@ -254,29 +254,6 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
         bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
         bind[RegistrationService].toInstance(mockRegistrationService)
       ).build()
-
-      running(application) {
-        val result = route(application, buildPostRequest()).value
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery when the service returns Future.failed" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val mockRegistrationService = mock[RegistrationService]
-      when(
-        mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier])
-      ).thenReturn(Future.failed(new Exception("Unexpected error!")))
-
-      val application = applicationBuilder(userAnswers =
-        Some(buildUserAnswers(nino = Some(validNino), name = Some(validName), dob = Some(validBirthDate)))
-      )
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[RegistrationService].toInstance(mockRegistrationService)
-        )
-        .build()
 
       running(application) {
         val result = route(application, buildPostRequest()).value

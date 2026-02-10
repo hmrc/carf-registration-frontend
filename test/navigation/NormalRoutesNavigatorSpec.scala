@@ -918,6 +918,31 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "IndWithoutIdAddressNonUkPage navigation" - {
+      "must navigate from IndWithoutIdAddressNonUkPage to IndividualEmailController" in {
+        val userAnswers = emptyUserAnswers
+          .set(
+            IndWithoutIdAddressNonUkPage,
+            IndWithoutIdAddressNonUk(
+              "123 Main St",
+              Some("Apt 4"),
+              "Paris",
+              Some("Ile-de-France"),
+              Some("75001"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+
+        navigator.nextPage(
+          IndWithoutIdAddressNonUkPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
     "IndWithoutIdDateOfBirth navigation" - {
       "must navigate from IndWithoutIdDateOfBirth to the 'Where do you live' placeholder" in {
         val userAnswers =
@@ -969,20 +994,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
       }
 
-      "must navigate from WhereDoYouLive to the 'address-non-uk' placeholder" in {
-        val userAnswers =
-          emptyUserAnswers
-            .set(WhereDoYouLivePage, false)
-            .success
-            .value
-
+      "must navigate from WhereDoYouLive to the 'address-non-uk' page" in {
+        val userAnswers = emptyUserAnswers
+          .set(WhereDoYouLivePage, false)
+          .success
+          .value
         navigator.nextPage(
           WhereDoYouLivePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/address-non-uk (CARF-175)"
-        )
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
       }
 
       "must navigate from WhereDoYouLive to the Journey recovery if user answers in unset" in {

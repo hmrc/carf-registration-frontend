@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,69 +14,63 @@
  * limitations under the License.
  */
 
-package controllers.orgWithoutId
+package controllers.individualWithoutId
 
 import controllers.actions.*
-import forms.orgWithoutId.OrganisationBusinessAddressFormProvider
+import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
 import models.{Country, Mode}
 import navigation.Navigator
-import pages.orgWithoutId.OrganisationBusinessAddressPage
+import pages.individualWithoutId.IndWithoutIdAddressNonUkPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
-import views.html.orgWithoutId.OrganisationBusinessAddressView
-
+import views.html.individualWithoutId.IndWithoutIdAddressNonUkView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class OrganisationBusinessAddressController @Inject() (
+class IndWithoutIdAddressNonUkController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
-    formProvider: OrganisationBusinessAddressFormProvider,
+    formProvider: IndWithoutIdAddressNonUkFormProvider,
     val controllerComponents: MessagesControllerComponents,
     countryListFactory: CountryListFactory,
-    view: OrganisationBusinessAddressView
+    view: IndWithoutIdAddressNonUkView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with Logging {
 
-  private val countriesList: Option[Seq[Country]] = countryListFactory.countryList.map { countries =>
-    countries.filterNot(_.code == "GB")
-  }
+  private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+    implicit request =>
       countriesList match {
         case Some(countries) =>
           val form         = formProvider(countries)
-          val preparedForm = request.userAnswers.get(OrganisationBusinessAddressPage) match {
+          val preparedForm = request.userAnswers.get(IndWithoutIdAddressNonUkPage) match {
             case None        => form
             case Some(value) => form.fill(value)
           }
-          Future.successful(
-            Ok(
-              view(
-                preparedForm,
-                mode,
-                countryListFactory.countrySelectList(preparedForm.data, countries)
-              )
+          Ok(
+            view(
+              preparedForm,
+              mode,
+              countryListFactory.countrySelectList(preparedForm.data, countries)
             )
           )
 
         case None =>
           logger.error("Could not retrieve countries list from JSON file.")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-    }
+  }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
@@ -98,9 +92,9 @@ class OrganisationBusinessAddressController @Inject() (
                 ),
               value =>
                 for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationBusinessAddressPage, value))
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressNonUkPage, value))
                   _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
+                } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswers))
             )
         case None            =>
           logger.error("Could not retrieve countries list from JSON file.")

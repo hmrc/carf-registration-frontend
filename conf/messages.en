@@ -510,3 +510,27 @@ registrationConfirmation.feedback.postLink = to share your feedback on this serv
 
 page.unavailable.title = Page Unavailable
 page.unavailable.heading = Page Unavailable
+
+indWithoutIdAddressNonUk.title = What is your address?
+indWithoutIdAddressNonUk.heading = What is your address?
+indWithoutIdAddressNonUk.addressLine1 = Address line 1
+indWithoutIdAddressNonUk.addressLine2 = Address line 2 (optional)
+indWithoutIdAddressNonUk.townOrCity = Town or city
+indWithoutIdAddressNonUk.region = Region (optional)
+indWithoutIdAddressNonUk.postcode = Postal code (optional)
+indWithoutIdAddressNonUk.country = Country
+indWithoutIdAddressNonUk.checkYourAnswersLabel = What is your address?
+indWithoutIdAddressNonUk.change.hidden = Change your address?
+indWithoutIdAddressNonUk.addressLine1.error.required = Enter address line 1
+indWithoutIdAddressNonUk.addressLine1.error.length = Address line 1 must be 35 characters or less
+indWithoutIdAddressNonUk.addressLine1.error.invalid = Address line 1 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
+indWithoutIdAddressNonUk.addressLine2.error.length = Address line 2 must be 35 characters or less
+indWithoutIdAddressNonUk.addressLine2.error.invalid = Address line 2 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
+indWithoutIdAddressNonUk.townOrCity.error.required = Enter town or city
+indWithoutIdAddressNonUk.townOrCity.error.length = Town or city must be 35 characters or less
+indWithoutIdAddressNonUk.townOrCity.error.invalid = Town or city must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
+indWithoutIdAddressNonUk.region.error.length = Region must be 35 characters or less
+indWithoutIdAddressNonUk.region.error.invalid = Region must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
+indWithoutIdAddressNonUk.postcode.error.length = Postal code must be 10 characters or less
+indWithoutIdAddressNonUk.postcode.error.invalid = Postal code must only include letters a to z, numbers 0 to 9 and spaces
+indWithoutIdAddressNonUk.country.error.required = Select country

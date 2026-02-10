@@ -74,11 +74,11 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -96,11 +96,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
-            .thenReturn(None)
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -109,26 +108,19 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
         }
 
         "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
-            .thenReturn(None)
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -137,27 +129,20 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
         }
 
         "must redirect to information missing page for a GET when any required second contact details are missing" in new Setup(
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any()))
-            .thenReturn(None)
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())).thenReturn(None)
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -165,15 +150,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).getSecondContactDetailsSectionMaybe(eqTo(orgWithUtrUserAnswers))(any())
         }
       }
 
@@ -182,10 +161,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCYAHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
-            .thenReturn(Some(testSection))
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())).thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -202,10 +180,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
-            .thenReturn(None)
-          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
-            .thenReturn(Some(testSection))
+          when(mockCYAHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())).thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -213,22 +189,17 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())
         }
 
         "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
+          when(mockCYAHelper.indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any()))
-            .thenReturn(None)
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())).thenReturn(None)
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -236,12 +207,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).indWithNinoYourDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).indContactDetailsMaybe(eqTo(indWithNinoUserAnswers))(any())
         }
       }
 
@@ -250,10 +217,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           stWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any()))
-            .thenReturn(Some(testSection))
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any())).thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -270,10 +236,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           stWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
-            .thenReturn(None)
-          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any()))
-            .thenReturn(Some(testSection))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any())).thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -281,22 +245,17 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any())
         }
 
         "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
           AffinityGroup.Individual,
           stWithUtrUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
+          when(mockCYAHelper.getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any()))
-            .thenReturn(None)
+          when(mockCYAHelper.indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any())).thenReturn(None)
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -304,12 +263,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(stWithUtrUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).indContactDetailsMaybe(eqTo(stWithUtrUserAnswers))(any())
         }
       }
 
@@ -318,11 +273,11 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Organisation,
           orgWithoutIdUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -340,11 +295,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Organisation,
           orgWithoutIdUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
-            .thenReturn(None)
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -353,30 +307,19 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getFirstContactDetailsSectionMaybe(
-            eqTo(orgWithoutIdUserAnswers)
-          )(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(
-            eqTo(orgWithoutIdUserAnswers)
-          )(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())
         }
 
         "must redirect to information missing page for a GET when any required first contact details are missing" in new Setup(
           AffinityGroup.Organisation,
           orgWithoutIdUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
-            .thenReturn(None)
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())).thenReturn(None)
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
 
           val request                    = FakeRequest(GET, cyaRoute)
@@ -385,31 +328,20 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getFirstContactDetailsSectionMaybe(
-            eqTo(orgWithoutIdUserAnswers)
-          )(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(
-            eqTo(orgWithoutIdUserAnswers)
-          )(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(0)).getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())
         }
 
         "must redirect to information missing page for a GET when any required second contact details are missing" in new Setup(
           AffinityGroup.Organisation,
           orgWithoutIdUserAnswers
         ) {
-          when(mockCheckYourAnswersHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
+          when(mockCYAHelper.getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
             .thenReturn(Some(testSection))
-          when(mockCheckYourAnswersHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any()))
-            .thenReturn(None)
+          when(mockCYAHelper.getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())).thenReturn(None)
 
           val request                    = FakeRequest(GET, cyaRoute)
           val view: CheckYourAnswersView = application.injector.instanceOf[CheckYourAnswersView]
@@ -417,19 +349,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)               mustEqual SEE_OTHER
           redirectLocation(result).get mustEqual routes.InformationMissingController.onPageLoad().url
-          verify(mockCheckYourAnswersHelper, times(1)).getBusinessDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getFirstContactDetailsSectionMaybe(
-            eqTo(orgWithoutIdUserAnswers)
-          )(
-            any()
-          )
-          verify(mockCheckYourAnswersHelper, times(1)).getSecondContactDetailsSectionMaybe(
-            eqTo(orgWithoutIdUserAnswers)
-          )(
-            any()
-          )
+          verify(mockCYAHelper, times(1)).getOrgWithoutIdDetailsMaybe(eqTo(orgWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).getFirstContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())
+          verify(mockCYAHelper, times(1)).getSecondContactDetailsSectionMaybe(eqTo(orgWithoutIdUserAnswers))(any())
         }
       }
 
@@ -505,14 +427,14 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       affinityGroup: AffinityGroup,
       userAnswers: UserAnswers
   ) {
-    final val mockSubscriptionService    = mock[SubscriptionService]
-    final val mockCheckYourAnswersHelper = mock[CheckYourAnswersHelper]
+    final val mockSubscriptionService = mock[SubscriptionService]
+    final val mockCYAHelper           = mock[CheckYourAnswersHelper]
 
     val application: Application =
       applicationBuilder(affinityGroup = affinityGroup, userAnswers = Some(userAnswers))
         .overrides(
           bind[SubscriptionService].toInstance(mockSubscriptionService),
-          bind[CheckYourAnswersHelper].toInstance(mockCheckYourAnswersHelper),
+          bind[CheckYourAnswersHelper].toInstance(mockCYAHelper),
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[Clock].toInstance(clock)
         )

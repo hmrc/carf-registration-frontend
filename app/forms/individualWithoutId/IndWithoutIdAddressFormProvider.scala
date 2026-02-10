@@ -24,32 +24,40 @@ import play.api.data.Forms.*
 
 import javax.inject.Inject
 
-class AddressFormProvider @Inject() extends Mappings {
+class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
 
   inline val maxLength = 35
 
   def apply(): Form[AddressUK] = Form(
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
-        maxLength(35, "address.addressLine1.error.length"),
-        regexp(addressRegex, "address.addressLine1.error.invalid")
+        firstError(
+          maxLength(35, "address.addressLine1.error.length"),
+          regexp(addressRegex, "address.addressLine1.error.invalid")
+        )
       ),
       "addressLine2" -> optional(
         text("address.addressLine2.error.required")
           .verifying(
-            maxLength(35, "address.addressLine2.error.length"),
-            regexp(addressRegex, "address.addressLine2.error.invalid")
+            firstError(
+              maxLength(35, "address.addressLine2.error.length"),
+              regexp(addressRegex, "address.addressLine2.error.invalid")
+            )
           )
       ),
       "townOrCity"   -> text("address.townOrCity.error.required").verifying(
-        maxLength(35, "address.townOrCity.error.length"),
-        regexp(addressRegex, "address.townOrCity.error.invalid")
+        firstError(
+          maxLength(35, "address.townOrCity.error.length"),
+          regexp(addressRegex, "address.townOrCity.error.invalid")
+        )
       ),
       "county"       -> optional(
         text("address.county.error.required")
           .verifying(
-            maxLength(35, "address.county.error.length"),
-            regexp(addressRegex, "address.county.error.invalid")
+            firstError(
+              maxLength(35, "address.county.error.length"),
+              regexp(addressRegex, "address.county.error.invalid")
+            )
           )
       ),
       "postcode"     -> mandatoryPostcode(

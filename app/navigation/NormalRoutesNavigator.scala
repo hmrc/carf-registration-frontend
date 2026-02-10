@@ -133,7 +133,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case WhereDoYouLivePage =>
       userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
-    case AddressPage => userAnswers => navigateFromAddressPage(userAnswers)
+    case IndWithoutIdAddressPage => userAnswers => navigateFromAddressPage(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -141,7 +141,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
   private def navigateFromAddressPage(userAnswers: UserAnswers): Call =
     userAnswers
-      .get(AddressPage)
+      .get(IndWithoutIdAddressPage)
       .fold {
         routes.JourneyRecoveryController.onPageLoad()
       }(_ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode))

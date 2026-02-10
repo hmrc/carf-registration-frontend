@@ -21,9 +21,9 @@ import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
 
-class AddressUKFormProviderSpec extends StringFieldBehaviours {
+class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
 
-  private val formProvider = new AddressFormProvider()
+  private val formProvider = new IndWithoutIdAddressFormProvider()
   private val form         = formProvider()
 
   val validAddressStringGen: Gen[String] = {

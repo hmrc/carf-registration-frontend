@@ -196,6 +196,7 @@ POST        /register/individual-without-id/change-where-do-you-live            
 
 GET         /register/individual-without-id/find-address                        controllers.individualWithoutId.IndFindAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-without-id/find-address                        controllers.individualWithoutId.IndFindAddressController.onSubmit(mode: Mode = NormalMode)
+
 GET         /register/individual-without-id/change-find-address                 controllers.individualWithoutId.IndFindAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-find-address                 controllers.individualWithoutId.IndFindAddressController.onSubmit(mode: Mode = CheckMode)
 
@@ -204,12 +205,12 @@ GET         /register/individual-without-id/review-address-submit               
 GET         /register/individual-without-id/change-review-address               controllers.individualWithoutId.IndReviewConfirmAddressController.onPageLoad(mode: Mode = CheckMode)
 GET         /register/individual-without-id/change-review-address-submit        controllers.individualWithoutId.IndReviewConfirmAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET         /register/individual-without-id/address-non-uk                  controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/individual-without-id/address-non-uk                  controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onSubmit(mode: Mode = NormalMode)
-GET         /register/individual-without-id/change-address-non-uk           controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/individual-without-id/change-address-non-uk           controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onSubmit(mode: Mode = CheckMode)
-GET         /register/individual-without-id/address                       controllers.individualWithoutId.AddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/individual-without-id/address                       controllers.individualWithoutId.AddressController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-individual-without-id/address                controllers.individualWithoutId.AddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /register/change-individual-without-id/address                controllers.individualWithoutId.AddressController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-without-id/address-non-uk                      controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/address-non-uk                      controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-address-non-uk               controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-address-non-uk               controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onSubmit(mode: Mode = CheckMode)
+GET         /register/individual-without-id/address                             controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/address                             controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = CheckMode)
 

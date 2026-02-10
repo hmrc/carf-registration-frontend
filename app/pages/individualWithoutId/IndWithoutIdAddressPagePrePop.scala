@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package pages
+package pages.individualWithoutId
 
 import models.AddressUK
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object AddressPage extends QuestionPage[AddressUK] {
+case object IndWithoutIdAddressPagePrePop extends QuestionPage[AddressUK] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "address"
+  override def toString: String = "address_pre_prop"
 }

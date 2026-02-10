@@ -19,7 +19,8 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
-import models.{Country, IndWithoutIdAddressNonUk, NormalMode, UserAnswers}
+import models.countries.Country
+import models.{IndWithoutIdAddressNonUk, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

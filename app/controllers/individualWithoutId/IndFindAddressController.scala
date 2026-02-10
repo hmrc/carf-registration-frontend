@@ -18,11 +18,12 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
+import models.requests.DataRequest
 import models.responses.AddressResponse
-import models.{IndFindAddress, Mode}
+import models.{AddressUK, IndFindAddress, Mode, NormalMode}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.IndFindAddressPage
+import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -83,8 +84,21 @@ class IndFindAddressController @Inject() (
                 case Right(addresses) =>
                   for {
                     updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
+                    filledAddress              =
+                      addresses.headOption.fold(AddressUK("", None, "", None, value.postcode, "")) { firstAddress =>
+                        AddressUK(
+                          firstAddress.address.lines.headOption.getOrElse(""),
+                          Some(firstAddress.address.lines.lift(1).getOrElse("")),
+                          firstAddress.address.town,
+                          None,
+                          firstAddress.address.postcode,
+                          firstAddress.address.country.code
+                        )
+                      }
+                    updatedAnswersWithPrePop  <-
+                      Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
                     updatedAnswersWithAddress <- Future.fromTry(
-                                                   updatedAnswers.set(
+                                                   updatedAnswersWithPrePop.set(
                                                      AddressLookupPage,
                                                      addresses
                                                    )
@@ -95,5 +109,4 @@ class IndFindAddressController @Inject() (
         )
 
   }
-
 }

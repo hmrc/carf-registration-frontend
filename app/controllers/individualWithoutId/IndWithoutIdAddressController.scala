@@ -17,13 +17,14 @@
 package controllers.individualWithoutId
 
 import controllers.actions.*
-import forms.individualWithoutId.AddressFormProvider
+import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import models.countries.{Country, GB}
 import models.requests.DataRequest
 import models.responses.AddressResponse
-import models.{AddressUK, Mode}
+import models.{AddressUK, CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{AddressLookupPage, AddressPage}
+import pages.AddressLookupPage
+import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -35,14 +36,14 @@ import views.html.AddressView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressController @Inject() (
+class IndWithoutIdAddressController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: AddressFormProvider,
+    formProvider: IndWithoutIdAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
     countryListFactory: CountryListFactory,
     view: AddressView
@@ -50,42 +51,26 @@ class AddressController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private final def ukCountries =
-    countryListFactory.countryCodesForUkCountries.collect {
-      case x if x.code == "UK" => GB
-      case x                   => x
-    }.toSeq
-
   private final def form: Form[AddressUK]                            = formProvider()
   private final def countryListWithFilledForm(form: Form[AddressUK]) =
-    countryListFactory.countrySelectList(form.data, ukCountries)
+    countryListFactory.countrySelectList(form.data, countryListFactory.ukCountries)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      val maybeFilledForm = preFillForm
-
-      Future.successful(Ok(view(maybeFilledForm, mode, countryListWithFilledForm(maybeFilledForm))))
+      Future.successful(Ok(view(preFillForm(mode), mode, countryListWithFilledForm(preFillForm(mode)))))
   }
 
-  private def preFillForm(implicit request: DataRequest[AnyContent]) =
-    request.userAnswers
-      .get(AddressPage)
-      .fold {
-        request.userAnswers.get(AddressLookupPage).flatMap(_.headOption) match {
-          case None                                    =>
-            form
-          case Some(AddressResponse(_, addressRecord)) =>
-            val filledAddress = AddressUK(
-              addressRecord.lines.headOption.getOrElse(""),
-              Some(addressRecord.lines.lift(1).getOrElse("")),
-              addressRecord.town,
-              None,
-              addressRecord.postcode,
-              addressRecord.country.code
-            )
-            form.fill(filledAddress)
-        }
-      }(form.fill)
+  private def preFillForm(mode: Mode)(implicit request: DataRequest[AnyContent]) =
+    mode match {
+      case NormalMode =>
+        request.userAnswers
+          .get(IndWithoutIdAddressPagePrePop)
+          .fold(form)(form.fill)
+      case CheckMode  =>
+        request.userAnswers
+          .get(IndWithoutIdAddressPage)
+          .fold(form)(form.fill)
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
@@ -98,9 +83,10 @@ class AddressController @Inject() (
             ),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddressPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(AddressPage, mode, updatedAnswers))
+              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressPage, value))
+              updatedAnswersWithPrePop <- Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, value))
+              _                        <- sessionRepository.set(updatedAnswersWithPrePop)
+            } yield Redirect(navigator.nextPage(IndWithoutIdAddressPage, mode, updatedAnswersWithPrePop))
         )
   }
 }

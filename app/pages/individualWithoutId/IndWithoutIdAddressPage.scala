@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package pages.individualWithoutId
 
-import models.countries.Country
-import play.api.libs.json.*
+import models.AddressUK
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class IndWithoutIdAddressNonUk(
-    addressLine1: String,
-    addressLine2: Option[String],
-    townOrCity: String,
-    region: Option[String],
-    postcode: Option[String],
-    country: Country
-)
+case object IndWithoutIdAddressPage extends QuestionPage[AddressUK] {
 
-object IndWithoutIdAddressNonUk {
+  override def path: JsPath = JsPath \ toString
 
-  implicit val format: OFormat[IndWithoutIdAddressNonUk] = Json.format[IndWithoutIdAddressNonUk]
+  override def toString: String = "address"
 }

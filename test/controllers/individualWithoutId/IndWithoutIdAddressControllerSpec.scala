@@ -18,17 +18,18 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import controllers.routes
-import forms.individualWithoutId.AddressFormProvider
+import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
 import models.countries.{Country, UK}
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUK, NormalMode, UserAnswers}
+import models.{AddressUK, CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import pages.{AddressLookupPage, AddressPage}
+import pages.AddressLookupPage
+import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -38,7 +39,11 @@ import views.html.AddressView
 
 import scala.concurrent.Future
 
-class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheckPropertyChecks with Generators {
+class IndWithoutIdAddressControllerSpec
+    extends SpecBase
+    with MockitoSugar
+    with ScalaCheckPropertyChecks
+    with Generators {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -47,10 +52,11 @@ class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheck
   private val jersey: Country             = Country("JE", "Jersey")
   private val mockCountries: Set[Country] = Set(uk, france, jersey)
 
-  private val formProvider = new AddressFormProvider()
+  private val formProvider = new IndWithoutIdAddressFormProvider()
   private val form         = formProvider()
 
-  private lazy val addressRoute = controllers.individualWithoutId.routes.AddressController.onPageLoad(NormalMode).url
+  private lazy val addressRoute =
+    controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url
 
   inline final val addressRegex     = """^[a-zA-Z0-9 \.&`\-\'\^]*$"""
   inline final val addressMaxLength = 35
@@ -64,7 +70,7 @@ class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheck
     super.beforeEach()
   }
 
-  "Address Controller" - {
+  "IndWithoutIdAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
@@ -88,15 +94,17 @@ class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheck
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must populate the view correctly on a GET when the question has previously been answered for Check Mode" in {
       forAll(
         stringMatchingRegexAndLength(addressRegex, addressMaxLength),
         stringMatchingRegexAndLength(addressRegex, addressMaxLength)
       ) { (addressLine1, addressLine2) => }
 
-      val userAnswers =
+      val addressRouteWithCheck =
+        controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(CheckMode).url
+      val userAnswers           =
         UserAnswers(userAnswersId)
-          .set(AddressPage, address)
+          .set(IndWithoutIdAddressPage, address)
           .success
           .value
 
@@ -111,38 +119,28 @@ class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheck
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, addressRoute)
+        val request = FakeRequest(GET, addressRouteWithCheck)
 
         val view = application.injector.instanceOf[AddressView]
 
         val result = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(address), NormalMode, Seq.empty)(
+        contentAsString(result) mustEqual view(form.fill(address), CheckMode, Seq.empty)(
           request,
           messages(application)
         ).toString
       }
     }
 
-    "must populate the view correctly on a GET when navigating from confirm your address with AddressLookupPage User Answers" in {
+    "must populate the view correctly on a GET when the question has previously been answered via pre-pop" in {
 
-      val postCode        = validPostcodes.sample.value
-      val addressResponse = AddressResponse(
-        "id",
-        AddressRecord(
-          List("addressLine1", "addressLine2"),
-          "town",
-          postCode,
-          CountryRecord(UK.code, UK.description)
-        )
-      )
-
+      val postCode  = validPostcodes.sample.value
       val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, postCode, UK.code)
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .set(AddressLookupPage, Seq(addressResponse))
+          .set(IndWithoutIdAddressPagePrePop, addressUK)
           .success
           .value
 
@@ -166,54 +164,6 @@ class AddressUKControllerSpec extends SpecBase with MockitoSugar with ScalaCheck
         status(result) mustEqual OK
 
         contentAsString(result) mustEqual view(form.fill(addressUK), NormalMode, Seq.empty)(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
-    "must populate the view with AddressPage data on a GET when AddressPage and AddressLookupPage are present in user Answers" in {
-
-      val postCode        = validPostcodes.sample.value
-      val addressResponse = AddressResponse(
-        "id",
-        AddressRecord(
-          List("addressLine1", "addressLine2"),
-          "town",
-          postCode,
-          CountryRecord(UK.code, UK.description)
-        )
-      )
-
-      val userAnswers =
-        UserAnswers(userAnswersId)
-          .set(AddressLookupPage, Seq(addressResponse))
-          .success
-          .value
-          .set(AddressPage, address)
-          .success
-          .value
-
-      when(mockCountryListFactory.countryCodesForUkCountries).thenReturn(mockCountries)
-      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-      when(mockCountryListFactory.countryList).thenReturn(
-        Some(Seq.empty)
-      ) // TODO Investigate Address controller does not use this method but fails without
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, addressRoute)
-
-        val view = application.injector.instanceOf[AddressView]
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-
-        contentAsString(result) mustEqual view(form.fill(address), NormalMode, Seq.empty)(
           request,
           messages(application)
         ).toString

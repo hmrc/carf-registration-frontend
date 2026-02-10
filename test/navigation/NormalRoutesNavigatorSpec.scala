@@ -1095,12 +1095,12 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       "must navigate from Address page to the IndividualEmailPage" in {
         val address                  = AddressUK("123 Test Street", None, "Birmingham", None, "B23 2AZ", "GB")
         val userAnswers: UserAnswers = emptyUserAnswers
-          .set(AddressPage, address)
+          .set(IndWithoutIdAddressPage, address)
           .success
           .value
 
         navigator.nextPage(
-          AddressPage,
+          IndWithoutIdAddressPage,
           NormalMode,
           userAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
@@ -1110,7 +1110,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         val userAnswers = emptyUserAnswers
 
         navigator.nextPage(
-          AddressPage,
+          IndWithoutIdAddressPage,
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()

@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form, messages("address.title")), showAutoComplete = true) {
 
-    @formHelper(action = controllers.individualWithoutId.routes.AddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.individualWithoutId.routes.IndWithoutIdAddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

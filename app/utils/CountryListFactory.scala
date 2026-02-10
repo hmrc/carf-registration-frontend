@@ -28,6 +28,11 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class CountryListFactory @Inject() (environment: Environment, appConfig: FrontendAppConfig) {
 
+  final def ukCountries: Seq[Country] = countryCodesForUkCountries.collect {
+    case x if x.code == "UK" => GB
+    case x                   => x
+  }.toSeq
+
   def countryCodesForUkCountries: Set[Country]              = Set(GB, UK, GG, JE, IM)
   final lazy val countryCodesForUkCountryCodes: Set[String] = countryCodesForUkCountries.map(_.code)
 

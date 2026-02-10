@@ -22,13 +22,12 @@ import javax.inject.Inject
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeSubmissionLockAction @Inject() ()(implicit ec: ExecutionContext)
-  extends SubmissionLock {
+class FakeSubmissionLockAction @Inject() ()(implicit ec: ExecutionContext) extends SubmissionLock {
 
   override protected def executionContext: ExecutionContext = ec
 
   override protected def filter[A](
-                                    request: OptionalDataRequest[A]
-                                  ): Future[Option[Result]] =
+      request: OptionalDataRequest[A]
+  ): Future[Option[Result]] =
     Future.successful(None)
 }

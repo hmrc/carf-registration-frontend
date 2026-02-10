@@ -58,9 +58,9 @@ class IsThisYourBusinessController @Inject() (
     with Logging {
 
   val form: Form[Boolean] = formProvider()
-  
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
-    implicit request =>
+
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
       val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
       val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == IndWithUtr)
       val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched

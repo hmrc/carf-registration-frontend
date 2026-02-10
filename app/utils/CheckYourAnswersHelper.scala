@@ -18,15 +18,16 @@ package utils
 
 import com.google.inject.Inject
 import models.{RegistrationType, UserAnswers}
-import pages.RegisteredAddressInUkPage
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
 import pages.orgWithoutId.HaveTradingNamePage
 import pages.organisation.*
+import pages.{RegisteredAddressInUkPage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
+import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
 import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
@@ -103,6 +104,48 @@ class CheckYourAnswersHelper @Inject() extends Logging {
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
 
+  def indWithoutIdYourDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      registeringAs     <- IndividualRegistrationTypeSummary.row(userAnswers)
+      registrationType  <- userAnswers.get(RegistrationTypePage)
+      haveNinoRow       <- HaveNiNumberSummary.row(userAnswers)
+      haveNino: Boolean <- userAnswers.get(HaveNiNumberPage)
+      name              <- IndWithoutNinoNameSummary.row(userAnswers)
+      dob               <- IndWithoutIdDateOfBirthSummary.row(userAnswers)
+      liveInUkOrCd      <- userAnswers.get(WhereDoYouLivePage)
+      address           <- getAddressRowMaybe(userAnswers, liveInUkOrCd)
+    } yield
+      if (!haveNino) {
+        registrationType match {
+          case RegistrationType.SoleTrader =>
+            {
+              for {
+                registeredAddressInUkRow <- RegisteredAddressInUkSummary.row(userAnswers)
+                registeredAddressInUk    <- userAnswers.get(RegisteredAddressInUkPage)
+                haveUtrRow               <- HaveUTRSummary.row(userAnswers)
+                haveUtr                  <- userAnswers.get(HaveUTRPage)
+              } yield {
+                lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && !haveNino
+                if (hasCorrectAnswersForGettingHere) {
+                  Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, name, dob, address))
+                } else {
+                  logger.warn("Individual without NINO answers were not as expected")
+                  None
+                }
+              }
+            }.flatten
+          case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, name, dob, address))
+          case _                           =>
+            None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
+        }
+      } else {
+        logger.warn(
+          s"Individual without NINO requires user to NOT have a nino. When questioned, user answered: $haveNino"
+        )
+        None
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
+
   def getFirstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {
       firstContactName               <- FirstContactNameSummary.row(userAnswers)
@@ -156,4 +199,14 @@ class CheckYourAnswersHelper @Inject() extends Logging {
         Some(Seq(email, havePhoneRow))
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualContactDetails"), _))
+
+  private def getAddressRowMaybe(userAnswers: UserAnswers, liveInUkOrCd: Boolean)(implicit
+      messages: Messages
+  ): Option[SummaryListRow] =
+    if (liveInUkOrCd) {
+      // TODO: Update with UK address here when ready. Using Non-UK address as a placeholder
+      IndWithoutIdAddressNonUkSummary.row(userAnswers)
+    } else {
+      IndWithoutIdAddressNonUkSummary.row(userAnswers)
+    }
 }

@@ -26,11 +26,12 @@ import models.countries.Country
 import models.responses.AddressRegistrationResponse
 import models.{BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import models.RegistrationType.{Individual, LLP, SoleTrader}
-import models.{Address, BusinessDetails, Country, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.{Address, BusinessDetails, Country, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import viewmodels.Section
@@ -256,6 +257,149 @@ class CheckYourAnswersHelperSpec extends SpecBase {
           "Your date of birth"
         )
         compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+    }
+
+    "indWithoutIdYourDetailsMaybe" - {
+      "must return a section when RegistrationType is SoleTrader, the address is uk or cd and all questions have been answered correctly" in new TestData {
+        val section: Section          =
+          testHelper.indWithoutIdYourDetailsMaybe(testUserAnswersIndWithoutIdDetailsSoleTrader(true)).get
+        val expectedTitle             = "Your details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Is your registered business address in the UK?",
+          "Do you have a Unique Taxpayer Reference?",
+          "Do you have a National Insurance number?",
+          "Your name",
+          "Your date of birth",
+          "Your home address"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return a section when RegistrationType is Individual, the address is uk or cd and all questions have been answered correctly" in new TestData {
+        val section: Section          =
+          testHelper.indWithoutIdYourDetailsMaybe(testUserAnswersIndWithoutIdDetailsIndividual(true)).get
+        val expectedTitle             = "Your details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Do you have a National Insurance number?",
+          "Your name",
+          "Your date of birth",
+          "Your home address"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return a section when RegistrationType is SoleTrader, the address is NOT uk or cd and all questions have been answered correctly" in new TestData {
+        val section: Section          =
+          testHelper.indWithoutIdYourDetailsMaybe(testUserAnswersIndWithoutIdDetailsSoleTrader(false)).get
+        val expectedTitle             = "Your details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Is your registered business address in the UK?",
+          "Do you have a Unique Taxpayer Reference?",
+          "Do you have a National Insurance number?",
+          "Your name",
+          "Your date of birth",
+          "Your home address"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return a section when RegistrationType is Individual, the address is NOT uk or cd and all questions have been answered correctly" in new TestData {
+        val section: Section          =
+          testHelper.indWithoutIdYourDetailsMaybe(testUserAnswersIndWithoutIdDetailsIndividual(false)).get
+        val expectedTitle             = "Your details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Do you have a National Insurance number?",
+          "Your name",
+          "Your date of birth",
+          "Your home address"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return None when the journey type is not sole trader or individual not connected to a business" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(true).set(RegistrationTypePage, LLP).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Do you have a NINO' is true" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsSoleTrader(true).set(HaveNiNumberPage, true).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Do you have a UTR' is true for a Sole Trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsSoleTrader(true).set(HaveUTRPage, true).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Is your registered address in the UK' is true for a Sole Trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsSoleTrader(true).set(RegisteredAddressInUkPage, true).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Do you have a UTR' has not been answered for a Sole Trader" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.remove(HaveUTRPage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the 'Is your registered address in the UK' has not been answered for a Sole Trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsSoleTrader(true).remove(RegisteredAddressInUkPage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when Individual registration type has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(RegistrationTypePage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'Do you have a NINO' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(HaveNiNumberPage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your name' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutNinoNamePage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your date of birth' page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutIdDateOfBirthPage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when 'What is your address' (Non uk/cd) page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(false).remove(IndWithoutIdAddressNonUkPage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      // TODO: Fix this test with the UK page when it's ready
+      "must return None when 'What is your address' (Uk/CD) page has not been answered for an individual or sole trader" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutIdAddressNonUkPage).success.value
+        val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
       }
     }
 
@@ -608,6 +752,59 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       .set(IndividualPhoneNumberPage, "TEST PHONE NO")
       .success
       .value
+
+    def testUserAnswersIndWithoutIdDetailsSoleTrader(isUkOrCd: Boolean): UserAnswers = {
+      val ua = emptyUserAnswers
+        .set(RegistrationTypePage, SoleTrader)
+        .success
+        .value
+        .set(HaveNiNumberPage, false)
+        .success
+        .value
+        .set(HaveUTRPage, false)
+        .success
+        .value
+        .set(WhereDoYouLivePage, isUkOrCd)
+        .success
+        .value
+        .set(RegisteredAddressInUkPage, false)
+        .success
+        .value
+        .set(IndWithoutNinoNamePage, Name("Timmy", "Otthy"))
+        .success
+        .value
+        .set(IndWithoutIdDateOfBirthPage, LocalDate.of(2024, 1, 1))
+        .success
+        .value
+
+      if (isUkOrCd) {
+        // TODO: Fix when page is ready
+        ua.set(
+          IndWithoutIdAddressNonUkPage,
+          IndWithoutIdAddressNonUk("L1", Some("L2"), "C1", Some("C2"), Some("P1"), Country("GB", "GB"))
+        ).success
+          .value
+      } else {
+        ua.set(
+          IndWithoutIdAddressNonUkPage,
+          IndWithoutIdAddressNonUk("L1", Some("L2"), "C1", Some("C2"), Some("P1"), Country("GB", "GB"))
+        ).success
+          .value
+      }
+    }
+
+    def testUserAnswersIndWithoutIdDetailsIndividual(isUkOrCd: Boolean): UserAnswers =
+      testUserAnswersIndWithoutIdDetailsSoleTrader(isUkOrCd)
+        .remove(RegisteredAddressInUkPage)
+        .success
+        .value
+        .remove(HaveUTRPage)
+        .success
+        .value
+        .set(RegistrationTypePage, Individual)
+        .success
+        .value
+
   }
 
 }

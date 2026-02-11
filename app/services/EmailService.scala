@@ -35,7 +35,7 @@ class EmailService @Inject() ()(implicit ec: ExecutionContext) extends Logging {
 
   def sendRegistrationConfirmation(emails: List[String], subscriptionId: String, idNumber: String): Future[Unit] = {
     val firstTwo   = idNumber.take(2).toUpperCase
-    val shouldFail = firstTwo == "44" || firstTwo == "QQ"
+    val shouldFail = firstTwo == "44" || firstTwo == "AA"
     if (shouldFail) {
       logger.warn("[EmailService] Failed to send registration confirmation")
     } else {

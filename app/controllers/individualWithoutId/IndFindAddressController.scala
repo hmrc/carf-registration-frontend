@@ -35,6 +35,7 @@ import views.html.individualWithoutId.IndFindAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 class IndFindAddressController @Inject() (
     override val messagesApi: MessagesApi,
@@ -54,12 +55,21 @@ class IndFindAddressController @Inject() (
 
   val form: Form[IndFindAddress] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(IndFindAddressPage).fold(form)(form.fill)
+      val preparedForm  = request.userAnswers.get(IndFindAddressPage).fold(form)(form.fill)
+      lazy val response = Ok(view(preparedForm, mode))
 
-      Ok(view(preparedForm, mode))
+      request.userAnswers.get(IndWithoutIdAddressPagePrePop).fold(Future.successful(response)) { prepop =>
+        request.userAnswers.remove(IndWithoutIdAddressPagePrePop) match {
+          case Success(userAnswersNoPrePop) =>
+            sessionRepository.set(userAnswersNoPrePop).map(_ => response)
+          case Failure(e)                   =>
+            logger.error(s"Failed to unset Pre pop user answers")
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        }
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {

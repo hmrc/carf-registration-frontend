@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.JourneyType
-import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -49,8 +49,12 @@ class CheckYourAnswersController @Inject() (
 
     val journeyType: Option[JourneyType] = request.userAnswers.journeyType
 
-    val businessDetailsSectionMaybe: Option[Section]      =
+    val businessDetailsSectionMaybe: Option[Section] =
       helper.getBusinessDetailsSectionMaybe(request.userAnswers)
+
+    val orgWithoutIdDetailsMaybe: Option[Section] =
+      helper.getOrgWithoutIdDetailsMaybe(request.userAnswers)
+
     val firstContactDetailsSectionMaybe: Option[Section]  =
       helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
     val secondContactDetailsSectionMaybe: Option[Section] =
@@ -62,30 +66,36 @@ class CheckYourAnswersController @Inject() (
       helper.indContactDetailsMaybe(request.userAnswers)
 
     val sectionsMaybe = journeyType match {
-      case Some(OrgWithUtr)  =>
+      case Some(OrgWithUtr)   =>
         for {
           section1 <- businessDetailsSectionMaybe
           section2 <- firstContactDetailsSectionMaybe
           section3 <- secondContactDetailsSectionMaybe
         } yield Seq(section1, section2, section3)
-      case Some(IndWithNino) =>
+      case Some(IndWithNino)  =>
         for {
           section1 <- indWithNinoYourDetails
           section2 <- indContactDetails
         } yield Seq(section1, section2)
-      case Some(IndWithUtr)  =>
+      case Some(IndWithUtr)   =>
         for {
           section1 <- businessDetailsSectionMaybe
           section2 <- indContactDetails
         } yield Seq(section1, section2)
-      case _                 => None
+      case Some(OrgWithoutId) =>
+        for {
+          section1 <- orgWithoutIdDetailsMaybe
+          section2 <- firstContactDetailsSectionMaybe
+          section3 <- secondContactDetailsSectionMaybe
+        } yield Seq(section1, section2, section3)
+      case _                  =>
+        logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
+        None
     }
 
     sectionsMaybe match {
       case Some(sections: Seq[Section]) => Ok(view(sections))
-      case None                         =>
-        logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
-        Redirect(controllers.routes.InformationMissingController.onPageLoad())
+      case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
     }
   }
 

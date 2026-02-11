@@ -33,7 +33,7 @@ object OrganisationRegistrationTypeSummary {
 
       val value = ValueViewModel(
         HtmlContent(
-          HtmlFormat.escape(messages(s"organisationRegistrationType.$answer"))
+          HtmlFormat.escape(messages(s"checkYourAnswers.registrationType.${answer.messagesKey}"))
         )
       )
 

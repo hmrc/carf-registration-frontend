@@ -131,11 +131,12 @@ haveNiNumber.linktext = Find your National Insurance number (opens in new tab)
 
 orgWithoutIdBusinessName.title = What is the name of your business?
 orgWithoutIdBusinessName.heading = What is the name of your business?
-orgWithoutIdBusinessName.checkYourAnswersLabel = What is the name of your business?
+orgWithoutIdBusinessName.checkYourAnswersLabel = Business name
+
 businessName.error.required = Enter the name of your business
 businessName.error.invalidFormat = Business name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 businessName.error.maximumLength = Business name must be 105 characters or less
-businessName.change.hidden = Change the name of your business
+businessName.change.hidden = Change business name
 
 agentSignInProblem.title = You’re unable to use this service with this Government Gateway user ID
 agentSignInProblem.heading = You’re unable to use this service with this Government Gateway user ID
@@ -188,14 +189,14 @@ problemDifferentBusiness.registerADifferentOrg = If you want to register a diffe
 
 haveTradingName.title = Does your business trade under a different name?
 haveTradingName.heading = Does your business trade under a different name?
-haveTradingName.checkYourAnswersLabel = Does your business trade under a different name?
+haveTradingName.checkYourAnswersLabel = Does your organisation trade under a different name?
 haveTradingName.error.required = Select yes if your business trades under a different name
-haveTradingName.change.hidden = Change if your business trades under a different name
+haveTradingName.change.hidden = Change if your organisation trades under a different name
 
 tradingName.title = What is the trading name of your business?
 tradingName.heading = What is the trading name of your business?
-tradingName.checkYourAnswersLabel = What is the trading name of your business?
-tradingName.change.hidden = Change the trading name of your business
+tradingName.checkYourAnswersLabel = Trading name
+tradingName.change.hidden = Change trading name
 tradingName.error.required = Enter the trading name of your business
 tradingName.error.invalid = Trading name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 tradingName.error.length = Trading name must be 80 characters or less
@@ -429,8 +430,8 @@ organisationBusinessAddress.townOrCity = Town or city
 organisationBusinessAddress.region = Region (optional)
 organisationBusinessAddress.postcode = Postcode (if applicable)
 organisationBusinessAddress.country = Country
-organisationBusinessAddress.checkYourAnswersLabel = What is the main address of your business?
-organisationBusinessAddress.change.hidden = Change the main address of your business
+organisationBusinessAddress.checkYourAnswersLabel = Main business address
+organisationBusinessAddress.change.hidden = Change main business address
 organisationBusinessAddress.addressLine1.error.required = Enter address line 1
 organisationBusinessAddress.addressLine1.error.length = Address line 1 must be 35 characters or less
 organisationBusinessAddress.addressLine1.error.invalid = Address line 1 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces

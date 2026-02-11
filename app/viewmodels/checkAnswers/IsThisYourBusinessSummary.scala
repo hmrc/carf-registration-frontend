@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.UserAnswers
-import models.responses.{AddressRegistrationResponse, renderHTML}
+import models.responses.{renderHTML, AddressRegistrationResponse}
 import pages.IsThisYourBusinessPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent

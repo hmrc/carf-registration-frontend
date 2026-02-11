@@ -23,7 +23,7 @@ import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.error.{ApiError, DataError}
 import models.requests.*
 import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{Address, BusinessDetails, IndividualDetails, Name, RegistrationType, UniqueTaxpayerReference, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, Name, RegistrationType, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalactic.Prettifier.default

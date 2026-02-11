@@ -19,7 +19,7 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import models.responses.AddressRegistrationResponse
-import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails}
+import models.{BusinessDetails, IsThisYourBusinessPageDetails}
 import pages.IsThisYourBusinessPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

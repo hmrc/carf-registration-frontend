@@ -314,8 +314,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -336,8 +338,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -358,8 +362,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -381,8 +387,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -408,8 +416,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -431,8 +441,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -454,8 +466,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -477,8 +491,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )

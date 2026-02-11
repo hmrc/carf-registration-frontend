@@ -22,7 +22,7 @@ import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
 import models.error.ApiError.NotFoundError
 import models.responses.AddressRegistrationResponse
-import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
+import models.{IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

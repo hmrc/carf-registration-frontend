@@ -19,7 +19,8 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.JourneyType
-import models.JourneyType.{IndWithNino, OrgWithUtr}
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
@@ -41,6 +42,7 @@ class CheckYourAnswersController @Inject() (
     view: CheckYourAnswersView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
+    with Logging
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
@@ -71,12 +73,19 @@ class CheckYourAnswersController @Inject() (
           section1 <- indWithNinoYourDetails
           section2 <- indContactDetails
         } yield Seq(section1, section2)
+      case Some(IndWithUtr)  =>
+        for {
+          section1 <- businessDetailsSectionMaybe
+          section2 <- indContactDetails
+        } yield Seq(section1, section2)
       case _                 => None
     }
 
     sectionsMaybe match {
       case Some(sections: Seq[Section]) => Ok(view(sections))
-      case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+      case None                         =>
+        logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
+        Redirect(controllers.routes.InformationMissingController.onPageLoad())
     }
   }
 

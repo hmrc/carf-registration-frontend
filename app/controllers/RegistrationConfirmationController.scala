@@ -22,6 +22,7 @@ import models.JourneyType.*
 import pages.*
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import pages.individual.NiNumberPage
+import pages.individual.IndividualEmailPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,8 +52,16 @@ class RegistrationConfirmationController @Inject() (
 
       // TODO replace with real subscription ID
       val subscriptionIdOpt = Some("XXCAR0012345678")
-      val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
       val journeyTypeOpt    = request.userAnswers.journeyType
+
+      val primaryEmailOpt: Option[String] = journeyTypeOpt match {
+        case Some(OrgWithUtr) | Some(OrgWithoutId)                     =>
+          request.userAnswers.get(FirstContactEmailPage)
+        case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
+          request.userAnswers.get(IndividualEmailPage)
+        case _                                                         =>
+          None
+      }
 
       val idNumberOpt: Option[String] = journeyTypeOpt match {
         case Some(OrgWithUtr) | Some(IndWithUtr)     =>

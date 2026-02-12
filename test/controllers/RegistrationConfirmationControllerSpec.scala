@@ -21,6 +21,7 @@ import models.{SubscriptionId, UniqueTaxpayerReference}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.individual.{IndividualEmailPage, NiNumberPage}
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import pages.SubscriptionIdPage
 import play.api.inject.bind
@@ -141,5 +142,45 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must render confirmation view and send email for individual journeys" in {
+      val userAnswers = emptyUserAnswers
+        .set(SubscriptionIdPage, subscriptionId)
+        .success
+        .value
+        .set(IndividualEmailPage, primaryEmail)
+        .success
+        .value
+        .set(NiNumberPage, idNumber)
+        .success
+        .value
+
+      when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
+        .thenReturn(Future.successful(()))
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      when(mockView.apply(any(), any(), any(), any())(any(), any()))
+        .thenReturn(confirmationHtml)
+
+      val application = applicationBuilder(Some(userAnswers))
+        .overrides(
+          bind[EmailService].toInstance(mockEmailService),
+          bind[RegistrationConfirmationView].toInstance(mockView)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result)     mustEqual OK
+        contentAsString(result) must include("Success!")
+        verify(mockEmailService).sendRegistrationConfirmation(any(), any(), any())
+        verify(mockSessionRepository).set(any())
+      }
+    }
+
   }
 }

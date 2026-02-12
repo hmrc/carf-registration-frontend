@@ -90,7 +90,7 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers, affinityGroup)),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers, requestUtr)),
-        bind[SubmissionLock].to[FakeSubmissionLockAction],
+        bind[SubmissionLockAction].to[FakeSubmissionLockAction],
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
 

@@ -19,10 +19,12 @@ package controllers.actions
 import models.requests.OptionalDataRequest
 import play.api.mvc.{ActionFilter, Result}
 import javax.inject.Inject
+import play.api.mvc.BodyParsers
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeSubmissionLockAction @Inject() ()(implicit ec: ExecutionContext) extends SubmissionLock {
+class FakeSubmissionLockAction @Inject() (parsers: BodyParsers.Default)(implicit ec: ExecutionContext)
+    extends SubmissionLockAction(parsers) {
 
   override protected def executionContext: ExecutionContext = ec
 

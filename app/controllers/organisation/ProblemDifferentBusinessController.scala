@@ -42,8 +42,8 @@ class ProblemDifferentBusinessController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
-    implicit request =>
+  def onPageLoad: Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock() andThen requireData).async { implicit request =>
       request.userAnswers.get(IsThisYourBusinessPage) match {
         case Some(existingPageDetails) =>
           val businessName       = existingPageDetails.businessDetails.name
@@ -55,5 +55,5 @@ class ProblemDifferentBusinessController @Inject() (
           logger.warn("Business details expected but not found. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
-  }
+    }
 }

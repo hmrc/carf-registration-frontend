@@ -50,7 +50,7 @@ class WhatIsYourNameController @Inject() (
   val form: Form[Name] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
+    (identify() andThen getData() andThen submissionLock() andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatIsYourNamePage) match {
         case None        => form

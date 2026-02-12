@@ -28,7 +28,7 @@ trait SubmissionLock {
 
 @Singleton
 class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit val ec: ExecutionContext)
-  extends SubmissionLock {
+    extends SubmissionLock {
 
   override def apply(): ActionFilter[OptionalDataRequest] = new SubmissionLockFilter
 
@@ -39,8 +39,7 @@ class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit 
       val submitted = request.userAnswers.exists(_.get(SubmissionSucceededPage).contains(true))
       if (submitted) {
         Future.successful(Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())))
-      }
-      else {
+      } else {
         Future.successful(None)
       }
     }

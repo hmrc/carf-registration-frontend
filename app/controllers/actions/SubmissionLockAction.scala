@@ -16,32 +16,33 @@
 
 package controllers.actions
 
-import javax.inject.{Inject, Singleton}
+import models.requests.OptionalDataRequest
 import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
-import models.requests.OptionalDataRequest
+import javax.inject.{Inject, Singleton}
 import pages.SubmissionSucceededPage
 
+trait SubmissionLock {
+  def apply(): ActionFilter[OptionalDataRequest]
+}
+
 @Singleton
-class SubmissionLockAction @Inject() (
-    val parser: BodyParsers.Default
-)(implicit ec: ExecutionContext)
-    extends SubmissionLock {
+class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit val ec: ExecutionContext)
+  extends SubmissionLock {
 
-  override protected def executionContext: ExecutionContext = ec
+  override def apply(): ActionFilter[OptionalDataRequest] = new SubmissionLockFilter
 
-  override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
-    val submitted = request.userAnswers match {
-      case Some(ua) => ua.get(SubmissionSucceededPage).contains(true)
-      case None     => false
-    }
+  private class SubmissionLockFilter extends ActionFilter[OptionalDataRequest] {
+    override protected def executionContext: ExecutionContext = ec
 
-    if (submitted) {
-      Future.successful(
-        Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad()))
-      )
-    } else {
-      Future.successful(None)
+    override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
+      val submitted = request.userAnswers.exists(_.get(SubmissionSucceededPage).contains(true))
+      if (submitted) {
+        Future.successful(Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())))
+      }
+      else {
+        Future.successful(None)
+      }
     }
   }
 }

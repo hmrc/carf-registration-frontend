@@ -28,48 +28,60 @@ class EmailServiceSpec extends SpecBase {
 
     "sendRegistrationConfirmation" - {
 
-      "must successfully send email when only primary email is provided and idNumber is normal" in {
+      "must successfully send email when only primary email is provided and idNumber exists" in {
         val emails         = List("primary@example.com")
         val subscriptionId = "sub123"
-        val idNumber       = "1234567890"
+        val idNumberOpt    = Some("1234567890")
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumber)
+        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
 
         whenReady(result) { r =>
           r mustBe ()
         }
       }
 
-      "must successfully send email when primary and secondary emails are provided and idNumber is normal" in {
+      "must successfully send email when primary and secondary emails are provided and idNumber exists" in {
         val emails         = List("primary@example.com", "secondary@example.com")
         val subscriptionId = "sub123"
-        val idNumber       = "1234567890"
+        val idNumberOpt    = Some("1234567890")
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumber)
+        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
 
         whenReady(result) { r =>
           r mustBe ()
         }
       }
 
-      "must log a warning if idNumber starts with 9" in {
+      "must log a warning if idNumber starts with 44" in {
         val emails         = List("primary@example.com", "secondary@example.com")
         val subscriptionId = "sub123"
-        val idNumber       = "9123456780"
+        val idNumberOpt    = Some("4412345678")
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumber)
+        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
 
         whenReady(result) { r =>
           r mustBe ()
         }
       }
 
-      "must log a warning if idNumber starts with Y (case insensitive)" in {
+      "must log a warning if idNumber starts with AA" in {
         val emails         = List("primary@example.com")
         val subscriptionId = "sub123"
-        val idNumber       = "y1234567890"
+        val idNumberOpt    = Some("AA12345678")
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumber)
+        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
+
+        whenReady(result) { r =>
+          r mustBe ()
+        }
+      }
+
+      "must successfully send email when idNumber is None" in {
+        val emails         = List("primary@example.com")
+        val subscriptionId = "sub123"
+        val idNumberOpt    = None
+
+        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
 
         whenReady(result) { r =>
           r mustBe ()

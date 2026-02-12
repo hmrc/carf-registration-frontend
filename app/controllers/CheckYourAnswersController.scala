@@ -44,7 +44,7 @@ class CheckYourAnswersController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock() andThen requireData) {
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val journeyType: Option[JourneyType] = request.userAnswers.journeyType

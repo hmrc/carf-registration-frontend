@@ -23,20 +23,12 @@ import play.api.mvc.{AnyContentAsEmpty, BodyParsers, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, status, SEE_OTHER}
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import play.api.test.Helpers.defaultAwaitTimeout
-
 import scala.concurrent.Future
 
 class SubmissionLockActionSpec extends SpecBase {
 
-  class TestableSubmissionLockAction(parsers: BodyParsers.Default) extends SubmissionLockAction(parsers) {
-
-    def callFilter[A](request: OptionalDataRequest[A]): Future[Option[Result]] =
-      filter(request)
-  }
-
-  private val action =
-    new TestableSubmissionLockAction(app.injector.instanceOf[BodyParsers.Default])
+  private val parsers = app.injector.instanceOf[BodyParsers.Default]
+  private val action  = new SubmissionLockAction(parsers)
 
   private val requestWithSubmissionSucceeded =
     OptionalDataRequest(
@@ -65,23 +57,17 @@ class SubmissionLockActionSpec extends SpecBase {
   "SubmissionLockAction" - {
 
     "return None when the user has not successfully submitted" in {
-      val result =
-        action.callFilter(requestWithoutSubmissionSucceeded).futureValue
-
+      val result = action.filter(requestWithoutSubmissionSucceeded).futureValue
       result mustBe None
     }
 
     "return None when the user has no UserAnswers" in {
-      val result =
-        action.callFilter(requestWithNoUserAnswers).futureValue
-
+      val result = action.filter(requestWithNoUserAnswers).futureValue
       result mustBe None
     }
 
     "redirect to PageUnavailable when the user has successfully submitted" in {
-      val result =
-        action.callFilter(requestWithSubmissionSucceeded).futureValue
-
+      val result = action.filter(requestWithSubmissionSucceeded).futureValue
       result mustBe defined
 
       status(Future.successful(result.value))           mustBe SEE_OTHER

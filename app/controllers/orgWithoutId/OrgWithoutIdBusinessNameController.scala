@@ -49,7 +49,7 @@ class OrgWithoutIdBusinessNameController @Inject() (
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock() andThen requireData) { implicit request =>
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(OrgWithoutIdBusinessNamePage).fold(form)(form.fill)
       Ok(view(preparedForm, mode))

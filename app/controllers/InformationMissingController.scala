@@ -35,7 +35,7 @@ class InformationMissingController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock() andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
       Ok(view(routes.IndexController.onPageLoad().url))
   }

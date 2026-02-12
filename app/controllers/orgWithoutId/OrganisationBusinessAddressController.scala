@@ -54,7 +54,7 @@ class OrganisationBusinessAddressController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock() andThen requireData).async { implicit request =>
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
       countriesList match {
         case Some(countries) =>
           val form         = formProvider(countries)

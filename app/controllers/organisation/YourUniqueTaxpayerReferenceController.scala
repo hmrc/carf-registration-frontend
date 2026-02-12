@@ -47,7 +47,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock() andThen requireData) { implicit request =>
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       request.userAnswers
         .get(RegistrationTypePage)
         .flatMap(getTaxTypeMessageKey) match {

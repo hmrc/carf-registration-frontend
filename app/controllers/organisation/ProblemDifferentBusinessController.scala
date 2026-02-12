@@ -43,7 +43,7 @@ class ProblemDifferentBusinessController @Inject() (
     with Logging {
 
   def onPageLoad: Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock() andThen requireData).async { implicit request =>
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
       request.userAnswers.get(IsThisYourBusinessPage) match {
         case Some(existingPageDetails) =>
           val businessName       = existingPageDetails.businessDetails.name

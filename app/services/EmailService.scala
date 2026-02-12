@@ -29,17 +29,27 @@ class EmailService @Inject() ()(implicit ec: ExecutionContext) extends Logging {
     *   List of email addresses to notify
     * @param subscriptionId
     *   The CARF User ID (subscription ID) to include in the email content
-    * @param idNumber
-    *   UTR or NINO to determine stub behavior
+    * @param idNumberOpt
+    *   Optional UTR or NINO to determine stub behavior
     */
+  def sendRegistrationConfirmation(
+      emails: List[String],
+      subscriptionId: String,
+      idNumberOpt: Option[String]
+  ): Future[Unit] = {
 
-  def sendRegistrationConfirmation(emails: List[String], subscriptionId: String, idNumber: String): Future[Unit] = {
-    val firstTwo   = idNumber.take(2).toUpperCase
-    val shouldFail = firstTwo == "44" || firstTwo == "AA"
-    if (shouldFail) {
-      logger.warn("[EmailService] Failed to send registration confirmation")
-    } else {
-      logger.info("[EmailService] Successfully sent registration confirmation")
+    idNumberOpt match {
+      case Some(idNumber) =>
+        val firstTwo   = idNumber.take(2).toUpperCase
+        val shouldFail = firstTwo == "44" || firstTwo == "AA"
+        if (shouldFail) {
+          logger.warn("[EmailService] Failed to send registration confirmation")
+        } else {
+          logger.info("[EmailService] Successfully sent registration confirmation")
+        }
+
+      case None =>
+        logger.info("[EmailService] Successfully sent registration confirmation (no ID provided)")
     }
 
     Future.successful(())

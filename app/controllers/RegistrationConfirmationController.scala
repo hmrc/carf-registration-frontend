@@ -19,7 +19,6 @@ package controllers
 import controllers.actions.*
 import javax.inject.Inject
 import models.JourneyType.*
-import models.UserAnswers
 import pages.*
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import pages.individual.NiNumberPage
@@ -39,7 +38,6 @@ class RegistrationConfirmationController @Inject() (
     sessionRepository: SessionRepository,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     emailService: EmailService,
     val controllerComponents: MessagesControllerComponents,
@@ -50,37 +48,51 @@ class RegistrationConfirmationController @Inject() (
     with Logging {
 
   def onPageLoad(): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
+    (identify() andThen getData() andThen requireData).async { implicit request =>
 
-      val subscriptionIdOpt = Some("XXCAR0012345678") // TODO: replace with real subscription ID
+      // TODO replace with real subscription ID
+      val subscriptionIdOpt = Some("XXCAR0012345678")
       val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
+      val journeyTypeOpt    = request.userAnswers.journeyType
 
-      val journeyTypeOpt = request.userAnswers.journeyType
-
+      // Determine ID number (UTR or NINO) where applicable
       val idNumberOpt: Option[String] = journeyTypeOpt match {
-        case Some(OrgWithUtr) | Some(IndWithUtr)     =>
-          request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
-        case Some(IndWithNino)                       =>
+        case Some(OrgWithUtr) | Some(IndWithUtr) =>
+          request.userAnswers
+            .get(UniqueTaxpayerReferenceInUserAnswers)
+            .map(_.uniqueTaxPayerReference)
+
+        case Some(IndWithNino) =>
           request.userAnswers.get(NiNumberPage)
+
         case Some(OrgWithoutId) | Some(IndWithoutId) =>
           None
-        case _                                       =>
+
+        case _ =>
           None
       }
 
       (subscriptionIdOpt, primaryEmailOpt) match {
-        case (Some(subscriptionId), Some(primaryEmail)) =>
-          val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
 
-          val addProviderUrl = journeyTypeOpt match {
+        case (Some(subscriptionId), Some(primaryEmail)) =>
+          val secondaryEmailOpt =
+            request.userAnswers.get(OrganisationSecondContactEmailPage)
+
+          // Determine Add Provider URL (placeholder pattern)
+          val addProviderUrl: String = journeyTypeOpt match {
+
+            // Organisation journeys
             case Some(OrgWithUtr) | Some(OrgWithoutId)                     =>
               if (request.userAnswers.isCtAutoMatched)
-                controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
+                controllers.routes.PlaceholderController.onPageLoad("redirect to /report-for-registered-business").url
               else
-                controllers.routes.OrganisationOrIndividualController.onPageLoad().url
+                controllers.routes.PlaceholderController.onPageLoad("redirect to /organisation-or-individual").url
+
+            // All individual journeys fall under "all other users"
             case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
-              controllers.routes.PlaceholderController.onPageLoad().url
-            case _                                                         =>
+              controllers.routes.PlaceholderController.onPageLoad("redirect to /organisation-or-individual").url
+
+            case _ =>
               controllers.routes.JourneyRecoveryController.onPageLoad().url
           }
 
@@ -89,35 +101,40 @@ class RegistrationConfirmationController @Inject() (
             case None                 => List(primaryEmail)
           }
 
-          emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt.getOrElse("")).flatMap { _ =>
+          emailService
+            .sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt)
+            .flatMap { _ =>
+              request.userAnswers.set(SubmissionSucceededPage, true) match {
 
-            val updatedAnswers = request.userAnswers.set(SubmissionSucceededPage, true)
-
-            updatedAnswers match {
-              case Success(answers) =>
-                sessionRepository
-                  .set(answers)
-                  .map { _ =>
-                    Ok(
-                      view(
-                        subscriptionId = subscriptionId,
-                        primaryEmail = primaryEmail,
-                        secondaryEmailOpt = secondaryEmailOpt,
-                        addProviderUrl = addProviderUrl,
-                        idNumberOpt = idNumberOpt
+                case Success(updatedAnswers) =>
+                  sessionRepository
+                    .set(updatedAnswers)
+                    .map { _ =>
+                      Ok(
+                        view(
+                          subscriptionId = subscriptionId,
+                          primaryEmail = primaryEmail,
+                          secondaryEmailOpt = secondaryEmailOpt,
+                          addProviderUrl = addProviderUrl,
+                          idNumberOpt = idNumberOpt
+                        )
                       )
-                    )
-                  }
-                  .recover { case _ =>
+                    }
+                    .recover { case _ =>
+                      Redirect(routes.JourneyRecoveryController.onPageLoad())
+                    }
+
+                case Failure(_) =>
+                  Future.successful(
                     Redirect(routes.JourneyRecoveryController.onPageLoad())
-                  }
-              case Failure(_)       =>
-                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+                  )
+              }
             }
-          }
 
         case _ =>
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+          Future.successful(
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+          )
       }
     }
 }

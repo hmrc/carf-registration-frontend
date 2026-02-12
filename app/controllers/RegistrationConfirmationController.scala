@@ -19,7 +19,6 @@ package controllers
 import controllers.actions.*
 import javax.inject.Inject
 import models.JourneyType.*
-import models.UserAnswers
 import pages.*
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import pages.individual.NiNumberPage
@@ -32,7 +31,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 class RegistrationConfirmationController @Inject() (
     override val messagesApi: MessagesApi,
@@ -84,7 +82,7 @@ class RegistrationConfirmationController @Inject() (
 
             case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
               controllers.routes.PlaceholderController
-                .onPageLoad("redirect to /organisation-or-individual (indivdual)")
+                .onPageLoad("redirect to /organisation-or-individual (individual)")
                 .url
 
             case _ =>
@@ -93,20 +91,26 @@ class RegistrationConfirmationController @Inject() (
 
           val emailList = primaryEmail :: secondaryEmailOpt.toList
 
-          emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt).flatMap { _ =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Ok(
-              view(
-                subscriptionId = subscriptionId,
-                primaryEmail = primaryEmail,
-                secondaryEmailOpt = secondaryEmailOpt,
-                addProviderUrl = addProviderUrl,
-                idNumberOpt = idNumberOpt
+          emailService
+            .sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt)
+            .flatMap { _ =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Ok(
+                view(
+                  subscriptionId = subscriptionId,
+                  primaryEmail = primaryEmail,
+                  secondaryEmailOpt = secondaryEmailOpt,
+                  addProviderUrl = addProviderUrl,
+                  idNumberOpt = idNumberOpt
+                )
               )
-            )
-          }
+            }
+            .recover { case ex =>
+              logger.error("Error processing registration confirmation", ex)
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+            }
 
         case _ =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

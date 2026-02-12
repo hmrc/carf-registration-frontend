@@ -55,7 +55,6 @@ class RegistrationConfirmationController @Inject() (
       val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
       val journeyTypeOpt    = request.userAnswers.journeyType
 
-      // Determine ID number (UTR or NINO) where applicable
       val idNumberOpt: Option[String] = journeyTypeOpt match {
         case Some(OrgWithUtr) | Some(IndWithUtr) =>
           request.userAnswers
@@ -78,17 +77,14 @@ class RegistrationConfirmationController @Inject() (
           val secondaryEmailOpt =
             request.userAnswers.get(OrganisationSecondContactEmailPage)
 
-          // Determine Add Provider URL (placeholder pattern)
           val addProviderUrl: String = journeyTypeOpt match {
 
-            // Organisation journeys
-            case Some(OrgWithUtr) | Some(OrgWithoutId)                     =>
+            case Some(OrgWithUtr) | Some(OrgWithoutId) =>
               if (request.userAnswers.isCtAutoMatched)
                 controllers.routes.PlaceholderController.onPageLoad("redirect to /report-for-registered-business").url
               else
                 controllers.routes.PlaceholderController.onPageLoad("redirect to /organisation-or-individual").url
 
-            // All individual journeys fall under "all other users"
             case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
               controllers.routes.PlaceholderController.onPageLoad("redirect to /organisation-or-individual").url
 

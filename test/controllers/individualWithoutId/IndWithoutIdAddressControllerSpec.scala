@@ -94,45 +94,6 @@ class IndWithoutIdAddressControllerSpec
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered for Check Mode" in {
-      forAll(
-        stringMatchingRegexAndLength(addressRegex, addressMaxLength),
-        stringMatchingRegexAndLength(addressRegex, addressMaxLength)
-      ) { (addressLine1, addressLine2) => }
-
-      val addressRouteWithCheck =
-        controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(CheckMode).url
-      val userAnswers           =
-        UserAnswers(userAnswersId)
-          .set(IndWithoutIdAddressPage, address)
-          .success
-          .value
-
-      when(mockCountryListFactory.countryCodesForUkCountries).thenReturn(mockCountries)
-      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-      when(mockCountryListFactory.countryList).thenReturn(
-        Some(Seq.empty)
-      ) // TODO Investigate Address controller does not use this method but fails without
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, addressRouteWithCheck)
-
-        val view = application.injector.instanceOf[AddressView]
-
-        val result = route(application, request).value
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(address), CheckMode, Seq.empty)(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
     "must populate the view correctly on a GET when the question has previously been answered via pre-pop" in {
 
       val postCode  = validPostcodes.sample.value

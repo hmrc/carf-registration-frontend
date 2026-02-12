@@ -24,5 +24,5 @@ case object IndWithoutIdAddressPagePrePop extends QuestionPage[AddressUK] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "address_pre_prop"
+  override def toString: String = "indWithoutIdAddressPagePrePop"
 }

@@ -32,7 +32,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
         firstError(
-          maxLength(35, "address.addressLine1.error.length"),
+          maxLength(maxLength, "address.addressLine1.error.length"),
           regexp(addressRegex, "address.addressLine1.error.invalid")
         )
       ),
@@ -40,14 +40,14 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         text("address.addressLine2.error.required")
           .verifying(
             firstError(
-              maxLength(35, "address.addressLine2.error.length"),
+              maxLength(maxLength, "address.addressLine2.error.length"),
               regexp(addressRegex, "address.addressLine2.error.invalid")
             )
           )
       ),
       "townOrCity"   -> text("address.townOrCity.error.required").verifying(
         firstError(
-          maxLength(35, "address.townOrCity.error.length"),
+          maxLength(maxLength, "address.townOrCity.error.length"),
           regexp(addressRegex, "address.townOrCity.error.invalid")
         )
       ),
@@ -55,7 +55,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         text("address.county.error.required")
           .verifying(
             firstError(
-              maxLength(35, "address.county.error.length"),
+              maxLength(maxLength, "address.county.error.length"),
               regexp(addressRegex, "address.county.error.invalid")
             )
           )

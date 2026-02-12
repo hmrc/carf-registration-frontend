@@ -27,7 +27,7 @@ import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{AddressUK, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
@@ -102,7 +102,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       }
     }
 
-    "must return OK and the correct empty form in view for a GET" in {
+    "must return OK and remove IndWithoutIdAddressPagePrePop from ua when performing a GET" in {
 
       val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, "BB00 0BB", UK.code)
 
@@ -111,6 +111,8 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
           .set(IndWithoutIdAddressPagePrePop, addressUK)
           .success
           .value
+
+      val userAnswersWithout = UserAnswers(userAnswersId)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -125,6 +127,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        verify(mockSessionRepository).set(argThat(_.get(IndWithoutIdAddressPagePrePop).isEmpty))
       }
     }
 

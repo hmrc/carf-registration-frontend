@@ -61,16 +61,9 @@ class IndWithoutIdAddressController @Inject() (
   }
 
   private def preFillForm(mode: Mode)(implicit request: DataRequest[AnyContent]) =
-    mode match {
-      case NormalMode =>
-        request.userAnswers
-          .get(IndWithoutIdAddressPagePrePop)
-          .fold(form)(form.fill)
-      case CheckMode  =>
-        request.userAnswers
-          .get(IndWithoutIdAddressPage)
-          .fold(form)(form.fill)
-    }
+    request.userAnswers
+      .get(IndWithoutIdAddressPagePrePop)
+      .fold(form)(form.fill)
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

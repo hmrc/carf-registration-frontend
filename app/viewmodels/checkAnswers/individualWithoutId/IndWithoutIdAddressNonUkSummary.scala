@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutIdAddressNonUkPage
 import play.api.i18n.Messages

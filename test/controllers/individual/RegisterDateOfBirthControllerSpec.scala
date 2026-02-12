@@ -21,7 +21,8 @@ import controllers.routes
 import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
 import models.error.ApiError.NotFoundError
-import models.{Address, IndividualDetails, Name, NormalMode, UserAnswers}
+import models.responses.AddressRegistrationResponse
+import models.{IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -55,7 +56,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     firstName = "John",
     lastName = "Doe",
     middleName = None,
-    address = Address(
+    address = AddressRegistrationResponse( // reg
       addressLine1 = "123 Main Street",
       addressLine2 = Some("Birmingham"),
       addressLine3 = None,

@@ -16,6 +16,7 @@
 
 package models
 
+import models.responses.AddressRegistrationResponse
 import play.api.libs.json.*
 
 case class IndividualDetails(
@@ -23,7 +24,7 @@ case class IndividualDetails(
     firstName: String,
     lastName: String,
     middleName: Option[String],
-    address: Address
+    address: AddressRegistrationResponse
 ) {
   def isUkBased: Boolean = address.countryCode == "GB"
 

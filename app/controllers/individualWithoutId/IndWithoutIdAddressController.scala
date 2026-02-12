@@ -1,0 +1,85 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.individualWithoutId
+
+import controllers.actions.*
+import forms.individualWithoutId.IndWithoutIdAddressFormProvider
+import models.countries.{Country, GB}
+import models.requests.DataRequest
+import models.responses.AddressResponse
+import models.{AddressUK, CheckMode, Mode, NormalMode}
+import navigation.Navigator
+import pages.AddressLookupPage
+import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CountryListFactory
+import views.html.AddressView
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class IndWithoutIdAddressController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    formProvider: IndWithoutIdAddressFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    countryListFactory: CountryListFactory,
+    view: AddressView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
+
+  private final def form: Form[AddressUK]                            = formProvider()
+  private final def countryListWithFilledForm(form: Form[AddressUK]) =
+    countryListFactory.countrySelectList(form.data, countryListFactory.ukCountries)
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+    implicit request =>
+      Future.successful(Ok(view(preFillForm(mode), mode, countryListWithFilledForm(preFillForm(mode)))))
+  }
+
+  private def preFillForm(mode: Mode)(implicit request: DataRequest[AnyContent]) =
+    request.userAnswers
+      .get(IndWithoutIdAddressPagePrePop)
+      .fold(form)(form.fill)
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+    implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              BadRequest(view(formWithErrors, mode, countryListWithFilledForm(formWithErrors)))
+            ),
+          value =>
+            for {
+              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressPage, value))
+              updatedAnswersWithPrePop <- Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, value))
+              _                        <- sessionRepository.set(updatedAnswersWithPrePop)
+            } yield Redirect(navigator.nextPage(IndWithoutIdAddressPage, mode, updatedAnswersWithPrePop))
+        )
+  }
+}

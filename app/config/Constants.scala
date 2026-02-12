@@ -27,31 +27,30 @@ object Constants {
 
   val crownDependencyPostcodeRegex = "^(?:(GY|JE)[0-9]{1,2} ?[0-9][A-Z]{2}|IM[0-9]{1,2} ?[0-9][A-Z]{2})$"
 
-  final val addressRegex: String   = "^[A-Za-z0-9 &.,'\\\\-]*$"
-  final val postcodeRegex: String  = "^[A-Za-z0-9 ]*$"
-  final val addressMaxLength: Int  = 35
-  final val postcodeMaxLength: Int = 10
+  inline final val addressRegex      = "^[A-Za-z0-9 &.,'\\\\-]*$"
+  inline final val postcodeRegex     = "^[A-Za-z0-9 ]*$"
+  inline final val addressMaxLength  = 35
+  inline final val postcodeMaxLength = 10
 
-  final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
-  final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
-  final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
-  final val phoneNumberRegex    = """^[A-Z0-9 )/(\-*#+]*$""".stripMargin
+  inline final val individualNameRegex = """^[a-zA-Z &`\-\\'^]*$"""
+  inline final val orgNameRegex        = """^[a-zA-Z0-9 &`\-\'\\\^]*$"""
+  inline final val contactNameRegex    = """^[a-zA-Z0-9 &'\\`^\-]*$"""
+  final val phoneNumberRegex: String   = """^[A-Z0-9 )/(\-*#+]*$""".stripMargin
 
-  final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""
-  final val ninoRegex       =
+  inline final val ninoFormatRegex = """^[A-Z]{2}[0-9]{6}[A-Z]{1}$"""
+  inline final val ninoRegex       =
     "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
 
   final val regexPostcode        = """^[A-Za-z]{1,2}\d[A-Za-z0-9]?\s?\d[A-Za-z]{2}$"""
   final val postCodeAllowedChars = """^[A-Za-z0-9 ]*$"""
 
-  private val utrLengthTen: Int      = 10
-  private val utrLengthThirteen: Int = 13
-  val maxPhoneLength: Int            = 24
+  private inline final val utrLengthTen      = 10
+  private inline final val utrLengthThirteen = 13
+  inline final val maxPhoneLength            = 24
 
-  final val acceptedUtrLengths = Seq(utrLengthTen, utrLengthThirteen)
+  final val acceptedUtrLengths: Seq[Int] = Seq(utrLengthTen, utrLengthThirteen)
 
-  val ukTimeZoneStringId = "Europe/London"
+  inline final val ukTimeZoneStringId = "Europe/London"
 
-  final val notReal0808PhoneNumber = "+448081570192"
-
+  inline final val notReal0808PhoneNumber = "+448081570192"
 }

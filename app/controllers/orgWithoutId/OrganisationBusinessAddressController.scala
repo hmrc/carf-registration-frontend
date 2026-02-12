@@ -18,7 +18,8 @@ package controllers.orgWithoutId
 
 import controllers.actions.*
 import forms.orgWithoutId.OrganisationBusinessAddressFormProvider
-import models.{Country, Mode}
+import models.countries.*
+import models.Mode
 import navigation.Navigator
 import pages.orgWithoutId.OrganisationBusinessAddressPage
 import play.api.Logging
@@ -48,7 +49,7 @@ class OrganisationBusinessAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  private val countriesList: Option[Seq[Country]] = countryListFactory.countryList.map { countries =>
+  private def countriesList: Option[Seq[Country]] = countryListFactory.countryList.map { countries =>
     countries.filterNot(_.code == "GB")
   }
 

@@ -18,7 +18,8 @@ package forms.orgWithoutId
 
 import config.Constants.*
 import forms.behaviours.StringFieldBehaviours
-import models.{Country, OrganisationBusinessAddress}
+import models.countries.*
+import models.OrganisationBusinessAddress
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 

@@ -21,16 +21,17 @@ import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import generators.Generators
 import models.JourneyType.IndWithoutId
+import models.countries.UK
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{IndFindAddress, NormalMode, UserAnswers}
+import models.{AddressUK, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individualWithoutId.IndFindAddressPage
+import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -87,6 +88,8 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
       running(application) {
         val request = FakeRequest(GET, indFindAddressRoute)
 
@@ -99,9 +102,40 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       }
     }
 
+    "must return OK and remove IndWithoutIdAddressPagePrePop from ua when performing a GET" in {
+
+      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, "BB00 0BB", UK.code)
+
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .set(IndWithoutIdAddressPagePrePop, addressUK)
+          .success
+          .value
+
+      val userAnswersWithout = UserAnswers(userAnswersId)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      running(application) {
+        val request = FakeRequest(GET, indFindAddressRoute)
+
+        val view = application.injector.instanceOf[IndFindAddressView]
+
+        val result = route(application, request).value
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        verify(mockSessionRepository).set(argThat(_.get(IndWithoutIdAddressPagePrePop).isEmpty))
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       running(application) {
         val request = FakeRequest(GET, indFindAddressRoute)

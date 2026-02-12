@@ -70,9 +70,8 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view            = application.injector.instanceOf[IndReviewConfirmAddressView]
-        val editAddressLink = controllers.routes.PlaceholderController
-          .onPageLoad("Must redirect to /register/individual-without-id/address")
-          .url
+        val editAddressLink =
+          controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(address, NormalMode, editAddressLink)(
@@ -247,9 +246,8 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
 
         val view            = application.injector.instanceOf[IndReviewConfirmAddressView]
-        val editAddressLink = controllers.routes.PlaceholderController
-          .onPageLoad("Must redirect to /register/individual-without-id/address")
-          .url
+        val editAddressLink =
+          controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url
 
         contentAsString(result) mustEqual view(address, NormalMode, editAddressLink)(
           request,

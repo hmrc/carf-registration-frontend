@@ -18,11 +18,9 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
-import models.Address
 import models.error.ApiError
-import models.requests.{RegisterIndividualWithNinoRequest, RegisterIndividualWithUtrRequest, RegisterOrganisationWithIdRequest}
-import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.requests.{RegOrgWithIdCTAutoMatchRequest, RegOrgWithIdNonAutoMatchRequest}
+import models.requests.*
+import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
@@ -39,7 +37,7 @@ class RegistrationConnectorISpec
 
   val connector: RegistrationConnector = app.injector.instanceOf[RegistrationConnector]
 
-  val addressResponse: Address = Address(
+  val addressResponse: AddressRegistrationResponse = AddressRegistrationResponse(
     addressLine1 = "2 High Street",
     addressLine2 = Some("Birmingham"),
     addressLine3 = Some("Townington"),

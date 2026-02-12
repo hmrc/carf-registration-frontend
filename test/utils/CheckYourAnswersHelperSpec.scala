@@ -18,7 +18,9 @@ package utils
 
 import base.SpecBase
 import models.RegistrationType.{Individual, LLP, SoleTrader}
-import models.{Address, BusinessDetails, Country, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.countries.Country
+import models.responses.AddressRegistrationResponse
+import models.{BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
@@ -428,7 +430,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
   }
 
   class TestData {
-    val testAddress = Address(
+    val testAddress = AddressRegistrationResponse(
       addressLine1 = "2 Newarre Road",
       addressLine2 = None,
       addressLine3 = None,

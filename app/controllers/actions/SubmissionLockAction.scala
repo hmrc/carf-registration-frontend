@@ -18,30 +18,29 @@ package controllers.actions
 
 import models.requests.OptionalDataRequest
 import play.api.mvc._
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import javax.inject.{Inject, Singleton}
 import pages.SubmissionSucceededPage
 
-trait SubmissionLock {
-  def apply(): ActionFilter[OptionalDataRequest]
-}
-
-@Singleton
 class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit val ec: ExecutionContext)
-    extends SubmissionLock {
+    extends ActionFilter[OptionalDataRequest] {
 
-  override def apply(): ActionFilter[OptionalDataRequest] = new SubmissionLockFilter
+  override protected def executionContext: ExecutionContext = ec
 
-  private class SubmissionLockFilter extends ActionFilter[OptionalDataRequest] {
-    override protected def executionContext: ExecutionContext = ec
-
-    override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
-      val submitted = request.userAnswers.exists(_.get(SubmissionSucceededPage).contains(true))
-      if (submitted) {
-        Future.successful(Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())))
-      } else {
-        Future.successful(None)
-      }
+  override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
+    val submitted = request.userAnswers.exists(_.get(SubmissionSucceededPage).contains(true))
+    if (submitted) {
+      Future.successful(Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())))
+    } else {
+      Future.successful(None)
     }
   }
+
+}
+
+class SubmissionLockActionProvider @Inject() (parsers: BodyParsers.Default)(implicit ec: ExecutionContext) {
+
+  def apply(): SubmissionLockAction =
+    new SubmissionLockAction(parsers)
+
 }

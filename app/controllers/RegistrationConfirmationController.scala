@@ -19,6 +19,7 @@ package controllers
 import controllers.actions.*
 import javax.inject.Inject
 import models.JourneyType.*
+import models.UserAnswers
 import pages.*
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import pages.individual.NiNumberPage
@@ -31,7 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.Try
 
 class RegistrationConfirmationController @Inject() (
     override val messagesApi: MessagesApi,
@@ -56,81 +57,59 @@ class RegistrationConfirmationController @Inject() (
       val journeyTypeOpt    = request.userAnswers.journeyType
 
       val idNumberOpt: Option[String] = journeyTypeOpt match {
-        case Some(OrgWithUtr) | Some(IndWithUtr) =>
-          request.userAnswers
-            .get(UniqueTaxpayerReferenceInUserAnswers)
-            .map(_.uniqueTaxPayerReference)
-
-        case Some(IndWithNino) =>
+        case Some(OrgWithUtr) | Some(IndWithUtr)     =>
+          request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
+        case Some(IndWithNino)                       =>
           request.userAnswers.get(NiNumberPage)
-
         case Some(OrgWithoutId) | Some(IndWithoutId) =>
           None
-
-        case _ =>
+        case _                                       =>
           None
       }
 
       (subscriptionIdOpt, primaryEmailOpt) match {
-
         case (Some(subscriptionId), Some(primaryEmail)) =>
-          val secondaryEmailOpt =
-            request.userAnswers.get(OrganisationSecondContactEmailPage)
+          val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
 
-          val addProviderUrl: String = journeyTypeOpt match {
-
+          val addProviderUrl = journeyTypeOpt match {
             case Some(OrgWithUtr) | Some(OrgWithoutId) =>
               if (request.userAnswers.isCtAutoMatched)
-                controllers.routes.PlaceholderController.onPageLoad("redirect to /report-for-registered-business").url
+                controllers.routes.PlaceholderController
+                  .onPageLoad("redirect to /report-for-registered-business (ct automatch)")
+                  .url
               else
-                controllers.routes.PlaceholderController.onPageLoad("redirect to /organisation-or-individual").url
+                controllers.routes.PlaceholderController
+                  .onPageLoad("redirect to /organisation-or-individual (non-automatch)")
+                  .url
 
             case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
-              controllers.routes.PlaceholderController.onPageLoad("redirect to /organisation-or-individual").url
+              controllers.routes.PlaceholderController
+                .onPageLoad("redirect to /organisation-or-individual (indivdual)")
+                .url
 
             case _ =>
               controllers.routes.JourneyRecoveryController.onPageLoad().url
           }
 
-          val emailList = secondaryEmailOpt match {
-            case Some(secondaryEmail) => List(primaryEmail, secondaryEmail)
-            case None                 => List(primaryEmail)
+          val emailList = primaryEmail :: secondaryEmailOpt.toList
+
+          emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt).flatMap { _ =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Ok(
+              view(
+                subscriptionId = subscriptionId,
+                primaryEmail = primaryEmail,
+                secondaryEmailOpt = secondaryEmailOpt,
+                addProviderUrl = addProviderUrl,
+                idNumberOpt = idNumberOpt
+              )
+            )
           }
 
-          emailService
-            .sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt)
-            .flatMap { _ =>
-              request.userAnswers.set(SubmissionSucceededPage, true) match {
-
-                case Success(updatedAnswers) =>
-                  sessionRepository
-                    .set(updatedAnswers)
-                    .map { _ =>
-                      Ok(
-                        view(
-                          subscriptionId = subscriptionId,
-                          primaryEmail = primaryEmail,
-                          secondaryEmailOpt = secondaryEmailOpt,
-                          addProviderUrl = addProviderUrl,
-                          idNumberOpt = idNumberOpt
-                        )
-                      )
-                    }
-                    .recover { case _ =>
-                      Redirect(routes.JourneyRecoveryController.onPageLoad())
-                    }
-
-                case Failure(_) =>
-                  Future.successful(
-                    Redirect(routes.JourneyRecoveryController.onPageLoad())
-                  )
-              }
-            }
-
         case _ =>
-          Future.successful(
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
-          )
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
     }
 }

@@ -18,9 +18,11 @@ package controllers
 
 import controllers.actions.*
 import javax.inject.Inject
+import models.JourneyType.*
 import models.UserAnswers
 import pages.*
 import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
+import pages.individual.NiNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -50,21 +52,36 @@ class RegistrationConfirmationController @Inject() (
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
 
-      // TODO add real subscirption id in future ticket
-      val subscriptionIdOpt = Some("XXCAR0012345678")
+      val subscriptionIdOpt = Some("XXCAR0012345678") // TODO: replace with real subscription ID
       val primaryEmailOpt   = request.userAnswers.get(FirstContactEmailPage)
-      val idNumberOpt       = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
 
-      (subscriptionIdOpt, primaryEmailOpt, idNumberOpt) match {
-        case (Some(subscriptionId), Some(primaryEmail), Some(idNumber)) =>
+      val journeyTypeOpt = request.userAnswers.journeyType
+
+      val idNumberOpt: Option[String] = journeyTypeOpt match {
+        case Some(OrgWithUtr) | Some(IndWithUtr)     =>
+          request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
+        case Some(IndWithNino)                       =>
+          request.userAnswers.get(NiNumberPage)
+        case Some(OrgWithoutId) | Some(IndWithoutId) =>
+          None
+        case _                                       =>
+          None
+      }
+
+      (subscriptionIdOpt, primaryEmailOpt) match {
+        case (Some(subscriptionId), Some(primaryEmail)) =>
           val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
 
-          val wasCtAutomatched = request.userAnswers.isCtAutoMatched
-
-          val addProviderUrl = if (wasCtAutomatched) {
-            controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
-          } else {
-            controllers.routes.OrganisationOrIndividualController.onPageLoad().url
+          val addProviderUrl = journeyTypeOpt match {
+            case Some(OrgWithUtr) | Some(OrgWithoutId)                     =>
+              if (request.userAnswers.isCtAutoMatched)
+                controllers.routes.ReportForRegisteredBusinessController.onPageLoad().url
+              else
+                controllers.routes.OrganisationOrIndividualController.onPageLoad().url
+            case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
+              controllers.routes.PlaceholderController.onPageLoad().url
+            case _                                                         =>
+              controllers.routes.JourneyRecoveryController.onPageLoad().url
           }
 
           val emailList = secondaryEmailOpt match {
@@ -72,13 +89,12 @@ class RegistrationConfirmationController @Inject() (
             case None                 => List(primaryEmail)
           }
 
-          emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumber).flatMap { _ =>
+          emailService.sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt.getOrElse("")).flatMap { _ =>
 
             val updatedAnswers = request.userAnswers.set(SubmissionSucceededPage, true)
 
             updatedAnswers match {
               case Success(answers) =>
-                // Persist the updated answers
                 sessionRepository
                   .set(answers)
                   .map { _ =>
@@ -87,7 +103,8 @@ class RegistrationConfirmationController @Inject() (
                         subscriptionId = subscriptionId,
                         primaryEmail = primaryEmail,
                         secondaryEmailOpt = secondaryEmailOpt,
-                        addProviderUrl = addProviderUrl
+                        addProviderUrl = addProviderUrl,
+                        idNumberOpt = idNumberOpt
                       )
                     )
                   }
@@ -103,5 +120,4 @@ class RegistrationConfirmationController @Inject() (
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
     }
-
 }

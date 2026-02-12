@@ -74,11 +74,7 @@ class IndWithoutIdAddressControllerSpec
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockCountryListFactory.countryCodesForUkCountries).thenReturn(mockCountries)
       when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-      when(mockCountryListFactory.countryList).thenReturn(
-        Some(Seq.empty)
-      ) // TODO Investigate Address controller does not use this method but fails without
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
@@ -105,11 +101,7 @@ class IndWithoutIdAddressControllerSpec
           .success
           .value
 
-      when(mockCountryListFactory.countryCodesForUkCountries).thenReturn(mockCountries)
       when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-      when(mockCountryListFactory.countryList).thenReturn(
-        Some(Seq.empty)
-      ) // TODO Investigate Address controller does not use this method but fails without
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
@@ -162,11 +154,7 @@ class IndWithoutIdAddressControllerSpec
 
   "must return a Bad Request and errors when invalid data is submitted" in {
 
-    when(mockCountryListFactory.countryCodesForUkCountries).thenReturn(mockCountries)
     when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-    when(mockCountryListFactory.countryList).thenReturn(
-      Some(Seq.empty)
-    )
 
     val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
       .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))

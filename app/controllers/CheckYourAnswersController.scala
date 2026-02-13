@@ -62,10 +62,10 @@ class CheckYourAnswersController @Inject() (
       val secondContactDetailsSectionMaybe: Option[Section] =
         helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
-        val indWithNinoYourDetails: Option[Section] =
-          helper.indWithNinoYourDetailsMaybe(request.userAnswers)
-        val indContactDetails: Option[Section]      =
-          helper.indContactDetailsMaybe(request.userAnswers)
+      val indWithNinoYourDetails: Option[Section] =
+        helper.indWithNinoYourDetailsMaybe(request.userAnswers)
+      val indContactDetails: Option[Section]      =
+        helper.indContactDetailsMaybe(request.userAnswers)
 
       val sectionsMaybe = journeyType match {
         case Some(OrgWithUtr)   =>

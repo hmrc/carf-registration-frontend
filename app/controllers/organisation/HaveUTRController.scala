@@ -38,6 +38,7 @@ class HaveUTRController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     service: RegistrationService,
     retrieveCtUTR: CtUtrRetrievalAction,
@@ -51,9 +52,8 @@ class HaveUTRController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(HaveUTRPage) match {
         case None        => form
@@ -61,7 +61,7 @@ class HaveUTRController @Inject() (
       }
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

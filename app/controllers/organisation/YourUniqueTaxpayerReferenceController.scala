@@ -37,6 +37,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: YourUniqueTaxpayerReferenceFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -45,8 +46,8 @@ class YourUniqueTaxpayerReferenceController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       request.userAnswers
         .get(RegistrationTypePage)
         .flatMap(getTaxTypeMessageKey) match {
@@ -58,7 +59,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
 
         case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

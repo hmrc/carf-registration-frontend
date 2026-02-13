@@ -37,6 +37,7 @@ class TradingNameController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: TradingNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -47,8 +48,8 @@ class TradingNameController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(TradingNamePage) match {
         case None        => form
@@ -56,7 +57,7 @@ class TradingNameController @Inject() (
       }
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

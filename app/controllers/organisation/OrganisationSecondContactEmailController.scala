@@ -37,6 +37,7 @@ class OrganisationSecondContactEmailController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: OrganisationSecondContactEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -47,8 +48,8 @@ class OrganisationSecondContactEmailController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(OrganisationSecondContactEmailPage) match {
         case None        => form
@@ -59,7 +60,7 @@ class OrganisationSecondContactEmailController @Inject() (
         case Some(secondContactName) => Ok(view(preparedForm, mode, secondContactName))
         case None                    => Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

@@ -33,8 +33,8 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Writes
-import play.api.mvc.PlayBodyParsers
+import play.api.libs.json.{Json, Writes}
+import play.api.mvc.{BodyParsers, PlayBodyParsers}
 import play.api.test.FakeRequest
 import queries.Settable
 import repositories.SessionRepository
@@ -90,6 +90,7 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers, affinityGroup)),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers, requestUtr)),
+        bind[SubmissionLockAction].to[FakeSubmissionLockAction],
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
 

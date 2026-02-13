@@ -16,27 +16,20 @@
 
 package controllers
 
-import controllers.actions.*
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.InformationMissingView
+import views.html.PageUnavailableView
 
 import javax.inject.Inject
 
-class InformationMissingController @Inject() (
-    override val messagesApi: MessagesApi,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
+class PageUnavailableController @Inject() (
     val controllerComponents: MessagesControllerComponents,
-    view: InformationMissingView
+    view: PageUnavailableView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
-    implicit request =>
-      Ok(view(routes.IndexController.onPageLoad().url))
+  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
+    Ok(view())
   }
 }

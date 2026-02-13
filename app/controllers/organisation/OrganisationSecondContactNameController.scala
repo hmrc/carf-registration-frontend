@@ -37,6 +37,7 @@ class OrganisationSecondContactNameController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: OrganisationSecondContactNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -47,8 +48,8 @@ class OrganisationSecondContactNameController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case None        => form
@@ -56,7 +57,7 @@ class OrganisationSecondContactNameController @Inject() (
       }
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

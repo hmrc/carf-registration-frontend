@@ -1,0 +1,74 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import components._
+@import config.FrontendAppConfig
+
+@this(
+        layout: templates.Layout,
+        govukPanel: GovukPanel,
+        link: components.Link,
+        appConfig: FrontendAppConfig
+)
+
+@(subscriptionId: String, primaryEmail: String, secondaryEmailOpt: Option[String], addProviderUrl: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("registrationConfirmation.title")), showBackLink = false) {
+
+    @govukPanel(Panel(
+        title = Text(messages("registrationConfirmation.label.heading")),
+        content = HtmlContent(s"${messages("registrationConfirmation.carfUserId.label")}<br><strong>$subscriptionId</strong>")
+    ))
+
+    <p class="govuk-body">
+        @messages("registrationConfirmation.support.text.preLink")
+        @link("mailto:" + appConfig.aeoiEmailAddress, "registrationConfirmation.support.text.link")
+        @messages("registrationConfirmation.support.text.postLink")
+    </p>
+
+    @defining(
+        secondaryEmailOpt match {
+            case Some(second) =>
+                messages("registrationConfirmation.2.email.sent")
+                .replace("[email address]", primaryEmail)
+                .replace("[email address 2]", second)
+            case None =>
+                messages("registrationConfirmation.1.email.sent")
+                .replace("[email address]", primaryEmail)
+        }
+    ) { emailSentence =>
+        <p class="govuk-body">@emailSentence</p>
+    }
+
+
+    <h2 class="govuk-heading-m">@messages("registrationConfirmation.next.heading")</h2>
+    <p class="govuk-body">
+        @messages("registrationConfirmation.next.text")
+        @link(
+            addProviderUrl,
+            "registrationConfirmation.next.text.postLink",
+            id = Some("add-provider-link"),
+            fullStop = true
+        )
+    </p>
+
+    <h2 class="govuk-heading-m">@messages("registrationConfirmation.feedback.heading")</h2>
+    <p class="govuk-body">@messages("registrationConfirmation.feedback.text")</p>
+    <p class="govuk-body">
+        @link(appConfig.exitSurveyUrl, "registrationConfirmation.feedback.link", id = Some("exit-survey-link"))
+        @messages("registrationConfirmation.feedback.postLink")
+    </p>
+}

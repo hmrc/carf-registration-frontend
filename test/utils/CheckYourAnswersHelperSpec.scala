@@ -17,16 +17,10 @@
 package utils
 
 import base.SpecBase
-import models.RegistrationType.{Individual, SoleTrader}
-import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, Name, UserAnswers}
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
-import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
 import models.responses.AddressRegistrationResponse
-import models.{BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
-import models.RegistrationType.{Individual, LLP, SoleTrader}
-import models.{Address, BusinessDetails, Country, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.{BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}

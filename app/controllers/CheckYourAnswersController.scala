@@ -18,14 +18,10 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.{JourneyType, UserAnswers}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
+import models.{JourneyType, UserAnswers}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr}
-import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
-import play.api.Logging
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

@@ -18,11 +18,12 @@ package forms.individualWithoutId
 
 import config.Constants.{addressMaxLength, addressRegex}
 import forms.mappings.Mappings
-import models.{Country, IndWithoutIdAddressNonUk}
+import models.IndWithoutIdAddressNonUk
 import play.api.data.Form
 import play.api.data.Forms._
 
 import javax.inject.Inject
+import models.countries.Country
 
 class IndWithoutIdAddressNonUkFormProvider @Inject() extends Mappings {
 

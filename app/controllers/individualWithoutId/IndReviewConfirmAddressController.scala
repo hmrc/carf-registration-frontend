@@ -18,11 +18,11 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
-import models.Mode
+import models.{AddressUK, Mode, NormalMode}
 import models.responses.AddressResponse
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.IndReviewConfirmAddressPage
+import pages.individualWithoutId.{IndReviewConfirmAddressPage, IndWithoutIdAddressPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,8 +51,8 @@ class IndReviewConfirmAddressController @Inject() (
     implicit request =>
 
       val editAddressLink: String =
-        controllers.routes.PlaceholderController
-          .onPageLoad("Must redirect to /register/individual-without-id/address")
+        controllers.individualWithoutId.routes.IndWithoutIdAddressController
+          .onPageLoad(NormalMode)
           .url
 
       request.userAnswers.get(AddressLookupPage) match {

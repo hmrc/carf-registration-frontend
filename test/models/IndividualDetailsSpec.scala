@@ -16,12 +16,13 @@
 
 package models
 
+import models.responses.AddressRegistrationResponse
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
 class IndividualDetailsSpec extends AnyFreeSpec with Matchers {
 
-  val ukAddress = Address(
+  val ukAddress = AddressRegistrationResponse(
     addressLine1 = "123 Street",
     addressLine2 = Some("London"),
     addressLine3 = None,
@@ -30,7 +31,7 @@ class IndividualDetailsSpec extends AnyFreeSpec with Matchers {
     countryCode = "GB"
   )
 
-  val nonUkAddress = Address(
+  val nonUkAddress = AddressRegistrationResponse(
     addressLine1 = "321 Lane",
     addressLine2 = Some("New York"),
     addressLine3 = None,

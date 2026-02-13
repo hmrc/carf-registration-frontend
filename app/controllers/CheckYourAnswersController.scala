@@ -19,7 +19,8 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType
-import models.JourneyType.{IndWithNino, OrgWithUtr}
+import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
@@ -42,6 +43,7 @@ class CheckYourAnswersController @Inject() (
     view: CheckYourAnswersView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
+    with Logging
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
@@ -49,31 +51,48 @@ class CheckYourAnswersController @Inject() (
 
       val journeyType: Option[JourneyType] = request.userAnswers.journeyType
 
-      val businessDetailsSectionMaybe: Option[Section]      =
+      val businessDetailsSectionMaybe: Option[Section] =
         helper.getBusinessDetailsSectionMaybe(request.userAnswers)
+
+      val orgWithoutIdDetailsMaybe: Option[Section] =
+        helper.getOrgWithoutIdDetailsMaybe(request.userAnswers)
+
       val firstContactDetailsSectionMaybe: Option[Section]  =
         helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
       val secondContactDetailsSectionMaybe: Option[Section] =
         helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
 
-      val indWithNinoYourDetails: Option[Section] =
-        helper.indWithNinoYourDetailsMaybe(request.userAnswers)
-      val indContactDetails: Option[Section]      =
-        helper.indContactDetailsMaybe(request.userAnswers)
+        val indWithNinoYourDetails: Option[Section] =
+          helper.indWithNinoYourDetailsMaybe(request.userAnswers)
+        val indContactDetails: Option[Section]      =
+          helper.indContactDetailsMaybe(request.userAnswers)
 
       val sectionsMaybe = journeyType match {
-        case Some(OrgWithUtr)  =>
+        case Some(OrgWithUtr)   =>
           for {
             section1 <- businessDetailsSectionMaybe
             section2 <- firstContactDetailsSectionMaybe
             section3 <- secondContactDetailsSectionMaybe
           } yield Seq(section1, section2, section3)
-        case Some(IndWithNino) =>
+        case Some(IndWithNino)  =>
           for {
             section1 <- indWithNinoYourDetails
             section2 <- indContactDetails
           } yield Seq(section1, section2)
-        case _                 => None
+        case Some(IndWithUtr)   =>
+          for {
+            section1 <- businessDetailsSectionMaybe
+            section2 <- indContactDetails
+          } yield Seq(section1, section2)
+        case Some(OrgWithoutId) =>
+          for {
+            section1 <- orgWithoutIdDetailsMaybe
+            section2 <- firstContactDetailsSectionMaybe
+            section3 <- secondContactDetailsSectionMaybe
+          } yield Seq(section1, section2, section3)
+        case _                  =>
+          logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
+          None
       }
 
       sectionsMaybe match {

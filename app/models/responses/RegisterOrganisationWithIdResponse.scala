@@ -16,14 +16,13 @@
 
 package models.responses
 
-import models.Address
 import play.api.libs.json.{Json, OFormat}
 
 case class RegisterOrganisationWithIdResponse(
     safeId: String,
     code: Option[String],
     organisationName: String,
-    address: Address
+    address: AddressRegistrationResponse
 )
 
 object RegisterOrganisationWithIdResponse {

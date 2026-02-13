@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package models.responses
+package pages.individualWithoutId
 
-import play.api.libs.json.{Json, OFormat}
+import models.AddressUK
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class RegisterIndividualWithIdResponse(
-    safeId: String,
-    firstName: String,
-    lastName: String,
-    middleName: Option[String],
-    address: AddressRegistrationResponse
-)
+case object IndWithoutIdAddressPage extends QuestionPage[AddressUK] {
 
-object RegisterIndividualWithIdResponse {
-  implicit val format: OFormat[RegisterIndividualWithIdResponse] = Json.format[RegisterIndividualWithIdResponse]
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "address"
 }

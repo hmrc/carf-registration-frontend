@@ -22,6 +22,7 @@ import models.JourneyType.IndWithUtr
 import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError}
 import models.requests.DataRequest
+import models.responses.AddressRegistrationResponse
 import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.IsThisYourBusinessPage

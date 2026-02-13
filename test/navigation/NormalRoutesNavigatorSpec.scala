@@ -19,8 +19,9 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
-import models.IndividualRegistrationType.{IndividualNotConnectedToABusiness, IndividualSoleTrader}
 import models.RegistrationType.*
+import models.countries.*
+import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
@@ -313,8 +314,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -335,8 +338,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -357,8 +362,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -380,8 +387,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(true)
               )
             )
@@ -407,8 +416,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -430,8 +441,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -453,8 +466,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -476,8 +491,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
-                businessDetails =
-                  BusinessDetails("Test Business", Address("Test Line 1", None, None, None, None, "GB")),
+                businessDetails = BusinessDetails(
+                  "Test Business",
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB")
+                ),
                 Some(false)
               )
             )
@@ -1007,7 +1024,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
       }
 
-      "must navigate from WhereDoYouLive to the Journey recovery if user answers in unset" in {
+      "must navigate from WhereDoYouLive to the Journey recovery if user answers is unset" in {
         val userAnswers = emptyUserAnswers
 
         navigator.nextPage(
@@ -1084,6 +1101,32 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         navigator.nextPage(
           IndReviewConfirmAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "Address navigation" - {
+      "must navigate from Address page to the IndividualEmailPage" in {
+        val address                  = AddressUK("123 Test Street", None, "Birmingham", None, "B23 2AZ", "GB")
+        val userAnswers: UserAnswers = emptyUserAnswers
+          .set(IndWithoutIdAddressPage, address)
+          .success
+          .value
+
+        navigator.nextPage(
+          IndWithoutIdAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+
+      "must navigate from Address page to the Journey recovery if user answers is unset" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndWithoutIdAddressPage,
           NormalMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()

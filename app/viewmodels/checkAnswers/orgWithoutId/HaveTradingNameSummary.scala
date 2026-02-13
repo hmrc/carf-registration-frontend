@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.orgWithoutId
 
 import models.{CheckMode, UserAnswers}
 import pages.orgWithoutId.HaveTradingNamePage

@@ -16,7 +16,8 @@
 
 package models
 
-import play.api.libs.json._
+import models.countries.Country
+import play.api.libs.json.*
 
 case class IndWithoutIdAddressNonUk(
     addressLine1: String,

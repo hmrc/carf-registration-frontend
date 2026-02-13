@@ -16,13 +16,14 @@
 
 package models
 
+import models.responses.{isUkBased, renderHTML, AddressRegistrationResponse}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
+class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with OptionValues {
 
-  val ukAddress = Address(
+  val ukAddress = AddressRegistrationResponse(
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Birmingham"),
     addressLine3 = None,
@@ -31,7 +32,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
     countryCode = "GB"
   )
 
-  val nonUkAddress = Address(
+  val nonUkAddress = AddressRegistrationResponse(
     addressLine1 = "321 Pear",
     addressLine2 = Some("New York"),
     addressLine3 = Some("NY"),
@@ -68,7 +69,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
       }
 
       "must handle minimal address with only required fields" in {
-        val minimalAddress = Address(
+        val minimalAddress = AddressRegistrationResponse(
           addressLine1 = "1 Apple Street",
           addressLine2 = None,
           addressLine3 = None,
@@ -83,7 +84,7 @@ class AddressSpec extends AnyFreeSpec with Matchers with OptionValues {
       }
 
       "must filter out empty optional fields" in {
-        val addressWithEmpties = Address(
+        val addressWithEmpties = AddressRegistrationResponse(
           addressLine1 = "123 Orange Street",
           addressLine2 = Some(""),
           addressLine3 = Some("Valid Line"),

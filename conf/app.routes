@@ -212,3 +212,9 @@ GET         /register/individual-without-id/address-non-uk                      
 POST        /register/individual-without-id/address-non-uk                      controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onSubmit(mode: Mode = NormalMode)
 GET         /register/individual-without-id/change-address-non-uk               controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onPageLoad(mode: Mode = CheckMode)
 POST        /register/individual-without-id/change-address-non-uk               controllers.individualWithoutId.IndWithoutIdAddressNonUkController.onSubmit(mode: Mode = CheckMode)
+
+GET         /register/individual-without-id/address                             controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/address                             controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = CheckMode)
+

@@ -20,12 +20,14 @@ import com.google.inject.Inject
 import models.{RegistrationType, UserAnswers}
 import pages.RegisteredAddressInUkPage
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
+import pages.orgWithoutId.HaveTradingNamePage
 import pages.organisation.*
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
+import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 
@@ -35,6 +37,32 @@ class CheckYourAnswersHelper @Inject() extends Logging {
     IsThisYourBusinessSummary
       .row(userAnswers)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
+
+  def getOrgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      registeringAs            <- OrganisationRegistrationTypeSummary.row(userAnswers)
+      registeredAddressInUkRow <- RegisteredAddressInUkSummary.row(userAnswers)
+      registeredAddressInUk    <- userAnswers.get(RegisteredAddressInUkPage)
+      haveUtrRow               <- HaveUTRSummary.row(userAnswers)
+      haveUtr                  <- userAnswers.get(HaveUTRPage)
+      businessName             <- OrgWithoutIdBusinessNameSummary.row(userAnswers)
+      address                  <- OrganisationBusinessAddressSummary.row(userAnswers)
+      haveTradingName: Boolean <- userAnswers.get(HaveTradingNamePage)
+      haveTradingNameRow       <- HaveTradingNameSummary.row(userAnswers)
+    } yield
+      lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr
+      if (hasCorrectAnswersForGettingHere) {
+        if (haveTradingName) {
+          TradingNameSummary
+            .row(userAnswers)
+            .map(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, businessName, haveTradingNameRow, _, address))
+        } else {
+          Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, businessName, haveTradingNameRow, address))
+        }
+      } else {
+        None
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), _))
 
   def indWithNinoYourDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
     for {
@@ -66,7 +94,8 @@ class CheckYourAnswersHelper @Inject() extends Logging {
               }
             }.flatten
           case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
-          case _                           => None
+          case _                           =>
+            None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
         }
       } else {
         logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")

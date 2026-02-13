@@ -18,8 +18,8 @@ package forms.individualWithoutId
 
 import config.Constants.*
 import forms.behaviours.StringFieldBehaviours
-import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
-import models.{Country, IndWithoutIdAddressNonUk}
+import models.IndWithoutIdAddressNonUk
+import models.countries.Country
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 

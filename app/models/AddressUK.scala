@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
-package models.responses
+package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterIndividualWithIdResponse(
-    safeId: String,
-    firstName: String,
-    lastName: String,
-    middleName: Option[String],
-    address: AddressRegistrationResponse
+/** @param addressLine1
+  *   Address Line 1
+  * @param addressLine2
+  *   Address Line 2
+  * @param townOrCity
+  *   Town or City
+  * @param county
+  *   County
+  * @param postCode
+  *   post code e.g. NW1 5RT
+  * @param countryCode
+  *   country code e.g. UK
+  */
+case class AddressUK(
+    addressLine1: String,
+    addressLine2: Option[String],
+    townOrCity: String,
+    county: Option[String],
+    postCode: String,
+    countryCode: String
 )
 
-object RegisterIndividualWithIdResponse {
-  implicit val format: OFormat[RegisterIndividualWithIdResponse] = Json.format[RegisterIndividualWithIdResponse]
+object AddressUK {
+  implicit val format: OFormat[AddressUK] = Json.format[AddressUK]
 }

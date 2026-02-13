@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
-import models.{Country, Mode}
+import models.Mode
 import navigation.Navigator
 import pages.individualWithoutId.IndWithoutIdAddressNonUkPage
 import play.api.Logging
@@ -30,6 +30,7 @@ import utils.CountryListFactory
 import views.html.individualWithoutId.IndWithoutIdAddressNonUkView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import models.countries.Country
 
 class IndWithoutIdAddressNonUkController @Inject() (
     override val messagesApi: MessagesApi,

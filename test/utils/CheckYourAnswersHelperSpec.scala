@@ -17,9 +17,12 @@
 package utils
 
 import base.SpecBase
-import models.RegistrationType.{Individual, SoleTrader}
-import models.{Address, BusinessDetails, IsThisYourBusinessPageDetails, Name, UserAnswers}
+import models.RegistrationType.{Individual, LLP, SoleTrader}
+import models.countries.Country
+import models.responses.AddressRegistrationResponse
+import models.{BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage}
 import play.api.i18n.Messages
@@ -72,6 +75,93 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       }
     }
 
+    "getOrgWithoutIdDetailsMaybe" - {
+      "must return a section when all questions have been answered correctly" in new TestData {
+        val section: Section          = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswersOrgWithoutId).get
+        val expectedTitle             = "Business details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Is your registered business address in the UK?",
+          "Do you have a Unique Taxpayer Reference?",
+          "Business name",
+          "Does your organisation trade under a different name?",
+          "Trading name",
+          "Main business address"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return a section when and all questions have been answered correctly but the user doesn't operate under a different trading name" in new TestData {
+        val section: Section          = testHelper
+          .getOrgWithoutIdDetailsMaybe(testUserAnswersOrgWithoutId.set(HaveTradingNamePage, false).success.value)
+          .get
+        val expectedTitle             = "Business details"
+        val expectedKeys: Seq[String] = Seq(
+          "What are you registering as?",
+          "Is your registered business address in the UK?",
+          "Do you have a Unique Taxpayer Reference?",
+          "Business name",
+          "Does your organisation trade under a different name?",
+          "Main business address"
+        )
+        compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return None if the user says that their business is registered in the uk" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.set(RegisteredAddressInUkPage, true).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None if the user says that they have a UTR" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.set(HaveUTRPage, true).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the What are you registering as? has not been answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.remove(RegistrationTypePage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the Is your registered address in the UK? has not been answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.remove(RegisteredAddressInUkPage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the Do you have a utr has not been answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.remove(HaveUTRPage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the org without id business name has not been answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.remove(OrgWithoutIdBusinessNamePage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the org without id business address has not been answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.remove(OrganisationBusinessAddressPage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the org without id does your business trade under a different name page has not been answered" in new TestData {
+        private val testUserAnswers  = testUserAnswersOrgWithoutId.remove(HaveTradingNamePage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+      "must return None when the user says that they operate under a different trading name, but haven't entered one" in new TestData {
+        private val testUserAnswers  =
+          testUserAnswersOrgWithoutId.set(HaveTradingNamePage, true).success.value.remove(TradingNamePage).success.value
+        val section: Option[Section] = testHelper.getOrgWithoutIdDetailsMaybe(testUserAnswers)
+
+        section mustBe None
+      }
+    }
+
     "indWithNinoYourDetailsMaybe" - {
       "must return a section when RegistrationType is SoleTrader and all questions have been answered correctly" in new TestData {
         val section: Section          = testHelper.indWithNinoYourDetailsMaybe(testUserAnswersIndDetailsSoleTrader).get
@@ -86,6 +176,12 @@ class CheckYourAnswersHelperSpec extends SpecBase {
           "Your date of birth"
         )
         compareRowsAndTitleToExpected(expectedTitle, expectedKeys, section)
+      }
+      "must return None when the journey type is not sole trader or individual not connected to a business" in new TestData {
+        private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.set(RegistrationTypePage, LLP).success.value
+        val section: Option[Section] = testHelper.indWithNinoYourDetailsMaybe(testUserAnswers)
+
+        section mustBe None
       }
       "must return None when the 'Do you have a NINO' is false" in new TestData {
         private val testUserAnswers  = testUserAnswersIndDetailsSoleTrader.set(HaveNiNumberPage, false).success.value
@@ -334,7 +430,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
   }
 
   class TestData {
-    val testAddress = Address(
+    val testAddress = AddressRegistrationResponse(
       addressLine1 = "2 Newarre Road",
       addressLine2 = None,
       addressLine3 = None,
@@ -412,6 +508,39 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       .success
       .value
       .set(OrganisationSecondContactHavePhonePage, false)
+      .success
+      .value
+
+    val testUserAnswersOrgWithoutId: UserAnswers = emptyUserAnswers
+      .set(RegistrationTypePage, LLP)
+      .success
+      .value
+      .set(RegisteredAddressInUkPage, false)
+      .success
+      .value
+      .set(HaveUTRPage, false)
+      .success
+      .value
+      .set(OrgWithoutIdBusinessNamePage, "Apples and Pears ltd")
+      .success
+      .value
+      .set(
+        OrganisationBusinessAddressPage,
+        OrganisationBusinessAddress(
+          testAddress.addressLine1,
+          testAddress.addressLine2,
+          townOrCity = "Testton",
+          region = testAddress.addressLine4,
+          postcode = testAddress.postalCode,
+          country = Country("TS", "test", Some("test"))
+        )
+      )
+      .success
+      .value
+      .set(HaveTradingNamePage, true)
+      .success
+      .value
+      .set(TradingNamePage, "testName")
       .success
       .value
 

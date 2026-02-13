@@ -16,10 +16,12 @@
 
 package forms.mappings
 
-import models.{Country, Enumerable}
+import models.countries.*
+import models.Enumerable
 import play.api.data.Forms.of
-import play.api.data.{FieldMapping, Mapping}
+import play.api.data.{FieldMapping, FormError, Mapping}
 import play.api.i18n.Messages
+import play.api.data.format.Formatter
 
 import java.time.LocalDate
 
@@ -164,8 +166,18 @@ trait Mappings extends Formatters with Constraints {
       invalidKey: String,
       regex: String,
       invalidCharKey: String,
-      InvalidCharRegex: String
+      InvalidCharRegex: String,
+      notRealKey: Option[String]
   ): Mapping[String] =
-    of(mandatoryPostcodeFormatter(requiredKey, lengthKey, invalidKey, regex, invalidCharKey, InvalidCharRegex))
-
+    of(
+      mandatoryPostcodeFormatter(
+        requiredKey,
+        lengthKey,
+        invalidKey,
+        regex,
+        invalidCharKey,
+        InvalidCharRegex,
+        notRealKey
+      )
+    )
 }

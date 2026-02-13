@@ -56,7 +56,7 @@
         )
 
         <p class="govuk-body">@link(
-            routes.PlaceholderController.onPageLoad("Must redirect to /register/individual-without-id/address").url,
+            controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url,
             "indFindAddress.enterAddressManualLink",
             id = Some("manualAddressLink")
         )</p>

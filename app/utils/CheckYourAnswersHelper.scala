@@ -27,7 +27,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
-import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
+import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdAddressUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
 import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
@@ -204,8 +204,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
       messages: Messages
   ): Option[SummaryListRow] =
     if (liveInUkOrCd) {
-      // TODO: Update with UK address here when ready. Using Non-UK address as a placeholder
-      IndWithoutIdAddressNonUkSummary.row(userAnswers)
+      IndWithoutIdAddressUkSummary.row(userAnswers)
     } else {
       IndWithoutIdAddressNonUkSummary.row(userAnswers)
     }

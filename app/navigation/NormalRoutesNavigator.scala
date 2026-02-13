@@ -125,7 +125,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
     case IndReviewConfirmAddressPage =>
-      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
+      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()

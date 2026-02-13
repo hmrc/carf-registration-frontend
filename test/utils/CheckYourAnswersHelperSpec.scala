@@ -20,9 +20,9 @@ import base.SpecBase
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
 import models.responses.AddressRegistrationResponse
-import models.{BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.{AddressUK, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.{IndWithoutIdAddressInUserAnswers, IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
@@ -387,10 +387,9 @@ class CheckYourAnswersHelperSpec extends SpecBase {
 
         section mustBe None
       }
-      // TODO: Fix this test with the UK page when it's ready
-      "must return None when 'What is your address' (Uk/CD) page has not been answered for an individual or sole trader" in new TestData {
+      "must return None when 'What is your address' (UK/CD) page has not been answered for an individual or sole trader" in new TestData {
         private val testUserAnswers  =
-          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutIdAddressNonUkPage).success.value
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutIdAddressInUserAnswers).success.value
         val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
 
         section mustBe None
@@ -772,10 +771,9 @@ class CheckYourAnswersHelperSpec extends SpecBase {
         .value
 
       if (isUkOrCd) {
-        // TODO: Fix when page is ready
         ua.set(
-          IndWithoutIdAddressNonUkPage,
-          IndWithoutIdAddressNonUk("L1", Some("L2"), "C1", Some("C2"), Some("P1"), Country("GB", "GB"))
+          IndWithoutIdAddressInUserAnswers,
+          AddressUK("L1", Some("L2"), Some("L3"), "C2", "P1", Country("GB", "GB"))
         ).success
           .value
       } else {

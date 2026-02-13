@@ -480,9 +480,7 @@ indFindAddress.error.postcode.length = Postcode must be 10 characters or less
 indFindAddress.error.postcode.invalid = Postcode must only include letters a to z, numbers 0 to 9 or spaces
 indFindAddress.error.postcode.invalidFormat = Enter postcode in the right format
 indFindAddress.error.postcode.notFound = We could not find any addresses for this postcode. Enter a known postcode, or enter the address manually
-indFindAddress.postcode.change.hidden = Postcode
 indFindAddress.error.propertyNameOrNumber.length = Property name or number must be 35 characters or less
-indFindAddress.checkYourAnswersLabel = Find your address
 indFindAddress.enterAddressManualLink = Enter the address manually
 
 indReviewConfirmAddress.title = Review and confirm your address
@@ -536,6 +534,8 @@ indWithoutIdAddressNonUk.postcode.error.length = Postal code must be 10 characte
 indWithoutIdAddressNonUk.postcode.error.invalid = Postal code must only include letters a to z, numbers 0 to 9 and spaces
 indWithoutIdAddressNonUk.country.error.required = Select country
 
+indWithoutIdAddressUk.checkYourAnswersLabel = Your home address
+indWithoutIdAddressUk.change.hidden = Change your home address
 
 address.heading = What is your address?
 
@@ -553,7 +553,7 @@ address.addressLine3 = Address line 3 (optional)
 address.addressLine3.error.length = Address line 3 must be 35 characters or less
 address.addressLine3.error.invalid = Address line 3 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
 
-address.townOrCity = Town Or City
+address.townOrCity = Town or city
 address.townOrCity.error.required = Enter town or city
 address.townOrCity.error.length = Town or city must be 35 characters or less
 address.townOrCity.error.invalid = Town or city must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces

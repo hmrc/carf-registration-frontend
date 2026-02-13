@@ -35,7 +35,7 @@ class AddressLookupController @Inject() (
 
   def searchByPostcode(postcode: String, filter: Option[String]): Action[AnyContent] = Action.async {
     implicit request =>
-      connector.searchByPostcode(SearchByPostcodeRequest(postcode = postcode, filter = filter)) map {
+      connector.searchByPostcode(SearchByPostcodeRequest(postcode = postcode, filter = filter)).value map {
         case Right(value) => Ok(formatAddressResponses(value))
         case Left(value)  => Ok(value.toString)
       }

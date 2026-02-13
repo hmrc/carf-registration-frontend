@@ -549,14 +549,14 @@ address.addressLine2 = Address line 2 (optional)
 address.addressLine2.error.length = Address line 2 must be 35 characters or less
 address.addressLine2.error.invalid = Address line 2 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
 
+address.addressLine3 = Address line 3 (optional)
+address.addressLine3.error.length = Address line 3 must be 35 characters or less
+address.addressLine3.error.invalid = Address line 3 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
+
 address.townOrCity = Town Or City
 address.townOrCity.error.required = Enter town or city
 address.townOrCity.error.length = Town or city must be 35 characters or less
 address.townOrCity.error.invalid = Town or city must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
-
-address.county = County (optional)
-address.county.error.length = County must be 35 characters or less
-address.county.error.invalid = County must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
 
 address.postcode = Postcode
 address.postcode.error.required = Enter a postcode, like AA1 1AA

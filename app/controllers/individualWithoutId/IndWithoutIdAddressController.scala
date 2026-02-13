@@ -24,14 +24,14 @@ import models.responses.AddressResponse
 import models.{AddressUK, CheckMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{IndWithoutIdAddressInUserAnswers, IndWithoutIdAddressPageForNavigatorOnly, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
-import views.html.AddressView
+import views.html.individualWithoutId.IndWithoutIdAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,12 +47,12 @@ class IndWithoutIdAddressController @Inject() (
     formProvider: IndWithoutIdAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
     countryListFactory: CountryListFactory,
-    view: AddressView
+    view: IndWithoutIdAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private final def form: Form[AddressUK]                            = formProvider()
+  private final def form: Form[AddressUK]                            = formProvider(countryListFactory.ukCountries)
   private final def countryListWithFilledForm(form: Form[AddressUK]) =
     countryListFactory.countrySelectList(form.data, countryListFactory.ukCountries)
 
@@ -77,10 +77,12 @@ class IndWithoutIdAddressController @Inject() (
             ),
           value =>
             for {
-              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressPage, value))
+              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressInUserAnswers, value))
               updatedAnswersWithPrePop <- Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, value))
               _                        <- sessionRepository.set(updatedAnswersWithPrePop)
-            } yield Redirect(navigator.nextPage(IndWithoutIdAddressPage, mode, updatedAnswersWithPrePop))
+            } yield Redirect(
+              navigator.nextPage(IndWithoutIdAddressPageForNavigatorOnly, mode, updatedAnswersWithPrePop)
+            )
         )
   }
 }

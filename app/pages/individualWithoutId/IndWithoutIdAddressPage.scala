@@ -17,12 +17,14 @@
 package pages.individualWithoutId
 
 import models.AddressUK
-import pages.QuestionPage
+import pages.{Page, QuestionPage}
 import play.api.libs.json.JsPath
 
-case object IndWithoutIdAddressPage extends QuestionPage[AddressUK] {
+case object IndWithoutIdAddressInUserAnswers extends QuestionPage[AddressUK] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "address"
+  override def toString: String = "indWithoutIdAddress"
 }
+
+case object IndWithoutIdAddressPageForNavigatorOnly extends Page

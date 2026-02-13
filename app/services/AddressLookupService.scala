@@ -17,10 +17,13 @@
 package services
 
 import connectors.AddressLookupConnector
-import models.error.ApiError
+import models.error.{ApiError, CarfError}
 import models.requests.SearchByPostcodeRequest
 import models.responses.AddressResponse
 import uk.gov.hmrc.http.HeaderCarrier
+import cats.data.EitherT
+import cats.syntax.all.*
+import models.AddressUK
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,19 +34,20 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
   def postcodeSearch(postcode: String, propertyNameOrNumber: Option[String])(implicit
       ec: ExecutionContext,
       hc: HeaderCarrier
-  ): Future[Either[ApiError, Seq[AddressResponse]]] = {
+  ): Future[Either[CarfError, Seq[AddressUK]]] = {
     val initialRequest = SearchByPostcodeRequest(postcode = postcode, filter = propertyNameOrNumber)
-
-    addressLookupConnector.searchByPostcode(initialRequest).flatMap {
-      case Left(error) =>
-        Future.successful(Left(error))
-
-      case Right(Nil) if propertyNameOrNumber.isDefined =>
-        val fallbackRequest = SearchByPostcodeRequest(postcode = postcode, filter = None)
-        addressLookupConnector.searchByPostcode(fallbackRequest)
-
-      case Right(addresses) =>
-        Future.successful(Right(addresses))
-    }
+    {
+      for {
+        addressLookupResponse         <- addressLookupConnector.searchByPostcode(initialRequest)
+        addressLookupCombinedResponse <- if (addressLookupResponse.nonEmpty) {
+                                           EitherT.rightT[Future, ApiError](addressLookupResponse)
+                                         } else {
+                                           for {
+                                             address <- addressLookupConnector.searchByPostcode(initialRequest)
+                                           } yield address
+                                         }
+        addressDomain                 <- EitherT.fromEither[Future](addressLookupCombinedResponse.traverse(AddressMappings.toDomain))
+      } yield addressDomain
+    }.value
   }
 }

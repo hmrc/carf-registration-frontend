@@ -16,29 +16,53 @@
 
 package models
 
+import models.countries.Country
 import play.api.libs.json.{Json, OFormat}
 
 /** @param addressLine1
   *   Address Line 1
   * @param addressLine2
   *   Address Line 2
+  * @param addressLine3
+  *   Address Line 3
   * @param townOrCity
   *   Town or City
-  * @param county
-  *   County
   * @param postCode
   *   post code e.g. NW1 5RT
-  * @param countryCode
-  *   country code e.g. UK
+  * @param country
+  *   country e.g. Country("GB", "United Kingdom")
   */
 case class AddressUK(
     addressLine1: String,
     addressLine2: Option[String],
+    addressLine3: Option[String],
     townOrCity: String,
-    county: Option[String],
     postCode: String,
-    countryCode: String
+    country: Country
 )
+
+extension (address: AddressUK) {
+  def renderHTML: String = {
+    val addressLines = Seq(
+      Some(address.addressLine1),
+      address.addressLine2,
+      address.addressLine3,
+      Some(address.townOrCity),
+      Some(address.postCode),
+      Some(address.country.description)
+    ).flatten.filter(_.nonEmpty)
+
+    val htmlLines = addressLines.zipWithIndex.map { case (line, index) =>
+      if (index < addressLines.length - 1) {
+        s"""<span class="govuk-!-margin-bottom-0">$line</span>"""
+      } else {
+        line
+      }
+    }
+
+    htmlLines.mkString("<br>")
+  }
+}
 
 object AddressUK {
   implicit val format: OFormat[AddressUK] = Json.format[AddressUK]

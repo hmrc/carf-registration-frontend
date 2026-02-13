@@ -18,11 +18,11 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
-import models.{AddressUK, Mode, NormalMode}
 import models.responses.AddressResponse
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndReviewConfirmAddressPage, IndWithoutIdAddressPage}
+import pages.individualWithoutId.{IndReviewConfirmAddressPage, IndWithoutIdAddressInUserAnswers}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -58,7 +58,6 @@ class IndReviewConfirmAddressController @Inject() (
 
       request.userAnswers.get(AddressLookupPage) match {
         case Some(address :: Nil) =>
-          request.userAnswers.remove(IndReviewConfirmAddressPage)
           Future.successful(Ok(view(address, mode, editAddressLink)))
         case Some(list)           =>
           logger.warn("One address in user answers expected, multiple were found")
@@ -75,7 +74,7 @@ class IndReviewConfirmAddressController @Inject() (
       request.userAnswers.get(AddressLookupPage) match {
         case Some(addresses) if addresses.nonEmpty =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndReviewConfirmAddressPage, addresses.head))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressInUserAnswers, addresses.head))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPage, mode, updatedAnswers))
         case _                                     =>

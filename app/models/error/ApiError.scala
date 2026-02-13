@@ -24,6 +24,8 @@ sealed trait CarfError
 
 case object DataError extends CarfError
 
+case object ConversionError extends CarfError
+
 sealed trait ApiError extends CarfError
 
 object ApiError {

@@ -18,12 +18,12 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
-import models.requests.DataRequest
+import models.countries.Country
 import models.responses.AddressResponse
-import models.{AddressUK, IndFindAddress, Mode, NormalMode}
+import models.{AddressUK, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,7 +35,6 @@ import views.html.individualWithoutId.IndFindAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class IndFindAddressController @Inject() (
     override val messagesApi: MessagesApi,
@@ -60,7 +59,6 @@ class IndFindAddressController @Inject() (
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
 
       lazy val preparedForm = request.userAnswers.get(IndFindAddressPage).fold(form)(form.fill)
-      lazy val response     = Ok(view(preparedForm, mode))
 
       for {
         userAnswersNoPrePop <- Future.fromTry(request.userAnswers.remove(IndWithoutIdAddressPagePrePop))
@@ -90,17 +88,9 @@ class IndFindAddressController @Inject() (
                 case Right(addresses) =>
                   for {
                     updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
-                    filledAddress              =
-                      addresses.headOption.fold(AddressUK("", None, "", None, value.postcode, "")) { firstAddress =>
-                        AddressUK(
-                          firstAddress.address.lines.headOption.getOrElse(""),
-                          Some(firstAddress.address.lines.lift(1).getOrElse("")),
-                          firstAddress.address.town,
-                          None,
-                          firstAddress.address.postcode,
-                          firstAddress.address.country.code
-                        )
-                      }
+                    filledAddress              = addresses.headOption.fold(
+                                                   AddressUK("", None, None, "", value.postcode, Country("", ""))
+                                                 )(addressUk => addressUk)
                     updatedAnswersWithPrePop  <-
                       Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
                     updatedAnswersWithAddress <- Future.fromTry(

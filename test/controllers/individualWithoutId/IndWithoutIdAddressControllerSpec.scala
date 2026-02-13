@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
-import models.countries.{Country, UK}
+import models.countries.{Country, GB, UK}
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{AddressUK, CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -142,7 +142,7 @@ class IndWithoutIdAddressControllerSpec
             "addressLine2" -> "value 2",
             "townOrCity"   -> address.townOrCity,
             "postcode"     -> address.postCode,
-            "country"      -> UK.code
+            "country"      -> GB.code
           )
 
       val result = route(application, request).value

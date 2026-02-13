@@ -20,6 +20,7 @@ import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil, Phon
 import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
+import models.countries.*
 import play.api.Logging
 import play.api.data.FormError
 import play.api.data.format.Formatter
@@ -363,8 +364,6 @@ trait Formatters extends Transforms with Logging {
       notRealKey: Option[String]
   ): Formatter[String] =
     new Formatter[String] {
-      private val notRealSanitisedPostCode = "AA11AA"
-
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
         val postCode          = data.get(key).map(_.trim)
         val maxLengthPostcode = 10
@@ -374,12 +373,12 @@ trait Formatters extends Transforms with Logging {
           case Some(postCode)                     =>
             val sanitisedPostcode = postCode.replaceAll("\\s+", "")
             sanitisedPostcode match {
-              case s if s.length > maxLengthPostcode                          => Left(Seq(FormError(key, lengthKey)))
-              case s if !s.matches(validCharRegex)                            => Left(Seq(FormError(key, invalidCharKey)))
-              case s if !s.matches(regex)                                     => Left(Seq(FormError(key, invalidKey)))
-              case s if notRealKey.isDefined && s == notRealSanitisedPostCode =>
-                Left(Seq(FormError(key, notRealKey.get)))
-              case s                                                          => Right(validPostCodeFormat(s))
+              case s if s.length > maxLengthPostcode => Left(Seq(FormError(key, lengthKey)))
+              case s if !s.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
+              case s if !s.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
+              case s if notRealKey.isDefined         =>
+                notRealPostcodeCheck(postCode, data, invalidKey, notRealKey.get, regex)
+              case s                                 => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
         }
@@ -389,4 +388,45 @@ trait Formatters extends Transforms with Logging {
         Map(key -> value)
 
     }
+
+  private def notRealPostcodeCheck(
+      postcode: String,
+      data: Map[String, String],
+      invalidCharKey: String,
+      notRealKey: String,
+      regex: String
+  ): Either[Seq[FormError], String] = {
+
+    val notRealPostCode = "AA1 1AA"
+    val notRealError    = Left(Seq(FormError("postcode", notRealKey)))
+    val invalidError    = Left(Seq(FormError("postcode", invalidCharKey)))
+    val valid           = Right(postcode)
+
+    if (postcode == notRealPostCode) {
+      notRealError
+    } else {
+      val countryCode = data.getOrElse("country", "")
+
+      val realCrownDependencyPostcodeRegex = Map(
+        GG.code -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
+        JE.code -> "^JE[1-4] ?[0-9][A-Z]{2}$",
+        IM.code -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
+      )
+
+      val crownStartingPostcode = Seq("GY", "JE", "IM")
+
+      val postCodeStartWithCrown = crownStartingPostcode.exists(startOfPostCode => postcode.startsWith(startOfPostCode))
+
+      val postCodeAndCountryCodeMatch =
+        postcode.take(2) == countryCode || (countryCode == GG.code && postcode.startsWith("GY")) ||
+          (countryCode == GB.code && !postCodeStartWithCrown)
+
+      (realCrownDependencyPostcodeRegex.get(countryCode), postCodeAndCountryCodeMatch) match {
+        case (_, false)                                  => invalidError
+        case (Some(regex), _) if postcode.matches(regex) => Right(postcode)
+        case (None, true)                                => Right(postcode)
+        case (Some(regex), _)                            => notRealError
+      }
+    }
+  }
 }

@@ -26,7 +26,7 @@ import play.api.libs.json.{Json, OFormat}
   * @param addressLine3
   *   Address Line 3
   * @param townOrCity
-  *   Town or City
+  *   Town or city
   * @param postCode
   *   post code e.g. NW1 5RT
   * @param country

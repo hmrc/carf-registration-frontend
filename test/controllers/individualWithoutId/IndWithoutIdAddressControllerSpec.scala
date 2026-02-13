@@ -20,8 +20,9 @@ import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
-import models.countries.{Country, UnitedKingdom}
-import models.{AddressUk, NormalMode, UserAnswers}
+import models.countries.{Country, GB, UK, UnitedKingdom}
+import models.responses.{AddressRecord, AddressResponse, CountryRecord}
+import models.{AddressUK, CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}

@@ -16,6 +16,7 @@
 
 package controllers.actions
 
+import play.api.Logging
 import models.requests.OptionalDataRequest
 import play.api.mvc._
 import javax.inject.Inject
@@ -23,19 +24,32 @@ import scala.concurrent.{ExecutionContext, Future}
 import pages.SubmissionSucceededPage
 
 class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit val ec: ExecutionContext)
-    extends ActionFilter[OptionalDataRequest] {
+    extends ActionFilter[OptionalDataRequest]
+    with Logging {
 
   override protected def executionContext: ExecutionContext = ec
 
   override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
+
     val submitted = request.userAnswers.exists(_.get(SubmissionSucceededPage).contains(true))
+
     if (submitted) {
-      Future.successful(Some(Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())))
+
+      logger.info(
+        s"[SubmissionLockAction] Blocking request after submission. " +
+          s"affinityGroup=${request.affinityGroup}, path=${request.uri}"
+      )
+
+      Future.successful(
+        Some(
+          Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())
+        )
+      )
+
     } else {
       Future.successful(None)
     }
   }
-
 }
 
 class SubmissionLockActionProvider @Inject() (parsers: BodyParsers.Default)(implicit ec: ExecutionContext) {

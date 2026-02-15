@@ -20,7 +20,7 @@ import base.SpecBase
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
 import models.responses.AddressRegistrationResponse
-import models.{BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.{AddressUK, BusinessDetails, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*

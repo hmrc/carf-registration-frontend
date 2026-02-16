@@ -90,15 +90,15 @@ class RegistrationConfirmationController @Inject() (
     journeyType match {
       case OrgWithUtr | OrgWithoutId if isCtAutoMatched =>
         controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /report-for-registered-business (ct automatch)")
+          .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
           .url
       case OrgWithUtr | OrgWithoutId                    =>
         controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /organisation-or-individual (non-automatch)")
+          .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
           .url
       case IndWithNino | IndWithUtr | IndWithoutId      =>
         controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /organisation-or-individual (individual)")
+          .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
           .url
     }
 

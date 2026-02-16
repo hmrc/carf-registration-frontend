@@ -101,7 +101,7 @@ class CheckYourAnswersController @Inject() (
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
     subscriptionService.subscribe(request.userAnswers) map {
       case Right(response) =>
         Redirect(

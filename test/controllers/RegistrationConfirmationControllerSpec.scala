@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.{IndividualEmailPage, NiNumberPage}
-import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
+import pages.organisation.{FirstContactEmailPage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -49,250 +49,269 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
     "onPageLoad" - {
 
-      "when user is OrgWithUtr" - {
+      def buildApplication(userAnswers: Option[UserAnswers]) =
+        applicationBuilder(userAnswers = userAnswers)
+          .overrides(
+            bind[EmailService].toInstance(mockEmailService),
+            bind[SubscriptionService].toInstance(mockSubscriptionService),
+            bind[RegistrationConfirmationView].toInstance(mockView)
+          )
+          .build()
 
-        "must return OK and render the view with correct data" in {
+      val subscriptionId = "XXCAR0012345678"
 
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .withPage(FirstContactEmailPage, "org@test.com")
-            .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
-            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+      def mockViewApply(): Unit =
+        when(mockView.apply(any[String], any[List[String]], any[String])(any(), any()))
+          .thenReturn(HtmlFormat.raw("<p>Test view</p>"))
 
-          when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
-            .thenReturn(Future.successful(()))
-          when(mockSessionRepository.set(any()))
-            .thenReturn(Future.successful(true))
-          when(mockView.apply(any(), any(), any(), any())(any(), any()))
-            .thenReturn(HtmlFormat.raw("<p>Test view</p>"))
+      "must return OK and render view for OrgWithUtr" in {
 
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService),
-              bind[RegistrationConfirmationView].toInstance(mockView)
-            )
-            .build()
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(OrgWithUtr))
+          .withPage(FirstContactEmailPage, "org@test.com")
+          .withPage(OrganisationHaveSecondContactPage, true)
+          .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .copy(isCtAutoMatched = true)
 
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
+        when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
+          .thenReturn(Future.successful(()))
+        when(mockSessionRepository.set(any()))
+          .thenReturn(Future.successful(true))
+        mockViewApply()
 
-            status(result) mustEqual OK
+        val application = buildApplication(Some(userAnswers))
 
-            verify(mockEmailService).sendRegistrationConfirmation(
-              eqTo(List("org@test.com", "org2@test.com")),
-              eqTo("XXCAR0012345678"),
-              eqTo(Some("1234567890"))
-            )
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
 
-            verify(mockSessionRepository).set(any())
-          }
+          status(result) mustEqual OK
+
+          val expectedEmails = List("org@test.com", "org2@test.com")
+
+          verify(mockEmailService).sendRegistrationConfirmation(
+            eqTo(expectedEmails),
+            eqTo(subscriptionId),
+            eqTo(Some("1234567890"))
+          )
+
+          val expectedUrl = controllers.routes.PlaceholderController
+            .onPageLoad("redirect to /report-for-registered-business (ct automatch)")
+            .url
+
+          verify(mockView).apply(
+            eqTo(subscriptionId),
+            eqTo(expectedEmails),
+            eqTo(expectedUrl)
+          )(any(), any())
+
+          verify(mockSessionRepository).set(any())
         }
       }
 
-      "when user is IndWithNino" - {
+      "must return OK and render view for OrgWithoutId (non-automatch)" in {
 
-        "must return OK and render the view with NINO" in {
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(OrgWithoutId))
+          .withPage(FirstContactEmailPage, "orgwithout@test.com")
+          .withPage(OrganisationHaveSecondContactPage, false)
+          .copy(isCtAutoMatched = false)
 
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithNino))
-            .withPage(IndividualEmailPage, "individual@test.com")
-            .withPage(NiNumberPage, "AB123456C")
+        when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
+          .thenReturn(Future.successful(()))
+        when(mockSessionRepository.set(any()))
+          .thenReturn(Future.successful(true))
+        mockViewApply()
 
-          when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
-            .thenReturn(Future.successful(()))
-          when(mockSessionRepository.set(any()))
-            .thenReturn(Future.successful(true))
-          when(mockView.apply(any(), any(), any(), any())(any(), any()))
-            .thenReturn(HtmlFormat.raw("<p>Test view</p>"))
+        val application = buildApplication(Some(userAnswers))
 
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService),
-              bind[RegistrationConfirmationView].toInstance(mockView)
-            )
-            .build()
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
 
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
+          status(result) mustEqual OK
 
-            status(result) mustEqual OK
+          val expectedEmails = List("orgwithout@test.com")
 
-            verify(mockEmailService).sendRegistrationConfirmation(
-              eqTo(List("individual@test.com")),
-              eqTo("XXCAR0012345678"),
-              eqTo(Some("AB123456C"))
-            )
-          }
+          verify(mockEmailService).sendRegistrationConfirmation(
+            eqTo(expectedEmails),
+            eqTo(subscriptionId),
+            eqTo(None)
+          )
+
+          val expectedUrl = controllers.routes.PlaceholderController
+            .onPageLoad("redirect to /organisation-or-individual (non-automatch)")
+            .url
+
+          verify(mockView).apply(
+            eqTo(subscriptionId),
+            eqTo(expectedEmails),
+            eqTo(expectedUrl)
+          )(any(), any())
         }
       }
 
-      "when user is OrgWithoutId" - {
+      "must return OK and render view for IndWithNino" in {
 
-        "must return OK and render the view with no ID number" in {
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(IndWithNino))
+          .withPage(IndividualEmailPage, "individual@test.com")
+          .withPage(NiNumberPage, "AB123456C")
 
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .withPage(FirstContactEmailPage, "orgwithout@test.com")
+        when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
+          .thenReturn(Future.successful(()))
+        when(mockSessionRepository.set(any()))
+          .thenReturn(Future.successful(true))
+        mockViewApply()
 
-          when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
-            .thenReturn(Future.successful(()))
-          when(mockSessionRepository.set(any()))
-            .thenReturn(Future.successful(true))
-          when(mockView.apply(any(), any(), any(), any())(any(), any()))
-            .thenReturn(HtmlFormat.raw("<p>Test view</p>"))
+        val application = buildApplication(Some(userAnswers))
 
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService),
-              bind[RegistrationConfirmationView].toInstance(mockView)
-            )
-            .build()
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
 
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
+          status(result) mustEqual OK
 
-            status(result) mustEqual OK
+          val expectedEmails = List("individual@test.com")
 
-            verify(mockEmailService).sendRegistrationConfirmation(
-              eqTo(List("orgwithout@test.com")),
-              eqTo("XXCAR0012345678"),
-              eqTo(None)
-            )
-          }
+          verify(mockEmailService).sendRegistrationConfirmation(
+            eqTo(expectedEmails),
+            eqTo(subscriptionId),
+            eqTo(Some("AB123456C"))
+          )
+
+          val expectedUrl = controllers.routes.PlaceholderController
+            .onPageLoad("redirect to /organisation-or-individual (individual)")
+            .url
+
+          verify(mockView).apply(
+            eqTo(subscriptionId),
+            eqTo(expectedEmails),
+            eqTo(expectedUrl)
+          )(any(), any())
         }
       }
 
-      "when user is IndWithoutId" - {
-        "must return OK and render the view with no ID number" in {
+      "must return OK and render view for IndWithoutId" in {
 
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithoutId))
-            .withPage(IndividualEmailPage, "indwithout@test.com")
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(IndWithoutId))
+          .withPage(IndividualEmailPage, "indwithout@test.com")
 
-          when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
-            .thenReturn(Future.successful(()))
-          when(mockSessionRepository.set(any()))
-            .thenReturn(Future.successful(true))
-          when(mockView.apply(any(), any(), any(), any())(any(), any()))
-            .thenReturn(HtmlFormat.raw("<p>Test view</p>"))
+        when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
+          .thenReturn(Future.successful(()))
+        when(mockSessionRepository.set(any()))
+          .thenReturn(Future.successful(true))
+        mockViewApply()
 
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService),
-              bind[RegistrationConfirmationView].toInstance(mockView)
-            )
-            .build()
+        val application = buildApplication(Some(userAnswers))
 
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
 
-            status(result) mustEqual OK
+          status(result) mustEqual OK
 
-            verify(mockEmailService).sendRegistrationConfirmation(
-              eqTo(List("indwithout@test.com")),
-              eqTo("XXCAR0012345678"),
-              eqTo(None)
-            )
-          }
+          val expectedEmails = List("indwithout@test.com")
+
+          verify(mockEmailService).sendRegistrationConfirmation(
+            eqTo(expectedEmails),
+            eqTo(subscriptionId),
+            eqTo(None)
+          )
+
+          val expectedUrl = controllers.routes.PlaceholderController
+            .onPageLoad("redirect to /organisation-or-individual (individual)")
+            .url
+
+          verify(mockView).apply(
+            eqTo(subscriptionId),
+            eqTo(expectedEmails),
+            eqTo(expectedUrl)
+          )(any(), any())
         }
       }
 
-      "when user is IndWithUtr (Sole Trader)" - {
-        "must return OK and render the view with UTR" in {
+      "must return OK and render view for IndWithUtr" in {
 
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithUtr))
-            .withPage(IndividualEmailPage, "soletrader@test.com")
-            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(IndWithUtr))
+          .withPage(IndividualEmailPage, "soletrader@test.com")
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
 
-          when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
-            .thenReturn(Future.successful(()))
-          when(mockSessionRepository.set(any()))
-            .thenReturn(Future.successful(true))
-          when(mockView.apply(any(), any(), any(), any())(any(), any()))
-            .thenReturn(HtmlFormat.raw("<p>Test view</p>"))
+        when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
+          .thenReturn(Future.successful(()))
+        when(mockSessionRepository.set(any()))
+          .thenReturn(Future.successful(true))
+        mockViewApply()
 
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService),
-              bind[RegistrationConfirmationView].toInstance(mockView)
-            )
-            .build()
+        val application = buildApplication(Some(userAnswers))
 
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
 
-            status(result) mustEqual OK
+          status(result) mustEqual OK
 
-            verify(mockEmailService).sendRegistrationConfirmation(
-              eqTo(List("soletrader@test.com")),
-              eqTo("XXCAR0012345678"),
-              eqTo(Some("9876543210"))
-            )
-          }
+          val expectedEmails = List("soletrader@test.com")
+
+          verify(mockEmailService).sendRegistrationConfirmation(
+            eqTo(expectedEmails),
+            eqTo(subscriptionId),
+            eqTo(Some("9876543210"))
+          )
+
+          val expectedUrl = controllers.routes.PlaceholderController
+            .onPageLoad("redirect to /organisation-or-individual (individual)")
+            .url
+
+          verify(mockView).apply(
+            eqTo(subscriptionId),
+            eqTo(expectedEmails),
+            eqTo(expectedUrl)
+          )(any(), any())
         }
       }
 
-      "error scenarios" - {
+      "must redirect to journey recovery when primary email is missing" in {
 
-        "must redirect to journey recovery when primary email is missing" in {
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(OrgWithUtr))
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
 
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+        val application = buildApplication(Some(userAnswers))
 
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService)
-            )
-            .build()
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
 
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
-
-            status(result)                 mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-          }
-        }
-
-        "must redirect to journey recovery when email service fails" in {
-
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .withPage(FirstContactEmailPage, "org@test.com")
-            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
-
-          when(mockEmailService.sendRegistrationConfirmation(any(), any(), any()))
-            .thenReturn(Future.failed(new RuntimeException("Email service failed")))
-
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[EmailService].toInstance(mockEmailService),
-              bind[SubscriptionService].toInstance(mockSubscriptionService)
-            )
-            .build()
-
-          running(application) {
-            val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
-            val result  = route(application, request).value
-
-            status(result)                 mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-          }
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
+
+      "must redirect to journey recovery when email service fails" in {
+
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(OrgWithUtr))
+          .withPage(FirstContactEmailPage, "org@test.com")
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+
+        when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
+          .thenReturn(Future.failed(new RuntimeException("Email service failed")))
+
+        val application = buildApplication(Some(userAnswers))
+
+        running(application) {
+          val request = FakeRequest(GET, routes.RegistrationConfirmationController.onPageLoad().url)
+          val result  = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
     }
   }
 }

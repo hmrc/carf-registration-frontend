@@ -397,12 +397,12 @@ trait Formatters extends Transforms with Logging {
       regex: String
   ): Either[Seq[FormError], String] = {
 
-    val notRealPostCode = "AA1 1AA"
-    val notRealError    = Left(Seq(FormError("postcode", notRealKey)))
-    val invalidError    = Left(Seq(FormError("postcode", invalidCharKey)))
-    val valid           = Right(postcode)
+    val postcodeUpperCase = postcode.toUpperCase()
+    val notRealPostCode   = "AA1 1AA"
+    val notRealError      = Left(Seq(FormError("postcode", notRealKey)))
+    val invalidError      = Left(Seq(FormError("postcode", invalidCharKey)))
 
-    if (postcode == notRealPostCode) {
+    if (postcodeUpperCase == notRealPostCode) {
       notRealError
     } else {
       val countryCode = data.getOrElse("country", "")
@@ -415,17 +415,18 @@ trait Formatters extends Transforms with Logging {
 
       val crownStartingPostcode = Seq("GY", "JE", "IM")
 
-      val postCodeStartWithCrown = crownStartingPostcode.exists(startOfPostCode => postcode.startsWith(startOfPostCode))
+      val postCodeStartWithCrown =
+        crownStartingPostcode.exists(startOfPostCode => postcodeUpperCase.startsWith(startOfPostCode))
 
       val postCodeAndCountryCodeMatch =
-        postcode.take(2) == countryCode || (countryCode == GG.code && postcode.startsWith("GY")) ||
+        postcodeUpperCase.take(2) == countryCode || (countryCode == GG.code && postcodeUpperCase.startsWith("GY")) ||
           (countryCode == GB.code && !postCodeStartWithCrown)
 
       (realCrownDependencyPostcodeRegex.get(countryCode), postCodeAndCountryCodeMatch) match {
-        case (_, false)                                  => invalidError
-        case (Some(regex), _) if postcode.matches(regex) => Right(postcode)
-        case (None, true)                                => Right(postcode)
-        case (Some(regex), _)                            => notRealError
+        case (_, false)                                           => invalidError
+        case (Some(regex), _) if postcodeUpperCase.matches(regex) => Right(postcodeUpperCase)
+        case (None, true)                                         => Right(postcodeUpperCase)
+        case (Some(regex), _)                                     => notRealError
       }
     }
   }

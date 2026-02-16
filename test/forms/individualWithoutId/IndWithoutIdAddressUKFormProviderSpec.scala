@@ -277,6 +277,13 @@ class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
       result.hasErrors mustBe false
     }
 
+    "must be valid if postcode is provided in a valid format in lowercase" in {
+      val formData =
+        Map("addressLine1" -> "addressLine1", "townOrCity" -> "town", "country" -> "GB", "postcode" -> "NW4 1qs")
+      val result   = form.bind(formData)
+      result.hasErrors mustBe false
+    }
+
     "must be valid if a Birmingham postcode is provided in a valid format" in {
       val formData =
         Map("addressLine1" -> "addressLine1", "townOrCity" -> "town", "country" -> "GB", "postcode" -> "B23 2AZ")

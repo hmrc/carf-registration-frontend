@@ -18,12 +18,9 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
-import models.countries.{Country, GB}
 import models.requests.DataRequest
-import models.responses.AddressResponse
-import models.{AddressUK, CheckMode, Mode, NormalMode}
+import models.{AddressUK, Mode}
 import navigation.Navigator
-import pages.AddressLookupPage
 import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

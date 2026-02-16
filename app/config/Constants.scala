@@ -16,6 +16,8 @@
 
 package config
 
+import models.countries.Country.{Guernsey, IsleOfMan, Jersey}
+
 import scala.util.matching.Regex
 
 object Constants {
@@ -53,4 +55,10 @@ object Constants {
   inline final val ukTimeZoneStringId = "Europe/London"
 
   inline final val notReal0808PhoneNumber = "+448081570192"
+
+  val cdPostcodeRegex: Map[String, String] = Map(
+    Guernsey.code  -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
+    Jersey.code    -> "^JE[1-4] ?[0-9][A-Z]{2}$",
+    IsleOfMan.code -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
+  )
 }

@@ -18,6 +18,7 @@ package utils
 
 import config.FrontendAppConfig
 import models.countries.*
+import models.countries.Country.*
 import play.api.Environment
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -29,16 +30,16 @@ import javax.inject.{Inject, Singleton}
 class CountryListFactory @Inject() (environment: Environment, appConfig: FrontendAppConfig) {
 
   final def ukCountries: Seq[Country] = Seq(
-    GB,
+    UnitedKingdom,
     Country("GB", "United Kingdom", Option("UK")),
     Country("GB", "United Kingdom", Option("Great Britain")),
     Country("GB", "United Kingdom", Option("Northern Ireland")),
-    GG,
-    JE,
-    IM
+    Guernsey,
+    Jersey,
+    IsleOfMan
   )
 
-  def countryCodesForUkCountries: Set[Country]              = Set(GB, UK, GG, JE, IM)
+  def countryCodesForUkCountries: Set[Country]              = Set(UnitedKingdom, Guernsey, Jersey, IsleOfMan)
   final lazy val countryCodesForUkCountryCodes: Set[String] = countryCodesForUkCountries.map(_.code)
 
   def countryList: Option[Seq[Country]] = getCountryList

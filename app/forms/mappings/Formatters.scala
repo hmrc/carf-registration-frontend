@@ -21,6 +21,7 @@ import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import models.countries.*
+import models.countries.Country.{Guernsey, IsleOfMan, Jersey, UnitedKingdom}
 import play.api.Logging
 import play.api.data.FormError
 import play.api.data.format.Formatter
@@ -396,37 +397,33 @@ trait Formatters extends Transforms with Logging {
       notRealKey: String,
       regex: String
   ): Either[Seq[FormError], String] = {
+    val NotRealError = Left(Seq(FormError("postcode", notRealKey)))
+    val InvalidError = Left(Seq(FormError("postcode", invalidCharKey)))
 
-    val postcodeUpperCase = postcode.toUpperCase()
-    val notRealPostCode   = "AA1 1AA"
-    val notRealError      = Left(Seq(FormError("postcode", notRealKey)))
-    val invalidError      = Left(Seq(FormError("postcode", invalidCharKey)))
+    val postcodeUpperCase = postcode.toUpperCase
 
-    if (postcodeUpperCase == notRealPostCode) {
-      notRealError
+    if (postcodeUpperCase == "AA1 1AA") {
+      NotRealError
     } else {
       val countryCode = data.getOrElse("country", "")
 
-      val realCrownDependencyPostcodeRegex = Map(
-        GG.code -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
-        JE.code -> "^JE[1-4] ?[0-9][A-Z]{2}$",
-        IM.code -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
-      )
+      def postCodeAreaValidForCountryCode: Boolean =
+        countryCode match {
+          case Jersey.code        => postcodeUpperCase.startsWith("JE")
+          case IsleOfMan.code     => postcodeUpperCase.startsWith("IM")
+          case Guernsey.code      => postcodeUpperCase.startsWith("GY")
+          case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.take(2))
+          case _                  => throw new Exception("Only UK and CD country codes allowed!")
+        }
 
-      val crownStartingPostcode = Seq("GY", "JE", "IM")
-
-      val postCodeStartWithCrown =
-        crownStartingPostcode.exists(startOfPostCode => postcodeUpperCase.startsWith(startOfPostCode))
-
-      val postCodeAndCountryCodeMatch =
-        postcodeUpperCase.take(2) == countryCode || (countryCode == GG.code && postcodeUpperCase.startsWith("GY")) ||
-          (countryCode == GB.code && !postCodeStartWithCrown)
-
-      (realCrownDependencyPostcodeRegex.get(countryCode), postCodeAndCountryCodeMatch) match {
-        case (_, false)                                           => invalidError
-        case (Some(regex), _) if postcodeUpperCase.matches(regex) => Right(postcodeUpperCase)
-        case (None, true)                                         => Right(postcodeUpperCase)
-        case (Some(regex), _)                                     => notRealError
+      if (!postCodeAreaValidForCountryCode) {
+        InvalidError
+      } else {
+        Constants.cdPostcodeRegex.get(countryCode) match {
+          case None                                            => Right(postcodeUpperCase)
+          case Some(regex) if postcodeUpperCase.matches(regex) => Right(postcodeUpperCase)
+          case Some(regex)                                     => NotRealError
+        }
       }
     }
   }

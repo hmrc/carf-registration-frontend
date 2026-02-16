@@ -97,7 +97,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )
 
           val expectedUrl = controllers.routes.PlaceholderController
-            .onPageLoad("redirect to /report-for-registered-business (ct automatch)")
+            .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
             .url
 
           verify(mockView).apply(
@@ -141,7 +141,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )
 
           val expectedUrl = controllers.routes.PlaceholderController
-            .onPageLoad("redirect to /organisation-or-individual (non-automatch)")
+            .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
             .url
 
           verify(mockView).apply(
@@ -182,7 +182,6 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )
 
           val expectedUrl = controllers.routes.PlaceholderController
-            .onPageLoad("redirect to /organisation-or-individual (individual)")
             .url
 
           verify(mockView).apply(
@@ -222,7 +221,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )
 
           val expectedUrl = controllers.routes.PlaceholderController
-            .onPageLoad("redirect to /organisation-or-individual (individual)")
+            .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
             .url
 
           verify(mockView).apply(
@@ -263,7 +262,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )
 
           val expectedUrl = controllers.routes.PlaceholderController
-            .onPageLoad("redirect to /organisation-or-individual (individual)")
+            .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
             .url
 
           verify(mockView).apply(

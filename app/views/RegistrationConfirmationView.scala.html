@@ -24,7 +24,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(subscriptionId: String, primaryEmail: String, secondaryEmailOpt: Option[String], addProviderUrl: String)(implicit request: Request[_], messages: Messages)
+@(subscriptionId: String, emailAddresses: List[String], addProviderUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("registrationConfirmation.title")), showBackLink = false) {
 
@@ -40,11 +40,15 @@
     </p>
 
     @defining(
-        secondaryEmailOpt match {
-            case Some(second) =>
-                messages("registrationConfirmation.2.email.sent", primaryEmail, second)
-            case None =>
-                messages("registrationConfirmation.1.email.sent", primaryEmail)
+        emailAddresses match {
+            case primary :: secondary :: Nil =>
+                messages("registrationConfirmation.2.email.sent", primary, secondary)
+            case primary :: Nil =>
+                messages("registrationConfirmation.1.email.sent", primary)
+            case Nil =>
+                ""
+            case _ =>
+                messages("registrationConfirmation.multiple.emails.sent", emailAddresses.mkString(", "))
         }
     ) { emailSentence =>
         <p class="govuk-body">@emailSentence</p>

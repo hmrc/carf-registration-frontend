@@ -17,15 +17,17 @@
 package controllers
 
 import controllers.actions.*
+import models.{JourneyType, UserAnswers}
+
 import javax.inject.Inject
 import models.JourneyType.*
 import pages.*
-import pages.organisation.{FirstContactEmailPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
+import pages.organisation.{FirstContactEmailPage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
 import pages.individual.NiNumberPage
 import pages.individual.IndividualEmailPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.EmailService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -47,81 +49,84 @@ class RegistrationConfirmationController @Inject() (
     with I18nSupport
     with Logging {
 
+  private def getEmailAddresses(
+      journeyType: JourneyType,
+      userAnswers: UserAnswers
+  ): Option[List[String]] =
+    journeyType match {
+      case OrgWithUtr | OrgWithoutId =>
+        userAnswers
+          .get(FirstContactEmailPage)
+          .flatMap { firstEmail =>
+            userAnswers.get(OrganisationHaveSecondContactPage).flatMap {
+              case true  =>
+                userAnswers.get(OrganisationSecondContactEmailPage).map(second => List(firstEmail, second))
+              case false =>
+                Some(List(firstEmail))
+            }
+          }
+
+      case IndWithNino | IndWithUtr | IndWithoutId =>
+        userAnswers.get(IndividualEmailPage).map(List(_))
+    }
+
+  private def getIdNumber(
+      journeyType: JourneyType,
+      userAnswers: UserAnswers
+  ): Option[String] =
+    journeyType match {
+      case OrgWithUtr | IndWithUtr     =>
+        userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
+      case IndWithNino                 =>
+        userAnswers.get(NiNumberPage)
+      case OrgWithoutId | IndWithoutId =>
+        None
+    }
+
+  private def getAddProviderUrl(
+      journeyType: JourneyType,
+      isCtAutoMatched: Boolean
+  ): String =
+    journeyType match {
+      case OrgWithUtr | OrgWithoutId if isCtAutoMatched =>
+        controllers.routes.PlaceholderController
+          .onPageLoad("redirect to /report-for-registered-business (ct automatch)")
+          .url
+      case OrgWithUtr | OrgWithoutId                    =>
+        controllers.routes.PlaceholderController
+          .onPageLoad("redirect to /organisation-or-individual (non-automatch)")
+          .url
+      case IndWithNino | IndWithUtr | IndWithoutId      =>
+        controllers.routes.PlaceholderController
+          .onPageLoad("redirect to /organisation-or-individual (individual)")
+          .url
+    }
+
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen getData() andThen requireData).async { implicit request =>
 
-      // TODO replace with real subscription ID
-      val subscriptionIdOpt = Some("XXCAR0012345678")
-      val journeyTypeOpt    = request.userAnswers.journeyType
-
-      val primaryEmailOpt: Option[String] = journeyTypeOpt match {
-        case Some(OrgWithUtr) | Some(OrgWithoutId)                     =>
-          request.userAnswers.get(FirstContactEmailPage)
-        case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
-          request.userAnswers.get(IndividualEmailPage)
-        case _                                                         =>
-          None
-      }
-
-      val idNumberOpt: Option[String] = journeyTypeOpt match {
-        case Some(OrgWithUtr) | Some(IndWithUtr)     =>
-          request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
-        case Some(IndWithNino)                       =>
-          request.userAnswers.get(NiNumberPage)
-        case Some(OrgWithoutId) | Some(IndWithoutId) =>
-          None
-        case _                                       =>
-          None
-      }
-
-      (subscriptionIdOpt, primaryEmailOpt) match {
-        case (Some(subscriptionId), Some(primaryEmail)) =>
-          val secondaryEmailOpt = request.userAnswers.get(OrganisationSecondContactEmailPage)
-
-          val addProviderUrl = journeyTypeOpt match {
-            case Some(OrgWithUtr) | Some(OrgWithoutId) =>
-              if (request.userAnswers.isCtAutoMatched)
-                controllers.routes.PlaceholderController
-                  .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-                  .url
-              else
-                controllers.routes.PlaceholderController
-                  .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
-                  .url
-
-            case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
-              controllers.routes.PlaceholderController
-                .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-                .url
-
-            case _ =>
-              controllers.routes.JourneyRecoveryController.onPageLoad().url
-          }
-
-          val emailList = primaryEmail :: secondaryEmailOpt.toList
-
-          emailService
-            .sendRegistrationConfirmation(emailList, subscriptionId, idNumberOpt)
-            .flatMap { _ =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Ok(
-                view(
-                  subscriptionId = subscriptionId,
-                  primaryEmail = primaryEmail,
-                  secondaryEmailOpt = secondaryEmailOpt,
-                  addProviderUrl = addProviderUrl
-                )
-              )
-            }
-            .recover { case ex =>
-              logger.error("Error processing registration confirmation", ex)
-              Redirect(routes.JourneyRecoveryController.onPageLoad())
-            }
-
-        case _ =>
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      val result = for {
+        // TODO CARF-325: replace with real subscription ID
+        subscriptionId <- Some("XXCAR0012345678")
+        journeyType    <- request.userAnswers.journeyType
+        emailAddresses <- getEmailAddresses(journeyType, request.userAnswers)
+        idNumberOpt     = getIdNumber(journeyType, request.userAnswers)
+        addProviderUrl  = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
+      } yield for {
+        _              <- emailService.sendRegistrationConfirmation(emailAddresses, subscriptionId, idNumberOpt)
+        updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield Ok(
+        view(
+          subscriptionId = subscriptionId,
+          emailAddresses = emailAddresses,
+          addProviderUrl = addProviderUrl
+        )
+      )
+      result match {
+        case Some(successRedirect) => successRedirect
+        case None                  =>
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
       }
     }
 }

@@ -36,8 +36,7 @@ class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit 
     if (submitted) {
 
       logger.info(
-        s"[SubmissionLockAction] Blocking request after submission. " +
-          s"affinityGroup=${request.affinityGroup}, path=${request.uri}"
+        s"[SubmissionLockAction] Blocking request after submission. path=${request.uri}"
       )
 
       Future.successful(

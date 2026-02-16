@@ -20,13 +20,14 @@ class $className$Controller @Inject()(
                                         navigator: Navigator,
                                         identify: IdentifierAction,
                                         getData: DataRetrievalAction,
+                                        submissionLock: SubmissionLockAction,
                                         requireData: DataRequiredAction,
                                         formProvider: $className$FormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: $className$View
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val form = formProvider()

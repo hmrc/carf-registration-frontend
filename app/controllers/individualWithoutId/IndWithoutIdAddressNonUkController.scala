@@ -38,6 +38,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndWithoutIdAddressNonUkFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -50,7 +51,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
 
   private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
       countriesList match {
         case Some(countries) =>

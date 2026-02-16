@@ -38,6 +38,7 @@ class IndWithoutNinoNameController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndWithoutNinoNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -48,7 +49,7 @@ class IndWithoutNinoNameController @Inject() (
 
   val form: Form[Name] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(IndWithoutNinoNamePage).fold(form)(form.fill)

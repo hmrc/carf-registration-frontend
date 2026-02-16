@@ -36,6 +36,7 @@ class IndWithoutIdDateOfBirthController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndWithoutIdDateOfBirthFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -44,7 +45,7 @@ class IndWithoutIdDateOfBirthController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
       val form = formProvider()
 

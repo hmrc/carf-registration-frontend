@@ -32,6 +32,7 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     appConfig: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
@@ -40,7 +41,7 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
     val indexPageUrl             = controllers.routes.IndexController.onPageLoad().url
     val guidancePageUrl          = appConfig.utrGuidanceUrl
     val aeoiEmailAddress: String = appConfig.aeoiEmailAddress

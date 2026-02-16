@@ -36,6 +36,7 @@ class IndividualRegistrationTypeController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndividualRegistrationTypeFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -46,7 +47,7 @@ class IndividualRegistrationTypeController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val preparedForm =

@@ -38,6 +38,7 @@ class WhereDoYouLiveController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: WhereDoYouLiveFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -49,7 +50,7 @@ class WhereDoYouLiveController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val preparedForm =

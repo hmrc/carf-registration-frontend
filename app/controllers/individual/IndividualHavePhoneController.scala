@@ -37,6 +37,7 @@ class IndividualHavePhoneController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndividualHavePhoneFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -47,7 +48,7 @@ class IndividualHavePhoneController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(IndividualHavePhonePage).fold(form)(form.fill)

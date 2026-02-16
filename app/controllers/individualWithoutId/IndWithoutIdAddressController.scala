@@ -42,6 +42,7 @@ class IndWithoutIdAddressController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndWithoutIdAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -55,7 +56,7 @@ class IndWithoutIdAddressController @Inject() (
   private final def countryListWithFilledForm(form: Form[AddressUK]) =
     countryListFactory.countrySelectList(form.data, countryListFactory.ukCountries)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
     implicit request =>
       Future.successful(Ok(view(preFillForm(mode), mode, countryListWithFilledForm(preFillForm(mode)))))
   }

@@ -38,6 +38,7 @@ class HaveNiNumberController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: HaveNiNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -52,7 +53,7 @@ class HaveNiNumberController @Inject() (
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen retrieveCtUTR() andThen getData() andThen requireData) { implicit request =>
+    (identify() andThen retrieveCtUTR() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(HaveNiNumberPage).fold(form)(form.fill)
 

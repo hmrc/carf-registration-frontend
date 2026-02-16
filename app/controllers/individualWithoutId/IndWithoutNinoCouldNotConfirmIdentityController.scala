@@ -29,13 +29,14 @@ class IndWithoutNinoCouldNotConfirmIdentityController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: IndWithoutNinoCouldNotConfirmIdentityView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
     val tryAgainLink: String = routes.IndexController.onPageLoad().url
 
     Ok(view(tryAgainLink))

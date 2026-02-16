@@ -37,6 +37,7 @@ class IndReviewConfirmAddressController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     navigator: Navigator,
     sessionRepository: SessionRepository,
@@ -47,7 +48,7 @@ class IndReviewConfirmAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
     implicit request =>
 
       val editAddressLink: String =

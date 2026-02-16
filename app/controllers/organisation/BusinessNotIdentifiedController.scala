@@ -34,6 +34,7 @@ class BusinessNotIdentifiedController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: BusinessNotIdentifiedView,
@@ -42,7 +43,7 @@ class BusinessNotIdentifiedController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
     val companiesHouseSearchUrl: String = appConfig.companiesHouseSearchUrl
     val registrationStartUrl: String    = controllers.routes.IndexController.onPageLoad().url

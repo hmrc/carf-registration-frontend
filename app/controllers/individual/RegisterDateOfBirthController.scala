@@ -43,6 +43,7 @@ class RegisterDateOfBirthController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: RegisterDateOfBirthFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -53,7 +54,7 @@ class RegisterDateOfBirthController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
       val form         = formProvider()
       val preparedForm = request.userAnswers.get(RegisterDateOfBirthPage).fold(form)(form.fill)

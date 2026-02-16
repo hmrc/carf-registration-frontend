@@ -49,8 +49,8 @@ class FirstContactPhoneController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(FirstContactPhonePage) match {
         case None        => form
@@ -61,7 +61,7 @@ class FirstContactPhoneController @Inject() (
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
         case None            => Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

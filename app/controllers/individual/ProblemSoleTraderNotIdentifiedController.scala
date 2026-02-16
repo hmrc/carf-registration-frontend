@@ -41,24 +41,25 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
-    val indexPageUrl             = controllers.routes.IndexController.onPageLoad().url
-    val guidancePageUrl          = appConfig.utrGuidanceUrl
-    val aeoiEmailAddress: String = appConfig.aeoiEmailAddress
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
+    implicit request =>
+      val indexPageUrl             = controllers.routes.IndexController.onPageLoad().url
+      val guidancePageUrl          = appConfig.utrGuidanceUrl
+      val aeoiEmailAddress: String = appConfig.aeoiEmailAddress
 
-    val pageInfo = for {
-      utr  <- request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
-      name <- request.userAnswers.get(WhatIsYourNamePage)
-    } yield (utr.uniqueTaxPayerReference, name.fullName)
+      val pageInfo = for {
+        utr  <- request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
+        name <- request.userAnswers.get(WhatIsYourNamePage)
+      } yield (utr.uniqueTaxPayerReference, name.fullName)
 
-    pageInfo match {
-      case Some(utr, name) => Ok(view(utr, name, indexPageUrl, guidancePageUrl, aeoiEmailAddress))
-      case None            =>
-        logger.warn(
-          "Some information was missing from user answers (utr, business name or both). Redirecting to journey recovery."
-        )
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
-    }
+      pageInfo match {
+        case Some(utr, name) => Ok(view(utr, name, indexPageUrl, guidancePageUrl, aeoiEmailAddress))
+        case None            =>
+          logger.warn(
+            "Some information was missing from user answers (utr, business name or both). Redirecting to journey recovery."
+          )
+          Redirect(routes.JourneyRecoveryController.onPageLoad())
+      }
 
   }
 }

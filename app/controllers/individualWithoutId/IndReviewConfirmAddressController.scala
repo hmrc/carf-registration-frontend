@@ -48,8 +48,8 @@ class IndReviewConfirmAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
 
       val editAddressLink: String =
         controllers.individualWithoutId.routes.IndWithoutIdAddressController
@@ -68,7 +68,7 @@ class IndReviewConfirmAddressController @Inject() (
           logger.warn("No addresses were found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

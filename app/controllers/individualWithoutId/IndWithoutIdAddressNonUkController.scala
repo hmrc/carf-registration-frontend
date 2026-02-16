@@ -51,8 +51,8 @@ class IndWithoutIdAddressNonUkController @Inject() (
 
   private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       countriesList match {
         case Some(countries) =>
           val form         = formProvider(countries)
@@ -72,7 +72,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
           logger.error("Could not retrieve countries list from JSON file.")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

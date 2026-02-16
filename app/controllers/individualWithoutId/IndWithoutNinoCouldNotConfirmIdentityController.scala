@@ -36,9 +36,10 @@ class IndWithoutNinoCouldNotConfirmIdentityController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
-    val tryAgainLink: String = routes.IndexController.onPageLoad().url
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
+    implicit request =>
+      val tryAgainLink: String = routes.IndexController.onPageLoad().url
 
-    Ok(view(tryAgainLink))
+      Ok(view(tryAgainLink))
   }
 }

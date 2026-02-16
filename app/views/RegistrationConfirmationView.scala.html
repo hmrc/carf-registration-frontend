@@ -65,7 +65,11 @@
     <h2 class="govuk-heading-m">@messages("registrationConfirmation.feedback.heading")</h2>
     <p class="govuk-body">@messages("registrationConfirmation.feedback.text")</p>
     <p class="govuk-body">
-        @link(appConfig.exitSurveyUrl, "registrationConfirmation.feedback.link", id = Some("exit-survey-link"))
+        @link(
+            routes.PlaceholderController.onPageLoad("Page will be implemented in CARF-369").url,
+            "registrationConfirmation.feedback.link",
+            id = Some("exit-survey-link")
+        )
         @messages("registrationConfirmation.feedback.postLink")
     </p>
 }

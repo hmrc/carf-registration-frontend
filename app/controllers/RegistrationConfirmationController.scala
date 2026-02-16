@@ -82,16 +82,16 @@ class RegistrationConfirmationController @Inject() (
             case Some(OrgWithUtr) | Some(OrgWithoutId) =>
               if (request.userAnswers.isCtAutoMatched)
                 controllers.routes.PlaceholderController
-                  .onPageLoad("redirect to /report-for-registered-business (ct automatch)")
+                  .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
                   .url
               else
                 controllers.routes.PlaceholderController
-                  .onPageLoad("redirect to /organisation-or-individual (non-automatch)")
+                  .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
                   .url
 
             case Some(IndWithNino) | Some(IndWithUtr) | Some(IndWithoutId) =>
               controllers.routes.PlaceholderController
-                .onPageLoad("redirect to /organisation-or-individual (individual)")
+                .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
                 .url
 
             case _ =>

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.countries.Country
 import models.responses.AddressResponse
-import models.{AddressUK, IndFindAddress, Mode}
+import models.{AddressUk, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.AddressLookupPage
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
@@ -89,7 +89,7 @@ class IndFindAddressController @Inject() (
                   for {
                     updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
                     filledAddress              = addresses.headOption.fold(
-                                                   AddressUK("", None, None, "", value.postcode, Country("", ""))
+                                                   AddressUk("", None, None, "", value.postcode, Country("", ""))
                                                  )(addressUk => addressUk)
                     updatedAnswersWithPrePop  <-
                       Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))

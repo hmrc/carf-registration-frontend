@@ -32,7 +32,7 @@ import play.api.libs.json.{Json, OFormat}
   * @param country
   *   country e.g. Country("GB", "United Kingdom")
   */
-case class AddressUK(
+case class AddressUk(
     addressLine1: String,
     addressLine2: Option[String],
     addressLine3: Option[String],
@@ -41,7 +41,7 @@ case class AddressUK(
     country: Country
 )
 
-extension (address: AddressUK) {
+extension (address: AddressUk) {
   def renderHTML: String = {
     val addressLines = Seq(
       Some(address.addressLine1),
@@ -64,6 +64,6 @@ extension (address: AddressUK) {
   }
 }
 
-object AddressUK {
-  implicit val format: OFormat[AddressUK] = Json.format[AddressUK]
+object AddressUk {
+  implicit val format: OFormat[AddressUk] = Json.format[AddressUk]
 }

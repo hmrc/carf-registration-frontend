@@ -20,11 +20,9 @@ import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import models.countries.{Country, UnitedKingdom}
 import models.requests.DataRequest
-import models.responses.AddressResponse
-import models.{AddressUK, CheckMode, Mode, NormalMode}
+import models.{AddressUk, Mode}
 import navigation.Navigator
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdAddressInUserAnswers, IndWithoutIdAddressPageForNavigatorOnly, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{IndWithoutIdAddressPageForNavigatorOnly, IndWithoutIdAddressPagePrePop, IndWithoutIdUkAddressInUserAnswers}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -52,9 +50,9 @@ class IndWithoutIdAddressController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private final def form: Form[AddressUK]                            = formProvider(countryListFactory.ukCountries)
-  private final def countryListWithFilledForm(form: Form[AddressUK]) =
-    countryListFactory.countrySelectList(form.data, countryListFactory.ukCountries)
+  private final def form: Form[AddressUk]                            = formProvider(CountryListFactory.ukCountries)
+  private final def countryListWithFilledForm(form: Form[AddressUk]) =
+    countryListFactory.countrySelectList(form.data, CountryListFactory.ukCountries)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
@@ -77,7 +75,7 @@ class IndWithoutIdAddressController @Inject() (
             ),
           value =>
             for {
-              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressInUserAnswers, value))
+              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, value))
               updatedAnswersWithPrePop <- Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, value))
               _                        <- sessionRepository.set(updatedAnswersWithPrePop)
             } yield Redirect(

@@ -18,7 +18,7 @@ package forms.individualWithoutId
 
 import config.Constants.{addressRegex, postCodeAllowedChars, regexPostcode}
 import forms.mappings.Mappings
-import models.AddressUK
+import models.AddressUk
 import models.countries.Country
 import play.api.data.Form
 import play.api.data.Forms.*
@@ -29,7 +29,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
 
   inline val maxLength = 35
 
-  def apply(countryList: Seq[Country]): Form[AddressUK] = Form(
+  def apply(countryList: Seq[Country]): Form[AddressUk] = Form(
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
         firstError(
@@ -70,14 +70,16 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         postCodeAllowedChars,
         Some("address.postcode.error.notReal")
       ),
-      "country"      -> text("address.country.error.required").transform[Country](
-        value =>
-          countryList
-            .find(_.code.contains(value))
-            .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
-        country => country.code
-      )
-    )(AddressUK.apply)(x =>
+      "country"      -> text("address.country.error.required")
+        .verifying("address.country.error.required", value => countryList.exists(_.code == value))
+        .transform[Country](
+          value =>
+            countryList
+              .find(_.code.contains(value))
+              .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
+          country => country.code
+        )
+    )(AddressUk.apply)(x =>
       Some(
         x.addressLine1,
         x.addressLine2,

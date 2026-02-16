@@ -22,7 +22,7 @@ import models.responses.AddressResponse
 import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndReviewConfirmAddressPage, IndWithoutIdAddressInUserAnswers}
+import pages.individualWithoutId.{IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -74,9 +74,10 @@ class IndReviewConfirmAddressController @Inject() (
       request.userAnswers.get(AddressLookupPage) match {
         case Some(addresses) if addresses.nonEmpty =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressInUserAnswers, addresses.head))
+            updatedAnswers <-
+              Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, addresses.head))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPageForNavigatorOnly, mode, updatedAnswers))
         case _                                     =>
           logger.error("No address found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

@@ -16,11 +16,11 @@
 
 package pages.individualWithoutId
 
-import models.AddressUK
+import models.AddressUk
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IndWithoutIdAddressPagePrePop extends QuestionPage[AddressUK] {
+case object IndWithoutIdAddressPagePrePop extends QuestionPage[AddressUk] {
 
   override def path: JsPath = JsPath \ toString
 

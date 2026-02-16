@@ -124,7 +124,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndFindAddressPage =>
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
-    case IndReviewConfirmAddressPage =>
+    case IndReviewConfirmAddressPageForNavigatorOnly =>
       _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactPhoneNumberPage =>
@@ -287,13 +287,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         )
       case _                                      =>
         routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers): Call =
-    userAnswers.get(IndReviewConfirmAddressPage) match {
-      case Some(addressResponse) =>
-        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      case _                     => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

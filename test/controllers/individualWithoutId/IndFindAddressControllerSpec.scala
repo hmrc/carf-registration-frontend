@@ -25,7 +25,7 @@ import models.countries.UnitedKingdom
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUK, IndFindAddress, NormalMode, UserAnswers}
+import models.{AddressUk, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
@@ -103,16 +103,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
     }
 
     "must return OK and remove IndWithoutIdAddressPagePrePop from ua when performing a GET" in {
+      val userAnswers = emptyUserAnswers.set(IndWithoutIdAddressPagePrePop, testAddressUk).success.value
 
-      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, "BB00 0BB", UnitedKingdom.code)
-
-      val userAnswers =
-        UserAnswers(userAnswersId)
-          .set(IndWithoutIdAddressPagePrePop, addressUK)
-          .success
-          .value
-
-      val userAnswersWithout = UserAnswers(userAnswersId)
+      val userAnswersWithout = emptyUserAnswers
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -159,7 +152,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
-        .thenReturn(Future.successful(Right(oneAddress)))
+        .thenReturn(Future.successful(Right(Seq(testAddressUk))))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -189,7 +182,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(Right(multipleAddresses)))
+        .thenReturn(Future.successful(Right(Seq(testAddressUk, testAddressUk, testAddressUk))))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))

@@ -16,7 +16,7 @@
 
 package services
 
-import models.AddressUK
+import models.AddressUk
 import models.countries.Country
 import models.error.{CarfError, ConversionError}
 import models.responses.AddressResponse
@@ -24,12 +24,12 @@ import models.responses.AddressResponse
 object AddressMappings {
 
   extension (addressResponse: AddressResponse)
-    def toDomain: Either[CarfError, AddressUK] = {
+    def toDomain: Either[CarfError, AddressUk] = {
       val address = addressResponse.address
       address.lines match {
         case head :: next =>
           Right(
-            AddressUK(
+            AddressUk(
               addressLine1 = head,
               addressLine2 = next.headOption,
               addressLine3 = next.lift(1),

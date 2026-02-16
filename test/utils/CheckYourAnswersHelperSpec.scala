@@ -20,9 +20,9 @@ import base.SpecBase
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
 import models.responses.AddressRegistrationResponse
-import models.{AddressUK, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdAddressInUserAnswers, IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
@@ -389,7 +389,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       }
       "must return None when 'What is your address' (UK/CD) page has not been answered for an individual or sole trader" in new TestData {
         private val testUserAnswers  =
-          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutIdAddressInUserAnswers).success.value
+          testUserAnswersIndWithoutIdDetailsIndividual(true).remove(IndWithoutIdUkAddressInUserAnswers).success.value
         val section: Option[Section] = testHelper.indWithoutIdYourDetailsMaybe(testUserAnswers)
 
         section mustBe None
@@ -772,8 +772,8 @@ class CheckYourAnswersHelperSpec extends SpecBase {
 
       if (isUkOrCd) {
         ua.set(
-          IndWithoutIdAddressInUserAnswers,
-          AddressUK("L1", Some("L2"), Some("L3"), "C2", "P1", Country("GB", "GB"))
+          IndWithoutIdUkAddressInUserAnswers,
+          AddressUk("L1", Some("L2"), Some("L3"), "C2", "P1", Country("GB", "GB"))
         ).success
           .value
       } else {

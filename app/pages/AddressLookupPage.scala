@@ -16,10 +16,10 @@
 
 package pages
 
-import models.AddressUK
+import models.AddressUk
 import play.api.libs.json.JsPath
 
-case object AddressLookupPage extends QuestionPage[Seq[AddressUK]] {
+case object AddressLookupPage extends QuestionPage[Seq[AddressUk]] {
 
   override def path: JsPath = JsPath \ toString
 

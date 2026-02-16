@@ -65,7 +65,7 @@ class AddressLookupConnectorISpec
           )
       )
 
-      val result = connector.searchByPostcode(validRequestBody).futureValue
+      val result = connector.searchByPostcode(validRequestBody).value.futureValue
 
       result shouldBe Right(searchByPostcodeValidResponse)
     }
@@ -80,7 +80,7 @@ class AddressLookupConnectorISpec
           )
       )
 
-      val result = connector.searchByPostcode(validRequestBody).futureValue
+      val result = connector.searchByPostcode(validRequestBody).value.futureValue
 
       result shouldBe Left(ApiError.JsonValidationError)
     }
@@ -95,7 +95,7 @@ class AddressLookupConnectorISpec
           )
       )
 
-      val result = connector.searchByPostcode(validRequestBody).futureValue
+      val result = connector.searchByPostcode(validRequestBody).value.futureValue
 
       result shouldBe Left(ApiError.InternalServerError)
     }

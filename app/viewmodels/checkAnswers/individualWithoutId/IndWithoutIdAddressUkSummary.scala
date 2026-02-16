@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individualWithoutId
 
 import models.{renderHTML, CheckMode, UserAnswers}
-import pages.individualWithoutId.IndWithoutIdAddressInUserAnswers
+import pages.individualWithoutId.IndWithoutIdUkAddressInUserAnswers
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 object IndWithoutIdAddressUkSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(IndWithoutIdAddressInUserAnswers).map { answer =>
+    answers.get(IndWithoutIdUkAddressInUserAnswers).map { answer =>
       val value = answer.renderHTML
 
       SummaryListRowViewModel(

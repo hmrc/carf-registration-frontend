@@ -28,19 +28,6 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class CountryListFactory @Inject() (environment: Environment, appConfig: FrontendAppConfig) {
 
-  final def ukCountries: Seq[Country] = Seq(
-    UnitedKingdom,
-    Country("GB", "United Kingdom", Option("UK")),
-    Country("GB", "United Kingdom", Option("Great Britain")),
-    Country("GB", "United Kingdom", Option("Northern Ireland")),
-    Guernsey,
-    Jersey,
-    IsleOfMan
-  )
-
-  def countryCodesForUkCountries: Set[Country]              = Set(UnitedKingdom, UnitedKingdom, Guernsey, Jersey, IsleOfMan)
-  final lazy val countryCodesForUkCountryCodes: Set[String] = countryCodesForUkCountries.map(_.code)
-
   def countryList: Option[Seq[Country]] = getCountryList
 
   private def getCountryList: Option[Seq[Country]] =
@@ -68,11 +55,11 @@ class CountryListFactory @Inject() (environment: Environment, appConfig: Fronten
   }
 
   lazy val countryListWithoutUKCountries: Option[Seq[Country]] = countryList.map { countries =>
-    countries.filter(country => !countryCodesForUkCountryCodes.contains(country.code))
+    countries.filter(country => !CountryListFactory.countryCodesForUkCountryCodes.contains(country.code))
   }
 
   lazy val countryListWithUKCountries: Option[Seq[Country]] = countryList.map { countries =>
-    countries.filter(country => countryCodesForUkCountryCodes.contains(country.code))
+    countries.filter(country => CountryListFactory.countryCodesForUkCountryCodes.contains(country.code))
   }
 
   def countrySelectList(value: Map[String, String], countries: Seq[Country]): Seq[SelectItem] = {
@@ -94,4 +81,20 @@ class CountryListFactory @Inject() (environment: Environment, appConfig: Fronten
     SelectItem(Some(""), "Select a country", selected = false) +: countryJsonList
   }
 
+}
+
+object CountryListFactory {
+  val ukCountries: Seq[Country] = Seq(
+    UnitedKingdom,
+    Country("GB", "United Kingdom", Option("UK")),
+    Country("GB", "United Kingdom", Option("Great Britain")),
+    Country("GB", "United Kingdom", Option("Northern Ireland")),
+    Guernsey,
+    Jersey,
+    IsleOfMan
+  )
+
+  val countryCodesForUkCountries: Set[Country] = Set(GB, UK, GG, JE, IM)
+
+  final lazy val countryCodesForUkCountryCodes: Set[String] = countryCodesForUkCountries.map(_.code)
 }

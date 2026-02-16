@@ -193,6 +193,11 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
       result.errors must contain(FormError(fieldName, requiredKey))
     }
 
+    "must not bind an uk country code" in {
+      val result = form.bind(baseFormData + (fieldName -> "GB")).apply(fieldName)
+      result.errors must contain(FormError(fieldName, requiredKey))
+    }
+
     "must bind a valid country code" in {
       val result = form.bind(baseFormData + (fieldName -> "FR")).apply(fieldName)
       result.errors mustBe empty

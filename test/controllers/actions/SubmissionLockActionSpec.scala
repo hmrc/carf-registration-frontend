@@ -79,7 +79,11 @@ class SubmissionLockActionSpec extends SpecBase {
 
       status(Future.successful(result.value))           mustBe SEE_OTHER
       redirectLocation(Future.successful(result.value)) mustBe Some(
-        controllers.routes.PageUnavailableController.onPageLoad().url
+        controllers.routes.PlaceholderController
+          .onPageLoad(
+            "Must redirect to /register/page-unavailable (CARF-308)"
+          )
+          .url
       )
     }
   }

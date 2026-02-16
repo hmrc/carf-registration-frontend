@@ -17,6 +17,7 @@
 package controllers.actions
 
 import play.api.Logging
+import controllers.routes
 import models.requests.OptionalDataRequest
 import play.api.mvc._
 import javax.inject.Inject
@@ -41,7 +42,9 @@ class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit 
 
       Future.successful(
         Some(
-          Results.Redirect(controllers.routes.PageUnavailableController.onPageLoad())
+          Results.Redirect(
+            routes.PlaceholderController.onPageLoad("Must redirect to /register/page-unavailable (CARF-308)")
+          )
         )
       )
 

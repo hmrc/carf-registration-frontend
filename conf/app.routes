@@ -14,8 +14,6 @@ GET         /there-is-a-problem                                                 
 
 GET         /placeholder                                                        controllers.PlaceholderController.onPageLoad(message: String)
 
-GET         /problem/page-unavailable                                           controllers.PageUnavailableController.onPageLoad()
-
 GET         /register/check-answers                                             controllers.CheckYourAnswersController.onPageLoad()
 POST        /register/check-answers                                             controllers.CheckYourAnswersController.onSubmit()
 

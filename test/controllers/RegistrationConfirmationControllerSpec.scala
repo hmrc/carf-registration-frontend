@@ -182,8 +182,8 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )
 
           val expectedUrl = controllers.routes.PlaceholderController
+            .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
             .url
-
           verify(mockView).apply(
             eqTo(subscriptionId),
             eqTo(expectedEmails),

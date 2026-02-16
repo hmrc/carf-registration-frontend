@@ -33,7 +33,7 @@ class EmailService @Inject() ()(implicit ec: ExecutionContext) extends Logging {
     *   Optional UTR or NINO to determine stub behavior
     */
 
-  //TODO [CARF-325]: Remove stubbed behaviour and integrate with DC email service
+  // TODO [CARF-325]: Remove stubbed behaviour and integrate with DC email service
 
   def sendRegistrationConfirmation(
       emails: List[String],

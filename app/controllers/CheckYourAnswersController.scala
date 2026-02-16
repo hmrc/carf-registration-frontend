@@ -101,14 +101,15 @@ class CheckYourAnswersController @Inject() (
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
-    subscriptionService.subscribe(request.userAnswers) map {
-      case Right(response) =>
-        Redirect(
-          controllers.routes.RegistrationConfirmationController.onPageLoad()
-        )
-      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-    }
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
+    implicit request =>
+      subscriptionService.subscribe(request.userAnswers) map {
+        case Right(response) =>
+          Redirect(
+            controllers.routes.RegistrationConfirmationController.onPageLoad()
+          )
+        case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
 
   }
 }

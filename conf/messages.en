@@ -492,13 +492,12 @@ indReviewConfirmAddress.confirmAddress = Confirm address
 registrationConfirmation.title = Registration successful
 registrationConfirmation.label.heading = Registration successful
 registrationConfirmation.carfUserId.label= Your CARF user ID
-registrationConfirmation.carfUserId.id = [insert carf id]
 registrationConfirmation.support.text.preLink = You’ll need to provide your CARF user ID when emailing
 registrationConfirmation.support.text.link = aeoi.enquiries@hmrc.gov.uk
 registrationConfirmation.support.text.postLink = for support.
 
-registrationConfirmation.1.email.sent = We have also sent a confirmation email to [email address].
-registrationConfirmation.2.email.sent = We have also sent a confirmation email to [email address] and [email address 2].
+registrationConfirmation.1.email.sent = We have also sent a confirmation email to {0}.
+registrationConfirmation.2.email.sent = We have also sent a confirmation email to {0} and {1}.
 
 registrationConfirmation.next.heading = What you should do next
 registrationConfirmation.next.text = To send cryptoasset reports, you must

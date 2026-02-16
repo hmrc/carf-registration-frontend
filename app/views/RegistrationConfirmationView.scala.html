@@ -42,12 +42,9 @@
     @defining(
         secondaryEmailOpt match {
             case Some(second) =>
-                messages("registrationConfirmation.2.email.sent")
-                .replace("[email address]", primaryEmail)
-                .replace("[email address 2]", second)
+                messages("registrationConfirmation.2.email.sent", primaryEmail, second)
             case None =>
-                messages("registrationConfirmation.1.email.sent")
-                .replace("[email address]", primaryEmail)
+                messages("registrationConfirmation.1.email.sent", primaryEmail)
         }
     ) { emailSentence =>
         <p class="govuk-body">@emailSentence</p>

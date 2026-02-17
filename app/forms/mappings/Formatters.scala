@@ -409,11 +409,10 @@ trait Formatters extends Transforms with Logging {
 
       def postCodeAreaValidForCountryCode: Boolean =
         countryCode match {
-          case Jersey.code        => postcodeUpperCase.startsWith("JE")
-          case IsleOfMan.code     => postcodeUpperCase.startsWith("IM")
-          case Guernsey.code      => postcodeUpperCase.startsWith("GY")
-          case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.take(2))
-          case _                  => throw new Exception("Only UK and CD country codes allowed!")
+          case Jersey.code    => postcodeUpperCase.startsWith("JE")
+          case IsleOfMan.code => postcodeUpperCase.startsWith("IM")
+          case Guernsey.code  => postcodeUpperCase.startsWith("GY")
+          case _              => !Seq("GY", "JE", "IM").contains(postcode.take(2))
         }
 
       if (!postCodeAreaValidForCountryCode) {

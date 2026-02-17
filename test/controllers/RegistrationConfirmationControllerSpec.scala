@@ -35,8 +35,7 @@ import scala.concurrent.Future
 
 class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
-  private val mockEmailService      = mock[EmailService]
-  private val mockSessionRepository = mock[SessionRepository]
+  private val mockEmailService = mock[EmailService]
 
   def buildApplication(userAnswers: Option[UserAnswers]) =
     applicationBuilder(userAnswers = userAnswers)

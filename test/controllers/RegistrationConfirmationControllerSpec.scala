@@ -19,9 +19,9 @@ package controllers
 import base.SpecBase
 import models.JourneyType._
 import models.{UniqueTaxpayerReference, UserAnswers}
+import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import pages.individual.{IndividualEmailPage, NiNumberPage}
 import pages.organisation.{FirstContactEmailPage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
@@ -33,7 +33,7 @@ import views.html.RegistrationConfirmationView
 
 import scala.concurrent.Future
 
-class RegistrationConfirmationControllerSpec extends SpecBase {
+class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
   private val mockEmailService      = mock[EmailService]
   private val mockSessionRepository = mock[SessionRepository]
@@ -41,7 +41,8 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
   def buildApplication(userAnswers: Option[UserAnswers]) =
     applicationBuilder(userAnswers = userAnswers)
       .overrides(
-        bind[EmailService].toInstance(mockEmailService)
+        bind[EmailService].toInstance(mockEmailService),
+        bind[SessionRepository].toInstance(mockSessionRepository)
       )
       .build()
 
@@ -234,7 +235,6 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
-
     }
   }
 }

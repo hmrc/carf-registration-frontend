@@ -383,7 +383,7 @@ trait Formatters extends Transforms with Logging {
               case "AA11AA" if notRealKey.isDefined                                   => notRealError(notRealKey.get)
               case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
               case s if notRealKey.isDefined                                          =>
-                notRealPostcodeCheck(postCode, data, invalidKey, notRealKey.get, regex)
+                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get, regex)
               case s                                                                  => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
@@ -395,7 +395,7 @@ trait Formatters extends Transforms with Logging {
 
     }
 
-  private def notRealPostcodeCheck(
+  private def notRealPostcodeCheckForCdAndUkOnly(
       postcode: String,
       data: Map[String, String],
       invalidCharKey: String,
@@ -408,26 +408,23 @@ trait Formatters extends Transforms with Logging {
 
     val countryCode = data.getOrElse("country", "")
 
-    val realCrownDependencyPostcodeRegex = Map(
-      GG.code -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
-      JE.code -> "^JE[1-4] ?[0-9][A-Z]{2}$",
-      IM.code -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
-    )
+    def postCodeAreaValidForCountryCode: Boolean =
+      countryCode match {
+        case Jersey.code        => postcodeNormalised.startsWith("JE")
+        case IsleOfMan.code     => postcodeNormalised.startsWith("IM")
+        case Guernsey.code      => postcodeNormalised.startsWith("GY")
+        case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.take(2))
+        case _                  => true
+      }
 
-    val crownStartingPostcode = Seq("GY", "JE", "IM")
-
-    val postCodeStartWithCrown =
-      crownStartingPostcode.exists(startOfPostCode => postcodeNormalised.startsWith(startOfPostCode))
-
-    val postCodeAndCountryCodeMatch =
-      postcodeNormalised.take(2) == countryCode || (countryCode == GG.code && postcodeNormalised.startsWith("GY")) ||
-        (countryCode == GB.code && !postCodeStartWithCrown)
-
-    (realCrownDependencyPostcodeRegex.get(countryCode), postCodeAndCountryCodeMatch) match {
-      case (_, false)                                            => invalidError
-      case (Some(regex), _) if postcodeNormalised.matches(regex) => Right(postcodeNormalised)
-      case (None, true)                                          => Right(postcodeNormalised)
-      case (Some(regex), _)                                      => notRealError(notRealKey)
+    if (!postCodeAreaValidForCountryCode) {
+      invalidError
+    } else {
+      Constants.cdPostcodeRegex.get(countryCode) match {
+        case None                                             => Right(postcodeNormalised)
+        case Some(regex) if postcodeNormalised.matches(regex) => Right(postcodeNormalised)
+        case Some(regex)                                      => notRealError(notRealKey)
+      }
     }
 
   }

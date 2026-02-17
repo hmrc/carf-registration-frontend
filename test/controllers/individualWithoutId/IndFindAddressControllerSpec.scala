@@ -21,7 +21,7 @@ import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import generators.Generators
 import models.JourneyType.IndWithoutId
-import models.countries.UK
+import models.countries.UnitedKingdom
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
@@ -104,7 +104,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
     "must return OK and remove IndWithoutIdAddressPagePrePop from ua when performing a GET" in {
 
-      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, "BB00 0BB", UK.code)
+      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, "BB00 0BB", UnitedKingdom.code)
 
       val userAnswers =
         UserAnswers(userAnswersId)

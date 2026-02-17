@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
-import models.countries.{Country, GB}
+import models.countries.{Country, UnitedKingdom}
 import models.requests.DataRequest
 import models.responses.AddressResponse
 import models.{AddressUK, CheckMode, Mode, NormalMode}

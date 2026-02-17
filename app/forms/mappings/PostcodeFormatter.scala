@@ -50,7 +50,7 @@ case class PostcodeFormatter(
 
   private def validation(countryCode: Option[String], postcode: String): Either[Seq[FormError], Option[String]] = {
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
-    val cc                = countryCode.getOrElse("")
+    val cc                = countryCode.getOrElse("UK")
 
     (isCrownDependency, postcode) match {
       case (true, "")                                        =>

@@ -53,10 +53,3 @@ class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit 
     }
   }
 }
-
-class SubmissionLockActionProvider @Inject() (parsers: BodyParsers.Default)(implicit ec: ExecutionContext) {
-
-  def apply(): SubmissionLockAction =
-    new SubmissionLockAction(parsers)
-
-}

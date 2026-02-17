@@ -248,6 +248,17 @@ class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
       result.errors must contain(FormError("postcode", "address.postcode.error.notReal"))
     }
 
+    "must return a 'real postcode' error for postcode AA11AA (no spaces)" in {
+      val formData = Map(
+        "addressLine1" -> "addressLine1",
+        "townOrCity"   -> "town",
+        "country"      -> "UK",
+        "postcode"     -> "AA11AA"
+      )
+      val result   = form.bind(formData)
+      result.errors must contain(FormError("postcode", "address.postcode.error.notReal"))
+    }
+
     "must return a 'real postcode' error for example postcode JE5 1AA" in {
       val formData = Map(
         "addressLine1" -> "addressLine1",
@@ -302,6 +313,20 @@ class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
       val data   = baseFormData ++ Map(fieldName -> "FR")
       val result = form.bind(data).apply(fieldName)
       result.errors mustBe empty
+    }
+  }
+
+  "combinations" - {
+    "must only show country required error when valid postcode is provided and country is empty" in {
+      val formData = Map(
+        "addressLine1" -> "addressLine1",
+        "townOrCity"   -> "town",
+        "country"      -> "",
+        "postcode"     -> "FX4 7AL"
+      )
+      val result   = form.bind(formData)
+      result.errors must contain(FormError("country", "address.country.error.required"))
+
     }
   }
 }

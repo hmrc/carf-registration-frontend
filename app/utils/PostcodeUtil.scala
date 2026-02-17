@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package models.countries
+package utils
 
-import play.api.libs.json.{Json, OFormat}
-
-case class Country(code: String, description: String, alternativeName: Option[String] = None)
-
-val UnitedKingdom = Country("GB", "United Kingdom")
-
-val Guernsey = Country("GG", "Guernsey")
-
-val Jersey = Country("JE", "Jersey")
-
-val IsleOfMan = Country("IM", "Isle of Man")
-
-object Country {
-  implicit val format: OFormat[Country] = Json.format[Country]
+object PostcodeUtil {
+  def normalise(isCrownDependency: Boolean, postcode: String): String =
+    if (isCrownDependency) {
+      val noSpaces = postcode.replaceAll("\\s", "").toUpperCase
+      if (noSpaces.length > 3) {
+        val (start, end) = noSpaces.splitAt(noSpaces.length - 3)
+        s"$start $end"
+      } else {
+        noSpaces
+      }
+    } else {
+      postcode.trim
+    }
 }

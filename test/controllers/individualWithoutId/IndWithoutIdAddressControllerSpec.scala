@@ -20,16 +20,14 @@ import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
-import models.countries.{Country, UK}
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUK, CheckMode, NormalMode, UserAnswers}
+import models.countries.{Country, UnitedKingdom}
+import models.{AddressUK, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.IndWithoutIdAddressPagePrePop
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -93,7 +91,7 @@ class IndWithoutIdAddressControllerSpec
     "must populate the view correctly on a GET when the question has previously been answered via pre-pop" in {
 
       val postCode  = validPostcodes.sample.value
-      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, postCode, UK.code)
+      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, postCode, UnitedKingdom.code)
 
       val userAnswers =
         UserAnswers(userAnswersId)
@@ -142,7 +140,7 @@ class IndWithoutIdAddressControllerSpec
             "addressLine2" -> "value 2",
             "townOrCity"   -> address.townOrCity,
             "postcode"     -> address.postCode,
-            "country"      -> UK.code
+            "country"      -> UnitedKingdom.code
           )
 
       val result = route(application, request).value

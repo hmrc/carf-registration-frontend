@@ -20,9 +20,11 @@ import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil, Phon
 import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
+import models.countries.*
 import play.api.Logging
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import utils.PostcodeUtil
 
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
@@ -30,6 +32,8 @@ import scala.util.{Failure, Success, Try}
 trait Formatters extends Transforms with Logging {
 
   private type EitherFormErrorOrValue = Either[Seq[FormError], String]
+  private lazy val notRealError: String => EitherFormErrorOrValue = notRealKey =>
+    Left(Seq(FormError("postcode", notRealKey)))
 
   private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] =
     new Formatter[String] {
@@ -363,23 +367,24 @@ trait Formatters extends Transforms with Logging {
       notRealKey: Option[String]
   ): Formatter[String] =
     new Formatter[String] {
-      private val notRealSanitisedPostCode = "AA11AA"
-
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
         val postCode          = data.get(key).map(_.trim)
         val maxLengthPostcode = 10
+        val notRealPostCode   = "AA11AA"
 
         postCode match {
           case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
           case Some(postCode)                     =>
             val sanitisedPostcode = postCode.replaceAll("\\s+", "")
             sanitisedPostcode match {
-              case s if s.length > maxLengthPostcode                          => Left(Seq(FormError(key, lengthKey)))
-              case s if !s.matches(validCharRegex)                            => Left(Seq(FormError(key, invalidCharKey)))
-              case s if !s.matches(regex)                                     => Left(Seq(FormError(key, invalidKey)))
-              case s if notRealKey.isDefined && s == notRealSanitisedPostCode =>
-                Left(Seq(FormError(key, notRealKey.get)))
-              case s                                                          => Right(validPostCodeFormat(s))
+              case s if s.length > maxLengthPostcode                                  => Left(Seq(FormError(key, lengthKey)))
+              case s if !s.matches(validCharRegex)                                    => Left(Seq(FormError(key, invalidCharKey)))
+              case s if !s.matches(regex)                                             => Left(Seq(FormError(key, invalidKey)))
+              case "AA11AA" if notRealKey.isDefined                                   => notRealError(notRealKey.get)
+              case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
+              case s if notRealKey.isDefined                                          =>
+                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get, regex)
+              case s                                                                  => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
         }
@@ -389,4 +394,38 @@ trait Formatters extends Transforms with Logging {
         Map(key -> value)
 
     }
+
+  private def notRealPostcodeCheckForCdAndUkOnly(
+      postcode: String,
+      data: Map[String, String],
+      invalidCharKey: String,
+      notRealKey: String,
+      regex: String
+  ): Either[Seq[FormError], String] = {
+
+    val postcodeNormalised = PostcodeUtil.normalise(true, postcode)
+    val invalidError       = Left(Seq(FormError("postcode", invalidCharKey)))
+
+    val countryCode = data.getOrElse("country", "")
+
+    def postCodeAreaValidForCountryCode: Boolean =
+      countryCode match {
+        case Jersey.code        => postcodeNormalised.startsWith("JE")
+        case IsleOfMan.code     => postcodeNormalised.startsWith("IM")
+        case Guernsey.code      => postcodeNormalised.startsWith("GY")
+        case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.take(2))
+        case _                  => true
+      }
+
+    if (!postCodeAreaValidForCountryCode) {
+      invalidError
+    } else {
+      Constants.cdPostcodeRegex.get(countryCode) match {
+        case None                                             => Right(postcodeNormalised)
+        case Some(regex) if postcodeNormalised.matches(regex) => Right(postcodeNormalised)
+        case Some(regex)                                      => notRealError(notRealKey)
+      }
+    }
+
+  }
 }

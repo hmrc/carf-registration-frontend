@@ -19,6 +19,7 @@ package forms.mappings
 import models.countries.*
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import utils.PostcodeUtil
 
 case class PostcodeFormatter(
     countryList: Seq[Country],
@@ -46,22 +47,6 @@ case class PostcodeFormatter(
       case "GG"  => "GY"
       case other => other
     }
-
-  private def normalise(countryCode: Option[String], postcode: String): String = {
-    val isCrownDependency = countryCode.exists(crownDependencies.contains)
-
-    if (isCrownDependency) {
-      val noSpaces = postcode.replaceAll("\\s", "").toUpperCase
-      if (noSpaces.length > 3) {
-        val (start, end) = noSpaces.splitAt(noSpaces.length - 3)
-        s"$start $end"
-      } else {
-        noSpaces
-      }
-    } else {
-      postcode.trim
-    }
-  }
 
   private def validation(countryCode: Option[String], postcode: String): Either[Seq[FormError], Option[String]] = {
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
@@ -92,8 +77,11 @@ case class PostcodeFormatter(
   }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
-    val countryCode        = data.get("country")
-    val normalisedPostcode = normalise(countryCode, data.getOrElse(key, ""))
+    val countryCode = data.get("country")
+
+    val isCrownDependency  = countryCode.exists(crownDependencies.contains)
+    val normalisedPostcode = PostcodeUtil.normalise(isCrownDependency, data.getOrElse(key, ""))
+
     validation(countryCode, normalisedPostcode)
   }
 

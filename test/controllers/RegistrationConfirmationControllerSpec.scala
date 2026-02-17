@@ -63,7 +63,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
-        when(mockSessionRepository.set(any()))
+        when(mockSessionRepository.set(any[UserAnswers]))
           .thenReturn(Future.successful(true))
 
         val application = buildApplication(Some(userAnswers))
@@ -93,7 +93,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
-        when(mockSessionRepository.set(any()))
+        when(mockSessionRepository.set(any[UserAnswers]))
           .thenReturn(Future.successful(true))
 
         val application = buildApplication(Some(userAnswers))
@@ -122,7 +122,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
-        when(mockSessionRepository.set(any()))
+        when(mockSessionRepository.set(any[UserAnswers]))
           .thenReturn(Future.successful(true))
 
         val application = buildApplication(Some(userAnswers))
@@ -150,7 +150,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
-        when(mockSessionRepository.set(any()))
+        when(mockSessionRepository.set(any[UserAnswers]))
           .thenReturn(Future.successful(true))
 
         val application = buildApplication(Some(userAnswers))
@@ -179,7 +179,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
-        when(mockSessionRepository.set(any()))
+        when(mockSessionRepository.set(any[UserAnswers]))
           .thenReturn(Future.successful(true))
 
         val application = buildApplication(Some(userAnswers))

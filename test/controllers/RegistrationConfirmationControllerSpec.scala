@@ -41,8 +41,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
   def buildApplication(userAnswers: Option[UserAnswers]) =
     applicationBuilder(userAnswers = userAnswers)
       .overrides(
-        bind[EmailService].toInstance(mockEmailService),
-        bind[SessionRepository].toInstance(mockSessionRepository)
+        bind[EmailService].toInstance(mockEmailService)
       )
       .build()
 

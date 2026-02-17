@@ -29,7 +29,7 @@
     @formHelper(action = controllers.individual.routes.IndividualRegistrationTypeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("individualRegistrationType" -> "value_0")))
         }
 
         @govukRadios(

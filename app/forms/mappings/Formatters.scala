@@ -378,7 +378,7 @@ trait Formatters extends Transforms with Logging {
               case s if !s.matches(validCharRegex)   => Left(Seq(FormError(key, invalidCharKey)))
               case s if !s.matches(regex)            => Left(Seq(FormError(key, invalidKey)))
               case s if notRealKey.isDefined         =>
-                notRealPostcodeCheck(postCode, data, invalidKey, notRealKey.get, regex)
+                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get, regex)
               case s                                 => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
@@ -390,7 +390,7 @@ trait Formatters extends Transforms with Logging {
 
     }
 
-  private def notRealPostcodeCheck(
+  private def notRealPostcodeCheckForCdAndUkOnly(
       postcode: String,
       data: Map[String, String],
       invalidCharKey: String,
@@ -409,10 +409,11 @@ trait Formatters extends Transforms with Logging {
 
       def postCodeAreaValidForCountryCode: Boolean =
         countryCode match {
-          case Jersey.code    => postcodeUpperCase.startsWith("JE")
-          case IsleOfMan.code => postcodeUpperCase.startsWith("IM")
-          case Guernsey.code  => postcodeUpperCase.startsWith("GY")
-          case _              => !Seq("GY", "JE", "IM").contains(postcode.take(2))
+          case Jersey.code        => postcodeUpperCase.startsWith("JE")
+          case IsleOfMan.code     => postcodeUpperCase.startsWith("IM")
+          case Guernsey.code      => postcodeUpperCase.startsWith("GY")
+          case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.take(2))
+          case _                  => true
         }
 
       if (!postCodeAreaValidForCountryCode) {

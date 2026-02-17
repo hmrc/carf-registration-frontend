@@ -106,8 +106,7 @@ class RegistrationConfirmationController @Inject() (
     (identify() andThen getData() andThen requireData).async { implicit request =>
 
       val result = for {
-        // TODO CARF-325: replace with real subscription ID
-        subscriptionId <- Some("XXCAR0012345678")
+        subscriptionId <- Some("XXCAR0012345678") // TODO CARF-325: replace with real subscription ID
         journeyType    <- request.userAnswers.journeyType
         emailAddresses <- getEmailAddresses(journeyType, request.userAnswers)
         idNumberOpt     = getIdNumber(journeyType, request.userAnswers)

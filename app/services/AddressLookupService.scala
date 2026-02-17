@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import cats.data.EitherT
 import cats.syntax.all.*
 import models.AddressUk
+import utils.AddressMappings
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

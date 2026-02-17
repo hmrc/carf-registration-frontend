@@ -16,7 +16,7 @@
 
 package models
 
-import models.countries.Country
+import models.countries.{Country, CountryUk}
 import play.api.libs.json.{Json, OFormat}
 
 /** @param addressLine1
@@ -29,8 +29,8 @@ import play.api.libs.json.{Json, OFormat}
   *   Town or city
   * @param postCode
   *   post code e.g. NW1 5RT
-  * @param country
-  *   country e.g. Country("GB", "United Kingdom")
+  * @param countryUk
+  *   country e.g. CountryUk("GB", "United Kingdom")
   */
 case class AddressUk(
     addressLine1: String,
@@ -38,7 +38,7 @@ case class AddressUk(
     addressLine3: Option[String],
     townOrCity: String,
     postCode: String,
-    country: Country
+    countryUk: CountryUk
 )
 
 extension (address: AddressUk) {
@@ -49,7 +49,7 @@ extension (address: AddressUk) {
       address.addressLine3,
       Some(address.townOrCity),
       Some(address.postCode),
-      Some(address.country.description)
+      Some(address.countryUk.name)
     ).flatten.filter(_.nonEmpty)
 
     val htmlLines = addressLines.zipWithIndex.map { case (line, index) =>

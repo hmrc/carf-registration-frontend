@@ -19,7 +19,7 @@ package base
 import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
-import models.countries.Country
+import models.countries.{Country, CountryUk}
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{AddressUk, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
@@ -102,6 +102,9 @@ trait SpecBase
     def withPage[T](page: Settable[T], value: T)(implicit writes: Writes[T]): UserAnswers =
       userAnswers.set(page, value).success.value
 
+    def withoutPage[T](page: Settable[T])(implicit writes: Writes[T]): UserAnswers =
+      userAnswers.remove(page).success.value
+
   }
 
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
@@ -125,7 +128,7 @@ trait SpecBase
     addressLine3 = Some("Test Region"),
     townOrCity = "Testingtown",
     postCode = testPostcode,
-    country = Country("GB", "United Kingdom")
+    countryUk = CountryUk("GB", "United Kingdom")
   )
 
   lazy val multipleAddressResponses: Seq[AddressResponse] =

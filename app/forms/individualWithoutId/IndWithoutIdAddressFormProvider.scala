@@ -19,7 +19,7 @@ package forms.individualWithoutId
 import config.Constants.{addressRegex, postCodeAllowedChars, regexPostcode}
 import forms.mappings.Mappings
 import models.AddressUk
-import models.countries.Country
+import models.countries.{Country, CountryUk}
 import play.api.data.Form
 import play.api.data.Forms.*
 
@@ -70,24 +70,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         postCodeAllowedChars,
         Some("address.postcode.error.notReal")
       ),
-      "country"      -> text("address.country.error.required")
-        .verifying("address.country.error.required", value => countryList.exists(_.code == value))
-        .transform[Country](
-          value =>
-            countryList
-              .find(_.code.contains(value))
-              .getOrElse(throw new IllegalStateException(s"Failed to derive country given code [$value]")),
-          country => country.code
-        )
-    )(AddressUk.apply)(x =>
-      Some(
-        x.addressLine1,
-        x.addressLine2,
-        x.addressLine3,
-        x.townOrCity,
-        x.postCode,
-        Country(x.country.code, x.country.description)
-      )
-    )
+      "country"      -> countryUkMapping(countryList)
+    )(AddressUk.apply)(x => Some(x.addressLine1, x.addressLine2, x.addressLine3, x.townOrCity, x.postCode, x.countryUk))
   )
 }

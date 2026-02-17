@@ -51,6 +51,7 @@ class IndWithoutIdAddressController @Inject() (
     with I18nSupport {
 
   private final def form: Form[AddressUk]                            = formProvider(CountryListFactory.ukCountries)
+  // TODO: We should use countryListWithUKCountries, not hardcoding CountryListFactory.ukCountries
   private final def countryListWithFilledForm(form: Form[AddressUk]) =
     countryListFactory.countrySelectList(form.data, CountryListFactory.ukCountries)
 

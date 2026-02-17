@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package services
+package utils
 
 import models.AddressUk
-import models.countries.Country
+import models.countries.{Country, CountryUk}
 import models.error.{CarfError, ConversionError}
 import models.responses.AddressResponse
 
@@ -35,7 +35,7 @@ object AddressMappings {
               addressLine3 = next.lift(1),
               townOrCity = address.town,
               postCode = address.postcode,
-              country = Country(code = address.country.code, description = address.country.name)
+              countryUk = CountryUk(code = address.country.code, name = address.country.name)
             )
           )
         case Nil          => Left(ConversionError)

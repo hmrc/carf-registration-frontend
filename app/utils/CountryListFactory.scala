@@ -38,7 +38,7 @@ class CountryListFactory @Inject() (environment: Environment, appConfig: Fronten
     IsleOfMan
   )
 
-  def countryCodesForUkCountries: Set[Country]              = Set(UnitedKingdom, UnitedKingdom, Guernsey, Jersey, IsleOfMan)
+  def countryCodesForUkCountries: Set[Country]              = Set(UnitedKingdom, Guernsey, Jersey, IsleOfMan)
   final lazy val countryCodesForUkCountryCodes: Set[String] = countryCodesForUkCountries.map(_.code)
 
   def countryList: Option[Seq[Country]] = getCountryList

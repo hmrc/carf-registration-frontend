@@ -544,3 +544,9 @@ address.postcode.error.notReal = Enter a real postcode
 
 address.country = Country
 address.country.error.required = Select country
+
+indvWithoutChooseAddress.title = Choose your address
+indvWithoutChooseAddress.heading = Choose your address
+indvWithoutChooseAddress.error.required = Select your address or ‘None of these’
+indvWithoutChooseAddress.optionsDivider = or
+indvWithoutChooseAddress.noneOfThese = None of these

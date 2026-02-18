@@ -28,7 +28,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import pages.individualWithoutId.IndWithoutIdAddressPagePrePop
+import pages.individualWithoutId.{IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -116,6 +116,42 @@ class IndWithoutIdAddressControllerSpec
         status(result) mustEqual OK
 
         contentAsString(result) mustEqual view(form.fill(addressUK), NormalMode, Seq.empty)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must NOT populate the view on a GET when there is an address present in pre-pop and IndWithoutIdChooseAddressPage is present" in {
+
+      val postCode  = validPostcodes.sample.value
+      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, postCode, UnitedKingdom.code)
+
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .set(IndWithoutIdAddressPagePrePop, addressUK)
+          .success
+          .value
+          .set(IndWithoutIdChooseAddressPage, "none")
+          .success
+          .value
+
+      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, addressRoute)
+
+        val view = application.injector.instanceOf[AddressView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        contentAsString(result) mustEqual view(form, NormalMode, Seq.empty)(
           request,
           messages(application)
         ).toString

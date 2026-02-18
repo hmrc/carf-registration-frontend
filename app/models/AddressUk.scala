@@ -16,7 +16,7 @@
 
 package models
 
-import models.countries.{Country, CountryUk}
+import models.countries.CountryUk
 import play.api.libs.json.{Json, OFormat}
 
 /** @param addressLine1

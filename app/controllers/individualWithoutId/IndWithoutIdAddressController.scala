@@ -18,7 +18,6 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
-import models.countries.{Country, UnitedKingdom}
 import models.requests.DataRequest
 import models.{AddressUk, Mode}
 import navigation.Navigator

@@ -17,7 +17,7 @@
 package utils
 
 import models.AddressUk
-import models.countries.{Country, CountryUk}
+import models.countries.CountryUk
 import models.error.{CarfError, ConversionError}
 import models.responses.AddressResponse
 

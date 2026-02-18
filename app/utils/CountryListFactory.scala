@@ -94,7 +94,7 @@ object CountryListFactory {
     IsleOfMan
   )
 
-  val countryCodesForUkCountries: Set[Country] = Set(GB, UK, GG, JE, IM)
+  val countryCodesForUkCountries: Set[Country] = Set(UnitedKingdom, Guernsey, Jersey, IsleOfMan)
 
   final lazy val countryCodesForUkCountryCodes: Set[String] = countryCodesForUkCountries.map(_.code)
 }

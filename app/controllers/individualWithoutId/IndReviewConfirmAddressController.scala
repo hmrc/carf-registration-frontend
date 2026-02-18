@@ -18,7 +18,6 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
-import models.responses.AddressResponse
 import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.AddressLookupPage

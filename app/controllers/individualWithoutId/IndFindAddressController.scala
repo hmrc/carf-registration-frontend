@@ -18,8 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
-import models.countries.{Country, CountryUk}
-import models.responses.AddressResponse
+import models.countries.CountryUk
 import models.{AddressUk, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.AddressLookupPage

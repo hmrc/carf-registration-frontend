@@ -16,12 +16,11 @@
 
 package forms.mappings
 
-import models.countries.*
 import models.Enumerable
+import models.countries.*
 import play.api.data.Forms.of
-import play.api.data.{FieldMapping, FormError, Mapping}
+import play.api.data.{FieldMapping, Mapping}
 import play.api.i18n.Messages
-import play.api.data.format.Formatter
 
 import java.time.LocalDate
 

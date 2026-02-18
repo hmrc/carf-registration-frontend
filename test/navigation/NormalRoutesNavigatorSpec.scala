@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.RegistrationType.*
 import models.countries.*
-import models.responses.AddressRegistrationResponse
+import models.responses.{format, AddressRecord, AddressRegistrationResponse, CountryRecord}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
@@ -1061,9 +1061,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           IndFindAddressPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
-        )
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
       }
 
       "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
@@ -1095,6 +1093,40 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           emptyUserAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
+    "IndWithoutIdChooseAddressPage navigation" - {
+      "must navigate from Choose Address Page to the IndividualEmailPage" in {
+
+        val address     = AddressRecord(
+          List("1 Test Street", "Line 2"),
+          "Testtown",
+          "BB00 0BB",
+          CountryRecord("GB", "United Kingdom")
+        )
+        val userAnswers =
+          UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, address.format).success.value
+
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+
+      }
+
+      "must navigate from Choose Address Page to the IndWithoutIdAddressController" in {
+
+        val userAnswers =
+          UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, "none").success.value
+
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
+
       }
     }
   }

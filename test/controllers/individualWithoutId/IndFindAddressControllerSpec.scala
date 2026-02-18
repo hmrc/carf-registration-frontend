@@ -176,9 +176,8 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
     "must redirect to the next page when postcode has returned more than one addresses" in {
 
-      val onwardRouteMultipleAddresses = routes.PlaceholderController.onPageLoad(
-        s"Must redirect to /register/individual-without-id/choose-address (CARF-312)"
-      )
+      val onwardRouteMultipleAddresses =
+        controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))

@@ -58,6 +58,17 @@ case class AddressRecord(
     country: CountryRecord
 )
 
+extension (addressRecord: AddressRecord) {
+  def format: String = {
+    val addressLines = addressRecord.lines ++ Seq(
+      addressRecord.town,
+      addressRecord.postcode,
+      addressRecord.country.name
+    )
+    addressLines.mkString(", ")
+  }
+}
+
 object AddressRecord {
   implicit val format: OFormat[AddressRecord] = Json.format[AddressRecord]
 }

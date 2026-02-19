@@ -16,6 +16,7 @@
 
 package controllers.individualWithoutId
 
+import config.Constants.noneOfTheseValue
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import models.countries.{Country, UnitedKingdom}
@@ -24,7 +25,7 @@ import models.responses.AddressResponse
 import models.{AddressUK, CheckMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -64,7 +65,11 @@ class IndWithoutIdAddressController @Inject() (
   private def preFillForm(mode: Mode)(implicit request: DataRequest[AnyContent]) =
     request.userAnswers
       .get(IndWithoutIdAddressPagePrePop)
-      .fold(form)(form.fill)
+      .fold(form) { addressUK =>
+        request.userAnswers
+          .get(IndWithoutIdChooseAddressPage)
+          .fold(form.fill(addressUK))(_ => form)
+      }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

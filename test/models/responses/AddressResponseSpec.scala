@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package utils
+package models.responses
 
 import base.SpecBase
 import models.AddressUk
 import models.countries.CountryUk
 import models.error.ConversionError
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import utils.AddressMappings.toDomain
 
-class AddressMappingsSpec extends SpecBase {
+class AddressResponseSpec extends SpecBase {
 
   def createAddressResponse(lines: List[String]) =
     AddressResponse(
@@ -36,13 +34,13 @@ class AddressMappingsSpec extends SpecBase {
       )
     )
 
-  "AddressMappings" - {
-    "toDomain method" - {
+  "AddressResponse" - {
+    "toDomainAddressUk method" - {
       "should successfully convert the address api response to a domain model" - {
         "when lines has one value" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1"))
 
-          val result = testAddressResponse.toDomain
+          val result = testAddressResponse.toDomainAddressUk
 
           result mustBe Right(
             AddressUk(
@@ -58,7 +56,7 @@ class AddressMappingsSpec extends SpecBase {
         "when lines has two values" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1", "Line 2"))
 
-          val result = testAddressResponse.toDomain
+          val result = testAddressResponse.toDomainAddressUk
 
           result mustBe Right(
             AddressUk(
@@ -74,7 +72,7 @@ class AddressMappingsSpec extends SpecBase {
         "when lines has three values" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1", "Line 2", "Line 3"))
 
-          val result = testAddressResponse.toDomain
+          val result = testAddressResponse.toDomainAddressUk
 
           result mustBe Right(
             AddressUk(
@@ -90,7 +88,7 @@ class AddressMappingsSpec extends SpecBase {
         "when lines has four values, only populate the first three because lines has a max size of three in the API spec" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1", "Line 2", "Line 3", "Line 4"))
 
-          val result = testAddressResponse.toDomain
+          val result = testAddressResponse.toDomainAddressUk
 
           result mustBe Right(
             AddressUk(
@@ -107,7 +105,7 @@ class AddressMappingsSpec extends SpecBase {
       "should return a ConversionError when lines is empty" in {
         val testAddressResponse = createAddressResponse(lines = List.empty)
 
-        val result = testAddressResponse.toDomain
+        val result = testAddressResponse.toDomainAddressUk
 
         result mustBe Left(ConversionError)
       }

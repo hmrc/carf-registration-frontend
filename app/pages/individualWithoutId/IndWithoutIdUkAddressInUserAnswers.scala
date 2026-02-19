@@ -17,7 +17,7 @@
 package pages.individualWithoutId
 
 import models.AddressUk
-import pages.{Page, QuestionPage}
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object IndWithoutIdUkAddressInUserAnswers extends QuestionPage[AddressUk] {
@@ -26,5 +26,3 @@ case object IndWithoutIdUkAddressInUserAnswers extends QuestionPage[AddressUk] {
 
   override def toString: String = "indWithoutIdUkAddress"
 }
-
-case object IndWithoutIdAddressPageForNavigatorOnly extends Page

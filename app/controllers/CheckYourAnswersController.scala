@@ -49,19 +49,25 @@ class CheckYourAnswersController @Inject() (
     with Logging
     with I18nSupport {
 
-  private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section]      =
+  private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getBusinessDetailsSectionMaybe(userAnswers)
-  private def orgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section]         =
+
+  private def orgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getOrgWithoutIdDetailsMaybe(userAnswers)
-  private def firstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section]  =
+
+  private def firstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getFirstContactDetailsSectionMaybe(userAnswers)
+
   private def secondContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getSecondContactDetailsSectionMaybe(userAnswers)
-  private def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section]           =
+
+  private def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.indWithNinoYourDetailsMaybe(userAnswers)
-  private def indWithoutIdYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section]          =
+
+  private def indWithoutIdYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.indWithoutIdYourDetailsMaybe(userAnswers)
-  private def indContactDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section]                =
+
+  private def indContactDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.indContactDetailsMaybe(userAnswers)
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>

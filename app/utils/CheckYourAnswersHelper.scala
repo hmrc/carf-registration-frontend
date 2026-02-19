@@ -51,7 +51,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
       haveTradingName: Boolean <- userAnswers.get(HaveTradingNamePage)
       haveTradingNameRow       <- HaveTradingNameSummary.row(userAnswers)
     } yield
-      lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr
+      val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr
       if (hasCorrectAnswersForGettingHere) {
         if (haveTradingName) {
           TradingNameSummary
@@ -85,7 +85,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
                 haveUtrRow               <- HaveUTRSummary.row(userAnswers)
                 haveUtr                  <- userAnswers.get(HaveUTRPage)
               } yield {
-                lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && haveNino
+                val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && haveNino
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
                 } else {
@@ -96,7 +96,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
             }.flatten
           case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
           case _                           =>
-            None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
+            None
         }
       } else {
         logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")
@@ -125,7 +125,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
                 haveUtrRow               <- HaveUTRSummary.row(userAnswers)
                 haveUtr                  <- userAnswers.get(HaveUTRPage)
               } yield {
-                lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && !haveNino
+                val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && !haveNino
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, name, dob, address))
                 } else {
@@ -136,7 +136,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
             }.flatten
           case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, name, dob, address))
           case _                           =>
-            None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
+            None
         }
       } else {
         logger.warn(

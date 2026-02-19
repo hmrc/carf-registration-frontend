@@ -24,7 +24,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import cats.data.EitherT
 import cats.syntax.all.*
 import models.AddressUk
-import utils.AddressMappings
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,17 +38,19 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
     val initialRequest = SearchByPostcodeRequest(postcode = postcode, filter = propertyNameOrNumber)
     {
       for {
-        addressLookupResponse         <- addressLookupConnector.searchByPostcode(initialRequest)
-        addressLookupCombinedResponse <- if (addressLookupResponse.nonEmpty || propertyNameOrNumber.isEmpty) {
-                                           EitherT.rightT[Future, ApiError](addressLookupResponse)
-                                         } else {
-                                           for {
-                                             address <- addressLookupConnector.searchByPostcode(
-                                                          initialRequest.copy(filter = None)
-                                                        )
-                                           } yield address
-                                         }
-        addressDomain                 <- EitherT.fromEither[Future](addressLookupCombinedResponse.traverse(AddressMappings.toDomain))
+        addressLookupResponse: Seq[AddressResponse]         <- addressLookupConnector.searchByPostcode(initialRequest)
+        addressLookupCombinedResponse: Seq[AddressResponse] <-
+          if (addressLookupResponse.nonEmpty || propertyNameOrNumber.isEmpty) {
+            EitherT.right[ApiError](Future.successful(addressLookupResponse))
+          } else {
+            for {
+              address <- addressLookupConnector.searchByPostcode(
+                           initialRequest.copy(filter = None)
+                         )
+            } yield address
+          }
+        addressDomain: Seq[AddressUk]                       <-
+          EitherT.fromEither[Future](addressLookupCombinedResponse.traverse(AddressResponse.toDomainAddressUk))
       } yield addressDomain
     }.value
   }

@@ -46,7 +46,7 @@ object AddressResponse {
               countryUk = CountryUk(code = address.country.code, name = address.country.name)
             )
           )
-        case Nil => Left(ConversionError)
+        case Nil          => Left(ConversionError)
       }
     }
 }

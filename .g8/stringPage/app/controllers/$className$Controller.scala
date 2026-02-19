@@ -20,6 +20,7 @@ class $className$Controller @Inject()(
                                         navigator: Navigator,
                                         identify: IdentifierAction,
                                         getData: DataRetrievalAction,
+                                        submissionLock: SubmissionLockAction,
                                         requireData: DataRequiredAction,
                                         formProvider: $className$FormProvider,
                                         val controllerComponents: MessagesControllerComponents,
@@ -28,7 +29,7 @@ class $className$Controller @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get($className$Page).fold(form)(form.fill)

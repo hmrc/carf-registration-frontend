@@ -36,6 +36,7 @@ class IndividualPhoneNumberController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndividualPhoneNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -46,13 +47,13 @@ class IndividualPhoneNumberController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(IndividualPhoneNumberPage).fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

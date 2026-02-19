@@ -43,6 +43,7 @@ class IndFindAddressController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndFindAddressFormProvider,
     addressLookupService: AddressLookupService,
@@ -55,8 +56,8 @@ class IndFindAddressController @Inject() (
 
   val form: Form[IndFindAddress] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
 
       lazy val preparedForm = request.userAnswers.get(IndFindAddressPage).fold(form)(form.fill)
       lazy val response     = Ok(view(preparedForm, mode))
@@ -65,7 +66,7 @@ class IndFindAddressController @Inject() (
         userAnswersNoPrePop <- Future.fromTry(request.userAnswers.remove(IndWithoutIdAddressPagePrePop))
         _                   <- sessionRepository.set(userAnswersNoPrePop)
       } yield Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

@@ -28,12 +28,14 @@ import javax.inject.Inject
 class OrgYourContactDetailsController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     val controllerComponents: MessagesControllerComponents,
     view: OrgYourContactDetailsView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify() { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock) { implicit request =>
     val continueUrl: String = controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode).url
 
     Ok(view(continueUrl))

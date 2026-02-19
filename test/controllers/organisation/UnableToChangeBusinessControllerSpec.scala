@@ -60,8 +60,8 @@ class UnableToChangeBusinessControllerSpec extends SpecBase {
           FakeRequest(GET, controllers.organisation.routes.UnableToChangeBusinessController.onPageLoad().url)
 
         val result = route(application, request).value
-        
-        status(result) mustEqual SEE_OTHER
+
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

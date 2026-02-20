@@ -17,11 +17,12 @@
 package services
 
 import base.SpecBase
+import cats.data.EitherT
 import connectors.AddressLookupConnector
 import generators.Generators
-import models.error.ApiError
+import models.error.{ApiError, CarfError, ConversionError}
 import models.requests.SearchByPostcodeRequest
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
+import models.responses.AddressResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
@@ -34,29 +35,6 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
 
   val service: AddressLookupService = new AddressLookupService(mockAddressLookupConnector)
-
-  val sampleAddresses: Seq[AddressResponse] = Seq(
-    AddressResponse(
-      id = "123",
-      address = AddressRecord(
-        lines = List("1 Test Street"),
-        town = "Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    ),
-    AddressResponse(
-      id = "124",
-      address = AddressRecord(
-        lines = List("2 Test Street"),
-        town = "Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    )
-  )
-
-  val singleAddress: Seq[AddressResponse] = sampleAddresses.take(1)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -73,23 +51,22 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
           mockAddressLookupConnector
             .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 1"))))(any())
         )
-          .thenReturn(Future.successful(Right(singleAddress)))
+          .thenReturn(EitherT.rightT[Future, CarfError](Seq(oneAddressResponse)))
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 1")).futureValue
 
-        result mustEqual Right(singleAddress)
+        result mustBe Right(Seq(testAddressUk))
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 1"))))(any())
       }
 
       "must return addresses when initial search without property filter succeeds" in {
-
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
-          .thenReturn(Future.successful(Right(sampleAddresses)))
+          .thenReturn(EitherT.rightT[Future, CarfError](multipleAddressResponses))
 
         val result = service.postcodeSearch("TE1 1ST", None).futureValue
 
-        result mustEqual Right(sampleAddresses)
+        result mustBe Right(Seq(testAddressUk, testAddressUk, testAddressUk))
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
       }
@@ -99,13 +76,13 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
           mockAddressLookupConnector
             .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         )
-          .thenReturn(Future.successful(Right(Seq.empty)))
+          .thenReturn(EitherT.rightT[Future, CarfError](Seq.empty))
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
-          .thenReturn(Future.successful(Right(sampleAddresses)))
+          .thenReturn(EitherT.rightT[Future, CarfError](multipleAddressResponses))
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result mustEqual Right(sampleAddresses)
+        result mustBe Right(Seq(testAddressUk, testAddressUk, testAddressUk))
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -113,18 +90,17 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       }
 
       "must return empty sequence when initial search with property filter returns empty and fallback also returns empty" in {
-
         when(
           mockAddressLookupConnector
             .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         )
-          .thenReturn(Future.successful(Right(Seq.empty)))
+          .thenReturn(EitherT.rightT[Future, CarfError](Seq.empty))
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
-          .thenReturn(Future.successful(Right(Seq.empty)))
+          .thenReturn(EitherT.rightT[Future, CarfError](Seq.empty))
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result mustEqual Right(Seq.empty)
+        result mustBe Right(Seq.empty)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -132,68 +108,74 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       }
 
       "must return empty sequence when initial search without property filter returns empty results" in {
-
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any()))
-          .thenReturn(Future.successful(Right(Seq.empty)))
+          .thenReturn(EitherT.rightT[Future, CarfError](Seq.empty))
 
         val result = service.postcodeSearch("XX1 1XX", None).futureValue
 
-        result mustEqual Right(Seq.empty)
+        result mustBe Right(Seq.empty)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any())
       }
 
       "must return API error when initial search returns API error" in {
-
-        val apiError = ApiError.BadRequestError
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", None)))(any()))
-          .thenReturn(Future.successful(Left(apiError)))
+          .thenReturn(EitherT.leftT[Future, Seq[AddressResponse]](ApiError.BadRequestError))
 
         val result = service.postcodeSearch("INVALID", None).futureValue
 
-        result mustEqual Left(apiError)
+        result mustBe Left(ApiError.BadRequestError)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", None)))(any())
       }
 
       "must return API error when initial search with property filter returns API error" in {
 
-        val apiError = ApiError.BadRequestError
         when(
           mockAddressLookupConnector
             .searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", Some("Flat 1"))))(any())
         )
-          .thenReturn(Future.successful(Left(apiError)))
+          .thenReturn(EitherT.leftT[Future, Seq[AddressResponse]](ApiError.BadRequestError))
 
         val result = service.postcodeSearch("INVALID", Some("Flat 1")).futureValue
 
-        result mustEqual Left(apiError)
+        result mustBe Left(ApiError.BadRequestError)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("INVALID", Some("Flat 1"))))(any())
-        verify(mockAddressLookupConnector, times(1))
-          .searchByPostcode(any())(any())
       }
 
       "must return API error when initial search with property filter returns empty and fallback returns API error" in {
-
-        val apiError = ApiError.BadRequestError
         when(
           mockAddressLookupConnector
             .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 555"))))(any())
         )
-          .thenReturn(Future.successful(Right(Seq.empty)))
+          .thenReturn(EitherT.rightT[Future, ApiError](Seq.empty))
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
-          .thenReturn(Future.successful(Left(apiError)))
+          .thenReturn(EitherT.leftT[Future, Seq[AddressResponse]](ApiError.BadRequestError))
 
         val result = service.postcodeSearch("TE1 1ST", Some("Flat 555")).futureValue
 
-        result mustEqual Left(apiError)
+        result mustBe Left(ApiError.BadRequestError)
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 555"))))(any())
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
       }
 
+      "must return a ConversionError when the address response can not be transformed into an Address UK model" in {
+        when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
+          .thenReturn(
+            EitherT.rightT[Future, CarfError](
+              Seq(oneAddressResponse.copy(address = oneAddressResponse.address.copy(lines = List.empty)))
+            )
+          )
+
+        val result = service.postcodeSearch("TE1 1ST", None).futureValue
+
+        result mustBe Left(ConversionError)
+        verify(mockAddressLookupConnector, times(1))
+          .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
+      }
     }
   }
 }

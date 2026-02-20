@@ -18,7 +18,8 @@ package forms.individualWithoutId
 
 import config.Constants.{addressRegex, postCodeAllowedChars, regexPostcode}
 import forms.mappings.Mappings
-import models.AddressUK
+import models.AddressUk
+import models.countries.{Country, CountryUk}
 import play.api.data.Form
 import play.api.data.Forms.*
 
@@ -28,7 +29,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
 
   inline val maxLength = 35
 
-  def apply(): Form[AddressUK] = Form(
+  def apply(countryList: Seq[Country]): Form[AddressUk] = Form(
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
         firstError(
@@ -45,20 +46,20 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
             )
           )
       ),
+      "addressLine3" -> optional(
+        text("address.addressLine3.error.required")
+          .verifying(
+            firstError(
+              maxLength(maxLength, "address.addressLine3.error.length"),
+              regexp(addressRegex, "address.addressLine3.error.invalid")
+            )
+          )
+      ),
       "townOrCity"   -> text("address.townOrCity.error.required").verifying(
         firstError(
           maxLength(maxLength, "address.townOrCity.error.length"),
           regexp(addressRegex, "address.townOrCity.error.invalid")
         )
-      ),
-      "county"       -> optional(
-        text("address.county.error.required")
-          .verifying(
-            firstError(
-              maxLength(maxLength, "address.county.error.length"),
-              regexp(addressRegex, "address.county.error.invalid")
-            )
-          )
       ),
       "postcode"     -> mandatoryPostcode(
         "address.postcode.error.required",
@@ -69,7 +70,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         postCodeAllowedChars,
         Some("address.postcode.error.notReal")
       ),
-      "country"      -> text("address.country.error.required")
-    )(AddressUK.apply)(x => Some(x.addressLine1, x.addressLine2, x.townOrCity, x.county, x.postCode, x.countryCode))
+      "country"      -> countryUkMapping(countryList)
+    )(AddressUk.apply)(x => Some(x.addressLine1, x.addressLine2, x.addressLine3, x.townOrCity, x.postCode, x.countryUk))
   )
 }

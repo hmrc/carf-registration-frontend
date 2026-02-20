@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,29 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import models.{CheckMode, UserAnswers}
-import pages.individualWithoutId.IndWithoutNinoNamePage
+import models.{renderHTML, CheckMode, UserAnswers}
+import pages.individualWithoutId.IndWithoutIdUkAddressInUserAnswers
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object IndWithoutNinoNameSummary {
+object IndWithoutIdAddressUkSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(IndWithoutNinoNamePage).map { answer =>
-
-      val value = HtmlFormat.escape(answer.firstName).toString + " " + HtmlFormat.escape(answer.lastName).toString
+    answers.get(IndWithoutIdUkAddressInUserAnswers).map { answer =>
+      val value = answer.renderHTML
 
       SummaryListRowViewModel(
-        key = "indWithoutNinoName.checkYourAnswersLabel",
+        key = "indWithoutIdAddressUk.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel(
-            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(CheckMode).url
-          ).withVisuallyHiddenText(messages("indWithoutNinoName.change.hidden"))
+            "site.change",
+            controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(CheckMode).url
+          )
+            .withVisuallyHiddenText(messages("indWithoutIdAddressUk.change.hidden"))
         )
       )
     }

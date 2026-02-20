@@ -17,22 +17,20 @@
 package controllers
 
 import controllers.actions.*
-import models.{JourneyType, UserAnswers}
-
-import javax.inject.Inject
 import models.JourneyType.*
+import models.{JourneyType, UserAnswers}
 import pages.*
+import pages.individual.{IndividualEmailPage, NiNumberPage}
 import pages.organisation.{FirstContactEmailPage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
-import pages.individual.NiNumberPage
-import pages.individual.IndividualEmailPage
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.EmailService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationConfirmationController @Inject() (
@@ -106,18 +104,18 @@ class RegistrationConfirmationController @Inject() (
     (identify() andThen getData() andThen requireData).async { implicit request =>
 
       val result = for {
-        subscriptionId <- Some("XXCAR0012345678") // TODO CARF-325: replace with real subscription ID
+        subscriptionId <- request.userAnswers.get(SubscriptionIdPage)
         journeyType    <- request.userAnswers.journeyType
         emailAddresses <- getEmailAddresses(journeyType, request.userAnswers)
         idNumberOpt     = getIdNumber(journeyType, request.userAnswers)
         addProviderUrl  = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
       } yield for {
-        _              <- emailService.sendRegistrationConfirmation(emailAddresses, subscriptionId, idNumberOpt)
+        _              <- emailService.sendRegistrationConfirmation(emailAddresses, subscriptionId.value, idNumberOpt)
         updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
         _              <- sessionRepository.set(updatedAnswers)
       } yield Ok(
         view(
-          subscriptionId = subscriptionId,
+          subscriptionId = subscriptionId.value,
           emailAddresses = emailAddresses,
           addProviderUrl = addProviderUrl
         )

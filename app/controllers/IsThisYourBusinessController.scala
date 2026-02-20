@@ -93,14 +93,12 @@ class IsThisYourBusinessController @Inject() (
     implicit request =>
       request.userAnswers.get(IsThisYourBusinessPage) match {
         case Some(existingPageDetails) =>
-          val business =
-            BusinessDetails(existingPageDetails.businessDetails.name, existingPageDetails.businessDetails.address)
           form
             .bindFromRequest()
             .fold(
               formWithErrors => {
                 logger.warn("Form submission contained errors")
-                Future.successful(BadRequest(view(formWithErrors, mode, business)))
+                Future.successful(BadRequest(view(formWithErrors, mode, existingPageDetails.businessDetails)))
               },
               value => {
                 val updatedPageDetails = existingPageDetails.copy(pageAnswer = Some(value))

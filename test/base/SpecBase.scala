@@ -20,8 +20,8 @@ import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
 import models.countries.{Country, CountryUk}
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUk, UniqueTaxpayerReference, UserAnswers}
+import models.responses.{AddressRecord, AddressRegistrationResponse, AddressResponse, CountryRecord}
+import models.{AddressUk, BusinessDetails, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -133,5 +133,19 @@ trait SpecBase
 
   lazy val multipleAddressResponses: Seq[AddressResponse] =
     Seq(oneAddressResponse, oneAddressResponse, oneAddressResponse)
+
+  val testSignOutUrl: String       = "http://localhost:9553/bas-gateway/sign-out-without-state"
+  val testLoginContinueUrl: String = "http://localhost:17000/register-for-carf"
+
+  val testAddressRegistrationResponse = AddressRegistrationResponse(
+    addressLine1 = "2 High Street",
+    addressLine2 = Some("Birmingham"),
+    addressLine3 = None,
+    addressLine4 = None,
+    postalCode = Some("B23 2AZ"),
+    countryCode = "GB"
+  )
+
+  val testBusinessDetails = BusinessDetails(name = "TestName", address = testAddressRegistrationResponse)
 
 }

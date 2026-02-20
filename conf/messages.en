@@ -567,3 +567,9 @@ address.postcode.error.notReal = Enter a real postcode
 
 address.country = Country
 address.country.error.required = Select country
+
+unableToChangeBusiness.title = You’re unable to change your business details
+unableToChangeBusiness.heading = You’re unable to change your business details
+unableToChangeBusiness.p1 = You have signed in with a Government Gateway user ID that is linked to the following business details:
+unableToChangeBusiness.p2 = If you want to register a different organisation for cryptoasset reporting, you must
+unableToChangeBusiness.p2.link = sign in with the Government Gateway user ID for the organisation you wish to register

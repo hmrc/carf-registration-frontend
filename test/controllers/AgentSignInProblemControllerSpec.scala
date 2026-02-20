@@ -23,9 +23,6 @@ import views.html.AgentSignInProblemView
 
 class AgentSignInProblemControllerSpec extends SpecBase {
 
-  val signOutUrl: String       = "http://localhost:9553/bas-gateway/sign-out-without-state"
-  val loginContinueUrl: String = "http://localhost:17000/register-for-carf"
-
   "AgentSignInProblem Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -40,7 +37,10 @@ class AgentSignInProblemControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[AgentSignInProblemView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(signOutUrl, loginContinueUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(testSignOutUrl, testLoginContinueUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

@@ -35,13 +35,20 @@ object IsThisYourBusinessSummary {
         s"<p class='govuk-body govuk-!-margin-bottom-2'>${answer.businessDetails.name}</p><p class='govuk-body'>${answer.businessDetails.address.renderHTML}</p>"
       )
 
+      val changeLinkRedirectLocation: String =
+        if (answers.isCtAutoMatched) {
+          controllers.organisation.routes.UnableToChangeBusinessController.onPageLoad().url
+        } else {
+          routes.IndexController.onPageLoad().url
+        }
+
       SummaryListRowViewModel(
         key = "isThisYourBusiness.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.PlaceholderController.onPageLoad("Redirect as per CARF-263").url
+            href = changeLinkRedirectLocation
           ).withVisuallyHiddenText(messages("isThisYourBusiness.change.hidden"))
         )
       )

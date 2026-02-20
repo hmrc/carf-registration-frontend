@@ -20,10 +20,8 @@ import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
 import models.countries.{Country, CountryUk}
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUk, UniqueTaxpayerReference, UserAnswers}
 import models.responses.{AddressRecord, AddressRegistrationResponse, AddressResponse, CountryRecord}
-import models.{BusinessDetails, UniqueTaxpayerReference, UserAnswers}
+import models.{AddressUk, BusinessDetails, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec

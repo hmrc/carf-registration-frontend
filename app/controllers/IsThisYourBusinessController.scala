@@ -46,6 +46,7 @@ class IsThisYourBusinessController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IsThisYourBusinessFormProvider,
     businessService: RegistrationService,
@@ -59,8 +60,8 @@ class IsThisYourBusinessController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
       val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
       val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == IndWithUtr)
       val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched
@@ -86,7 +87,7 @@ class IsThisYourBusinessController @Inject() (
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

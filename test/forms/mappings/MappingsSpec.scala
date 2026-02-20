@@ -18,11 +18,12 @@ package forms.mappings
 
 import base.TestConstants.{invalidBusinessNameExceeds105Chars, invalidPhoneNumber25Chars, validBusinessName105Chars, validPhoneNumber24Chars}
 import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
+import models.countries.{Country, CountryUk}
 import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.data.Forms.mapping
+import play.api.data.Forms.*
 import play.api.data.{Form, FormError}
 
 object MappingsSpec {
@@ -425,6 +426,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     }
 
   }
+
   "phoneNumber" - {
 
     val testRequiredKey           = "firstContactPhoneNumber.error.required"
@@ -532,5 +534,55 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       }
     }
 
+  }
+
+  "countryUkMapping" - {
+
+    val countries = Seq(
+      Country("GB", "United Kingdom", None),
+      Country("JE", "Jersey", None)
+    )
+
+    val form: Form[CountryUk] = Form(single("country" -> countryUkMapping(countries)))
+
+    "bind a valid country code (GB)" in {
+      val result = form.bind(Map("country" -> "GB"))
+
+      result.errors mustBe empty
+      result.value  mustBe Some(CountryUk("GB", "United Kingdom"))
+    }
+
+    "bind a crown dependency country code (JE)" in {
+      val result = form.bind(Map("country" -> "JE"))
+
+      result.value mustBe Some(CountryUk("JE", "Jersey"))
+    }
+
+    "fail when country code is missing" in {
+      val result = form.bind(Map.empty[String, String])
+
+      result.hasErrors           mustBe true
+      result.errors.head.message mustBe "address.country.error.required"
+    }
+
+    "fail when country code is invalid" in {
+      val result = form.bind(Map("country" -> "XX"))
+
+      result.hasErrors           mustBe true
+      result.errors.head.message mustBe "address.country.error.required"
+    }
+
+    "unbind back to the country code" in {
+      val data = form.fill(CountryUk("GB", "United Kingdom")).data
+
+      data mustBe Map("country" -> "GB")
+    }
+
+    "throw an IllegalStateException if form is given an empty list" in {
+      val brokenForm = Form(single("country" -> countryUkMapping(Nil))).bind(Map("country" -> "GB"))
+
+      brokenForm.hasErrors           mustBe true
+      brokenForm.errors.head.message mustBe "address.country.error.required"
+    }
   }
 }

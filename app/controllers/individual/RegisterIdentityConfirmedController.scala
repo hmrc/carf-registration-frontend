@@ -27,13 +27,15 @@ import javax.inject.Inject
 
 class RegisterIdentityConfirmedController @Inject() (
     identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     override val messagesApi: MessagesApi,
     val controllerComponents: MessagesControllerComponents,
     view: RegisterIdentityConfirmedView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify() { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock) { implicit request =>
     val continueUrl =
       controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 

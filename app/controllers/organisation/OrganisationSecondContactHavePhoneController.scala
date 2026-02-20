@@ -40,6 +40,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: OrganisationSecondContactHavePhoneFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -52,8 +53,8 @@ class OrganisationSecondContactHavePhoneController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(OrganisationSecondContactHavePhonePage) match {
         case None        => form
@@ -66,7 +67,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
           logger.warn("[OrganisationSecondContactHavePhoneController] Name not found in user answers on page load")
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

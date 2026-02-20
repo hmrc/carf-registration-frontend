@@ -18,15 +18,16 @@ package utils
 
 import com.google.inject.Inject
 import models.{RegistrationType, UserAnswers}
-import pages.RegisteredAddressInUkPage
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
 import pages.orgWithoutId.HaveTradingNamePage
 import pages.organisation.*
+import pages.{RegisteredAddressInUkPage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
+import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdAddressUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
 import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
@@ -50,7 +51,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
       haveTradingName: Boolean <- userAnswers.get(HaveTradingNamePage)
       haveTradingNameRow       <- HaveTradingNameSummary.row(userAnswers)
     } yield
-      lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr
+      val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr
       if (hasCorrectAnswersForGettingHere) {
         if (haveTradingName) {
           TradingNameSummary
@@ -84,7 +85,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
                 haveUtrRow               <- HaveUTRSummary.row(userAnswers)
                 haveUtr                  <- userAnswers.get(HaveUTRPage)
               } yield {
-                lazy val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && haveNino
+                val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && haveNino
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
                 } else {
@@ -95,10 +96,52 @@ class CheckYourAnswersHelper @Inject() extends Logging {
             }.flatten
           case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, whatNino, name, dob))
           case _                           =>
-            None // Can't be reached or tested as the condition is being checked in IndividualRegistrationTypeSummary
+            None
         }
       } else {
         logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")
+        None
+      }
+  }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
+
+  def indWithoutIdYourDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {
+    for {
+      registeringAs     <- IndividualRegistrationTypeSummary.row(userAnswers)
+      registrationType  <- userAnswers.get(RegistrationTypePage)
+      haveNinoRow       <- HaveNiNumberSummary.row(userAnswers)
+      haveNino: Boolean <- userAnswers.get(HaveNiNumberPage)
+      name              <- IndWithoutNinoNameSummary.row(userAnswers)
+      dob               <- IndWithoutIdDateOfBirthSummary.row(userAnswers)
+      liveInUkOrCd      <- userAnswers.get(WhereDoYouLivePage)
+      address           <- getAddressRowMaybe(userAnswers, liveInUkOrCd)
+    } yield
+      if (!haveNino) {
+        registrationType match {
+          case RegistrationType.SoleTrader =>
+            {
+              for {
+                registeredAddressInUkRow <- RegisteredAddressInUkSummary.row(userAnswers)
+                registeredAddressInUk    <- userAnswers.get(RegisteredAddressInUkPage)
+                haveUtrRow               <- HaveUTRSummary.row(userAnswers)
+                haveUtr                  <- userAnswers.get(HaveUTRPage)
+              } yield {
+                val hasCorrectAnswersForGettingHere: Boolean = !registeredAddressInUk && !haveUtr && !haveNino
+                if (hasCorrectAnswersForGettingHere) {
+                  Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, name, dob, address))
+                } else {
+                  logger.warn("Individual without NINO answers were not as expected")
+                  None
+                }
+              }
+            }.flatten
+          case RegistrationType.Individual => Some(Seq(registeringAs, haveNinoRow, name, dob, address))
+          case _                           =>
+            None
+        }
+      } else {
+        logger.warn(
+          s"Individual without NINO requires user to NOT have a nino. When questioned, user answered: $haveNino"
+        )
         None
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
@@ -156,4 +199,13 @@ class CheckYourAnswersHelper @Inject() extends Logging {
         Some(Seq(email, havePhoneRow))
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualContactDetails"), _))
+
+  private def getAddressRowMaybe(userAnswers: UserAnswers, liveInUkOrCd: Boolean)(implicit
+      messages: Messages
+  ): Option[SummaryListRow] =
+    if (liveInUkOrCd) {
+      IndWithoutIdAddressUkSummary.row(userAnswers)
+    } else {
+      IndWithoutIdAddressNonUkSummary.row(userAnswers)
+    }
 }

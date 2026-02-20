@@ -19,6 +19,9 @@ package base
 import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
+import models.countries.{Country, CountryUk}
+import models.responses.{AddressRecord, AddressResponse, CountryRecord}
+import models.{AddressUk, UniqueTaxpayerReference, UserAnswers}
 import models.responses.{AddressRecord, AddressRegistrationResponse, AddressResponse, CountryRecord}
 import models.{BusinessDetails, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
@@ -33,8 +36,8 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Writes
-import play.api.mvc.PlayBodyParsers
+import play.api.libs.json.{Json, Writes}
+import play.api.mvc.{BodyParsers, PlayBodyParsers}
 import play.api.test.FakeRequest
 import queries.Settable
 import repositories.SessionRepository
@@ -65,8 +68,7 @@ trait SpecBase
   private val UtcZoneId          = "UTC"
   implicit val fixedClock: Clock = Clock.fixed(Instant.parse("2020-05-20T12:34:56.789012Z"), ZoneId.of(UtcZoneId))
 
-  def emptyUserAnswers: UserAnswers =
-    UserAnswers(id = userAnswersId, lastUpdated = Instant.now(fixedClock))
+  def emptyUserAnswers: UserAnswers = UserAnswers(id = userAnswersId, lastUpdated = Instant.now(fixedClock))
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
@@ -80,7 +82,6 @@ trait SpecBase
     reset(mockSessionRepository, mockDataRetrievalAction, mockCtUtrRetrievalAction)
     super.beforeEach()
   }
-
   protected def applicationBuilder(
       userAnswers: Option[UserAnswers] = None,
       affinityGroup: AffinityGroup = AffinityGroup.Individual,
@@ -91,6 +92,7 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers, affinityGroup)),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers, requestUtr)),
+        bind[SubmissionLockAction].to[FakeSubmissionLockAction],
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
 
@@ -102,51 +104,37 @@ trait SpecBase
     def withPage[T](page: Settable[T], value: T)(implicit writes: Writes[T]): UserAnswers =
       userAnswers.set(page, value).success.value
 
+    def withoutPage[T](page: Settable[T])(implicit writes: Writes[T]): UserAnswers =
+      userAnswers.remove(page).success.value
+
   }
 
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
 
-  lazy val oneAddress: Seq[AddressResponse] = Seq(
+  lazy val testPostcode: String = validPostcodes.sample.value
+
+  def oneAddressResponse: AddressResponse =
     AddressResponse(
       id = "123",
       address = AddressRecord(
-        lines = List("1 test", "1 Test Street", "Testington"),
-        town = " Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
+        lines = List("1 Test", "Test Street", "Test Region"),
+        town = "Testingtown",
+        postcode = testPostcode,
+        country = CountryRecord(code = "GB", name = "United Kingdom")
       )
     )
+
+  lazy val testAddressUk: AddressUk = AddressUk(
+    addressLine1 = "1 Test",
+    addressLine2 = Some("Test Street"),
+    addressLine3 = Some("Test Region"),
+    townOrCity = "Testingtown",
+    postCode = testPostcode,
+    countryUk = CountryUk("GB", "United Kingdom")
   )
 
-  lazy val multipleAddresses: Seq[AddressResponse] = Seq(
-    AddressResponse(
-      id = "123",
-      address = AddressRecord(
-        lines = List("1 test", "1 Test Street", "Testington"),
-        town = "South Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    ),
-    AddressResponse(
-      id = "124",
-      address = AddressRecord(
-        lines = List("2 test", "2 Test Street", "Testington"),
-        town = "East Test Town",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    ),
-    AddressResponse(
-      id = "125",
-      address = AddressRecord(
-        lines = List("1 test", "2 Test Street", "Testington"),
-        town = "North Townshire",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    )
-  )
+  lazy val multipleAddressResponses: Seq[AddressResponse] =
+    Seq(oneAddressResponse, oneAddressResponse, oneAddressResponse)
 
   val testSignOutUrl: String       = "http://localhost:9553/bas-gateway/sign-out-without-state"
   val testLoginContinueUrl: String = "http://localhost:17000/register-for-carf"

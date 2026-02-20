@@ -36,6 +36,7 @@ class IndWithoutIdDateOfBirthController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: IndWithoutIdDateOfBirthFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -44,8 +45,8 @@ class IndWithoutIdDateOfBirthController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       val form = formProvider()
 
       val preparedForm = request.userAnswers
@@ -53,7 +54,7 @@ class IndWithoutIdDateOfBirthController @Inject() (
         .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

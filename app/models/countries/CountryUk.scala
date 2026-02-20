@@ -14,32 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.countries
 
 import play.api.libs.json.{Json, OFormat}
 
-/** @param addressLine1
-  *   Address Line 1
-  * @param addressLine2
-  *   Address Line 2
-  * @param townOrCity
-  *   Town or City
-  * @param county
-  *   County
-  * @param postCode
-  *   post code e.g. NW1 5RT
-  * @param countryCode
-  *   country code e.g. UK
-  */
-case class AddressUK(
-    addressLine1: String,
-    addressLine2: Option[String],
-    townOrCity: String,
-    county: Option[String],
-    postCode: String,
-    countryCode: String
-)
+case class CountryUk(code: String, name: String)
 
-object AddressUK {
-  implicit val format: OFormat[AddressUK] = Json.format[AddressUK]
+object CountryUk {
+  implicit val format: OFormat[CountryUk] = Json.format[CountryUk]
 }

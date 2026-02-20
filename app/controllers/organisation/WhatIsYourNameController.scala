@@ -38,6 +38,7 @@ class WhatIsYourNameController @Inject() (
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     formProvider: WhatIsYourNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
@@ -48,15 +49,15 @@ class WhatIsYourNameController @Inject() (
 
   val form: Form[Name] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatIsYourNamePage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
       Ok(view(preparedForm, mode))
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

@@ -16,13 +16,13 @@
 
 package pages.individualWithoutId
 
-import models.responses.AddressResponse
+import models.AddressUk
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IndReviewConfirmAddressPage extends QuestionPage[AddressResponse] {
+case object IndWithoutIdUkAddressInUserAnswers extends QuestionPage[AddressUk] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "indReviewConfirmAddress"
+  override def toString: String = "indWithoutIdUkAddress"
 }

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package pages.individualWithoutId
+package controllers.actions
 
-import models.AddressUK
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import models.requests.OptionalDataRequest
+import play.api.mvc.{ActionFilter, Result}
+import javax.inject.Inject
+import play.api.mvc.BodyParsers
 
-case object IndWithoutIdAddressPage extends QuestionPage[AddressUK] {
+import scala.concurrent.{ExecutionContext, Future}
 
-  override def path: JsPath = JsPath \ toString
+class FakeSubmissionLockAction @Inject() (parsers: BodyParsers.Default)(implicit ec: ExecutionContext)
+    extends SubmissionLockAction(parsers) {
 
-  override def toString: String = "address"
+  override protected def executionContext: ExecutionContext = ec
+
+  override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] =
+    Future.successful(None)
 }

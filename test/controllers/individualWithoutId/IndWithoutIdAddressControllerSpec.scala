@@ -21,7 +21,7 @@ import controllers.routes
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
 import models.countries.{Country, UnitedKingdom}
-import models.{AddressUK, NormalMode, UserAnswers}
+import models.{AddressUk, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -33,7 +33,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import utils.CountryListFactory
-import views.html.AddressView
+import views.html.individualWithoutId.IndWithoutIdAddressView
 
 import scala.concurrent.Future
 
@@ -45,21 +45,19 @@ class IndWithoutIdAddressControllerSpec
 
   def onwardRoute = Call("GET", "/foo")
 
-  private val uk: Country                 = Country("UK", "United Kingdom")
+  private val uk: Country                 = Country("GB", "United Kingdom")
   private val france: Country             = Country("FR", "France")
   private val jersey: Country             = Country("JE", "Jersey")
-  private val mockCountries: Set[Country] = Set(uk, france, jersey)
+  private val testCountries: Seq[Country] = Seq(uk, france, jersey)
 
   private val formProvider = new IndWithoutIdAddressFormProvider()
-  private val form         = formProvider()
+  private val form         = formProvider(testCountries)
 
   private lazy val addressRoute =
     controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url
 
   inline final val addressRegex     = """^[a-zA-Z0-9 \.&`\-\'\^]*$"""
   inline final val addressMaxLength = 35
-
-  private val address = AddressUK("123 Test Street", None, "Birmingham", None, "B23 2AZ", "UK")
 
   val mockCountryListFactory: CountryListFactory = mock[CountryListFactory]
 
@@ -69,9 +67,7 @@ class IndWithoutIdAddressControllerSpec
   }
 
   "IndWithoutIdAddress Controller" - {
-
     "must return OK and the correct view for a GET" in {
-
       when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -80,7 +76,7 @@ class IndWithoutIdAddressControllerSpec
 
       running(application) {
         val request = FakeRequest(GET, addressRoute)
-        val view    = application.injector.instanceOf[AddressView]
+        val view    = application.injector.instanceOf[IndWithoutIdAddressView]
         val result  = route(application, request).value
 
         status(result)          mustEqual OK
@@ -89,15 +85,7 @@ class IndWithoutIdAddressControllerSpec
     }
 
     "must populate the view correctly on a GET when the question has previously been answered via pre-pop" in {
-
-      val postCode  = validPostcodes.sample.value
-      val addressUK = AddressUK("addressLine1", Some("addressLine2"), "town", None, postCode, UnitedKingdom.code)
-
-      val userAnswers =
-        UserAnswers(userAnswersId)
-          .set(IndWithoutIdAddressPagePrePop, addressUK)
-          .success
-          .value
+      val userAnswers = emptyUserAnswers.set(IndWithoutIdAddressPagePrePop, testAddressUk).success.value
 
       when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
 
@@ -108,100 +96,97 @@ class IndWithoutIdAddressControllerSpec
       running(application) {
         val request = FakeRequest(GET, addressRoute)
 
-        val view = application.injector.instanceOf[AddressView]
+        val view = application.injector.instanceOf[IndWithoutIdAddressView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form.fill(addressUK), NormalMode, Seq.empty)(
+        contentAsString(result) mustEqual view(form.fill(testAddressUk), NormalMode, Seq.empty)(
           request,
           messages(application)
         ).toString
       }
     }
-  }
 
-  "must redirect to the next page when valid data is submitted" in {
-    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    "must redirect to the next page when valid data is submitted" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-    val application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-        )
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addressRoute)
+            .withFormUrlEncodedBody(
+              "addressLine1" -> "value 1",
+              "addressLine2" -> "value 2",
+              "townOrCity"   -> "test town",
+              "postcode"     -> testPostcode,
+              "country"      -> "GB"
+            )
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
         .build()
 
-    running(application) {
-      val request =
-        FakeRequest(POST, addressRoute)
-          .withFormUrlEncodedBody(
-            "addressLine1" -> "value 1",
-            "addressLine2" -> "value 2",
-            "townOrCity"   -> address.townOrCity,
-            "postcode"     -> address.postCode,
-            "country"      -> UnitedKingdom.code
-          )
+      running(application) {
+        val request =
+          FakeRequest(POST, addressRoute)
+            .withFormUrlEncodedBody(("addressLine1", ""))
 
-      val result = route(application, request).value
+        val boundForm = form.bind(Map("addressLine1" -> ""))
+        val view      = application.injector.instanceOf[IndWithoutIdAddressView]
+        val result    = route(application, request).value
 
-      status(result)                 mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual onwardRoute.url
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode, Seq.empty)(
+          request,
+          messages(application)
+        ).toString
+      }
     }
-  }
 
-  "must return a Bad Request and errors when invalid data is submitted" in {
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+      val application = applicationBuilder(userAnswers = None).build()
 
-    when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
+      running(application) {
+        val request = FakeRequest(GET, addressRoute)
 
-    val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-      .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
-      .build()
+        val result = route(application, request).value
 
-    running(application) {
-      val request =
-        FakeRequest(POST, addressRoute)
-          .withFormUrlEncodedBody(("addressLine1", ""))
-
-      val boundForm = form.bind(Map("addressLine1" -> ""))
-      val view      = application.injector.instanceOf[AddressView]
-      val result    = route(application, request).value
-
-      status(result)          mustEqual BAD_REQUEST
-      contentAsString(result) mustEqual view(boundForm, NormalMode, Seq.empty)(
-        request,
-        messages(application)
-      ).toString
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
     }
-  }
 
-  "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+      val application = applicationBuilder(userAnswers = None).build()
 
-    val application = applicationBuilder(userAnswers = None).build()
+      running(application) {
+        val request =
+          FakeRequest(POST, addressRoute)
+            .withFormUrlEncodedBody(("addressLine1", "value 1"), ("addressLine2", "value 2"))
 
-    running(application) {
-      val request = FakeRequest(GET, addressRoute)
+        val result = route(application, request).value
 
-      val result = route(application, request).value
-
-      status(result)                 mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-    }
-  }
-
-  "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-    val application = applicationBuilder(userAnswers = None).build()
-
-    running(application) {
-      val request =
-        FakeRequest(POST, addressRoute)
-          .withFormUrlEncodedBody(("addressLine1", "value 1"), ("addressLine2", "value 2"))
-
-      val result = route(application, request).value
-
-      status(result)                 mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
     }
   }
 }

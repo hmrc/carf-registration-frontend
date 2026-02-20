@@ -191,12 +191,12 @@ haveTradingName.title = Does your business trade under a different name?
 haveTradingName.heading = Does your business trade under a different name?
 haveTradingName.checkYourAnswersLabel = Does your organisation trade under a different name?
 haveTradingName.error.required = Select yes if your business trades under a different name
-haveTradingName.change.hidden = Change if your organisation trades under a different name
+haveTradingName.change.hidden = Change if your business trades under a different name
 
 tradingName.title = What is the trading name of your business?
 tradingName.heading = What is the trading name of your business?
 tradingName.checkYourAnswersLabel = Trading name
-tradingName.change.hidden = Change trading name
+tradingName.change.hidden = Change the trading name of your business
 tradingName.error.required = Enter the trading name of your business
 tradingName.error.invalid = Trading name must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 tradingName.error.length = Trading name must be 80 characters or less
@@ -385,7 +385,8 @@ indWithoutNinoName.title = What is your name?
 indWithoutNinoName.heading = What is your name?
 indWithoutNinoName.givenName = Given name
 indWithoutNinoName.familyName = Family name
-indWithoutNinoName.checkYourAnswersLabel = What is your name?
+indWithoutNinoName.checkYourAnswersLabel = Your name
+indWithoutNinoName.change.hidden = Change your name
 indWithoutNinoName.error.givenName.required = Enter your given name
 indWithoutNinoName.error.givenName.invalid = The given name must only include letters a to z, ampersands (&), apostrophes, backslashes, carets (^), grave accents (`), hyphens and spaces
 indWithoutNinoName.error.givenName.length = The given name must be 35 characters or less
@@ -398,8 +399,8 @@ indWithoutNinoName.familyName.change.hidden = Change What is your family name?
 indWithoutIdDateOfBirth.title = What is your date of birth?
 indWithoutIdDateOfBirth.heading = What is your date of birth?
 indWithoutIdDateOfBirth.hint = For example, 31 3 1980.
-indWithoutIdDateOfBirth.checkYourAnswersLabel = What is your date of birth?
-indWithoutIdDateOfBirth.change.hidden = Change What is your date of birth?
+indWithoutIdDateOfBirth.checkYourAnswersLabel = Your date of birth
+indWithoutIdDateOfBirth.change.hidden = Change your date of birth
 indWithoutIdDateOfBirth.error.required.all = Enter your date of birth
 indWithoutIdDateOfBirth.error.invalid = Date of birth must only include numbers 0 to 9
 indWithoutIdDateOfBirth.error.not.real.date = Enter a real date of birth
@@ -479,15 +480,35 @@ indFindAddress.error.postcode.length = Postcode must be 10 characters or less
 indFindAddress.error.postcode.invalid = Postcode must only include letters a to z, numbers 0 to 9 or spaces
 indFindAddress.error.postcode.invalidFormat = Enter postcode in the right format
 indFindAddress.error.postcode.notFound = We could not find any addresses for this postcode. Enter a known postcode, or enter the address manually
-indFindAddress.postcode.change.hidden = Postcode
 indFindAddress.error.propertyNameOrNumber.length = Property name or number must be 35 characters or less
-indFindAddress.checkYourAnswersLabel = Find your address
 indFindAddress.enterAddressManualLink = Enter the address manually
 
 indReviewConfirmAddress.title = Review and confirm your address
 indReviewConfirmAddress.heading = Review and confirm your address
 indReviewConfirmAddress.editAddress = Edit address
 indReviewConfirmAddress.confirmAddress = Confirm address
+
+registrationConfirmation.title = Registration successful
+registrationConfirmation.label.heading = Registration successful
+registrationConfirmation.carfUserId.label= Your CARF user ID
+registrationConfirmation.support.text.preLink = You’ll need to provide your CARF user ID when emailing
+registrationConfirmation.support.text.link = aeoi.enquiries@hmrc.gov.uk
+registrationConfirmation.support.text.postLink = for support.
+
+registrationConfirmation.1.email.sent = We have also sent a confirmation email to {0}.
+registrationConfirmation.2.email.sent = We have also sent a confirmation email to {0} and {1}.
+
+registrationConfirmation.next.heading = What you should do next
+registrationConfirmation.next.text = To send cryptoasset reports, you must
+registrationConfirmation.next.text.postLink = add a cryptoasset service provider
+
+registrationConfirmation.feedback.heading = Before you go
+registrationConfirmation.feedback.text = Your feedback helps us make our service better.
+registrationConfirmation.feedback.link = Take a short survey
+registrationConfirmation.feedback.postLink = to share your feedback on this service.
+
+page.unavailable.title = Page Unavailable
+page.unavailable.heading = Page Unavailable
 
 indWithoutIdAddressNonUk.title = What is your address?
 indWithoutIdAddressNonUk.heading = What is your address?
@@ -497,8 +518,8 @@ indWithoutIdAddressNonUk.townOrCity = Town or city
 indWithoutIdAddressNonUk.region = Region (optional)
 indWithoutIdAddressNonUk.postcode = Postal code (optional)
 indWithoutIdAddressNonUk.country = Country
-indWithoutIdAddressNonUk.checkYourAnswersLabel = What is your address?
-indWithoutIdAddressNonUk.change.hidden = Change your address?
+indWithoutIdAddressNonUk.checkYourAnswersLabel = Your home address
+indWithoutIdAddressNonUk.change.hidden = Change your home address
 indWithoutIdAddressNonUk.addressLine1.error.required = Enter address line 1
 indWithoutIdAddressNonUk.addressLine1.error.length = Address line 1 must be 35 characters or less
 indWithoutIdAddressNonUk.addressLine1.error.invalid = Address line 1 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
@@ -513,6 +534,8 @@ indWithoutIdAddressNonUk.postcode.error.length = Postal code must be 10 characte
 indWithoutIdAddressNonUk.postcode.error.invalid = Postal code must only include letters a to z, numbers 0 to 9 and spaces
 indWithoutIdAddressNonUk.country.error.required = Select country
 
+indWithoutIdAddressUk.checkYourAnswersLabel = Your home address
+indWithoutIdAddressUk.change.hidden = Change your home address
 
 address.heading = What is your address?
 
@@ -526,14 +549,14 @@ address.addressLine2 = Address line 2 (optional)
 address.addressLine2.error.length = Address line 2 must be 35 characters or less
 address.addressLine2.error.invalid = Address line 2 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
 
-address.townOrCity = Town Or City
+address.addressLine3 = Address line 3 (optional)
+address.addressLine3.error.length = Address line 3 must be 35 characters or less
+address.addressLine3.error.invalid = Address line 3 must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
+
+address.townOrCity = Town or city
 address.townOrCity.error.required = Enter town or city
 address.townOrCity.error.length = Town or city must be 35 characters or less
 address.townOrCity.error.invalid = Town or city must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
-
-address.county = County (optional)
-address.county.error.length = County must be 35 characters or less
-address.county.error.invalid = County must only include letters a to z, numbers 0 to 9, apostrophes, commas, ampersands (&), hyphens, full stops and spaces
 
 address.postcode = Postcode
 address.postcode.error.required = Enter a postcode, like AA1 1AA

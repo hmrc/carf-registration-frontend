@@ -16,12 +16,11 @@
 
 package forms.mappings
 
-import models.countries.*
 import models.Enumerable
+import models.countries.*
 import play.api.data.Forms.of
-import play.api.data.{FieldMapping, FormError, Mapping}
+import play.api.data.{FieldMapping, Mapping}
 import play.api.i18n.Messages
-import play.api.data.format.Formatter
 
 import java.time.LocalDate
 
@@ -180,4 +179,21 @@ trait Mappings extends Formatters with Constraints {
         notRealKey
       )
     )
+
+  def countryUkMapping(countryList: Seq[Country]): Mapping[CountryUk] =
+    text("address.country.error.required")
+      .verifying(
+        "address.country.error.required",
+        code => countryList.exists(_.code == code)
+      )
+      .transform[CountryUk](
+        code =>
+          countryList
+            .find(_.code == code)
+            .map(c => CountryUk(c.code, c.description))
+            .getOrElse(
+              throw new IllegalStateException(s"Unknown country [$code]")
+            ),
+        _.code
+      )
 }

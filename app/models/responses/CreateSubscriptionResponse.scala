@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package models.responses
 
-object IdentifierType {
-  val ABROADFLAG = "AbroadFlag"
-  val UTR        = "UTR"
+import models.SubscriptionId
+import play.api.libs.json.{Json, Reads}
 
-  val SAFE = "SAFE"
+case class CreateSubscriptionResponse(success: SubscriptionIDResponse) {
+  def subscriptionId: SubscriptionId = SubscriptionId(success.CARFReference)
+}
 
-  val NINO = "NINO"
+object CreateSubscriptionResponse {
+  implicit lazy val reads: Reads[CreateSubscriptionResponse] = Json.reads[CreateSubscriptionResponse]
 }

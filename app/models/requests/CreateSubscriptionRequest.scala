@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package models
+package models.requests
 
-object IdentifierType {
-  val ABROADFLAG = "AbroadFlag"
-  val UTR        = "UTR"
+import play.api.libs.json.{Json, OFormat, Reads, Writes}
 
-  val SAFE = "SAFE"
+case class CreateSubscriptionRequest(
+    gbUser: Boolean,
+    idNumber: String,
+    idType: String,
+    tradingName: Option[String],
+    primaryContact: ContactInformation,
+    secondaryContact: Option[ContactInformation]
+)
 
-  val NINO = "NINO"
+object CreateSubscriptionRequest {
+
+  implicit val format: OFormat[CreateSubscriptionRequest] = Json.format[CreateSubscriptionRequest]
 }

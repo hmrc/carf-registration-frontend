@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package models.responses
 
-object IdentifierType {
-  val ABROADFLAG = "AbroadFlag"
-  val UTR        = "UTR"
+import models.SubscriptionId
+import play.api.libs.json.{Json, Reads}
 
-  val NINO = "NINO"
-  val SAFE = "SAFE"
+case class CreateSubscriptionResponse(success: SubscriptionIdResponse) {
+  def subscriptionId: SubscriptionId = SubscriptionId(success.CARFReference)
+}
+
+object CreateSubscriptionResponse {
+  implicit lazy val reads: Reads[CreateSubscriptionResponse] = Json.reads[CreateSubscriptionResponse]
 }

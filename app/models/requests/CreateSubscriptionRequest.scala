@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package models
+package models.requests
 
-object IdentifierType {
-  val ABROADFLAG = "AbroadFlag"
-  val UTR        = "UTR"
+import play.api.libs.json.{Json, OFormat, Reads, Writes}
 
-  val NINO = "NINO"
-  val SAFE = "SAFE"
+case class CreateSubscriptionRequest(
+    gbUser: Boolean,
+    idNumber: String,
+    idType: String,
+    tradingName: Option[String],
+    primaryContact: SubscriptionContactDetails,
+    secondaryContact: Option[SubscriptionContactDetails]
+)
+
+object CreateSubscriptionRequest {
+
+  implicit val format: OFormat[CreateSubscriptionRequest] = Json.format[CreateSubscriptionRequest]
 }

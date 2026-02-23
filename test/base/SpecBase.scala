@@ -135,7 +135,7 @@ trait SpecBase
     Seq(oneAddressResponse, oneAddressResponse, oneAddressResponse)
 
   val testSignOutUrl: String       = "http://localhost:9553/bas-gateway/sign-out-without-state"
-  val testLoginContinueUrl: String = "http://localhost:17000/register-for-carf"
+  val testLoginContinueUrl: String = "http://localhost:17000/register-for-cryptoasset-reporting"
 
   val testAddressRegistrationResponse = AddressRegistrationResponse(
     addressLine1 = "2 High Street",

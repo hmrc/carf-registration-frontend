@@ -18,10 +18,11 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
+import models.format
 import models.*
 import models.RegistrationType.*
 import models.countries.*
-import models.responses.{format, AddressRecord, AddressRegistrationResponse, CountryRecord}
+import models.responses.{AddressRecord, AddressRegistrationResponse, CountryRecord}
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
@@ -1099,12 +1100,15 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "IndWithoutIdChooseAddressPage navigation" - {
       "must navigate from Choose Address Page to the IndividualEmailPage" in {
 
-        val address     = AddressRecord(
-          List("1 Test Street", "Line 2"),
+        val address = AddressUk(
+          "1 Test Street",
+          Some("Line 2"),
+          None,
           "Testtown",
           "BB00 0BB",
-          CountryRecord("GB", "United Kingdom")
+          CountryUk("GB", "United Kingdom")
         )
+
         val userAnswers =
           UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, address.format(Seq.empty)).success.value
 

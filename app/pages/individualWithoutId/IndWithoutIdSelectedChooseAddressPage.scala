@@ -16,11 +16,12 @@
 
 package pages.individualWithoutId
 
+import models.AddressUk
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 import models.responses.{AddressRecord, AddressResponse}
 
-case object IndWithoutIdSelectedChooseAddressPage extends QuestionPage[AddressResponse] {
+case object IndWithoutIdSelectedChooseAddressPage extends QuestionPage[AddressUk] {
 
   override def path: JsPath = JsPath \ toString
 

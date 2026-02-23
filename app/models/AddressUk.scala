@@ -16,7 +16,7 @@
 
 package models
 
-import models.countries.CountryUk
+import models.countries.{Country, CountryUk, UnitedKingdom}
 import play.api.libs.json.{Json, OFormat}
 
 /** @param addressLine1
@@ -61,6 +61,24 @@ extension (address: AddressUk) {
     }
 
     htmlLines.mkString("<br>")
+  }
+
+  def format(ukCountries: Seq[Country]): String = {
+    val filteredUkCountries = ukCountries.filterNot(_.code == UnitedKingdom.code)
+
+    val addressLines = Seq(
+      address.addressLine1,
+      address.addressLine2,
+      address.addressLine3,
+      address.townOrCity,
+      address.postCode
+    ) ++ {
+      if (filteredUkCountries.contains(address.countryUk.code)) {
+        Seq(address.countryUk.name)
+      } else Seq.empty
+    }
+
+    addressLines.mkString(", ")
   }
 }
 

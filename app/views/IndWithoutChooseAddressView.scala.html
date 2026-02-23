@@ -55,7 +55,7 @@
                 content = HtmlContent(messages("indvWithoutChooseAddress.noneOfThese")),
                 value = Some("none"),
                 id = Some("value-none"),
-                checked = form("none").value.isDefined))
+                checked = form("value").value.isDefined && form("value").value.contains("none")))
         ))
 
         @govukButton(

@@ -18,28 +18,25 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import forms.IndWithoutChooseAddressFormProvider
-import models.responses.{format, AddressRecord, AddressResponse, CountryRecord}
-import models.{IndFindAddress, NormalMode, UserAnswers}
+import models.countries.CountryUk
+import models.{format, AddressUk, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
+import pages.individualWithoutId.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.AddressLookupService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.CountryListFactory
 import views.html.IndWithoutChooseAddressView
 
-import scala.util.Failure
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.*
+import scala.concurrent.Future
 
 class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
@@ -51,17 +48,14 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
   val formProvider       = new IndWithoutChooseAddressFormProvider()
   val form: Form[String] = formProvider()
 
-  val address = AddressResponse(
-    id = "GB790091234501",
-    address = AddressRecord(
-      List("1 Test Street", "Line 2"),
-      "Testtown",
-      "BB00 0BB",
-      CountryRecord("GB", "United Kingdom")
-    )
+  val address = AddressUk(
+    "1 Test Street",
+    Some("Line 2"),
+    None,
+    "Testtown",
+    "BB00 0BB",
+    CountryUk("GB", "United Kingdom")
   )
-
-  val mockCountryListFactory: CountryListFactory = mock[CountryListFactory]
 
   private lazy val expectedHtml =
     s"We could not find a match for ‘property 1’ — showing all results for B23 1AZ instead."
@@ -75,19 +69,15 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, false)
           .success
           .value
 
-      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-
       val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
-          .build()
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, chooseAddressRoute)
@@ -97,7 +87,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[IndWithoutChooseAddressView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, createAddressRadios(Seq(address.address)), None)(
+        contentAsString(result) mustEqual view(form, NormalMode, createAddressRadios(Seq(address)), None)(
           request,
           messages(application)
         ).toString
@@ -106,26 +96,22 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view with dynamic html element for a GET when additional call is true" in {
 
-      val additionalHtml = generateHtml("property 1", address.address.postcode)
+      val additionalHtml = generateHtml("property 1", address.postCode)
 
       val userAnswers =
         UserAnswers(userAnswersId)
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, Some("property 1")))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, Some("property 1")))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, true)
           .success
           .value
 
-      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-
       val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
-          .build()
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, chooseAddressRoute)
@@ -138,7 +124,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form,
           NormalMode,
-          createAddressRadios(Seq(address.address)),
+          createAddressRadios(Seq(address)),
           Some(additionalHtml)
         )(
           request,
@@ -151,24 +137,20 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .set(IndWithoutIdChooseAddressPage, address.address.format(Seq.empty))
+          .set(IndWithoutIdChooseAddressPage, address.format(Seq.empty))
           .success
           .value
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, false)
           .success
           .value
 
-      when(mockCountryListFactory.countrySelectList(any(), any())).thenReturn(Seq.empty)
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, chooseAddressRoute)
@@ -179,9 +161,9 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(
-          form.fill(address.address.format(Seq.empty)),
+          form.fill(address.format(Seq.empty)),
           NormalMode,
-          createAddressRadios(Seq(address.address)),
+          createAddressRadios(Seq(address)),
           None
         )(
           request,
@@ -259,7 +241,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, false)
@@ -276,7 +258,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, chooseAddressRoute)
-            .withFormUrlEncodedBody(("value", address.address.format(Seq.empty)))
+            .withFormUrlEncodedBody(("value", address.format(Seq.empty)))
 
         val result = route(application, request).value
 
@@ -293,7 +275,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, false)
@@ -328,7 +310,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, false)
@@ -349,7 +331,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, createAddressRadios(Seq(address.address)), None)(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, createAddressRadios(Seq(address)), None)(
           request,
           messages(application)
         ).toString
@@ -358,14 +340,14 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted when additional call flag is true" in {
 
-      val additionalHtml = generateHtml("property 1", address.address.postcode)
+      val additionalHtml = generateHtml("property 1", address.postCode)
 
       val userAnswers =
         UserAnswers(userAnswersId)
           .set(AddressLookupPage, Seq(address))
           .success
           .value
-          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, Some("property 1")))
+          .set(IndFindAddressPage, IndFindAddress(address.postCode, Some("property 1")))
           .success
           .value
           .set(IndFindAddressAdditionalCallUa, true)
@@ -389,7 +371,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           boundForm,
           NormalMode,
-          createAddressRadios(Seq(address.address)),
+          createAddressRadios(Seq(address)),
           Some(additionalHtml)
         )(
           request,
@@ -441,9 +423,9 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    def createAddressRadios(addressRecords: => Seq[AddressRecord]): Seq[RadioItem] =
-      addressRecords.map { addressRecord =>
-        val addressFormatted = addressRecord.format(Seq.empty)
+    def createAddressRadios(addresses: => Seq[AddressUk]): Seq[RadioItem] =
+      addresses.map { address =>
+        val addressFormatted = address.format(Seq.empty)
         RadioItem(content = Text(s"$addressFormatted"), value = Some(s"$addressFormatted"))
       }
 

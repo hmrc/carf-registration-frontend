@@ -23,7 +23,7 @@ import models.{AddressUk, IndFindAddress, Mode}
 import models.error.ApiError
 import models.requests.DataRequest
 import models.responses.AddressResponse
-import models.{AddressUK, IndFindAddress, Mode}
+import models.{AddressUk, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.AddressLookupPage
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
@@ -97,13 +97,13 @@ class IndFindAddressController @Inject() (
 
   }
 
-  private def save(indFindAddress: IndFindAddress, addresses: Seq[AddressUk], additionalCallMade: Boolean)(
-      implicit request: DataRequest[AnyContent]
+  private def save(indFindAddress: IndFindAddress, addresses: Seq[AddressUk], additionalCallMade: Boolean)(implicit
+      request: DataRequest[AnyContent]
   ) =
     for {
       updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, indFindAddress))
       filledAddress              =
-        addresses.headOption.fold(AddressUK("", None, "", None, indFindAddress.postcode, CountryUk("", "")))(identity)
+        addresses.headOption.fold(AddressUk("", None, None, "", indFindAddress.postcode, CountryUk("", "")))(identity)
       updatedAnswersWithPrePop  <-
         Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
       updatedAnswersWithAddress <- Future.fromTry(

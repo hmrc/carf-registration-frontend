@@ -153,9 +153,11 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
-        .thenReturn(Future.successful(
-          Right(Seq(testAddressUk), false)
-        ))
+        .thenReturn(
+          Future.successful(
+            Right(Seq(testAddressUk), false)
+          )
+        )
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -184,11 +186,13 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(
-          Right(
-            (Seq(testAddressUk, testAddressUk, testAddressUk), false)
+        .thenReturn(
+          Future.successful(
+            Right(
+              (Seq(testAddressUk, testAddressUk, testAddressUk), false)
+            )
           )
-        ))
+        )
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))

@@ -19,9 +19,8 @@ package controllers.individualWithoutId
 import config.Constants.noneOfTheseValue
 import controllers.actions.*
 import forms.IndWithoutChooseAddressFormProvider
-import models.{IndFindAddress, Mode}
 import models.requests.DataRequest
-import models.responses.{format, AddressResponse}
+import models.{format, AddressUk, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.AddressLookupPage
 import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
@@ -30,7 +29,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.AddressLookupService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -50,14 +48,13 @@ class IndWithoutChooseAddressController @Inject() (
     requireData: DataRequiredAction,
     formProvider: IndWithoutChooseAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: IndWithoutChooseAddressView,
-    countryListFactory: CountryListFactory
+    view: IndWithoutChooseAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with Logging {
 
-  private case class WithRadiosResult(result: Result, addressResponses: Seq[AddressResponse])
+  private case class WithRadiosResult(result: Result, addresses: Seq[AddressUk])
 
   val form: Form[String] = formProvider()
 
@@ -118,26 +115,26 @@ class IndWithoutChooseAddressController @Inject() (
 
   private def findAddressToStore(mode: Mode, value: String)(implicit
       request: DataRequest[AnyContent]
-  ): Future[Option[AddressResponse]] = Future.fromTry {
+  ): Future[Option[AddressUk]] = Future.fromTry {
     val WithRadiosResult(result, addresses) = resultWithRadios(mode) { (_, _) =>
       Redirect(call = controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 
     val exception = new Exception("Failed to find address")
     addresses
-      .find(_.address.format(countryListFactory.ukCountries) == value)
+      .find(_.format(CountryListFactory.ukCountries) == value)
       .fold {
         if (value == noneOfTheseValue) {
           Success(None)
         } else {
-          Failure[Option[AddressResponse]](exception)
+          Failure[Option[AddressUk]](exception)
         }
       }(address => Success(Some(address)))
   }
 
-  private def createAddressRadios(addressResponses: => Seq[AddressResponse]): Seq[RadioItem] =
-    addressResponses.map { addressResponse =>
-      val addressFormatted = addressResponse.address.format(countryListFactory.ukCountries)
+  private def createAddressRadios(addresses: => Seq[AddressUk]): Seq[RadioItem] =
+    addresses.map { address =>
+      val addressFormatted = address.format(CountryListFactory.ukCountries)
       RadioItem(content = Text(s"$addressFormatted"), value = Some(s"$addressFormatted"))
     }
 
@@ -150,11 +147,11 @@ class IndWithoutChooseAddressController @Inject() (
       .get(AddressLookupPage)
       .fold {
         WithRadiosResult(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()), Seq.empty)
-      } { addressResponses =>
-        if (addressResponses.isEmpty) {
+      } { addresses =>
+        if (addresses.isEmpty) {
           WithRadiosResult(indWithoutIdAddressControllerRedirect(mode), Seq.empty)
         } else {
-          lazy val radios: Seq[RadioItem] = createAddressRadios(addressResponses)
+          lazy val radios: Seq[RadioItem] = createAddressRadios(addresses)
 
           val maybeWithRadiosResult = for {
             indFindAddress     <- request.userAnswers.get(IndFindAddressPage)
@@ -164,7 +161,7 @@ class IndWithoutChooseAddressController @Inject() (
               radios,
               if (additionalCallMade) Some(indFindAddress) else None
             ),
-            addressResponses = addressResponses
+            addresses = addresses
           )
 
           maybeWithRadiosResult.fold(

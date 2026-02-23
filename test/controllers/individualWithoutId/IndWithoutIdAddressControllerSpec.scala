@@ -22,7 +22,7 @@ import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
 import models.countries.{Country, UnitedKingdom}
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUK, CheckMode, NormalMode, UserAnswers}
+import models.{AddressUk, CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}

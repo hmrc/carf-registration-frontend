@@ -19,18 +19,19 @@ package controllers.individualWithoutId
 import base.SpecBase
 import forms.IndWithoutChooseAddressFormProvider
 import models.responses.{format, AddressRecord, AddressResponse, CountryRecord}
-import models.{NormalMode, UserAnswers}
+import models.{IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
+import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.AddressLookupService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import views.html.IndWithoutChooseAddressView
@@ -59,12 +60,24 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
     )
   )
 
+  private lazy val expectedHtml =
+    s"We could not find a match for ‘property 1’ — showing all results for B23 1AZ instead."
+
   "IndWithoutChooseAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val userAnswers =
-        UserAnswers(userAnswersId).set(AddressLookupPage, Seq(address)).success.value
+        UserAnswers(userAnswersId)
+          .set(AddressLookupPage, Seq(address))
+          .success
+          .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, false)
+          .success
+          .value
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -77,10 +90,110 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[IndWithoutChooseAddressView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, createAddressRadios(Seq(address.address)))(
+        contentAsString(result) mustEqual view(form, NormalMode, createAddressRadios(Seq(address.address)), None)(
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must return OK and the correct view with dynamic html element for a GET when additional call is true" in {
+
+      val additionalHtml =
+        s"""<span class="govuk-!-margin-bottom-0">We could not find a match for ‘property 1’ — showing all results for ${address.address.postcode} instead.</span>"""
+
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .set(AddressLookupPage, Seq(address))
+          .success
+          .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, Some("property 1")))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, true)
+          .success
+          .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, chooseAddressRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          createAddressRadios(Seq(address.address)),
+          Some(additionalHtml)
+        )(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .set(IndWithoutIdChooseAddressPage, address.address.format)
+          .success
+          .value
+          .set(AddressLookupPage, Seq(address))
+          .success
+          .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, false)
+          .success
+          .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, chooseAddressRoute)
+
+        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+
+        val result = route(application, request).value
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(
+          form.fill(address.address.format),
+          NormalMode,
+          createAddressRadios(Seq(address.address)),
+          None
+        )(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return Redirect to journey recovery when IndFindAddressPage or IndFindAddressAdditionalCallUa is missing in ua for GET " in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(AddressLookupPage, Seq(address)).success.value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, chooseAddressRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController
+          .onPageLoad()
+          .url
       }
     }
 
@@ -124,44 +237,18 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      val userAnswers =
-        UserAnswers(userAnswersId)
-          .set(IndWithoutIdChooseAddressPage, address.address.format)
-          .success
-          .value
-          .set(AddressLookupPage, Seq(address))
-          .success
-          .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, chooseAddressRoute)
-
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
-
-        val result = route(application, request).value
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(
-          form.fill(address.address.format),
-          NormalMode,
-          createAddressRadios(Seq(address.address))
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers =
         UserAnswers(userAnswersId)
           .set(AddressLookupPage, Seq(address))
+          .success
+          .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, false)
           .success
           .value
 
@@ -184,12 +271,18 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when none of these is submitted and not store an address" in {
+    "must redirect to the next page when none of these is submitted and does not store an address" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers =
         UserAnswers(userAnswersId)
           .set(AddressLookupPage, Seq(address))
+          .success
+          .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, false)
           .success
           .value
 
@@ -221,6 +314,12 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
           .set(AddressLookupPage, Seq(address))
           .success
           .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, None))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, false)
+          .success
+          .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -236,7 +335,50 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, createAddressRadios(Seq(address.address)))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, createAddressRadios(Seq(address.address)), None)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted when additional call flag is true" in {
+
+      val additionalHtml =
+        s"""<span class="govuk-!-margin-bottom-0">We could not find a match for ‘property 1’ — showing all results for ${address.address.postcode} instead.</span>"""
+
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .set(AddressLookupPage, Seq(address))
+          .success
+          .value
+          .set(IndFindAddressPage, IndFindAddress(address.address.postcode, Some("property 1")))
+          .success
+          .value
+          .set(IndFindAddressAdditionalCallUa, true)
+          .success
+          .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, chooseAddressRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+
+        val result = route(application, request).value
+
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(
+          boundForm,
+          NormalMode,
+          createAddressRadios(Seq(address.address)),
+          Some(additionalHtml)
+        )(
           request,
           messages(application)
         ).toString

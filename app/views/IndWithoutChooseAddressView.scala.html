@@ -22,7 +22,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, radios: Seq[RadioItem], maybeHtml: Option[String])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("indvWithoutChooseAddress.title"))) {
 
@@ -33,6 +33,11 @@
         }
 
         <h1 class="govuk-heading-l">@messages("indvWithoutChooseAddress.heading")</h1>
+
+
+        @if(maybeHtml.isDefined){
+            <p class="govuk-body">@(maybeHtml.get)</p>
+        }
 
         @govukRadios(
             RadiosViewModel.apply(

@@ -43,6 +43,7 @@ import services.AddressLookupService
 import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.Future
+import scala.util.Right
 
 class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with Generators {
 
@@ -152,7 +153,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
-        .thenReturn(Future.successful(Right(Seq(testAddressUk))))
+        .thenReturn(Future.successful(
+          Right(Seq(testAddressUk), false)
+        ))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -174,14 +177,18 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       }
     }
 
-    "must redirect to the next page when postcode has returned more than one addresses" in {
+    "must redirect to the next page when postcode has returned more than one address" in {
 
       val onwardRouteMultipleAddresses =
         controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(Right(Seq(testAddressUk, testAddressUk, testAddressUk))))
+        .thenReturn(Future.successful(
+          Right(
+            (Seq(testAddressUk, testAddressUk, testAddressUk), false)
+          )
+        ))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -200,6 +207,40 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRouteMultipleAddresses.url
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
+      }
+    }
+
+    "must redirect to the next page when postcode has returned more than one address and retry has happened" in {
+
+      val onwardRouteMultipleAddresses =
+        controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
+        .thenReturn(
+          Future.successful(
+            Right(Seq(testAddressUk, testAddressUk, testAddressUk), true)
+          )
+        )
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[AddressLookupService].toInstance(mockAddressLookupService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indFindAddressRoute)
+            .withFormUrlEncodedBody(("postcode", "TE1 1ST"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteMultipleAddresses.url
+        verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
+        verify(mockSessionRepository, times(1)).set(any())
       }
     }
 
@@ -256,7 +297,11 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
     "must return Bad Request with error when postcode search returns no addresses" in {
 
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(Future.successful(Right(Nil)))
+        .thenReturn(
+          Future.successful(
+            Right((Nil, false))
+          )
+        )
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(

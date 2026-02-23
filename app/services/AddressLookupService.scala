@@ -34,7 +34,7 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
   def postcodeSearch(postcode: String, propertyNameOrNumber: Option[String])(implicit
       ec: ExecutionContext,
       hc: HeaderCarrier
-  ): Future[Either[CarfError, Seq[AddressUk]]] = {
+  ): Future[Either[CarfError, (Seq[AddressUk], Boolean)]] = {
     val initialRequest = SearchByPostcodeRequest(postcode = postcode, filter = propertyNameOrNumber)
     {
       for {
@@ -47,7 +47,7 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
               address <- addressLookupConnector.searchByPostcode(
                            initialRequest.copy(filter = None)
                          )
-            } yield address
+            } yield (address, true)
           }
         addressDomain: Seq[AddressUk]                       <-
           EitherT.fromEither[Future](addressLookupCombinedResponse.traverse(AddressResponse.toDomainAddressUk))

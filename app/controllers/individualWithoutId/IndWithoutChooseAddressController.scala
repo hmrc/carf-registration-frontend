@@ -19,17 +19,18 @@ package controllers.individualWithoutId
 import config.Constants.noneOfTheseValue
 import controllers.actions.*
 import forms.IndWithoutChooseAddressFormProvider
-import models.Mode
+import models.{IndFindAddress, Mode}
 import models.requests.DataRequest
 import models.responses.{format, AddressResponse}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
+import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.AddressLookupService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -54,18 +55,36 @@ class IndWithoutChooseAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  val form: Form[String]                                                         = formProvider()
-  private lazy val indWithoutIdAddressControllerRedirect: Mode => Future[Result] = mode =>
-    Future.successful(Redirect(controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(mode)))
+  private case class WithRadiosResult(result: Result, addressResponses: Seq[AddressResponse])
+
+  val form: Form[String] = formProvider()
+
+  private lazy val indWithoutIdAddressControllerRedirect: Mode => Result = mode =>
+    Redirect(controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(mode))
+
+  private def additionalLine(property: String, postCode: String): String =
+    s"We could not find a match for ‘$property’ — showing all results for $postCode instead."
+
+  private def generateHtml(maybeIndFindAddress: Option[IndFindAddress]): Option[String] =
+    maybeIndFindAddress.map { indFindAddress =>
+      s"""${additionalLine(
+          indFindAddress.propertyNameOrNumber.getOrElse(""),
+          indFindAddress.postcode
+        )}"""
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
       lazy val preparedForm: Form[String] = request.userAnswers.get(IndWithoutIdChooseAddressPage).fold(form)(form.fill)
 
-      val (result, _) = resultWithRadios(mode) { radios =>
-        Future.successful(Ok(view(preparedForm, mode, radios)))
+      val WithRadiosResult(result, _) = resultWithRadios(mode) { (radios, maybeIndFindAddress) =>
+
+        val maybeHtml: Option[String] = generateHtml(maybeIndFindAddress)
+
+        Ok(view(preparedForm, mode, radios, maybeHtml))
       }
-      result
+
+      Future.successful(result)
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -74,10 +93,13 @@ class IndWithoutChooseAddressController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            val (result, _) = resultWithRadios(mode) { radios =>
-              Future.successful(BadRequest(view(formWithErrors, mode, radios)))
+            val WithRadiosResult(result, _) = resultWithRadios(mode) { (radios, maybeIndFindAddress) =>
+
+              val maybeHtml: Option[String] = generateHtml(maybeIndFindAddress)
+              BadRequest(view(formWithErrors, mode, radios, maybeHtml))
+
             }
-            result
+            Future.successful(result)
           },
           value =>
             for {
@@ -95,9 +117,8 @@ class IndWithoutChooseAddressController @Inject() (
   private def findAddressToStore(mode: Mode, value: String)(implicit
       request: DataRequest[AnyContent]
   ): Future[Option[AddressResponse]] = Future.fromTry {
-
-    val (_, addresses) = resultWithRadios(mode) { _ =>
-      Future.successful(Redirect(call = controllers.routes.JourneyRecoveryController.onPageLoad()))
+    val WithRadiosResult(result, addresses) = resultWithRadios(mode) { (_, _) =>
+      Redirect(call = controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 
     val exception = new Exception("Failed to find address")
@@ -121,19 +142,32 @@ class IndWithoutChooseAddressController @Inject() (
   private def resultWithRadios(
       mode: Mode
   )(
-      result: Seq[RadioItem] => Future[Result]
-  )(implicit request: DataRequest[AnyContent]): (Future[Result], Seq[AddressResponse]) =
+      result: (Seq[RadioItem], Option[IndFindAddress]) => Result
+  )(implicit request: DataRequest[AnyContent]): WithRadiosResult =
     request.userAnswers
       .get(AddressLookupPage)
       .fold {
-        (Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())), Seq.empty)
+        WithRadiosResult(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()), Seq.empty)
       } { addressResponses =>
-        lazy val radios: Seq[RadioItem] = createAddressRadios(addressResponses)
-
         if (addressResponses.isEmpty) {
-          (indWithoutIdAddressControllerRedirect(mode), Seq.empty)
+          WithRadiosResult(indWithoutIdAddressControllerRedirect(mode), Seq.empty)
         } else {
-          (result(radios), addressResponses)
+          lazy val radios: Seq[RadioItem] = createAddressRadios(addressResponses)
+
+          val maybeWithRadiosResult = for {
+            indFindAddress     <- request.userAnswers.get(IndFindAddressPage)
+            additionalCallMade <- request.userAnswers.get(IndFindAddressAdditionalCallUa)
+          } yield WithRadiosResult(
+            result = result(
+              radios,
+              if (additionalCallMade) Some(indFindAddress) else None
+            ),
+            addressResponses = addressResponses
+          )
+
+          maybeWithRadiosResult.fold(
+            WithRadiosResult(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()), Seq.empty)
+          )(identity)
         }
       }
 }

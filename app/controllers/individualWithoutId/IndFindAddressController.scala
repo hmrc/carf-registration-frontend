@@ -20,9 +20,14 @@ import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.countries.CountryUk
 import models.{AddressUk, IndFindAddress, Mode}
+import models.error.ApiError
+import models.requests.DataRequest
+import models.responses.AddressResponse
+import models.{AddressUK, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.AddressLookupPage
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.*
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -76,32 +81,39 @@ class IndFindAddressController @Inject() (
             addressLookupService
               .postcodeSearch(value.postcode, value.propertyNameOrNumber)
               .flatMap {
-                case Left(error) =>
+                case Left(error)                            =>
                   logger.error(s"Address lookup service failed: $error")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-                case Right(Nil)  =>
+                case Right((Nil, _))                        =>
                   val formError =
                     formReturned.withError(FormError("postcode", List("indFindAddress.error.postcode.notFound")))
                   Future.successful(BadRequest(view(formError, mode)))
-
-                case Right(addresses) =>
+                case Right((addresses, additionalCallMade)) =>
                   for {
-                    updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, value))
-                    filledAddress              = addresses.headOption.fold(
-                                                   AddressUk("", None, None, "", value.postcode, CountryUk("", ""))
-                                                 )(identity)
-                    updatedAnswersWithPrePop  <-
-                      Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
-                    updatedAnswersWithAddress <- Future.fromTry(
-                                                   updatedAnswersWithPrePop.set(
-                                                     AddressLookupPage,
-                                                     addresses
-                                                   )
-                                                 )
-                    _                         <- sessionRepository.set(updatedAnswersWithAddress)
-                  } yield Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswersWithAddress))
+                    updatedAnswersWithFlag <- save(value, addresses, additionalCallMade)
+                  } yield Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswersWithFlag))
               }
         )
 
   }
+
+  private def save(indFindAddress: IndFindAddress, addresses: Seq[AddressUk], additionalCallMade: Boolean)(
+      implicit request: DataRequest[AnyContent]
+  ) =
+    for {
+      updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, indFindAddress))
+      filledAddress              =
+        addresses.headOption.fold(AddressUK("", None, "", None, indFindAddress.postcode, CountryUk("", "")))(identity)
+      updatedAnswersWithPrePop  <-
+        Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
+      updatedAnswersWithAddress <- Future.fromTry(
+                                     updatedAnswersWithPrePop.set(
+                                       AddressLookupPage,
+                                       addresses
+                                     )
+                                   )
+      updatedAnswersWithFlag    <-
+        Future.fromTry(updatedAnswersWithAddress.set(IndFindAddressAdditionalCallUa, additionalCallMade))
+      _                         <- sessionRepository.set(updatedAnswersWithFlag)
+    } yield updatedAnswersWithFlag
 }

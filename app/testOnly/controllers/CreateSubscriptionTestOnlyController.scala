@@ -35,7 +35,6 @@ class CreateSubscriptionTestOnlyController @Inject() (
   def makeCall(primaryContactName: Option[String], safeId: Option[String]): Action[AnyContent] = Action.async {
     implicit request =>
 
-      println("AAAAAA")
       val testRequest: CreateSubscriptionRequest = CreateSubscriptionRequest(
         gbUser = false,
         idNumber = safeId.get,

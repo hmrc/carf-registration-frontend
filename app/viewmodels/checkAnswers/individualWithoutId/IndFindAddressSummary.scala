@@ -39,10 +39,9 @@ object IndFindAddressSummary {
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("indFindAddress.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("indFindAddress.change.hidden"))
         )
       )
     }

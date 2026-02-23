@@ -23,7 +23,7 @@ import org.scalatest.matchers.must.Matchers
 
 class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with OptionValues {
 
-  val ukAddress = AddressRegistrationResponse(
+  val ukAddressResponse = AddressRegistrationResponse(
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Birmingham"),
     addressLine3 = None,
@@ -32,7 +32,7 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
     countryCode = "GB"
   )
 
-  val nonUkAddress = AddressRegistrationResponse(
+  val nonUkAddressResponse = AddressRegistrationResponse(
     addressLine1 = "321 Pear",
     addressLine2 = Some("New York"),
     addressLine3 = Some("NY"),
@@ -41,12 +41,12 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
     countryCode = "US"
   )
 
-  "Address" - {
+  "AddressRegistrationResponse" - {
 
     "renderHTML" - {
 
       "must render UK address correctly without country code" in {
-        val result = ukAddress.renderHTML
+        val result = ukAddressResponse.renderHTML
 
         result must include("123 Main Street")
         result must include("Birmingham")
@@ -57,7 +57,7 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
       }
 
       "must render non-UK address correctly with country code" in {
-        val result = nonUkAddress.renderHTML
+        val result = nonUkAddressResponse.renderHTML
 
         result must include("321 Pear")
         result must include("New York")
@@ -105,10 +105,10 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
 
     "isUkBased" - {
       "must return true for a GB country code" in {
-        ukAddress.isUkBased mustBe true
+        ukAddressResponse.isUkBased mustBe true
       }
       "must return false for a non-GB country code" in {
-        nonUkAddress.isUkBased mustBe false
+        nonUkAddressResponse.isUkBased mustBe false
       }
     }
   }

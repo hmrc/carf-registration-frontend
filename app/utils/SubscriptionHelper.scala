@@ -21,7 +21,7 @@ import models.requests.{ContactInformation, CreateSubscriptionRequest, Individua
 import models.{IdentifierType, JourneyType, Name, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, NiNumberPage, WhatIsYourNameIndividualPage}
-import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.TradingNamePage
 import pages.organisation.*
 
@@ -127,7 +127,7 @@ class SubscriptionHelper {
     userAnswers.get(NiNumberPage).exists(_.trim.nonEmpty)
 
   private def checkIndividualManualAddressIsGb(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(IndWithoutIdAddressPage).exists(_.countryCode == "GB")
+    userAnswers.get(IndWithoutIdAddressPagePrePop).exists(_.countryUk.code == "GB")
 
   private def checkRegisteredAddressIsGb(userAnswers: UserAnswers): Boolean =
     userAnswers.get(RegisteredAddressInUkPage).contains(true)

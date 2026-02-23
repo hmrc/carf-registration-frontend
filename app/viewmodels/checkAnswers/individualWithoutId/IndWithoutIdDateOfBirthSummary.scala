@@ -20,10 +20,11 @@ import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutIdDateOfBirthPage
 import play.api.i18n.{Lang, Messages}
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object IndWithoutIdDateOfBirthSummary {
 
@@ -37,10 +38,9 @@ object IndWithoutIdDateOfBirthSummary {
         value = ValueViewModel(answer.format(dateTimeFormat())),
         actions = Seq(
           ActionItemViewModel(
-            "site.change",
-            controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("indWithoutIdDateOfBirth.change.hidden"))
+            content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
+            href = controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("indWithoutIdDateOfBirth.change.hidden"))
         )
       )
     }

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package pages.individualWithoutId
+package models.countries
 
-import models.AddressUK
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object IndWithoutIdAddressPage extends QuestionPage[AddressUK] {
+case class CountryUk(code: String, name: String)
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "address"
+object CountryUk {
+  implicit val format: OFormat[CountryUk] = Json.format[CountryUk]
 }

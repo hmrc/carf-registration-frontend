@@ -18,12 +18,12 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
-import models.JourneyType
-import models.JourneyType.{IndWithNino, IndWithUtr, OrgWithUtr, OrgWithoutId}
+import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.error.ApiError
+import models.{JourneyType, UserAnswers}
 import pages.SubscriptionIdPage
 import play.api.Logging
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.SubscriptionService
@@ -38,10 +38,10 @@ class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     helper: CheckYourAnswersHelper,
+    submissionLock: SubmissionLockAction,
     subscriptionService: SubscriptionService,
     view: CheckYourAnswersView,
     sessionRepository: SessionRepository
@@ -50,50 +50,60 @@ class CheckYourAnswersController @Inject() (
     with Logging
     with I18nSupport {
 
+  private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.getBusinessDetailsSectionMaybe(userAnswers)
+
+  private def orgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.getOrgWithoutIdDetailsMaybe(userAnswers)
+
+  private def firstContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.getFirstContactDetailsSectionMaybe(userAnswers)
+
+  private def secondContactDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.getSecondContactDetailsSectionMaybe(userAnswers)
+
+  private def indWithNinoYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.indWithNinoYourDetailsMaybe(userAnswers)
+
+  private def indWithoutIdYourDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.indWithoutIdYourDetailsMaybe(userAnswers)
+
+  private def indContactDetails(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.indContactDetailsMaybe(userAnswers)
+
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
-
-      val journeyType: Option[JourneyType] = request.userAnswers.journeyType
-
-      val businessDetailsSectionMaybe: Option[Section] =
-        helper.getBusinessDetailsSectionMaybe(request.userAnswers)
-
-      val orgWithoutIdDetailsMaybe: Option[Section] =
-        helper.getOrgWithoutIdDetailsMaybe(request.userAnswers)
-
-      val firstContactDetailsSectionMaybe: Option[Section]  =
-        helper.getFirstContactDetailsSectionMaybe(request.userAnswers)
-      val secondContactDetailsSectionMaybe: Option[Section] =
-        helper.getSecondContactDetailsSectionMaybe(request.userAnswers)
-
-      val indWithNinoYourDetails: Option[Section] =
-        helper.indWithNinoYourDetailsMaybe(request.userAnswers)
-      val indContactDetails: Option[Section]      =
-        helper.indContactDetailsMaybe(request.userAnswers)
+      val userAnswers                      = request.userAnswers
+      val journeyType: Option[JourneyType] = userAnswers.journeyType
 
       val sectionsMaybe = journeyType match {
         case Some(OrgWithUtr)   =>
           for {
-            section1 <- businessDetailsSectionMaybe
-            section2 <- firstContactDetailsSectionMaybe
-            section3 <- secondContactDetailsSectionMaybe
+            section1 <- businessDetailsSectionMaybe(userAnswers)
+            section2 <- firstContactDetailsSectionMaybe(userAnswers)
+            section3 <- secondContactDetailsSectionMaybe(userAnswers)
           } yield Seq(section1, section2, section3)
         case Some(IndWithNino)  =>
           for {
-            section1 <- indWithNinoYourDetails
-            section2 <- indContactDetails
+            section1 <- indWithNinoYourDetails(userAnswers)
+            section2 <- indContactDetails(userAnswers)
           } yield Seq(section1, section2)
         case Some(IndWithUtr)   =>
           for {
-            section1 <- businessDetailsSectionMaybe
-            section2 <- indContactDetails
+            section1 <- businessDetailsSectionMaybe(userAnswers)
+            section2 <- indContactDetails(userAnswers)
           } yield Seq(section1, section2)
         case Some(OrgWithoutId) =>
           for {
-            section1 <- orgWithoutIdDetailsMaybe
-            section2 <- firstContactDetailsSectionMaybe
-            section3 <- secondContactDetailsSectionMaybe
+            section1 <- orgWithoutIdDetailsMaybe(userAnswers)
+            section2 <- firstContactDetailsSectionMaybe(userAnswers)
+            section3 <- secondContactDetailsSectionMaybe(userAnswers)
           } yield Seq(section1, section2, section3)
+        case Some(IndWithoutId) =>
+          for {
+            section1 <- indWithoutIdYourDetails(userAnswers)
+            section2 <- indContactDetails(userAnswers)
+          } yield Seq(section1, section2)
         case _                  =>
           logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
           None

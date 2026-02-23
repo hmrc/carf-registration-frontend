@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,28 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import models.{CheckMode, UserAnswers}
-import pages.individualWithoutId.IndFindAddressPage
+import models.{renderHTML, CheckMode, UserAnswers}
+import pages.individualWithoutId.IndWithoutIdUkAddressInUserAnswers
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object IndFindAddressSummary {
+object IndWithoutIdAddressUkSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(IndFindAddressPage).map { answer =>
-
-      val value = HtmlFormat.escape(answer.postcode).toString + "<br/>" + HtmlFormat
-        .escape(answer.propertyNameOrNumber.getOrElse(""))
-        .toString
+    answers.get(IndWithoutIdUkAddressInUserAnswers).map { answer =>
+      val value = answer.renderHTML
 
       SummaryListRowViewModel(
-        key = "indFindAddress.checkYourAnswersLabel",
+        key = "indWithoutIdAddressUk.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(CheckMode).url
-          ).withVisuallyHiddenText(messages("indFindAddress.change.hidden"))
+            href = controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("indWithoutIdAddressUk.change.hidden"))
         )
       )
     }

@@ -20,11 +20,12 @@ import config.Constants.{addressMaxLength, addressRegex}
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
+import utils.CountryListFactory
 
-class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
+class IndWithoutIdAddressFormProviderSpec extends StringFieldBehaviours {
 
   private val formProvider = new IndWithoutIdAddressFormProvider()
-  private val form         = formProvider()
+  private val form         = formProvider(CountryListFactory.ukCountries)
 
   val validAddressStringGen: Gen[String] = {
     val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 &.,'-"
@@ -81,6 +82,27 @@ class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
     }
   }
 
+  ".addressLine3" - {
+    val fieldName  = "addressLine3"
+    val lengthKey  = "address.addressLine3.error.length"
+    val invalidKey = "address.addressLine3.error.invalid"
+    behave like fieldThatBindsValidData(form, fieldName, validAddressStringGen)
+    "must not bind strings longer than the max length" in {
+      val longString = "a" * (addressMaxLength + 1)
+      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
+    }
+    "must bind an empty string as valid" in {
+      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+      result.errors mustBe empty
+    }
+    "must not bind strings with invalid characters" in {
+      val invalidString = "Apt 4!"
+      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
+    }
+  }
+
   ".townOrCity" - {
     val fieldName   = "townOrCity"
     val requiredKey = "address.townOrCity.error.required"
@@ -99,29 +121,6 @@ class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
 
     "must not bind strings with invalid characters" in {
       val invalidString = "Luton!"
-      val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
-    }
-  }
-
-  ".county" - {
-    val fieldName  = "county"
-    val lengthKey  = "address.county.error.length"
-    val invalidKey = "address.county.error.invalid"
-
-    behave like fieldThatBindsValidData(form, fieldName, validAddressStringGen)
-
-    "must not bind strings longer than the max length" in {
-      val longString = "a" * (addressMaxLength + 1)
-      val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
-    }
-    "must bind an empty string as valid" in {
-      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
-      result.errors mustBe empty
-    }
-    "must not bind strings with invalid characters" in {
-      val invalidString = "California*"
       val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
       result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
     }
@@ -309,8 +308,14 @@ class IndWithoutIdAddressUKFormProviderSpec extends StringFieldBehaviours {
 
     behave like mandatoryField(form, fieldName, requiredError = FormError(fieldName, requiredKey))
 
-    "must bind a valid country code" in {
+    "must not bind a non-uk country code" in {
       val data   = baseFormData ++ Map(fieldName -> "FR")
+      val result = form.bind(data).apply(fieldName)
+      result.errors must contain(FormError(fieldName, requiredKey))
+    }
+
+    "must bind a valid country code" in {
+      val data   = baseFormData ++ Map(fieldName -> "GB")
       val result = form.bind(data).apply(fieldName)
       result.errors mustBe empty
     }

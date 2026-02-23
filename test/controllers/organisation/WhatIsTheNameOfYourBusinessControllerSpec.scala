@@ -50,11 +50,6 @@ class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSug
   lazy val whatIsTheNameOfYourBusinessRoute: String =
     controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(NormalMode).url
 
-  val testBusinessDetails: BusinessDetails = BusinessDetails(
-    name = "Test Company Ltd",
-    address = AddressRegistrationResponse("1 Test Road", None, None, None, Some("LU4 1ST"), "GB") // reg
-  )
-
   "WhatIsTheNameOfYourBusiness Controller" - {
 
     "must return OK and the correct view for a GET when option is Ltd or LLP" in {

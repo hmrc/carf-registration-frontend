@@ -27,7 +27,7 @@ import views.html.organisation.ProblemDifferentBusinessView
 
 class ProblemDifferentBusinessControllerSpec extends SpecBase {
 
-  val testSignOutUrl: String =
+  val testFullSignOutUrl: String =
     "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:17000/register-for-carf"
 
   val controllerRoute: String = controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad().url
@@ -56,7 +56,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(businessName, address, testSignOutUrl)(
+        contentAsString(result) mustEqual view(businessName, address, testFullSignOutUrl)(
           request,
           messages(application)
         ).toString
@@ -87,7 +87,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         val view    = application.injector.instanceOf[ProblemDifferentBusinessView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(businessName, address, testSignOutUrl)(
+        contentAsString(result) mustEqual view(businessName, address, testFullSignOutUrl)(
           request,
           messages(application)
         ).toString

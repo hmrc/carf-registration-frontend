@@ -18,20 +18,17 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
-import models.countries.{Country, UnitedKingdom}
 import models.requests.DataRequest
-import models.responses.AddressResponse
-import models.{AddressUK, CheckMode, Mode, NormalMode}
+import models.{AddressUk, Mode}
 import navigation.Navigator
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndWithoutIdAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{IndWithoutIdAddressPageForNavigatorOnly, IndWithoutIdAddressPagePrePop, IndWithoutIdUkAddressInUserAnswers}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
-import views.html.AddressView
+import views.html.individualWithoutId.IndWithoutIdAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,14 +44,15 @@ class IndWithoutIdAddressController @Inject() (
     formProvider: IndWithoutIdAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
     countryListFactory: CountryListFactory,
-    view: AddressView
+    view: IndWithoutIdAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private final def form: Form[AddressUK]                            = formProvider()
-  private final def countryListWithFilledForm(form: Form[AddressUK]) =
-    countryListFactory.countrySelectList(form.data, countryListFactory.ukCountries)
+  private final def form: Form[AddressUk]                            = formProvider(CountryListFactory.ukCountries)
+  // TODO: We should use countryListWithUKCountries, not hardcoding CountryListFactory.ukCountries
+  private final def countryListWithFilledForm(form: Form[AddressUk]) =
+    countryListFactory.countrySelectList(form.data, CountryListFactory.ukCountries)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
@@ -77,10 +75,12 @@ class IndWithoutIdAddressController @Inject() (
             ),
           value =>
             for {
-              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressPage, value))
+              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, value))
               updatedAnswersWithPrePop <- Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, value))
               _                        <- sessionRepository.set(updatedAnswersWithPrePop)
-            } yield Redirect(navigator.nextPage(IndWithoutIdAddressPage, mode, updatedAnswersWithPrePop))
+            } yield Redirect(
+              navigator.nextPage(IndWithoutIdAddressPageForNavigatorOnly, mode, updatedAnswersWithPrePop)
+            )
         )
   }
 }

@@ -1039,7 +1039,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
         val userAnswers =
           emptyUserAnswers
-            .set(AddressLookupPage, oneAddress)
+            .set(AddressLookupPage, Seq(testAddressUk))
             .success
             .value
 
@@ -1053,7 +1053,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
         val userAnswers =
           emptyUserAnswers
-            .set(AddressLookupPage, multipleAddresses)
+            .set(AddressLookupPage, Seq(testAddressUk, testAddressUk))
             .success
             .value
 
@@ -1080,56 +1080,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
     "IndReviewConfirmAddressPage navigation" - {
       "must navigate from IndReviewConfirmAddressPage to the 'IndividualEmailPage' page" in {
-        val userAnswers =
+        navigator.nextPage(
+          IndReviewConfirmAddressPageForNavigatorOnly,
+          NormalMode,
           emptyUserAnswers
-            .set(AddressLookupPage, oneAddress)
-            .success
-            .value
-            .set(IndReviewConfirmAddressPage, oneAddress.head)
-            .success
-            .value
-
-        navigator.nextPage(
-          IndReviewConfirmAddressPage,
-          NormalMode,
-          userAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      }
-
-      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
-        val userAnswers = emptyUserAnswers
-
-        navigator.nextPage(
-          IndReviewConfirmAddressPage,
-          NormalMode,
-          userAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
     "Address navigation" - {
-      "must navigate from Address page to the IndividualEmailPage" in {
-        val address                  = AddressUK("123 Test Street", None, "Birmingham", None, "B23 2AZ", "GB")
-        val userAnswers: UserAnswers = emptyUserAnswers
-          .set(IndWithoutIdAddressPage, address)
-          .success
-          .value
-
+      "must navigate from Individual without id address page to the IndividualEmailPage" in {
         navigator.nextPage(
-          IndWithoutIdAddressPage,
+          IndWithoutIdAddressPageForNavigatorOnly,
           NormalMode,
-          userAnswers
+          emptyUserAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      }
-
-      "must navigate from Address page to the Journey recovery if user answers is unset" in {
-        val userAnswers = emptyUserAnswers
-
-        navigator.nextPage(
-          IndWithoutIdAddressPage,
-          NormalMode,
-          userAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

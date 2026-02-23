@@ -16,13 +16,6 @@
 
 package pages.individualWithoutId
 
-import models.AddressUk
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import pages.Page
 
-case object IndWithoutIdAddressPagePrePop extends QuestionPage[AddressUk] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "indWithoutIdAddressPagePrePop"
-}
+case object IndReviewConfirmAddressPageForNavigatorOnly extends Page

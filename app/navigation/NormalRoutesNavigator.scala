@@ -124,27 +124,20 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndFindAddressPage =>
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
-    case IndReviewConfirmAddressPage =>
-      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
+    case IndReviewConfirmAddressPageForNavigatorOnly =>
+      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
 
-    case WhereDoYouLivePage =>
-      userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
+    case WhereDoYouLivePage => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
-    case IndWithoutIdAddressPage => userAnswers => navigateFromAddressPage(userAnswers)
+    case IndWithoutIdAddressPageForNavigatorOnly =>
+      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
-
-  private def navigateFromAddressPage(userAnswers: UserAnswers): Call =
-    userAnswers
-      .get(IndWithoutIdAddressPage)
-      .fold {
-        routes.JourneyRecoveryController.onPageLoad()
-      }(_ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode))
 
   private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
     userAnswers.get(WhereDoYouLivePage) match {
@@ -294,13 +287,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         )
       case _                                      =>
         routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers): Call =
-    userAnswers.get(IndReviewConfirmAddressPage) match {
-      case Some(addressResponse) =>
-        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      case _                     => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

@@ -112,10 +112,10 @@ class SubscriptionHelper {
 
   private def isGBUser(userAnswers: UserAnswers): Boolean = {
     val businessHasUtr              = checkBusinessHasUtr(userAnswers)
-    val individualHasNino           = checkIndividualHasNino(userAnswers)
+    val individualHasNino           = userAnswers.get(NiNumberPage).exists(_.trim.nonEmpty)
     val individualAddressLookupIsGb = userAnswers.get(IndFindAddressPage).isDefined
     val individualManualAddressIsGb = checkIndividualManualAddressIsGb(userAnswers)
-    val registeredAddressIsGb       = checkRegisteredAddressIsGb(userAnswers)
+    val registeredAddressIsGb       = userAnswers.get(RegisteredAddressInUkPage).contains(true)
 
     businessHasUtr || individualHasNino || individualAddressLookupIsGb || individualManualAddressIsGb || registeredAddressIsGb
   }
@@ -123,13 +123,7 @@ class SubscriptionHelper {
   private def checkBusinessHasUtr(userAnswers: UserAnswers): Boolean =
     userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).exists(_.uniqueTaxPayerReference.trim.nonEmpty)
 
-  private def checkIndividualHasNino(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(NiNumberPage).exists(_.trim.nonEmpty)
-
   private def checkIndividualManualAddressIsGb(userAnswers: UserAnswers): Boolean =
     userAnswers.get(IndWithoutIdAddressPagePrePop).exists(_.countryUk.code == "GB")
-
-  private def checkRegisteredAddressIsGb(userAnswers: UserAnswers): Boolean =
-    userAnswers.get(RegisteredAddressInUkPage).contains(true)
 
 }

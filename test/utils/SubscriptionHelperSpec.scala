@@ -17,9 +17,9 @@
 package utils
 
 import base.SpecBase
-import base.SpecBase
 import models.*
 import models.JourneyType.*
+import models.countries.CountryUk
 import models.requests.{ContactInformation, CreateSubscriptionRequest, IndividualDetails, OrganisationDetails}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, NiNumberPage, WhatIsYourNameIndividualPage}
@@ -29,9 +29,9 @@ import pages.organisation.*
 
 class SubscriptionHelperSpec extends SpecBase {
 
-  val testHelper = new SubscriptionHelper()
+  val subscriptionHelper = new SubscriptionHelper()
 
-  val testSafeId                        = "SAFEID"
+  val testSafeId                        = "safeid"
   val testIndividualName: Name          = Name("John", "Doe")
   val testIndividualEmail               = "john.doe@example.com"
   val testIndividualPhone               = "01234567890"
@@ -46,16 +46,16 @@ class SubscriptionHelperSpec extends SpecBase {
   val testNino                          = "AB123456C"
   val testUtrValue                      = "1234567890"
 
-  val testIndWithoutIdAddress: AddressUK = AddressUK(
+  val testIndWithoutIdAddress: AddressUk = AddressUk(
     addressLine1 = "123 Test Street",
     addressLine2 = Some("Testington"),
+    addressLine3 = None,
     townOrCity = "Townshire",
-    county = None,
     postCode = "12345",
-    countryCode = "UK"
+    countryUk = CountryUk("UK", "United Kingdom")
   )
 
-  val testIndWithoutIdAddressGb: AddressUK = testIndWithoutIdAddress.copy(countryCode = "GB")
+  val testIndWithoutIdAddressGb: AddressUk = testIndWithoutIdAddress.copy(countryUk = CountryUk("GB", "United Kingdom"))
   val testIndFindAddress: IndFindAddress   = IndFindAddress("SW1A 1AA", Some("10"))
 
   "SubscriptionHelper" - {
@@ -79,7 +79,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -89,7 +89,7 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe None
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
-            RequestIndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
+            IndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
           )
           request.primaryContact.organisation mustBe None
           request.primaryContact.email        mustBe testIndividualEmail
@@ -110,10 +110,10 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
-          result mustBe defined
-          request.primaryContact.phone mustBe None
+          result                          mustBe defined
+          result.get.primaryContact.phone mustBe None
         }
 
         "should return None when name is missing" in {
@@ -126,7 +126,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -141,7 +141,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -164,7 +164,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -174,7 +174,7 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe None
           request.gbUser                      mustBe false
           request.primaryContact.individual   mustBe Some(
-            RequestIndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
+            IndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
           )
           request.primaryContact.organisation mustBe None
           request.primaryContact.email        mustBe testIndividualEmail
@@ -195,7 +195,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result            mustBe defined
           result.get.gbUser mustBe true
@@ -214,7 +214,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result            mustBe defined
           result.get.gbUser mustBe true
@@ -227,7 +227,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -250,7 +250,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -260,7 +260,7 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe None
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
-            RequestIndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
+            IndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
           )
           request.primaryContact.organisation mustBe None
           request.primaryContact.email        mustBe testIndividualEmail
@@ -278,7 +278,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -307,7 +307,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -354,7 +354,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -375,7 +375,7 @@ class SubscriptionHelperSpec extends SpecBase {
         }
 
         "should not include secondary contact when hasSecondContact is false" in {
-          val userAnswers = emptyUserAnswers
+          val userAnswers: UserAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
@@ -393,7 +393,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result                      mustBe defined
           result.get.secondaryContact mustBe None
@@ -412,7 +412,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -430,7 +430,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -457,12 +457,13 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
-          result mustBe None
+          result                      mustBe defined
+          result.get.secondaryContact mustBe None
         }
 
-        "should return None when secondary contact is required but email is missing" in {
+        "should not include secondary contact when secondary contact email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
@@ -484,9 +485,10 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
-          result mustBe None
+          result                      mustBe defined
+          result.get.secondaryContact mustBe None
         }
       }
 
@@ -513,7 +515,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -554,7 +556,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -573,7 +575,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -589,7 +591,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result = testHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -610,7 +612,7 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe true
@@ -629,13 +631,13 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe false
       }
 
-      "should identify GB user when individual has NINO" in {
+      "should identify user as a GB user when individual has a NINO" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithNino))
           .set(WhatIsYourNameIndividualPage, testIndividualName)
@@ -648,13 +650,13 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe true
       }
 
-      "should not identify GB user when NINO is empty" in {
+      "should not identify user as a GB user when NINO field is empty" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithNino))
           .set(WhatIsYourNameIndividualPage, testIndividualName)
@@ -667,13 +669,13 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe false
       }
 
-      "should identify GB user when registered address is in UK" in {
+      "should identify user as GB user when registered address is in UK" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithoutId))
           .set(FirstContactNamePage, testOrganisationFirstContactName)
@@ -686,7 +688,7 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe true
@@ -705,7 +707,7 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe false
@@ -724,7 +726,7 @@ class SubscriptionHelperSpec extends SpecBase {
           .success
           .value
 
-        val result = testHelper.buildSubscriptionRequest(userAnswers)
+        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
         result            mustBe defined
         result.get.gbUser mustBe false

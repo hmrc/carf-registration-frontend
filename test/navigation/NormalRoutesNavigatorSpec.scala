@@ -1106,7 +1106,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           CountryRecord("GB", "United Kingdom")
         )
         val userAnswers =
-          UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, address.format).success.value
+          UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, address.format(Seq.empty)).success.value
 
         navigator.nextPage(
           IndWithoutIdChooseAddressPage,

@@ -19,6 +19,7 @@ package models.responses
 import models.AddressUk
 import models.countries.CountryUk
 import models.error.{CarfError, ConversionError}
+import models.countries.{Country, UnitedKingdom}
 import play.api.libs.json.{Json, OFormat}
 
 case class AddressResponse(
@@ -59,12 +60,18 @@ case class AddressRecord(
 )
 
 extension (addressRecord: AddressRecord) {
-  def format: String = {
+  def format(ukCountries: Seq[Country]): String = {
+    val filteredUkCountries = ukCountries.filterNot(_.code == UnitedKingdom.code)
+
     val addressLines = addressRecord.lines ++ Seq(
       addressRecord.town,
-      addressRecord.postcode,
-      addressRecord.country.name
-    )
+      addressRecord.postcode
+    ) ++ {
+      if (filteredUkCountries.contains(addressRecord.country.code)) {
+        Seq(addressRecord.country.name)
+      } else Seq.empty
+    }
+
     addressLines.mkString(", ")
   }
 }

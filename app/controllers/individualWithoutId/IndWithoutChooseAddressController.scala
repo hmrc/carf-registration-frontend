@@ -34,6 +34,7 @@ import services.AddressLookupService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CountryListFactory
 import views.html.IndWithoutChooseAddressView
 
 import javax.inject.Inject
@@ -49,7 +50,8 @@ class IndWithoutChooseAddressController @Inject() (
     requireData: DataRequiredAction,
     formProvider: IndWithoutChooseAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: IndWithoutChooseAddressView
+    view: IndWithoutChooseAddressView,
+    countryListFactory: CountryListFactory
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -123,7 +125,7 @@ class IndWithoutChooseAddressController @Inject() (
 
     val exception = new Exception("Failed to find address")
     addresses
-      .find(_.address.format == value)
+      .find(_.address.format(countryListFactory.ukCountries) == value)
       .fold {
         if (value == noneOfTheseValue) {
           Success(None)
@@ -135,7 +137,7 @@ class IndWithoutChooseAddressController @Inject() (
 
   private def createAddressRadios(addressResponses: => Seq[AddressResponse]): Seq[RadioItem] =
     addressResponses.map { addressResponse =>
-      val addressFormatted = addressResponse.address.format
+      val addressFormatted = addressResponse.address.format(countryListFactory.ukCountries)
       RadioItem(content = Text(s"$addressFormatted"), value = Some(s"$addressFormatted"))
     }
 

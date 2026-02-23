@@ -17,16 +17,17 @@
 package controllers
 
 import base.SpecBase
-import models.JourneyType._
-import models.{UniqueTaxpayerReference, UserAnswers}
-import org.scalatestplus.mockito.MockitoSugar
+import models.JourneyType.*
+import models.{SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import play.api.inject.bind
+import org.scalatestplus.mockito.MockitoSugar
+import pages.SubscriptionIdPage
 import pages.individual.{IndividualEmailPage, NiNumberPage}
 import pages.organisation.{FirstContactEmailPage, OrganisationHaveSecondContactPage, OrganisationSecondContactEmailPage, UniqueTaxpayerReferenceInUserAnswers}
+import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.EmailService
 import views.html.RegistrationConfirmationView
@@ -44,7 +45,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       )
       .build()
 
-  private val subscriptionId = "XXCAR0012345678"
+  private val subscriptionId = "XCARF0012345678"
 
   "RegistrationConfirmationController" - {
 
@@ -53,6 +54,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for OrgWithUtr" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithUtr))
+          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
           .withPage(FirstContactEmailPage, "org@test.com")
           .withPage(OrganisationHaveSecondContactPage, true)
           .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
@@ -85,6 +87,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for OrgWithoutId (non-automatch)" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithoutId))
+          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
           .withPage(FirstContactEmailPage, "orgwithout@test.com")
           .withPage(OrganisationHaveSecondContactPage, false)
           .copy(isCtAutoMatched = false)
@@ -115,6 +118,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for IndWithNino" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithNino))
+          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
           .withPage(IndividualEmailPage, "individual@test.com")
           .withPage(NiNumberPage, "AB123456C")
 
@@ -144,6 +148,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for IndWithoutId" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithoutId))
+          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
           .withPage(IndividualEmailPage, "indwithout@test.com")
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
@@ -172,6 +177,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for IndWithUtr" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithUtr))
+          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
           .withPage(IndividualEmailPage, "soletrader@test.com")
           .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
 

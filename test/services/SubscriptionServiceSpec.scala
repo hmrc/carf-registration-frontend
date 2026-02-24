@@ -25,6 +25,7 @@ import models.error.ApiError.InternalServerError
 import models.requests.CreateSubscriptionRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
+import pages.SafeIdPage
 import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
 import utils.SubscriptionHelper
 
@@ -36,9 +37,13 @@ class SubscriptionServiceSpec extends SpecBase {
   val testService                            = new SubscriptionService(mockConnector, subscriptionHelper)
 
   val exampleSubscriptionId: SubscriptionId = SubscriptionId("XCARF1234567890")
+  val exampleSafeId: SafeId                 = SafeId("XE0000123456789")
 
   val userAnswers: UserAnswers = emptyUserAnswers
     .copy(journeyType = Some(JourneyType.IndWithNino))
+    .set(SafeIdPage, exampleSafeId)
+    .success
+    .value
     .set(WhatIsYourNameIndividualPage, Name("John", "Doe"))
     .success
     .value

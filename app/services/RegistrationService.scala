@@ -17,11 +17,10 @@
 package services
 
 import connectors.RegistrationConnector
-import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, Name, UserAnswers}
 import pages.*
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 import play.api.Logging
@@ -111,7 +110,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     responseFuture.flatMap {
       case Right(response)       =>
         logger.info("Successfully retrieved organisation details.")
-        Future.successful(Right(BusinessDetails(name = response.organisationName, address = response.address)))
+        Future.successful(
+          Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
+        )
       case Left(error: ApiError) =>
         logger.error(s"Failed to retrieve organisation details: $error")
         Future.successful(Left(error))

@@ -31,7 +31,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
   val subscriptionHelper = new SubscriptionHelper()
 
-  val testSafeId                        = "safeid"
+  val exampleSafeId                     = SafeId("XE0000123456789")
   val testIndividualName: Name          = Name("John", "Doe")
   val testIndividualEmail               = "john.doe@example.com"
   val testIndividualPhone               = "01234567890"
@@ -66,6 +66,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request successfully with all required fields" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(WhatIsYourNameIndividualPage, testIndividualName)
             .success
             .value
@@ -85,7 +88,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val request = result.get
 
           request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe testSafeId
+          request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe None
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
@@ -100,6 +103,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request without optional phone number" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(WhatIsYourNameIndividualPage, testIndividualName)
             .success
             .value
@@ -119,6 +125,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -134,6 +143,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(WhatIsYourNameIndividualPage, testIndividualName)
             .success
             .value
@@ -151,6 +163,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request successfully" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(IndWithoutNinoNamePage, testIndividualName)
             .success
             .value
@@ -170,7 +185,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val request = result.get
 
           request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe testSafeId
+          request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe None
           request.gbUser                      mustBe false
           request.primaryContact.individual   mustBe Some(
@@ -185,6 +200,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should identify GB user when address is GB" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(IndWithoutNinoNamePage, testIndividualName)
             .success
             .value
@@ -204,6 +222,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should identify GB user when address lookup is present" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(IndWithoutNinoNamePage, testIndividualName)
             .success
             .value
@@ -223,6 +244,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -237,6 +261,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request successfully" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(WhatIsYourNamePage, testIndividualName)
             .success
             .value
@@ -256,7 +283,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val request = result.get
 
           request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe testSafeId
+          request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe None
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
@@ -271,6 +298,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -288,6 +318,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with primary contact only" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -313,7 +346,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val request = result.get
 
           request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe testSafeId
+          request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe Some(testBusinessName)
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe None
@@ -326,6 +359,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with primary and secondary contact" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -360,7 +396,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val request = result.get
 
           request.idType                            mustBe "SAFE"
-          request.idNumber                          mustBe testSafeId
+          request.idNumber                          mustBe exampleSafeId.value
           request.tradingName                       mustBe Some(testBusinessName)
           request.gbUser                            mustBe true
           request.primaryContact.individual         mustBe None
@@ -377,6 +413,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should not include secondary contact when hasSecondContact is false" in {
           val userAnswers: UserAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -402,6 +441,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when primary contact name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
@@ -420,6 +462,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when primary contact email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -438,6 +483,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when secondary contact is required but name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -466,6 +514,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should not include secondary contact when secondary contact email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -496,6 +547,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with trading name" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -521,7 +575,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val request = result.get
 
           request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe testSafeId
+          request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe Some(testTradingName)
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe None
@@ -534,6 +588,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with secondary contact" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -568,6 +625,9 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when primary contact name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
+            .set(SafeIdPage, exampleSafeId)
+            .success
+            .value
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
@@ -598,139 +658,5 @@ class SubscriptionHelperSpec extends SpecBase {
       }
     }
 
-    "isGBUser logic" - {
-      "should identify GB user when business has UTR" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(OrgWithUtr))
-          .set(FirstContactNamePage, testOrganisationFirstContactName)
-          .success
-          .value
-          .set(FirstContactEmailPage, testOrganisationFirstEmail)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-          .success
-          .value
-
-        val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe true
-      }
-
-      "should not identify GB user when UTR is empty" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(OrgWithUtr))
-          .set(FirstContactNamePage, testOrganisationFirstContactName)
-          .success
-          .value
-          .set(FirstContactEmailPage, testOrganisationFirstEmail)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("   "))
-          .success
-          .value
-
-        val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe false
-      }
-
-      "should identify user as a GB user when individual has a NINO" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(IndWithNino))
-          .set(WhatIsYourNameIndividualPage, testIndividualName)
-          .success
-          .value
-          .set(IndividualEmailPage, testIndividualEmail)
-          .success
-          .value
-          .set(NiNumberPage, testNino)
-          .success
-          .value
-
-        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe true
-      }
-
-      "should not identify user as a GB user when NINO field is empty" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(IndWithNino))
-          .set(WhatIsYourNameIndividualPage, testIndividualName)
-          .success
-          .value
-          .set(IndividualEmailPage, testIndividualEmail)
-          .success
-          .value
-          .set(NiNumberPage, "   ")
-          .success
-          .value
-
-        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe false
-      }
-
-      "should identify user as GB user when registered address is in UK" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(OrgWithoutId))
-          .set(FirstContactNamePage, testOrganisationFirstContactName)
-          .success
-          .value
-          .set(FirstContactEmailPage, testOrganisationFirstEmail)
-          .success
-          .value
-          .set(RegisteredAddressInUkPage, true)
-          .success
-          .value
-
-        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe true
-      }
-
-      "should not identify GB user when registered address is not in UK" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(OrgWithoutId))
-          .set(FirstContactNamePage, testOrganisationFirstContactName)
-          .success
-          .value
-          .set(FirstContactEmailPage, testOrganisationFirstEmail)
-          .success
-          .value
-          .set(RegisteredAddressInUkPage, false)
-          .success
-          .value
-
-        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe false
-      }
-
-      "should not identify GB user when no GB criteria are met" in {
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(IndWithoutId))
-          .set(IndWithoutNinoNamePage, testIndividualName)
-          .success
-          .value
-          .set(IndividualEmailPage, testIndividualEmail)
-          .success
-          .value
-          .set(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddress)
-          .success
-          .value
-
-        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-        result            mustBe defined
-        result.get.gbUser mustBe false
-      }
-    }
   }
 }

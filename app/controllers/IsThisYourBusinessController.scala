@@ -22,11 +22,10 @@ import models.JourneyType.IndWithUtr
 import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError}
 import models.requests.DataRequest
-import models.responses.AddressRegistrationResponse
-import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
+import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, SafeId, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.IsThisYourBusinessPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
+import pages.{IsThisYourBusinessPage, SafeIdPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -128,13 +127,14 @@ class IsThisYourBusinessController @Inject() (
         val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
 
         val pageDetails = IsThisYourBusinessPageDetails(
-          businessDetails = BusinessDetails(name = business.name, address = business.address),
+          businessDetails = BusinessDetails(name = business.name, address = business.address, safeId = business.safeId),
           pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
         )
 
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
+          updatedAnswers           <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          updatedAnswersWithSafeId <- Future.fromTry(updatedAnswers.set(SafeIdPage, SafeId(business.safeId)))
+          _                        <- sessionRepository.set(updatedAnswersWithSafeId)
         } yield {
           val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
           logger.info(s"Business data found and cached for UTR: $utr.")
@@ -161,7 +161,11 @@ class IsThisYourBusinessController @Inject() (
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
       case Right(individualDetails) =>
-        val soleTraderBusinessDetails = BusinessDetails(individualDetails.fullName, individualDetails.address)
+        val soleTraderBusinessDetails = BusinessDetails(
+          individualDetails.fullName,
+          individualDetails.address,
+          individualDetails.safeId
+        )
 
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,
@@ -169,8 +173,9 @@ class IsThisYourBusinessController @Inject() (
         )
 
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
+          updatedAnswers           <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          updatedAnswersWithSafeId <- Future.fromTry(updatedAnswers.set(SafeIdPage, SafeId(individualDetails.safeId)))
+          _                        <- sessionRepository.set(updatedAnswersWithSafeId)
         } yield {
           val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
           logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")

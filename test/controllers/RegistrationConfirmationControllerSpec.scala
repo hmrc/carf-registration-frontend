@@ -54,11 +54,21 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for OrgWithUtr" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithUtr))
-          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
-          .withPage(FirstContactEmailPage, "org@test.com")
-          .withPage(OrganisationHaveSecondContactPage, true)
-          .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
-          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .set(SubscriptionIdPage, SubscriptionId(subscriptionId))
+          .success
+          .value
+          .set(FirstContactEmailPage, "org@test.com")
+          .success
+          .value
+          .set(OrganisationHaveSecondContactPage, true)
+          .success
+          .value
+          .set(OrganisationSecondContactEmailPage, "org2@test.com")
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
           .copy(isCtAutoMatched = true)
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
@@ -87,9 +97,15 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for OrgWithoutId (non-automatch)" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithoutId))
-          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
-          .withPage(FirstContactEmailPage, "orgwithout@test.com")
-          .withPage(OrganisationHaveSecondContactPage, false)
+          .set(SubscriptionIdPage, SubscriptionId(subscriptionId))
+          .success
+          .value
+          .set(FirstContactEmailPage, "orgwithout@test.com")
+          .success
+          .value
+          .set(OrganisationHaveSecondContactPage, false)
+          .success
+          .value
           .copy(isCtAutoMatched = false)
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
@@ -118,9 +134,15 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for IndWithNino" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithNino))
-          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
-          .withPage(IndividualEmailPage, "individual@test.com")
-          .withPage(NiNumberPage, "AB123456C")
+          .set(SubscriptionIdPage, SubscriptionId(subscriptionId))
+          .success
+          .value
+          .set(IndividualEmailPage, "individual@test.com")
+          .success
+          .value
+          .set(NiNumberPage, "AB123456C")
+          .success
+          .value
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
@@ -148,8 +170,12 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for IndWithoutId" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithoutId))
-          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
-          .withPage(IndividualEmailPage, "indwithout@test.com")
+          .set(SubscriptionIdPage, SubscriptionId(subscriptionId))
+          .success
+          .value
+          .set(IndividualEmailPage, "indwithout@test.com")
+          .success
+          .value
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
@@ -177,9 +203,15 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and render view for IndWithUtr" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(IndWithUtr))
-          .withPage(SubscriptionIdPage, SubscriptionId(subscriptionId))
-          .withPage(IndividualEmailPage, "soletrader@test.com")
-          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
+          .set(SubscriptionIdPage, SubscriptionId(subscriptionId))
+          .success
+          .value
+          .set(IndividualEmailPage, "soletrader@test.com")
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
+          .success
+          .value
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.successful(()))
@@ -207,7 +239,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must redirect to journey recovery when primary email is missing" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithUtr))
-          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
 
         val application = buildApplication(Some(userAnswers))
 
@@ -223,8 +257,12 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       "must redirect to journey recovery when email service fails" in {
         val userAnswers = emptyUserAnswers
           .copy(journeyType = Some(OrgWithUtr))
-          .withPage(FirstContactEmailPage, "org@test.com")
-          .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .set(FirstContactEmailPage, "org@test.com")
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+          .success
+          .value
 
         when(mockEmailService.sendRegistrationConfirmation(any[List[String]], any[String], any[Option[String]]))
           .thenReturn(Future.failed(new RuntimeException("Email service failed")))

@@ -586,7 +586,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       .withPage(
         IsThisYourBusinessPage,
         IsThisYourBusinessPageDetails(
-          businessDetails = BusinessDetails(name = "TEST NAME", address = testAddress),
+          businessDetails = BusinessDetails(name = "TEST NAME", address = testAddress, safeId = testSafeId),
           pageAnswer = Some(true)
         )
       )

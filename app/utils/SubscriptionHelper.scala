@@ -29,7 +29,7 @@ class SubscriptionHelper {
 
   def buildSubscriptionRequest(userAnswers: UserAnswers): Option[CreateSubscriptionRequest] =
     for {
-      safeId          <- Some("safeid")
+      safeId          <- userAnswers.get(SafeIdPage).map(_.value)
       primaryContact  <- buildPrimaryContact(userAnswers)
       tradingName      = getTradingName(userAnswers)
       gbUser           = isGBUser(userAnswers)

@@ -19,8 +19,8 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
 import models.SubscriptionId
-import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateEMTPSubscriptionError}
-import models.requests.{SubscriptionContactDetails, CreateSubscriptionRequest, SubscriptionIndividualContact, SubscriptionOrganisationContact}
+import models.error.ApiError.{AlreadyRegisteredError, JsonValidationError, UnableToCreateEMTPSubscriptionError}
+import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.*
@@ -71,7 +71,7 @@ class SubscriptionConnectorISpec
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(CREATED)
               .withBody(validSubscriptionResponseJson)
           )
       )
@@ -80,32 +80,32 @@ class SubscriptionConnectorISpec
       result shouldBe Right(SubscriptionId("CARF123456"))
     }
 
-    "return UnableToCreateEMTPSubscriptionError when response JSON is invalid" in {
+    "return JsonValidationError when response JSON is invalid" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(CREATED)
               .withBody(Json.toJson("invalid response").toString)
           )
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(JsonValidationError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when response JSON structure is incorrect" in {
+    "return JsonValidationError when response JSON structure is incorrect" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(CREATED)
               .withBody("""{"incorrect": "structure"}""")
           )
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(JsonValidationError)
     }
 
     "return AlreadyRegisteredError when backend returns already_registered status" in {
@@ -227,7 +227,7 @@ class SubscriptionConnectorISpec
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(CREATED)
               .withBody(validSubscriptionResponseJson)
           )
       )

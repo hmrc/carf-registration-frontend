@@ -19,6 +19,8 @@ package models
 import models.countries.{Country, CountryUk, UnitedKingdom}
 import play.api.libs.json.{Json, OFormat}
 
+import scala.collection.immutable.Seq
+
 /** @param addressLine1
   *   Address Line 1
   * @param addressLine2
@@ -63,8 +65,7 @@ extension (address: AddressUk) {
     htmlLines.mkString("<br>")
   }
 
-  def format(ukCountries: Seq[Country]): String = {
-    val filteredUkCountries = ukCountries.filterNot(_.code == UnitedKingdom.code)
+  def format: String = {
 
     val addressLines = Seq(
       address.addressLine1,
@@ -73,9 +74,9 @@ extension (address: AddressUk) {
       address.townOrCity,
       address.postCode
     ) ++ {
-      if (filteredUkCountries.contains(address.countryUk.code)) {
-        Seq(address.countryUk.name)
-      } else Seq.empty
+      if (address.countryUk.code == UnitedKingdom.code) {
+        Seq.empty
+      } else Seq(address.countryUk.name)
     }
 
     addressLines.mkString(", ")

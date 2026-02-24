@@ -31,7 +31,7 @@ import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -245,6 +245,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         redirectLocation(result).value mustEqual onwardRouteMultipleAddresses.url
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
         verify(mockSessionRepository, times(1)).set(any())
+        verify(mockSessionRepository).set(argThat(_.get(IndFindAddressAdditionalCallUa).isDefined))
       }
     }
 

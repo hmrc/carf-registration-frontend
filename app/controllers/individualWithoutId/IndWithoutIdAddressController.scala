@@ -16,13 +16,11 @@
 
 package controllers.individualWithoutId
 
-import config.Constants.noneOfTheseValue
 import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import models.requests.DataRequest
 import models.{AddressUk, Mode}
 import navigation.Navigator
-import pages.AddressLookupPage
 import pages.individualWithoutId.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -64,11 +62,7 @@ class IndWithoutIdAddressController @Inject() (
   private def preFillForm(mode: Mode)(implicit request: DataRequest[AnyContent]) =
     request.userAnswers
       .get(IndWithoutIdAddressPagePrePop)
-      .fold(form) { addressUK =>
-        request.userAnswers
-          .get(IndWithoutIdChooseAddressPage)
-          .fold(form.fill(addressUK))(_ => form)
-      }
+      .fold(form)(form.fill)
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>

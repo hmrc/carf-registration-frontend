@@ -579,3 +579,4 @@ indvWithoutChooseAddress.heading = Choose your address
 indvWithoutChooseAddress.error.required = Select your address or ‘None of these’
 indvWithoutChooseAddress.optionsDivider = or
 indvWithoutChooseAddress.noneOfThese = None of these
+indvWithoutChooseAddress.showing.results = We could not find a match for ‘{0}’ — showing all results for {1} instead.

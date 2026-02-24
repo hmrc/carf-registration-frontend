@@ -20,15 +20,14 @@ import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndWithoutIdAddressFormProvider
 import generators.Generators
-import models.countries.{Country, UnitedKingdom}
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUk, CheckMode, NormalMode, UserAnswers}
+import models.countries.Country
+import models.{AddressUk, NormalMode}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import pages.individualWithoutId.{IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage}
+import pages.individualWithoutId.IndWithoutIdAddressPagePrePop
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest

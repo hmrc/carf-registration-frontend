@@ -24,6 +24,19 @@
 
 @(form: Form[_], mode: Mode, radios: Seq[RadioItem], maybeHtml: Option[String])(implicit request: Request[_], messages: Messages)
 
+@noneOfThese() = {
+    <div class="govuk-radios__divider">@messages("indvWithoutChooseAddress.optionsDivider")</div>
+@govukRadios(Radios(
+    name = "value",
+    fieldset = None,
+    items = Seq(RadioItem(
+        content = HtmlContent(messages("indvWithoutChooseAddress.noneOfThese")),
+        value = Some("none"),
+        id = Some("value-none"),
+        checked = form("value").value.isDefined && form("value").value.contains("none")))
+))
+}
+
 @layout(pageTitle = title(form, messages("indvWithoutChooseAddress.title"))) {
 
     @formHelper(action = controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onSubmit(mode), Symbol("autoComplete") -> "on") {
@@ -32,31 +45,31 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-l">@messages("indvWithoutChooseAddress.heading")</h1>
+        @if(maybeHtml.isDefined) {
+            <h1 class="govuk-heading-l">@messages("indvWithoutChooseAddress.heading")</h1>
 
-
-        @if(maybeHtml.isDefined){
             <p class="govuk-body">@(maybeHtml.get)</p>
-        }
 
-        @govukRadios(
-            RadiosViewModel.apply(
-                field = form("value"),
-                legend = LegendViewModel(messages("indvWithoutChooseAddress.heading")).withCssClass("govuk-visually-hidden govuk-!-display-block"),
-                items = radios
+            @govukRadios(
+                RadiosViewModel.apply(
+                    field = form("value"),
+                    legend = LegendViewModel(messages("indvWithoutChooseAddress.heading")).withCssClass("govuk-visually-hidden govuk-!-display-block"),
+                    items = radios
+                )
             )
-        )
 
-        <div class="govuk-radios__divider">@messages("indvWithoutChooseAddress.optionsDivider")</div>
-        @govukRadios(Radios(
-            name = "value",
-            fieldset = None,
-            items = Seq(RadioItem(
-                content = HtmlContent(messages("indvWithoutChooseAddress.noneOfThese")),
-                value = Some("none"),
-                id = Some("value-none"),
-                checked = form("value").value.isDefined && form("value").value.contains("none")))
-        ))
+            @noneOfThese()
+        } else {
+            @govukRadios(
+                RadiosViewModel.apply(
+                    field = form("value"),
+                    legend = LegendViewModel(messages("indvWithoutChooseAddress.heading")).asPageHeading(),
+                    items = radios
+                )
+            )
+
+            @noneOfThese()
+        }
 
         @govukButton(
             ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")

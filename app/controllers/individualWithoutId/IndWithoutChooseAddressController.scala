@@ -19,20 +19,20 @@ package controllers.individualWithoutId
 import config.Constants.noneOfTheseValue
 import controllers.actions.*
 import forms.IndWithoutChooseAddressFormProvider
+import models.countries.CountryUk
 import models.requests.DataRequest
-import models.{format, AddressUk, IndFindAddress, Mode}
+import models.{format, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator
 import pages.AddressLookupPage
-import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage}
+import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage, IndWithoutIdUkAddressInUserAnswers}
 import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CountryListFactory
 import views.html.IndWithoutChooseAddressView
 
 import javax.inject.Inject
@@ -61,10 +61,14 @@ class IndWithoutChooseAddressController @Inject() (
   private lazy val indWithoutIdAddressControllerRedirect: Mode => Result = mode =>
     Redirect(controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(mode))
 
-  private def additionalLine(property: String, postCode: String): String =
-    s"We could not find a match for ‘$property’ — showing all results for $postCode instead."
+  private def additionalLine(property: String, postcode: String)(implicit request: DataRequest[AnyContent]): String = {
+    val messages: Messages = implicitly[Messages]
+    messages("indvWithoutChooseAddress.showing.results", property, postcode)
+  }
 
-  private def generateHtml(maybeIndFindAddress: Option[IndFindAddress]): Option[String] =
+  private def generateHtml(
+      maybeIndFindAddress: Option[IndFindAddress]
+  )(implicit request: DataRequest[AnyContent]): Option[String] =
     maybeIndFindAddress.map { indFindAddress =>
       s"""${additionalLine(
           indFindAddress.propertyNameOrNumber.getOrElse(""),
@@ -102,27 +106,36 @@ class IndWithoutChooseAddressController @Inject() (
           },
           value =>
             for {
-              updatedAnswers               <- Future.fromTry(request.userAnswers.set(IndWithoutIdChooseAddressPage, value))
-              addressToStoreMaybe          <- findAddressToStore(mode, value)
-              updatedAnswersAsAddressMaybe <-
+              updatedAnswers                <- Future.fromTry(request.userAnswers.set(IndWithoutIdChooseAddressPage, value))
+              addressToStoreMaybe           <- findAddressToStore(mode, value)
+              updatedAnswersAsAddressMaybe  <-
                 addressToStoreMaybe.fold(Future.successful(updatedAnswers)) { addressToStore =>
-                  Future.fromTry(updatedAnswers.set(IndWithoutIdSelectedChooseAddressPage, addressToStore))
+                  storeAddress(addressToStore, updatedAnswers)
                 }
-              _                            <- sessionRepository.set(updatedAnswersAsAddressMaybe)
-            } yield Redirect(navigator.nextPage(IndWithoutIdChooseAddressPage, mode, updatedAnswersAsAddressMaybe))
+              updatedAnswersWithEmptyPrePop <-
+                Future.fromTry(updatedAnswersAsAddressMaybe.remove(IndWithoutIdAddressPagePrePop))
+              _                             <- sessionRepository.set(updatedAnswersWithEmptyPrePop)
+            } yield Redirect(navigator.nextPage(IndWithoutIdChooseAddressPage, mode, updatedAnswersWithEmptyPrePop))
         )
   }
+
+  private def storeAddress(addressToStore: AddressUk, userAnswer: UserAnswers): Future[UserAnswers] =
+    for {
+      updatedUserAnswers                <- Future.fromTry(userAnswer.set(IndWithoutIdSelectedChooseAddressPage, addressToStore))
+      updatedUserAnswersWithUkAddressUa <-
+        Future.fromTry(updatedUserAnswers.set(IndWithoutIdUkAddressInUserAnswers, addressToStore))
+    } yield updatedUserAnswersWithUkAddressUa
 
   private def findAddressToStore(mode: Mode, value: String)(implicit
       request: DataRequest[AnyContent]
   ): Future[Option[AddressUk]] = Future.fromTry {
-    val WithRadiosResult(result, addresses) = resultWithRadios(mode) { (_, _) =>
+    val WithRadiosResult(_, addresses) = resultWithRadios(mode) { (_, _) =>
       Redirect(call = controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 
     val exception = new Exception("Failed to find address")
     addresses
-      .find(_.format(CountryListFactory.ukCountries) == value)
+      .find(_.format == value)
       .fold {
         if (value == noneOfTheseValue) {
           Success(None)
@@ -134,7 +147,7 @@ class IndWithoutChooseAddressController @Inject() (
 
   private def createAddressRadios(addresses: => Seq[AddressUk]): Seq[RadioItem] =
     addresses.map { address =>
-      val addressFormatted = address.format(CountryListFactory.ukCountries)
+      val addressFormatted = address.format
       RadioItem(content = Text(s"$addressFormatted"), value = Some(s"$addressFormatted"))
     }
 

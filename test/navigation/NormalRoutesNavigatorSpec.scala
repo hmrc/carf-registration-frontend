@@ -1110,7 +1110,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         )
 
         val userAnswers =
-          UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, address.format(Seq.empty)).success.value
+          UserAnswers(userAnswersId).set(IndWithoutIdChooseAddressPage, address.format).success.value
 
         navigator.nextPage(
           IndWithoutIdChooseAddressPage,
@@ -1130,6 +1130,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
+
+      }
+
+      "must navigate from Choose Address Page to the Journey recovery when chooseAddress Page is not present" in {
+
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
 
       }
     }

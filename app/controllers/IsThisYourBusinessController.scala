@@ -128,19 +128,11 @@ class IsThisYourBusinessController @Inject() (
       case Right(business) =>
         val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
 
-        println("11111111")
-        println("11111111")
-        println("11111111")
-
-        println("11111111")
         countryListFactory
           .getDescriptionFromCode(business.address.countryCode)
           .fold(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) {
             countryDescriptionName =>
 
-              println("2222222")
-              println("2222222")
-              println(countryDescriptionName)
               val updatedAddress  = business.address.copy(countryName = Some(countryDescriptionName))
               val updatedBusiness = business.copy(address = updatedAddress)
 

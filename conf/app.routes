@@ -217,3 +217,5 @@ GET         /register/change-individual-without-id/address                      
 POST        /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/unable-to-change-business                         controllers.organisation.UnableToChangeBusinessController.onPageLoad()
+
+GET         /register/problem/individual-already-registered                     controllers.IndividualAlreadyRegisteredController.onPageLoad()

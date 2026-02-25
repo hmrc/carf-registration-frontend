@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import models.responses.AddressRegistrationResponse
-import play.api.libs.json.*
+import models.SafeId
+import play.api.libs.json.JsPath
 
-case class BusinessDetails(
-    name: String,
-    address: AddressRegistrationResponse,
-    safeId: String
-)
-
-object BusinessDetails {
-  implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]
+case object SafeIdPage extends QuestionPage[SafeId] {
+  override def path: JsPath = JsPath \ "safeId"
 }

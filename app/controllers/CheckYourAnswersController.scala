@@ -19,17 +19,20 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
+import models.error.ApiError
 import models.{JourneyType, UserAnswers}
+import pages.SubscriptionIdPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
 import viewmodels.Section
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -40,7 +43,8 @@ class CheckYourAnswersController @Inject() (
     helper: CheckYourAnswersHelper,
     submissionLock: SubmissionLockAction,
     subscriptionService: SubscriptionService,
-    view: CheckYourAnswersView
+    view: CheckYourAnswersView,
+    sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with Logging
@@ -111,11 +115,22 @@ class CheckYourAnswersController @Inject() (
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
-    subscriptionService.subscribe(request.userAnswers) map {
-      case Right(response) => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-    }
-
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
+    implicit request =>
+      subscriptionService.subscribe(request.userAnswers).flatMap {
+        case Right(subscriptionId) =>
+          request.userAnswers.set(SubscriptionIdPage, subscriptionId).toOption match {
+            case Some(updatedAnswers) =>
+              sessionRepository.set(updatedAnswers).map { _ =>
+                Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+              }
+            case None                 =>
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          }
+        case Left(error)           =>
+          logger.error(s"[CheckYourAnswersController] Failed to create subscription: $error")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
+
 }

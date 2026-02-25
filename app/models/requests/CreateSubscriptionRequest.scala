@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package models
+package models.requests
 
-import models.responses.AddressRegistrationResponse
-import play.api.libs.json.*
+import play.api.libs.json.{Json, OFormat, Reads, Writes}
 
-case class BusinessDetails(
-    name: String,
-    address: AddressRegistrationResponse,
-    safeId: String
+case class CreateSubscriptionRequest(
+    gbUser: Boolean,
+    idNumber: String,
+    idType: String,
+    tradingName: Option[String],
+    primaryContact: ContactInformation,
+    secondaryContact: Option[ContactInformation]
 )
 
-object BusinessDetails {
-  implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]
+object CreateSubscriptionRequest {
+
+  implicit val format: OFormat[CreateSubscriptionRequest] = Json.format[CreateSubscriptionRequest]
 }

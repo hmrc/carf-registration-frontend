@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,43 @@
 
 package services
 
-import connectors.RegistrationConnector
+import connectors.SubscriptionConnector
 import models.error.ApiError
-import models.error.ApiError.InternalServerError
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
-import models.responses.RegisterOrganisationWithIdResponse
-import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
-import pages.*
-import pages.individual.NiNumberPage
-import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
+import models.requests.CreateSubscriptionRequest
+import models.{SubscriptionId, UserAnswers}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.SubscriptionHelper
 
-import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubscriptionService @Inject() extends Logging {
+class SubscriptionService @Inject() (
+    subscriptionConnector: SubscriptionConnector,
+    subscriptionHelper: SubscriptionHelper
+) extends Logging {
 
-  def subscribe(userAnswers: UserAnswers): Future[Either[ApiError, String]] = {
-    // For testing success and error scenarios
-    val idNumber = userAnswers
-      .get(UniqueTaxpayerReferenceInUserAnswers)
-      .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
-      .take(1)
+  def subscribe(userAnswers: UserAnswers)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext
+  ): Future[Either[ApiError, SubscriptionId]] = {
+    val maybeRequest: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
-    if (idNumber == "2" | idNumber == "B") {
-      Future.successful(Left(InternalServerError))
-    } else {
-      Future.successful(Right("Stub success!"))
+    maybeRequest match {
+      case Some(request) =>
+        subscriptionConnector
+          .createSubscription(request)
+          .value
+          .map {
+            case Right(result) => Right(result)
+            case Left(error)   =>
+              logger.error(s"Failed to create subscription: $error")
+              Left(error)
+          }
+      case None          =>
+        logger.error("There has been an error building the subscription request from user answers")
+        Future.successful(Left(ApiError.BadRequestError))
     }
   }
 }

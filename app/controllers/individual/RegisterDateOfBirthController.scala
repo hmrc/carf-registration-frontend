@@ -25,6 +25,8 @@ import models.requests.DataRequest
 import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.SafeIdPage
+import models.SafeId
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -91,7 +93,12 @@ class RegisterDateOfBirthController @Inject() (
           .getIndividualByNino(nino, name, dob)
           .flatMap {
             case Right(individualDetails) =>
-              Future.successful(Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers)))
+              for {
+                answersWithSafeId <- Future.fromTry(
+                                       updatedAnswers.set(SafeIdPage, SafeId(individualDetails.safeId))
+                                     )
+                _                 <- sessionRepository.set(answersWithSafeId)
+              } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, answersWithSafeId))
             case Left(NotFoundError)      =>
               Future.successful(
                 Redirect(

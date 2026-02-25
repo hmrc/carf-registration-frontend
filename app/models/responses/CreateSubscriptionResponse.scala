@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package models.responses
 
-import models.responses.AddressRegistrationResponse
-import play.api.libs.json.*
+import models.SubscriptionId
+import play.api.libs.json.{Json, Reads}
 
-case class BusinessDetails(
-    name: String,
-    address: AddressRegistrationResponse,
-    safeId: String
-)
+case class CreateSubscriptionResponse(success: SubscriptionIDResponse) {
+  def subscriptionId: SubscriptionId = SubscriptionId(success.CARFReference)
+}
 
-object BusinessDetails {
-  implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]
+object CreateSubscriptionResponse {
+  implicit lazy val reads: Reads[CreateSubscriptionResponse] = Json.reads[CreateSubscriptionResponse]
 }

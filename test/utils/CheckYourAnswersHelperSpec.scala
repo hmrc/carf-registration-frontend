@@ -579,7 +579,8 @@ class CheckYourAnswersHelperSpec extends SpecBase {
       addressLine3 = None,
       addressLine4 = None,
       postalCode = None,
-      countryCode = "GB"
+      countryCode = "GB",
+      countryName = None
     )
 
     val testUserAnswersWithBusinessDetails: UserAnswers = emptyUserAnswers

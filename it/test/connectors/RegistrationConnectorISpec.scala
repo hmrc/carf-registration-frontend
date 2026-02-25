@@ -43,7 +43,8 @@ class RegistrationConnectorISpec
     addressLine3 = Some("Townington"),
     addressLine4 = Some("Kingdom of UK"),
     postalCode = Some("B23 2AZ"),
-    countryCode = "GB"
+    countryCode = "GB",
+    countryName = None
   )
 
   val validIndWithNinoRequestBody: RegisterIndividualWithNinoRequest = RegisterIndividualWithNinoRequest(

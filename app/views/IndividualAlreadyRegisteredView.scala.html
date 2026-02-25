@@ -16,12 +16,21 @@
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        link: components.Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(loginUrl: String, aeoiEmailAddress: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("individualAlreadyRegistered.title"))) {
+@layout(pageTitle = titleNoForm(messages("individualAlreadyRegistered.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("individualAlreadyRegistered.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("individualAlreadyRegistered.heading")</h1>
+
+    <p class="govuk-body">@messages("individualAlreadyRegistered.p1")</p>
+    <p class="govuk-body">@link(s"$loginUrl", "individualAlreadyRegistered.p2")</p>
+    <p class="govuk-body">
+        @messages("individualAlreadyRegistered.p3.part1")
+        @link(s"mailto:$aeoiEmailAddress", "individualAlreadyRegistered.p3.part2")
+        @messages("individualAlreadyRegistered.p3.part3")
+    </p>
 }

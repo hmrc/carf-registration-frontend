@@ -16,25 +16,36 @@
 
 package controllers
 
-import controllers.actions._
+import config.FrontendAppConfig
+import controllers.actions.*
+import play.api.Logging
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IndividualAlreadyRegisteredView
 
-class IndividualAlreadyRegisteredController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       submissionLock: SubmissionLockAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: IndividualAlreadyRegisteredView
-                                     ) extends FrontendBaseController with I18nSupport {
+class IndividualAlreadyRegisteredController @Inject() (
+    override val messagesApi: MessagesApi,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
+    requireData: DataRequiredAction,
+    val controllerComponents: MessagesControllerComponents,
+    view: IndividualAlreadyRegisteredView,
+    appConfig: FrontendAppConfig
+) extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
-      Ok(view())
+      val loginUrl         = appConfig.loginUrl
+      val aeoiEmailAddress = appConfig.aeoiEmailAddress
+      
+      
+
+      Ok(view(loginUrl, aeoiEmailAddress))
   }
 }

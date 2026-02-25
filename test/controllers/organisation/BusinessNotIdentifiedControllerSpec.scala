@@ -32,7 +32,7 @@ class BusinessNotIdentifiedControllerSpec extends SpecBase {
   val testOrgRegType: OrganisationRegistrationType = OrganisationRegistrationType.OrganisationLimitedCompany
 
   val testCompaniesHouseSearchUrl: String = "https://find-and-update.company-information.service.gov.uk/"
-  val testRegistrationStartUrl: String    = "/register-for-carf"
+  val testRegistrationStartUrl: String    = "/register-for-cryptoasset-reporting"
   val testFindUTRUrl: String              = "https://www.gov.uk/find-utr-number"
   val testAeoiEmailAddress: String        = "aeoi.enquiries@hmrc.gov.uk"
 

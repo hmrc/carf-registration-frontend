@@ -46,6 +46,7 @@ class IndexController @Inject() (
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen checkEnrolment andThen retrieveCtUTR() andThen getData() andThen submissionLock).async {
       implicit request =>
+        println("VVVVVVVVV")
         request.affinityGroup match {
           case AffinityGroup.Individual =>
             for {

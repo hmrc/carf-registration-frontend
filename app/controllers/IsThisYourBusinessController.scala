@@ -62,6 +62,7 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
+      println("GGGGGGGGG")
       val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
       val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == IndWithUtr)
       val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched

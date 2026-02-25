@@ -47,6 +47,7 @@ class CtUtrRetrievalActionProvider @Inject() (
       block: IdentifierRequest[A] => Future[Result]
   ): Future[Result] = {
 
+    println("KKKKKKKKK")
     val a: Option[Enrolment] = request.enrolments
       .find(_.key == config.ctEnrolmentKey)
 
@@ -54,6 +55,7 @@ class CtUtrRetrievalActionProvider @Inject() (
       case i if i.key == IdentifierType.UTR => UniqueTaxpayerReference(i.value)
     })
 
+    println("JJJJJJJJJ " + ctUtr)
     (request.affinityGroup, ctUtr) match {
       case (AffinityGroup.Organisation, Some(_)) =>
         block(request.copy(utr = ctUtr))

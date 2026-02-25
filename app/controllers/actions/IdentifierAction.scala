@@ -67,27 +67,42 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
   private def enrolmentKey: String = config.enrolmentKey
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-
+    println("AAAAAAAAAA")
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(
+    val a = authorised().retrieve(
       internalId and allEnrolments and affinityGroup and credentialRole
     ) {
       case _ ~ enrolments ~ _ ~ _ if enrolments.enrolments.exists(_.key == enrolmentKey) && redirect =>
+        println("CCCCCCC")
         Future.successful(Ok("User is already enrolled! TODO: Redirect to CARF Management FE when ready"))
       case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
+        println("DDDDDD")
         Future.successful(Ok("User is an assistant so cannot use the service so we must Redirect them as per CARF-118"))
       case _ ~ _ ~ Some(Agent) ~ _                                                                   =>
+        println("EEEEEEE")
+
         Future.successful(Redirect(routes.AgentSignInProblemController.onPageLoad()))
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
+        println("FFFFFFF")
+
         block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
       case _                                                                                         =>
+        println("GGGGGGGG")
+
         throw new UnauthorizedException("Failed to retrieve valid auth data")
     } recover {
       case _: NoActiveSession        =>
+        println("HHHHHHHH")
+
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
+        println("IIIIIIII")
+
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
+    Thread.sleep(1000)
+    println("BBBBBBBBBBB " + a.toString)
+    a
   }
 }

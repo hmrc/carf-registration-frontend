@@ -23,7 +23,7 @@ import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.responses.AddressRegistrationResponse
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,6 +35,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.RegistrationService
+import utils.CountryListFactory
 import views.html.IsThisYourBusinessView
 
 import scala.concurrent.Future
@@ -48,7 +49,14 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
   val businessTestBusiness: BusinessDetails = BusinessDetails(
     name = "Test Business Ltd",
-    address = AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB")
+    address =
+      AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB", None)
+  )
+
+  val businessTestBusinessNonUk: BusinessDetails = BusinessDetails(
+    name = "Test Business Ltd",
+    address =
+      AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "FR", None)
   )
 
   val soleTraderTestIndividual: IndividualDetails = IndividualDetails(
@@ -56,7 +64,23 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     firstName = "Test first Name ST Individual",
     middleName = None,
     lastName = "Test last Name ST Individual",
-    address = AddressRegistrationResponse("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB")
+    address = AddressRegistrationResponse("1 Test Street", Some("Testville"), None, None, Some("T3 5ST"), "GB", None)
+  )
+
+  val soleTraderTestIndividualNonUk: IndividualDetails = IndividualDetails(
+    safeId = "5234567890",
+    firstName = "Test first Name ST Individual",
+    middleName = None,
+    lastName = "Test last Name ST Individual",
+    address = AddressRegistrationResponse(
+      "1 Test Street",
+      Some("Testville"),
+      None,
+      None,
+      Some("T3 5ST"),
+      "FR",
+      None
+    )
   )
 
   val testPageDetails: IsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(
@@ -72,6 +96,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     reset(mockRegistrationService)
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
   }
+
+  val mockCountryListFactory: CountryListFactory = mock[CountryListFactory]
 
   "IsThisYourBusinessController" - {
     "on a Sole Trader journey" - {
@@ -100,6 +126,73 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           status(result)     mustEqual OK
           contentAsString(result) must include("Test first Name ST Individual")
           verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
+        }
+      }
+
+      "must return OK, show and save the country name in the business page User Answers" in {
+
+        when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(Some("France"))
+
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
+        val userAnswers   = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(IndWithUtr))
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .success
+          .value
+
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Right(soleTraderTestIndividualNonUk)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          status(result)     mustEqual OK
+          contentAsString(result) must include("Test first Name ST Individual")
+          verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
+          verify(mockSessionRepository)
+            .set(
+              argThat(_.get(IsThisYourBusinessPage).get.businessDetails.address.countryName.get == "France")
+            )
+        }
+      }
+
+      "must return Redirect to Journey recovery when country name is not returned" in {
+
+        when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(None)
+
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
+        val userAnswers   = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(IndWithUtr))
+          .set(RegistrationTypePage, RegistrationType.SoleTrader)
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .success
+          .value
+
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Right(soleTraderTestIndividualNonUk)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
 
@@ -207,6 +300,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
         }
       }
+
     }
 
     "on an Organisation auto match journey" - {
@@ -240,6 +334,77 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           verify(mockRegistrationService, times(1)).getBusinessWithUtr(any(), eqTo(testUtrString))(
             any()
           )
+        }
+      }
+
+      "must return OK, show and save the country name in the business page User Answers" in {
+        when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(Some("France"))
+
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(OrgWithUtr))
+          .copy(isCtAutoMatched = true)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .success
+          .value
+
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
+          .thenReturn(Future.successful(Right(businessTestBusiness)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[IsThisYourBusinessView]
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode, businessTestBusiness)(
+            request,
+            messages(application)
+          ).toString
+          verify(mockRegistrationService, times(1)).getBusinessWithUtr(any(), eqTo(testUtrString))(
+            any()
+          )
+          verify(mockSessionRepository)
+            .set(
+              argThat(_.get(IsThisYourBusinessPage).get.businessDetails.address.countryName.get == "France")
+            )
+        }
+      }
+
+      "must return Redirect to Journey recovery when country name is not returned" in {
+        when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(None)
+
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(OrgWithUtr))
+          .copy(isCtAutoMatched = true)
+          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .success
+          .value
+
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
+          .thenReturn(Future.successful(Right(businessTestBusiness)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .overrides(bind[CountryListFactory].toInstance(mockCountryListFactory))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
 

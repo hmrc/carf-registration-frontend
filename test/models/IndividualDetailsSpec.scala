@@ -28,7 +28,8 @@ class IndividualDetailsSpec extends AnyFreeSpec with Matchers {
     addressLine3 = None,
     addressLine4 = None,
     postalCode = Some("SKKA 1BB"),
-    countryCode = "GB"
+    countryCode = "GB",
+    countryName = None
   )
 
   val nonUkAddress = AddressRegistrationResponse(
@@ -37,7 +38,8 @@ class IndividualDetailsSpec extends AnyFreeSpec with Matchers {
     addressLine3 = None,
     addressLine4 = None,
     postalCode = Some("18801"),
-    countryCode = "US"
+    countryCode = "US",
+    countryName = None
   )
 
   val testIndividualDetails: IndividualDetails = IndividualDetails(

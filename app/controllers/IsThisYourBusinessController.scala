@@ -34,7 +34,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.UserAnswersHelper
+import utils.{CountryListFactory, UserAnswersHelper}
 import views.html.IsThisYourBusinessView
 
 import javax.inject.Inject
@@ -50,6 +50,7 @@ class IsThisYourBusinessController @Inject() (
     requireData: DataRequiredAction,
     formProvider: IsThisYourBusinessFormProvider,
     businessService: RegistrationService,
+    countryListFactory: CountryListFactory,
     val controllerComponents: MessagesControllerComponents,
     view: IsThisYourBusinessView
 )(implicit ec: ExecutionContext)
@@ -127,19 +128,36 @@ class IsThisYourBusinessController @Inject() (
       case Right(business) =>
         val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
 
-        val pageDetails = IsThisYourBusinessPageDetails(
-          businessDetails = BusinessDetails(name = business.name, address = business.address),
-          pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
-        )
+        println("11111111")
+        println("11111111")
+        println("11111111")
 
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield {
-          val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
-          logger.info(s"Business data found and cached for UTR: $utr.")
-          Ok(view(preparedForm, mode, business))
-        }
+        println("11111111")
+        countryListFactory
+          .getDescriptionFromCode(business.address.countryCode)
+          .fold(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) {
+            countryDescriptionName =>
+
+              println("2222222")
+              println("2222222")
+              println(countryDescriptionName)
+              val updatedAddress  = business.address.copy(countryName = Some(countryDescriptionName))
+              val updatedBusiness = business.copy(address = updatedAddress)
+
+              val pageDetails = IsThisYourBusinessPageDetails(
+                businessDetails = BusinessDetails(name = updatedBusiness.name, address = updatedAddress),
+                pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
+              )
+
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield {
+                val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
+                logger.info(s"Business data found and cached for UTR: $utr.")
+                Ok(view(preparedForm, mode, updatedBusiness))
+              }
+          }
 
       case Left(NotFoundError) =>
         if (isAutoMatch) {
@@ -160,26 +178,47 @@ class IsThisYourBusinessController @Inject() (
       mode: Mode
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
+
       case Right(individualDetails) =>
-        val soleTraderBusinessDetails = BusinessDetails(individualDetails.fullName, individualDetails.address)
+        countryListFactory
+          .getDescriptionFromCode(individualDetails.address.countryCode)
+          .fold(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))) { countryDescriptionName =>
 
-        val pageDetails = IsThisYourBusinessPageDetails(
-          businessDetails = soleTraderBusinessDetails,
-          pageAnswer = request.userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer)
+            val updatedAddress = individualDetails.address.copy(countryName = Some(countryDescriptionName))
+
+            val soleTraderBusinessDetails = BusinessDetails(individualDetails.fullName, updatedAddress)
+
+            val pageDetails = IsThisYourBusinessPageDetails(
+              businessDetails = soleTraderBusinessDetails,
+              pageAnswer = request.userAnswers
+                .get(IsThisYourBusinessPage)
+                .flatMap(_.pageAnswer)
+            )
+
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield {
+              val existingAnswer =
+                request.userAnswers
+                  .get(IsThisYourBusinessPage)
+                  .flatMap(_.pageAnswer)
+
+              val preparedForm = existingAnswer.fold(form)(form.fill)
+
+              logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
+
+              Ok(view(preparedForm, mode, soleTraderBusinessDetails))
+            }
+          }
+
+      case Left(NotFoundError) =>
+        logger.warn(
+          "User is a Sole Trader. Redirecting to sole-trader-not-identified."
         )
-
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield {
-          val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
-          logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
-          Ok(view(preparedForm, mode, soleTraderBusinessDetails))
-        }
-      case Left(NotFoundError)      =>
-        logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
         Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
-      case Left(error)              =>
+
+      case Left(error) =>
         logger.warn(s"Unexpected error. Error: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }

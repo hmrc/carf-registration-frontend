@@ -41,7 +41,8 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         addressLine3 = None,
         addressLine4 = None,
         postalCode = Some("B23 2AZ"),
-        countryCode = "GB"
+        countryCode = "GB",
+        countryName = None
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
         businessDetails = BusinessDetails(name = businessName, address = address),
@@ -72,7 +73,8 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         addressLine3 = None,
         addressLine4 = None,
         postalCode = Some("10500"),
-        countryCode = "US"
+        countryCode = "US",
+        countryName = None
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
         businessDetails = BusinessDetails(name = businessName, address = address),

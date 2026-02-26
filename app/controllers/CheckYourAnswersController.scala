@@ -19,6 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
+import models.error.ApiError.AlreadyRegisteredError
 import models.{JourneyType, UserAnswers}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -113,8 +114,10 @@ class CheckYourAnswersController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
     subscriptionService.subscribe(request.userAnswers) map {
-      case Right(response) => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      case Right(response)              => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+      case Left(AlreadyRegisteredError) =>
+        Redirect(controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad())
+      case Left(_)                      => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 
   }

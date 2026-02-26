@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import pages.SubmissionSucceededPage
 import play.api.Logging
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndividualAlreadyRegisteredView
+import views.html.individual.IndividualAlreadyRegisteredView
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualAlreadyRegisteredController @Inject() (
     override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     submissionLock: SubmissionLockAction,
@@ -35,17 +39,19 @@ class IndividualAlreadyRegisteredController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     view: IndividualAlreadyRegisteredView,
     appConfig: FrontendAppConfig
-) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
     implicit request =>
-      val loginUrl         = appConfig.loginUrl
-      val aeoiEmailAddress = appConfig.aeoiEmailAddress
-      
-      
+      val signOutNoSurveyUrl: String = appConfig.signOutNoSurveyUrl
+      val aeoiEmailAddress: String   = appConfig.aeoiEmailAddress
 
-      Ok(view(loginUrl, aeoiEmailAddress))
+      for {
+        updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield Ok(view(signOutNoSurveyUrl, aeoiEmailAddress))
   }
 }

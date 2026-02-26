@@ -218,4 +218,4 @@ POST        /register/change-individual-without-id/address                      
 
 GET         /register/problem/unable-to-change-business                         controllers.organisation.UnableToChangeBusinessController.onPageLoad()
 
-GET         /register/problem/individual-already-registered                     controllers.IndividualAlreadyRegisteredController.onPageLoad()
+GET         /register/problem/individual-already-registered                     controllers.individual.IndividualAlreadyRegisteredController.onPageLoad()

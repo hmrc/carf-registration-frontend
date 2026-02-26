@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individual
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.IndividualAlreadyRegisteredView
+import play.api.test.Helpers.*
+import views.html.individual.IndividualAlreadyRegisteredView
 
 class IndividualAlreadyRegisteredControllerSpec extends SpecBase {
+
+  val testSignOutNoSurveyUrl: String = "http://localhost:9553/bas-gateway/sign-out-without-state"
+  val testAeoiEmailAddress: String   = "aeoi.enquiries@hmrc.gov.uk"
 
   "IndividualAlreadyRegistered Controller" - {
 
@@ -30,14 +33,18 @@ class IndividualAlreadyRegisteredControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.IndividualAlreadyRegisteredController.onPageLoad().url)
+        val request =
+          FakeRequest(GET, controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad().url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[IndividualAlreadyRegisteredView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(testSignOutNoSurveyUrl, testAeoiEmailAddress)(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }

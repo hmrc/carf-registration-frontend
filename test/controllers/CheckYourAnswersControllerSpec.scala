@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.ApiError.InternalServerError
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
 import models.{CheckMode, JourneyType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
@@ -448,6 +448,22 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+
+        }
+
+        "must redirect to the individual already registered page when user is already registered" in new Setup(
+          AffinityGroup.Individual,
+          indWithNinoUserAnswers
+        ) {
+          when(mockSubscriptionService.subscribe(any())).thenReturn(Future.successful(Left(AlreadyRegisteredError)))
+
+          val request                = FakeRequest(POST, cyaRoute)
+          val result: Future[Result] = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.individual.routes.IndividualAlreadyRegisteredController
+            .onPageLoad()
+            .url
 
         }
       }

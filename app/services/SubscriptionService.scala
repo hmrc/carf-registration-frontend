@@ -18,7 +18,7 @@ package services
 
 import connectors.RegistrationConnector
 import models.error.ApiError
-import models.error.ApiError.InternalServerError
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
@@ -37,15 +37,18 @@ class SubscriptionService @Inject() extends Logging {
 
   def subscribe(userAnswers: UserAnswers): Future[Either[ApiError, String]] = {
     // For testing success and error scenarios
-    val idNumber = userAnswers
+    val idNumber: String = userAnswers
       .get(UniqueTaxpayerReferenceInUserAnswers)
       .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
       .take(1)
 
-    if (idNumber == "2" | idNumber == "B") {
-      Future.successful(Left(InternalServerError))
-    } else {
-      Future.successful(Right("Stub success!"))
+    idNumber match {
+      case "2" | "B" =>
+        Future.successful(Left(InternalServerError))
+      case "5" | "Z" =>
+        Future.successful(Left(AlreadyRegisteredError))
+      case _         =>
+        Future.successful(Right("Stub success!"))
     }
   }
 }

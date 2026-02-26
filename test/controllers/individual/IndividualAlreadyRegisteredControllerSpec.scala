@@ -17,9 +17,14 @@
 package controllers.individual
 
 import base.SpecBase
+import models.JourneyType.IndWithUtr
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.individual.IndividualAlreadyRegisteredView
+
+import scala.concurrent.Future
 
 class IndividualAlreadyRegisteredControllerSpec extends SpecBase {
 
@@ -30,8 +35,9 @@ class IndividualAlreadyRegisteredControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.copy(journeyType = Some(IndWithUtr)))).build()
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       running(application) {
         val request =
           FakeRequest(GET, controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad().url)

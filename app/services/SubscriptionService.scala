@@ -42,12 +42,21 @@ class SubscriptionService @Inject() extends Logging {
       .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
       .take(1)
 
+    val internalServerErrorChar: String    = "B"
+    val internalServerErrorInt: String     = "2"
+    val alreadyRegisteredErrorChar: String = "Z"
+    val alreadyRegisteredErrorInt: String  = "5"
+
     idNumber match {
-      case "2" | "B" =>
+      case internalServerErrorInt     =>
         Future.successful(Left(InternalServerError))
-      case "5" | "Z" =>
+      case internalServerErrorChar    =>
+        Future.successful(Left(InternalServerError))
+      case alreadyRegisteredErrorInt  =>
         Future.successful(Left(AlreadyRegisteredError))
-      case _         =>
+      case alreadyRegisteredErrorChar =>
+        Future.successful(Left(AlreadyRegisteredError))
+      case _                          =>
         Future.successful(Right("Stub success!"))
     }
   }

@@ -18,6 +18,7 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.routes
 import pages.SubmissionSucceededPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -27,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.IndividualAlreadyRegisteredView
 
 import javax.inject.Inject
+import scala.concurrent.impl.Promise
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualAlreadyRegisteredController @Inject() (
@@ -46,12 +48,13 @@ class IndividualAlreadyRegisteredController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
     implicit request =>
-      val signOutNoSurveyUrl: String = appConfig.signOutNoSurveyUrl
+      val signOutNoSurveyUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
       val aeoiEmailAddress: String   = appConfig.aeoiEmailAddress
-
+      
       for {
         updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
         _              <- sessionRepository.set(updatedAnswers)
       } yield Ok(view(signOutNoSurveyUrl, aeoiEmailAddress))
+      
   }
 }

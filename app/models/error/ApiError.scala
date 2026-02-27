@@ -38,7 +38,6 @@ object ApiError {
         case status if is4xx(status)                 => HttpReads.pure(Left(BadRequestError))
         case status if status == SERVICE_UNAVAILABLE => HttpReads.pure(Left(ServiceUnavailableError))
         case status if is5xx(status)                 => HttpReads.pure(Left(InternalServerError))
-//        case status if status == ?                   => HttpReads.pure(Left(AlreadyRegisteredError))
         case _                                       => HttpReads[A].map(Right.apply)
       }
     }

@@ -125,31 +125,13 @@ class IsThisYourBusinessController @Inject() (
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
-      case Right(business) =>
-        val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
-
-        countryListFactory
-          .getDescriptionFromCode(business.address.countryCode)
-          .fold(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) {
-            countryDescriptionName =>
-
-              val updatedAddress  = business.address.copy(countryName = Some(countryDescriptionName))
-              val updatedBusiness = business.copy(address = updatedAddress)
-
-              val pageDetails = IsThisYourBusinessPageDetails(
-                businessDetails = BusinessDetails(name = updatedBusiness.name, address = updatedAddress),
-                pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
-              )
-
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield {
-                val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
-                logger.info(s"Business data found and cached for UTR: $utr.")
-                Ok(view(preparedForm, mode, updatedBusiness))
-              }
-          }
+      case Right(businessDetails) =>
+        handleLookupSuccess(
+          businessDetails.name,
+          businessDetails.address,
+          utr,
+          mode
+        )
 
       case Left(NotFoundError) =>
         if (isAutoMatch) {
@@ -170,39 +152,13 @@ class IsThisYourBusinessController @Inject() (
       mode: Mode
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
-
       case Right(individualDetails) =>
-        countryListFactory
-          .getDescriptionFromCode(individualDetails.address.countryCode)
-          .fold(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))) { countryDescriptionName =>
-
-            val updatedAddress = individualDetails.address.copy(countryName = Some(countryDescriptionName))
-
-            val soleTraderBusinessDetails = BusinessDetails(individualDetails.fullName, updatedAddress)
-
-            val pageDetails = IsThisYourBusinessPageDetails(
-              businessDetails = soleTraderBusinessDetails,
-              pageAnswer = request.userAnswers
-                .get(IsThisYourBusinessPage)
-                .flatMap(_.pageAnswer)
-            )
-
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield {
-              val existingAnswer =
-                request.userAnswers
-                  .get(IsThisYourBusinessPage)
-                  .flatMap(_.pageAnswer)
-
-              val preparedForm = existingAnswer.fold(form)(form.fill)
-
-              logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
-
-              Ok(view(preparedForm, mode, soleTraderBusinessDetails))
-            }
-          }
+        handleLookupSuccess(
+          individualDetails.fullName,
+          individualDetails.address,
+          utr,
+          mode
+        )
 
       case Left(NotFoundError) =>
         logger.warn(
@@ -213,5 +169,44 @@ class IsThisYourBusinessController @Inject() (
       case Left(error) =>
         logger.warn(s"Unexpected error. Error: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+
     }
+
+  private def handleLookupSuccess(
+      name: String,
+      address: AddressRegistrationResponse,
+      utr: String,
+      mode: Mode
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    countryListFactory
+      .getDescriptionFromCode(address.countryCode)
+      .fold(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))) { countryDescriptionName =>
+
+        val updatedAddress = address.copy(countryName = Some(countryDescriptionName))
+
+        val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress)
+
+        val pageDetails = IsThisYourBusinessPageDetails(
+          businessDetails = soleTraderBusinessDetails,
+          pageAnswer = request.userAnswers
+            .get(IsThisYourBusinessPage)
+            .flatMap(_.pageAnswer)
+        )
+
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield {
+          val existingAnswer =
+            request.userAnswers
+              .get(IsThisYourBusinessPage)
+              .flatMap(_.pageAnswer)
+
+          val preparedForm = existingAnswer.fold(form)(form.fill)
+
+          logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
+
+          Ok(view(preparedForm, mode, soleTraderBusinessDetails))
+        }
+      }
 }

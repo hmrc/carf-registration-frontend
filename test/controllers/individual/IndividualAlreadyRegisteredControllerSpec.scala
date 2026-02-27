@@ -28,13 +28,13 @@ import scala.concurrent.Future
 
 class IndividualAlreadyRegisteredControllerSpec extends SpecBase {
 
-  val testSignOutNoSurveyUrl: String = "http://localhost:9553/bas-gateway/sign-out-without-state"
+  val testSignOutNoSurveyUrl: String =
+    "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:17000/register-for-cryptoasset-reporting"
   val testAeoiEmailAddress: String   = "aeoi.enquiries@hmrc.gov.uk"
 
   "IndividualAlreadyRegistered Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers.copy(journeyType = Some(IndWithUtr)))).build()
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)

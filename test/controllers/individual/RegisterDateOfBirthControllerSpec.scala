@@ -62,7 +62,8 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       addressLine3 = None,
       addressLine4 = None,
       postalCode = Some("B23 2AZ"),
-      countryCode = "GB"
+      countryCode = "GB",
+      countryName = None
     )
   )
 

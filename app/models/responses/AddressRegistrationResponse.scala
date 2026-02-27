@@ -24,7 +24,8 @@ case class AddressRegistrationResponse(
     addressLine3: Option[String],
     addressLine4: Option[String],
     postalCode: Option[String],
-    countryCode: String
+    countryCode: String,
+    countryName: Option[String]
 )
 
 extension (address: AddressRegistrationResponse) {
@@ -42,7 +43,7 @@ extension (address: AddressRegistrationResponse) {
     val allLines = if (isUkBased) {
       addressLines
     } else {
-      addressLines :+ address.countryCode
+      addressLines :+ address.countryName.getOrElse(address.countryCode)
     }
 
     val htmlLines = allLines.zipWithIndex.map { case (line, index) =>

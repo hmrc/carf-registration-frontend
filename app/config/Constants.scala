@@ -61,4 +61,6 @@ object Constants {
     Jersey.code    -> "^JE[1-4] ?[0-9][A-Z]{2}$",
     IsleOfMan.code -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
   )
+
+  val noneOfTheseValue = "none"
 }

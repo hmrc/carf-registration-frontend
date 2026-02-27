@@ -180,7 +180,10 @@ class IsThisYourBusinessController @Inject() (
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     countryListFactory
       .getDescriptionFromCode(address.countryCode)
-      .fold(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))) { countryDescriptionName =>
+      .fold {
+        logger.error(s"Failed to convert country code to country name for country code: (${address.countryCode}")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      } { countryDescriptionName =>
 
         val updatedAddress = address.copy(countryName = Some(countryDescriptionName))
 

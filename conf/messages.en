@@ -573,3 +573,12 @@ unableToChangeBusiness.heading = You’re unable to change your business details
 unableToChangeBusiness.p1 = You have signed in with a Government Gateway user ID that is linked to the following business details:
 unableToChangeBusiness.p2 = If you want to register a different organisation for cryptoasset reporting, you must
 unableToChangeBusiness.p2.link = sign in with the Government Gateway user ID for the organisation you wish to register
+
+individualAlreadyRegistered.title = You’re already registered to use this service
+individualAlreadyRegistered.heading = You’re already registered to use this service
+individualAlreadyRegistered.p1 = You can access the service using the same Government Gateway details that you used to register for cryptoasset reporting.
+individualAlreadyRegistered.p2 = Sign in using Government Gateway
+individualAlreadyRegistered.p3.part1 = You can email
+individualAlreadyRegistered.p3.part2 = aeoi.enquiries@hmrc.gov.uk
+individualAlreadyRegistered.p3.part3 = if you need support with accessing this service.
+

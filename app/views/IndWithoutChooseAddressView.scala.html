@@ -24,17 +24,17 @@
 
 @(form: Form[_], mode: Mode, radios: Seq[RadioItem], maybeHtml: Option[String])(implicit request: Request[_], messages: Messages)
 
-@noneOfThese() = {
-    <div class="govuk-radios__divider">@messages("indvWithoutChooseAddress.optionsDivider")</div>
-@govukRadios(Radios(
-    name = "value",
-    fieldset = None,
-    items = Seq(RadioItem(
-        content = HtmlContent(messages("indvWithoutChooseAddress.noneOfThese")),
-        value = Some("none"),
-        id = Some("value-none"),
-        checked = form("value").value.isDefined && form("value").value.contains("none")))
-))
+@extendedRadios = @{
+    radios ++ Seq(
+        RadioItem(
+            divider = Some(messages("indvWithoutChooseAddress.optionsDivider"))
+        ),
+        RadioItem(
+            content = HtmlContent(messages("indvWithoutChooseAddress.noneOfThese")),
+            value = Some("none"),
+            id = Some("value-none")
+        )
+    )
 }
 
 @layout(pageTitle = title(form, messages("indvWithoutChooseAddress.title"))) {
@@ -54,21 +54,17 @@
                 RadiosViewModel.apply(
                     field = form("value"),
                     legend = LegendViewModel(messages("indvWithoutChooseAddress.heading")).withCssClass("govuk-visually-hidden govuk-!-display-block"),
-                    items = radios
+                    items = extendedRadios
                 )
             )
-
-            @noneOfThese()
         } else {
             @govukRadios(
                 RadiosViewModel.apply(
                     field = form("value"),
                     legend = LegendViewModel(messages("indvWithoutChooseAddress.heading")).asPageHeading(),
-                    items = radios
+                    items = extendedRadios
                 )
             )
-
-            @noneOfThese()
         }
 
         @govukButton(

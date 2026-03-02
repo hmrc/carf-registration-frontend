@@ -217,3 +217,9 @@ GET         /register/change-individual-without-id/address                      
 POST        /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/unable-to-change-business                         controllers.organisation.UnableToChangeBusinessController.onPageLoad()
+
+GET         /register/individual-without-id/choose-address                      controllers.individualWithoutId.IndWithoutChooseAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/choose-address                      controllers.individualWithoutId.IndWithoutChooseAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutChooseAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutChooseAddressController.onSubmit(mode: Mode = CheckMode)
+

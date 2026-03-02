@@ -53,9 +53,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         )
           .thenReturn(EitherT.rightT[Future, CarfError](Seq(oneAddressResponse)))
 
-        val result = service.postcodeSearch("TE1 1ST", Some("Flat 1")).futureValue
+        val Right(result, retry) = service.postcodeSearch("TE1 1ST", Some("Flat 1")).futureValue
 
-        result mustBe Right(Seq(testAddressUk))
+        result   mustBe Seq(testAddressUk)
+        retry mustEqual false
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 1"))))(any())
       }
@@ -64,9 +65,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
           .thenReturn(EitherT.rightT[Future, CarfError](multipleAddressResponses))
 
-        val result = service.postcodeSearch("TE1 1ST", None).futureValue
+        val Right(result, retry) = service.postcodeSearch("TE1 1ST", None).futureValue
 
-        result mustBe Right(Seq(testAddressUk, testAddressUk, testAddressUk))
+        result   mustBe Seq(testAddressUk, testAddressUk, testAddressUk)
+        retry mustEqual false
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
       }
@@ -80,9 +82,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
           .thenReturn(EitherT.rightT[Future, CarfError](multipleAddressResponses))
 
-        val result = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
+        val Right(result, retry) = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result mustBe Right(Seq(testAddressUk, testAddressUk, testAddressUk))
+        result   mustBe Seq(testAddressUk, testAddressUk, testAddressUk)
+        retry mustEqual true
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -98,9 +101,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any()))
           .thenReturn(EitherT.rightT[Future, CarfError](Seq.empty))
 
-        val result = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
+        val Right(result, retry) = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result mustBe Right(Seq.empty)
+        result mustEqual Seq.empty
+        retry  mustEqual true
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())
         verify(mockAddressLookupConnector, times(1))
@@ -111,9 +115,11 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
         when(mockAddressLookupConnector.searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any()))
           .thenReturn(EitherT.rightT[Future, CarfError](Seq.empty))
 
-        val result = service.postcodeSearch("XX1 1XX", None).futureValue
+        val Right(result, retry) = service.postcodeSearch("XX1 1XX", None).futureValue
 
-        result mustBe Right(Seq.empty)
+        result mustEqual Seq.empty
+        retry  mustEqual false
+
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("XX1 1XX", None)))(any())
       }

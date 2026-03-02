@@ -17,7 +17,7 @@
 package models.responses
 
 import models.AddressUk
-import models.countries.CountryUk
+import models.countries.{Country, CountryUk, UnitedKingdom}
 import models.error.{CarfError, ConversionError}
 import play.api.libs.json.{Json, OFormat}
 

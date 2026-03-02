@@ -34,24 +34,25 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
   def postcodeSearch(postcode: String, propertyNameOrNumber: Option[String])(implicit
       ec: ExecutionContext,
       hc: HeaderCarrier
-  ): Future[Either[CarfError, Seq[AddressUk]]] = {
+  ): Future[Either[CarfError, (Seq[AddressUk], Boolean)]] = {
     val initialRequest = SearchByPostcodeRequest(postcode = postcode, filter = propertyNameOrNumber)
     {
       for {
-        addressLookupResponse: Seq[AddressResponse]         <- addressLookupConnector.searchByPostcode(initialRequest)
-        addressLookupCombinedResponse: Seq[AddressResponse] <-
+        addressLookupResponse: Seq[AddressResponse]                    <- addressLookupConnector.searchByPostcode(initialRequest)
+        addressLookupCombinedResponse: (Seq[AddressResponse], Boolean) <-
           if (addressLookupResponse.nonEmpty || propertyNameOrNumber.isEmpty) {
-            EitherT.right[ApiError](Future.successful(addressLookupResponse))
+            EitherT.right[ApiError](Future.successful((addressLookupResponse, false)))
           } else {
             for {
               address <- addressLookupConnector.searchByPostcode(
                            initialRequest.copy(filter = None)
                          )
-            } yield address
+            } yield (address, true)
           }
-        addressDomain: Seq[AddressUk]                       <-
-          EitherT.fromEither[Future](addressLookupCombinedResponse.traverse(AddressResponse.toDomainAddressUk))
-      } yield addressDomain
+        (lookupResponse, additionalCall)                                = addressLookupCombinedResponse
+        addressDomain: Seq[AddressUk]                                  <-
+          EitherT.fromEither[Future](lookupResponse.traverse(AddressResponse.toDomainAddressUk))
+      } yield (addressDomain, additionalCall)
     }.value
   }
 }

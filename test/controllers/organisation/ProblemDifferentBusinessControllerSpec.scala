@@ -28,7 +28,7 @@ import views.html.organisation.ProblemDifferentBusinessView
 class ProblemDifferentBusinessControllerSpec extends SpecBase {
 
   val testFullSignOutUrl: String =
-    "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:17000/register-for-carf"
+    "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:17000/register-for-cryptoasset-reporting"
 
   val controllerRoute: String = controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad().url
 

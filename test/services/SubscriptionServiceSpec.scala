@@ -27,6 +27,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
 import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
 import utils.SubscriptionHelper
+import models.error.ApiError.MandatoryInformationMissingError
 
 import scala.concurrent.Future
 
@@ -82,7 +83,9 @@ class SubscriptionServiceSpec extends SpecBase {
       "should return BadRequestError when there is a problem with userAnswers" in {
         val result = testService.subscribe(emptyUserAnswers).futureValue
 
-        result mustBe Left(ApiError.BadRequestError)
+        result mustBe Left(
+          MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")
+        )
         verify(mockConnector, never()).createSubscription(any[CreateSubscriptionRequest])(any(), any())
       }
     }

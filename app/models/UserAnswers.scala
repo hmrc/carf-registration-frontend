@@ -28,6 +28,7 @@ final case class UserAnswers(
     journeyType: Option[JourneyType] = None,
     isCtAutoMatched: Boolean = false,
     safeId: Option[SafeId] = None,
+    subscriptionId: Option[SubscriptionId] = None,
     data: JsObject = Json.obj(),
     lastUpdated: Instant = Instant.now
 ) {
@@ -77,6 +78,7 @@ object UserAnswers {
         (__ \ "journeyType").readNullable[JourneyType] and
         (__ \ "isCtAutoMatched").read[Boolean] and
         (__ \ "safeId").readNullable[SafeId] and
+        (__ \ "subscriptionId").readNullable[SubscriptionId] and
         (__ \ "data").read[JsObject] and
         (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
     )(UserAnswers.apply _)
@@ -91,9 +93,10 @@ object UserAnswers {
         (__ \ "journeyType").writeNullable[JourneyType] and
         (__ \ "isCtAutoMatched").write[Boolean] and
         (__ \ "safeId").writeNullable[SafeId] and
+        (__ \ "subscriptionId").writeNullable[SubscriptionId] and
         (__ \ "data").write[JsObject] and
         (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    )(ua => (ua.id, ua.journeyType, ua.isCtAutoMatched, ua.safeId, ua.data, ua.lastUpdated))
+    )(ua => (ua.id, ua.journeyType, ua.isCtAutoMatched, ua.safeId, ua.subscriptionId, ua.data, ua.lastUpdated))
   }
 
   implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)

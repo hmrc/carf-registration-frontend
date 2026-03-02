@@ -18,6 +18,7 @@ package services
 
 import connectors.SubscriptionConnector
 import models.error.ApiError
+import models.error.ApiError.MandatoryInformationMissingError
 import models.requests.CreateSubscriptionRequest
 import models.{SubscriptionId, UserAnswers}
 import play.api.Logging
@@ -36,10 +37,8 @@ class SubscriptionService @Inject() (
   def subscribe(userAnswers: UserAnswers)(implicit
       hc: HeaderCarrier,
       ec: ExecutionContext
-  ): Future[Either[ApiError, SubscriptionId]] = {
-    val maybeRequest: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
-
-    maybeRequest match {
+  ): Future[Either[ApiError, SubscriptionId]] =
+    subscriptionHelper.buildSubscriptionRequest(userAnswers) match {
       case Some(request) =>
         subscriptionConnector
           .createSubscription(request)
@@ -51,8 +50,13 @@ class SubscriptionService @Inject() (
               Left(error)
           }
       case None          =>
-        logger.error("There has been an error building the subscription request from user answers")
-        Future.successful(Left(ApiError.BadRequestError))
+        logger.error("There has been an error building the subscription request from userAnswers")
+        Future.successful(
+          Left(
+            MandatoryInformationMissingError(
+              s"There has been an error building the subscription request from userAnswers"
+            )
+          )
+        )
     }
-  }
 }

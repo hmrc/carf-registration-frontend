@@ -21,7 +21,7 @@ import cats.data.EitherT
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.error.ApiError
 import models.error.ApiError.InternalServerError
-import models.{CheckMode, JourneyType, SubscriptionId, UserAnswers}
+import models.{CheckMode, JourneyType, SafeId, SubscriptionId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -45,11 +45,16 @@ import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
-  val stWithUtrUserAnswers: UserAnswers    = emptyUserAnswers.copy(journeyType = Some(IndWithUtr))
-  val stWithoutIdUserAnswers: UserAnswers  = emptyUserAnswers.copy(journeyType = Some(IndWithoutId))
-  val orgWithUtrUserAnswers: UserAnswers   = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
-  val orgWithoutIdUserAnswers: UserAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithoutId))
-  val indWithNinoUserAnswers: UserAnswers  = emptyUserAnswers.copy(journeyType = Some(IndWithNino))
+  val stWithUtrUserAnswers: UserAnswers    =
+    emptyUserAnswers.copy(journeyType = Some(IndWithUtr), safeId = Some(SafeId("CARF1334")))
+  val stWithoutIdUserAnswers: UserAnswers  =
+    emptyUserAnswers.copy(journeyType = Some(IndWithoutId), safeId = Some(SafeId("CARF1334")))
+  val orgWithUtrUserAnswers: UserAnswers   =
+    emptyUserAnswers.copy(journeyType = Some(OrgWithUtr), safeId = Some(SafeId("CARF1334")))
+  val orgWithoutIdUserAnswers: UserAnswers =
+    emptyUserAnswers.copy(journeyType = Some(OrgWithoutId), safeId = Some(SafeId("CARF1334")))
+  val indWithNinoUserAnswers: UserAnswers  =
+    emptyUserAnswers.copy(journeyType = Some(IndWithNino), safeId = Some(SafeId("CARF1334")))
   lazy val cyaRoute: String                = routes.CheckYourAnswersController.onPageLoad().url
   def onwardRoute                          = Call("GET", "/foo")
 
@@ -433,9 +438,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
             .thenReturn(Future.successful(true))
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
             .thenReturn(Future.successful(Right(SubscriptionId("XCARF1234567890"))))
-
-          val request                = FakeRequest(POST, cyaRoute)
-          val result: Future[Result] = route(application, request).value
+          val orgWithUtrUserAnswers: UserAnswers =
+            emptyUserAnswers.copy(journeyType = Some(OrgWithUtr), safeId = Some(SafeId("someSafeId")))
+          val request                            = FakeRequest(POST, cyaRoute)
+          val result: Future[Result]             = route(application, request).value
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.RegistrationConfirmationController

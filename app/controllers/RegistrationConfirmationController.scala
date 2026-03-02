@@ -104,7 +104,7 @@ class RegistrationConfirmationController @Inject() (
     (identify() andThen getData() andThen requireData).async { implicit request =>
 
       val result = for {
-        subscriptionId <- request.userAnswers.get(SubscriptionIdPage)
+        subscriptionId <- request.userAnswers.subscriptionId
         journeyType    <- request.userAnswers.journeyType
         emailAddresses <- getEmailAddresses(journeyType, request.userAnswers)
         idNumberOpt     = getIdNumber(journeyType, request.userAnswers)

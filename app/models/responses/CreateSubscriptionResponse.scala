@@ -19,7 +19,7 @@ package models.responses
 import models.SubscriptionId
 import play.api.libs.json.{Json, Reads}
 
-case class CreateSubscriptionResponse(success: SubscriptionIDResponse) {
+case class CreateSubscriptionResponse(success: SubscriptionIdResponse) {
   def subscriptionId: SubscriptionId = SubscriptionId(success.CARFReference)
 }
 

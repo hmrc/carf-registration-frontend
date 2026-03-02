@@ -24,8 +24,8 @@ import models.error.{ApiError, CarfError}
 import models.requests.DataRequest
 import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, SafeId, UniqueTaxpayerReference}
 import navigation.Navigator
+import pages.IsThisYourBusinessPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
-import pages.{IsThisYourBusinessPage, SafeIdPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -132,9 +132,8 @@ class IsThisYourBusinessController @Inject() (
         )
 
         for {
-          updatedAnswers           <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          updatedAnswersWithSafeId <- Future.fromTry(updatedAnswers.set(SafeIdPage, SafeId(business.safeId)))
-          _                        <- sessionRepository.set(updatedAnswersWithSafeId)
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(SafeId(business.safeId))))
         } yield {
           val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
           logger.info(s"Business data found and cached for UTR: $utr.")
@@ -173,9 +172,8 @@ class IsThisYourBusinessController @Inject() (
         )
 
         for {
-          updatedAnswers           <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          updatedAnswersWithSafeId <- Future.fromTry(updatedAnswers.set(SafeIdPage, SafeId(individualDetails.safeId)))
-          _                        <- sessionRepository.set(updatedAnswersWithSafeId)
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(SafeId(individualDetails.safeId))))
         } yield {
           val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
           logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")

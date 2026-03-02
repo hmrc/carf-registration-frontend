@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import itutil.ApplicationWithWiremock
 import models.SubscriptionId
 import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateEMTPSubscriptionError}
-import models.requests.{ContactInformation, CreateSubscriptionRequest, IndividualDetails, OrganisationDetails}
+import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.*
@@ -40,8 +40,8 @@ class SubscriptionConnectorISpec
 
   val connector: SubscriptionConnector = app.injector.instanceOf[SubscriptionConnector]
 
-  val validContactInformation: ContactInformation = ContactInformation(
-    individual = Some(IndividualDetails("John", "Doe")),
+  val validContactInformation: SubscriptionContactDetails = SubscriptionContactDetails(
+    individual = Some(SubscriptionIndividualContact("John", "Doe")),
     organisation = None,
     email = "john.doe@example.com",
     phone = Some("07123456789")
@@ -54,9 +54,9 @@ class SubscriptionConnectorISpec
     tradingName = Some("Test Trading Ltd"),
     primaryContact = validContactInformation,
     secondaryContact = Some(
-      ContactInformation(
+      SubscriptionContactDetails(
         individual = None,
-        organisation = Some(OrganisationDetails("Org Secondary Contact Ltd")),
+        organisation = Some(SubscriptionOrganisationContact("Org Secondary Contact Ltd")),
         email = "jane.bloggs@example.com",
         phone = Some("07987654321")
       )
@@ -71,7 +71,7 @@ class SubscriptionConnectorISpec
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(CREATED)
               .withBody(validSubscriptionResponseJson)
           )
       )
@@ -227,7 +227,7 @@ class SubscriptionConnectorISpec
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(OK)
+              .withStatus(CREATED)
               .withBody(validSubscriptionResponseJson)
           )
       )

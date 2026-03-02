@@ -23,8 +23,8 @@ case class CreateSubscriptionRequest(
     idNumber: String,
     idType: String,
     tradingName: Option[String],
-    primaryContact: ContactInformation,
-    secondaryContact: Option[ContactInformation]
+    primaryContact: SubscriptionContactDetails,
+    secondaryContact: Option[SubscriptionContactDetails]
 )
 
 object CreateSubscriptionRequest {

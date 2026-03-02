@@ -24,16 +24,16 @@ import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateEMTPSubscrip
 import models.requests.CreateSubscriptionRequest
 import models.responses.CreateSubscriptionResponse
 import play.api.Logging
+import play.api.http.Status.CREATED
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) extends Logging {
 
@@ -48,29 +48,31 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
         .post(submissionUrl)
         .withBody(Json.toJson(createSubscriptionRequest))
         .execute[HttpResponse]
-        .map { response =>
-          if (is2xx(response.status)) {
-            response.json.asOpt[CreateSubscriptionResponse] match {
-              case Some(successResponse) => Right(successResponse.subscriptionId)
-              case None                  => Left(UnableToCreateEMTPSubscriptionError)
+        .map {
+          case response if response.status == CREATED =>
+            Try(response.json.as[CreateSubscriptionResponse]) match {
+              case Success(data)      => Right(data.subscriptionId)
+              case Failure(exception) =>
+                logger.warn(s"Error parsing CreateSubscriptionResponse with endpoint: $submissionUrl")
+                Left(ApiError.JsonValidationError)
             }
-          } else {
-            handleErrorResponse(response)
-          }
+          case response                               =>
+            logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl")
+            Left(handleErrorResponse(response))
         }
     }
   }
 
-  private def handleErrorResponse(response: HttpResponse): Either[ApiError, SubscriptionId] = {
+  private def handleErrorResponse(response: HttpResponse): ApiError = {
     val jsonBody = Try(Json.parse(response.body)).toOption.getOrElse(Json.obj())
     (jsonBody \ "status").asOpt[String] match {
       case Some("already_registered") =>
         logger.warn("Subscription already exists.")
-        Left(AlreadyRegisteredError)
+        AlreadyRegisteredError
 
       case _ =>
         logger.warn(s"Received error response from backend: ${response.status}")
-        Left(UnableToCreateEMTPSubscriptionError)
+        UnableToCreateEMTPSubscriptionError
     }
   }
 

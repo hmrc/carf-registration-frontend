@@ -17,7 +17,7 @@
 package utils
 
 import models.JourneyType.*
-import models.requests.{ContactInformation, CreateSubscriptionRequest, IndividualDetails, OrganisationDetails}
+import models.requests.*
 import models.{IdentifierType, JourneyType, Name, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, NiNumberPage, WhatIsYourNameIndividualPage}
@@ -29,21 +29,21 @@ class SubscriptionHelper {
 
   def buildSubscriptionRequest(userAnswers: UserAnswers): Option[CreateSubscriptionRequest] =
     for {
-      safeId          <- userAnswers.get(SafeIdPage).map(_.value)
+      safeId          <- userAnswers.safeId
       primaryContact  <- buildPrimaryContact(userAnswers)
       tradingName      = getTradingName(userAnswers)
       gbUser           = isGBUser(userAnswers)
       secondaryContact = buildSecondaryContact(userAnswers)
     } yield CreateSubscriptionRequest(
       idType = IdentifierType.SAFE,
-      idNumber = safeId,
+      idNumber = safeId.value,
       tradingName = tradingName,
       gbUser = gbUser,
       primaryContact = primaryContact,
       secondaryContact = secondaryContact
     )
 
-  private def buildPrimaryContact(userAnswers: UserAnswers): Option[ContactInformation] =
+  private def buildPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     userAnswers.journeyType match {
       case Some(IndWithNino)                     => buildIndividualContact(userAnswers, WhatIsYourNameIndividualPage)
       case Some(IndWithoutId)                    => buildIndividualContact(userAnswers, IndWithoutNinoNamePage)
@@ -55,40 +55,40 @@ class SubscriptionHelper {
   private def buildIndividualContact(
       userAnswers: UserAnswers,
       namePage: QuestionPage[Name]
-  ): Option[ContactInformation] =
+  ): Option[SubscriptionContactDetails] =
     for {
       name  <- userAnswers.get(namePage)
       email <- userAnswers.get(IndividualEmailPage)
-    } yield ContactInformation(
-      individual = Some(IndividualDetails(name.firstName, name.lastName)),
+    } yield SubscriptionContactDetails(
+      individual = Some(SubscriptionIndividualContact(name.firstName, name.lastName)),
       organisation = None,
       email = email,
       phone = userAnswers.get(IndividualPhoneNumberPage)
     )
 
-  private def buildOrganisationPrimaryContact(userAnswers: UserAnswers): Option[ContactInformation] =
+  private def buildOrganisationPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
       name  <- userAnswers.get(FirstContactNamePage)
       email <- userAnswers.get(FirstContactEmailPage)
-    } yield ContactInformation(
+    } yield SubscriptionContactDetails(
       individual = None,
-      organisation = Some(OrganisationDetails(name)),
+      organisation = Some(SubscriptionOrganisationContact(name)),
       email = email,
       phone = userAnswers.get(FirstContactPhoneNumberPage)
     )
 
-  private def buildOrganisationSecondaryContact(userAnswers: UserAnswers): Option[ContactInformation] =
+  private def buildOrganisationSecondaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
       name  <- userAnswers.get(OrganisationSecondContactNamePage)
       email <- userAnswers.get(OrganisationSecondContactEmailPage)
-    } yield ContactInformation(
+    } yield SubscriptionContactDetails(
       individual = None,
-      organisation = Some(OrganisationDetails(name)),
+      organisation = Some(SubscriptionOrganisationContact(name)),
       email = email,
       phone = userAnswers.get(OrganisationSecondContactPhoneNumberPage)
     )
 
-  private def buildSecondaryContact(userAnswers: UserAnswers): Option[ContactInformation] =
+  private def buildSecondaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
       journeyType      <- userAnswers.journeyType
       if isOrganisationJourney(journeyType)

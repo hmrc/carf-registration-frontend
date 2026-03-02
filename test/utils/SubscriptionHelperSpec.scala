@@ -20,7 +20,7 @@ import base.SpecBase
 import models.*
 import models.JourneyType.*
 import models.countries.CountryUk
-import models.requests.{ContactInformation, CreateSubscriptionRequest, IndividualDetails, OrganisationDetails}
+import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, NiNumberPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
@@ -66,9 +66,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request successfully with all required fields" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(WhatIsYourNameIndividualPage, testIndividualName)
             .success
             .value
@@ -92,7 +90,7 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe None
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
-            IndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
+            SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
           )
           request.primaryContact.organisation mustBe None
           request.primaryContact.email        mustBe testIndividualEmail
@@ -103,9 +101,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request without optional phone number" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(WhatIsYourNameIndividualPage, testIndividualName)
             .success
             .value
@@ -125,9 +121,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -143,9 +137,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(WhatIsYourNameIndividualPage, testIndividualName)
             .success
             .value
@@ -163,9 +155,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request successfully" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(IndWithoutNinoNamePage, testIndividualName)
             .success
             .value
@@ -189,7 +179,7 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe None
           request.gbUser                      mustBe false
           request.primaryContact.individual   mustBe Some(
-            IndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
+            SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
           )
           request.primaryContact.organisation mustBe None
           request.primaryContact.email        mustBe testIndividualEmail
@@ -200,9 +190,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should identify GB user when address is GB" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(IndWithoutNinoNamePage, testIndividualName)
             .success
             .value
@@ -222,9 +210,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should identify GB user when address lookup is present" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(IndWithoutNinoNamePage, testIndividualName)
             .success
             .value
@@ -244,9 +230,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -261,9 +245,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request successfully" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(WhatIsYourNamePage, testIndividualName)
             .success
             .value
@@ -287,7 +269,7 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe None
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
-            IndividualDetails(testIndividualName.firstName, testIndividualName.lastName)
+            SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
           )
           request.primaryContact.organisation mustBe None
           request.primaryContact.email        mustBe testIndividualEmail
@@ -298,9 +280,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -318,9 +298,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with primary contact only" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -350,7 +328,9 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe Some(testBusinessName)
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe None
-          request.primaryContact.organisation mustBe Some(OrganisationDetails(testOrganisationFirstContactName))
+          request.primaryContact.organisation mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationFirstContactName)
+          )
           request.primaryContact.email        mustBe testOrganisationFirstEmail
           request.primaryContact.phone        mustBe Some(testOrganisationFirstPhone)
           request.secondaryContact            mustBe None
@@ -359,9 +339,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with primary and secondary contact" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -400,12 +378,16 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                       mustBe Some(testBusinessName)
           request.gbUser                            mustBe true
           request.primaryContact.individual         mustBe None
-          request.primaryContact.organisation       mustBe Some(OrganisationDetails(testOrganisationFirstContactName))
+          request.primaryContact.organisation       mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationFirstContactName)
+          )
           request.primaryContact.email              mustBe testOrganisationFirstEmail
           request.primaryContact.phone              mustBe Some(testOrganisationFirstPhone)
           request.secondaryContact                  mustBe defined
           request.secondaryContact.get.individual   mustBe None
-          request.secondaryContact.get.organisation mustBe Some(OrganisationDetails(testOrganisationSecondContactName))
+          request.secondaryContact.get.organisation mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationSecondContactName)
+          )
           request.secondaryContact.get.email        mustBe testOrganisationSecondEmail
           request.secondaryContact.get.phone        mustBe Some(testOrganisationSecondPhone)
         }
@@ -413,9 +395,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should not include secondary contact when hasSecondContact is false" in {
           val userAnswers: UserAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -441,9 +421,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when primary contact name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
@@ -462,9 +440,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when primary contact email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -483,9 +459,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None when secondary contact is required but name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -514,9 +488,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should not include secondary contact when secondary contact email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -547,9 +519,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with trading name" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -579,7 +549,9 @@ class SubscriptionHelperSpec extends SpecBase {
           request.tradingName                 mustBe Some(testTradingName)
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe None
-          request.primaryContact.organisation mustBe Some(OrganisationDetails(testOrganisationFirstContactName))
+          request.primaryContact.organisation mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationFirstContactName)
+          )
           request.primaryContact.email        mustBe testOrganisationFirstEmail
           request.primaryContact.phone        mustBe Some(testOrganisationFirstPhone)
           request.secondaryContact            mustBe None
@@ -588,9 +560,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with secondary contact" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -618,16 +588,16 @@ class SubscriptionHelperSpec extends SpecBase {
           result mustBe defined
           val request = result.get
           request.secondaryContact                  mustBe defined
-          request.secondaryContact.get.organisation mustBe Some(OrganisationDetails(testOrganisationSecondContactName))
+          request.secondaryContact.get.organisation mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationSecondContactName)
+          )
           request.secondaryContact.get.email        mustBe testOrganisationSecondEmail
         }
 
         "should return None when primary contact name is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
-            .set(SafeIdPage, exampleSafeId)
-            .success
-            .value
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value

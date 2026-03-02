@@ -461,9 +461,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           val result: Future[Result] = route(application, request).value
 
           status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.individual.routes.IndividualAlreadyRegisteredController
-            .onPageLoad()
-            .url
+          redirectLocation(result).value mustEqual onwardRoute.url
 
         }
       }

@@ -50,11 +50,11 @@ class IndividualAlreadyRegisteredController @Inject() (
     implicit request =>
       val signOutNoSurveyUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
       val aeoiEmailAddress: String   = appConfig.aeoiEmailAddress
-      
+
       for {
         updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
         _              <- sessionRepository.set(updatedAnswers)
       } yield Ok(view(signOutNoSurveyUrl, aeoiEmailAddress))
-      
+
   }
 }

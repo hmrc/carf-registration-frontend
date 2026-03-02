@@ -19,6 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
+import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.*
 import models.countries.*
 import models.responses.AddressRegistrationResponse
@@ -1095,6 +1096,68 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           emptyUserAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
+    "must navigate from NavigatorOnlyCheckYourAnswersErrors to the correct problem page" - {
+      "when journey type is individual with utr" in {
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(IndWithUtr))
+
+        navigator.nextPage(
+          NavigatorOnlyCheckYourAnswersErrors,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad()
+      }
+      "when journey type is individual with nino" in {
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(IndWithNino))
+
+        navigator.nextPage(
+          NavigatorOnlyCheckYourAnswersErrors,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad()
+      }
+      "when journey type is individual without id" in {
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(IndWithoutId))
+
+        navigator.nextPage(
+          NavigatorOnlyCheckYourAnswersErrors,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad()
+      }
+      "when journey type is organisation with utr" in {
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
+
+        navigator.nextPage(
+          NavigatorOnlyCheckYourAnswersErrors,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /problem/organisation-already-registered (CARF-260)"
+        )
+      }
+      "when journey type is organisation without id" in {
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithoutId))
+
+        navigator.nextPage(
+          NavigatorOnlyCheckYourAnswersErrors,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Must redirect to /problem/organisation-already-registered (CARF-260)"
+        )
+      }
+      "to journey recovery when journey type is missing" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          NavigatorOnlyCheckYourAnswersErrors,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+
       }
     }
   }

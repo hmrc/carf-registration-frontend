@@ -122,9 +122,8 @@ class SubscriptionHelper {
 
   private def getTradingName(userAnswers: UserAnswers): Option[String] =
     userAnswers.journeyType.flatMap {
-      case OrgWithoutId => userAnswers.get(TradingNamePage)
-      case OrgWithUtr   => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
-      case _            => None
+      case OrgWithoutId => userAnswers.get(TradingNamePage).orElse(userAnswers.get(WhatIsTheNameOfYourBusinessPage))
+      case _            => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
     }
 
   private def isGBUser(userAnswers: UserAnswers): Boolean = {

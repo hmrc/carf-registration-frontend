@@ -34,7 +34,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.UserAnswersHelper
+import utils.{CountryListFactory, UserAnswersHelper}
 import views.html.IsThisYourBusinessView
 
 import javax.inject.Inject
@@ -50,6 +50,7 @@ class IsThisYourBusinessController @Inject() (
     requireData: DataRequiredAction,
     formProvider: IsThisYourBusinessFormProvider,
     businessService: RegistrationService,
+    countryListFactory: CountryListFactory,
     val controllerComponents: MessagesControllerComponents,
     view: IsThisYourBusinessView
 )(implicit ec: ExecutionContext)
@@ -124,22 +125,13 @@ class IsThisYourBusinessController @Inject() (
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
-      case Right(business) =>
-        val existingPageDetails = request.userAnswers.get(IsThisYourBusinessPage)
-
-        val pageDetails = IsThisYourBusinessPageDetails(
-          businessDetails = BusinessDetails(name = business.name, address = business.address),
-          pageAnswer = existingPageDetails.flatMap(_.pageAnswer)
+      case Right(businessDetails) =>
+        handleLookupSuccess(
+          businessDetails.name,
+          businessDetails.address,
+          utr,
+          mode
         )
-
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield {
-          val preparedForm = existingPageDetails.flatMap(_.pageAnswer).fold(form)(form.fill)
-          logger.info(s"Business data found and cached for UTR: $utr.")
-          Ok(view(preparedForm, mode, business))
-        }
 
       case Left(NotFoundError) =>
         if (isAutoMatch) {
@@ -161,26 +153,63 @@ class IsThisYourBusinessController @Inject() (
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
       case Right(individualDetails) =>
-        val soleTraderBusinessDetails = BusinessDetails(individualDetails.fullName, individualDetails.address)
+        handleLookupSuccess(
+          individualDetails.fullName,
+          individualDetails.address,
+          utr,
+          mode
+        )
+
+      case Left(NotFoundError) =>
+        logger.warn(
+          "User is a Sole Trader. Redirecting to sole-trader-not-identified."
+        )
+        Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
+
+      case Left(error) =>
+        logger.warn(s"Unexpected error. Error: $error")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+
+    }
+
+  private def handleLookupSuccess(
+      name: String,
+      address: AddressRegistrationResponse,
+      utr: String,
+      mode: Mode
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    countryListFactory
+      .getDescriptionFromCode(address.countryCode)
+      .fold {
+        logger.error(s"Failed to convert country code to country name for country code: (${address.countryCode}")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      } { countryDescriptionName =>
+
+        val updatedAddress = address.copy(countryName = Some(countryDescriptionName))
+
+        val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress)
 
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,
-          pageAnswer = request.userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer)
+          pageAnswer = request.userAnswers
+            .get(IsThisYourBusinessPage)
+            .flatMap(_.pageAnswer)
         )
 
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
           _              <- sessionRepository.set(updatedAnswers)
         } yield {
-          val preparedForm = pageDetails.pageAnswer.fold(form)(form.fill)
+          val existingAnswer =
+            request.userAnswers
+              .get(IsThisYourBusinessPage)
+              .flatMap(_.pageAnswer)
+
+          val preparedForm = existingAnswer.fold(form)(form.fill)
+
           logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
+
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }
-      case Left(NotFoundError)      =>
-        logger.warn("User is a Sole Trader. Redirecting to sole-trader-not-identified.")
-        Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
-      case Left(error)              =>
-        logger.warn(s"Unexpected error. Error: $error")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }
+      }
 }

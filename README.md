@@ -100,7 +100,7 @@ sbt test
 ```
 Run Integration Tests:
 ```
-sbt it:test
+sbt it/test
 ```
 Run Unit and Integration Tests with coverage report:
 ```

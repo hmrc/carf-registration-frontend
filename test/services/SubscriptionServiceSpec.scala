@@ -21,13 +21,12 @@ import cats.data.EitherT
 import connectors.SubscriptionConnector
 import models.*
 import models.error.ApiError
-import models.error.ApiError.InternalServerError
+import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
 import models.requests.CreateSubscriptionRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
-import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
 import utils.SubscriptionHelper
-import models.error.ApiError.MandatoryInformationMissingError
 
 import scala.concurrent.Future
 
@@ -46,6 +45,9 @@ class SubscriptionServiceSpec extends SpecBase {
     .success
     .value
     .set(IndividualEmailPage, "john.doe@example.com")
+    .success
+    .value
+    .set(IndividualHavePhonePage, true)
     .success
     .value
     .set(IndividualPhoneNumberPage, "01234567890")

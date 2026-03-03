@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.FrontendAppConfig
 import models.SubscriptionId
 import models.error.ApiError
-import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateEMTPSubscriptionError}
+import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateSubscriptionError}
 import models.requests.CreateSubscriptionRequest
 import models.responses.CreateSubscriptionResponse
 import play.api.Logging
@@ -42,6 +42,10 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, ApiError, SubscriptionId] = {
 
     val submissionUrl = url"${config.carfRegistrationBaseUrl}/subscription/subscribe"
+
+    logger.debug(
+      s"[SubscriptionConnector] Creating subscription with request:\n ${Json.prettyPrint(Json.toJson(createSubscriptionRequest))}"
+    )
 
     EitherT {
       http
@@ -72,7 +76,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
 
       case _ =>
         logger.warn(s"Received error response from backend: ${response.status}")
-        UnableToCreateEMTPSubscriptionError
+        UnableToCreateSubscriptionError
     }
   }
 

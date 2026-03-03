@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
 import models.SubscriptionId
-import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateEMTPSubscriptionError}
+import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateSubscriptionError}
 import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
@@ -80,7 +80,7 @@ class SubscriptionConnectorISpec
       result shouldBe Right(SubscriptionId("CARF123456"))
     }
 
-    "return UnableToCreateEMTPSubscriptionError when response JSON is invalid" in {
+    "return UnableToCreateSubscriptionError when response JSON is invalid" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -91,10 +91,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when response JSON structure is incorrect" in {
+    "return UnableToCreateSubscriptionError when response JSON structure is incorrect" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -105,7 +105,7 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
     "return AlreadyRegisteredError when backend returns already_registered status" in {
@@ -145,7 +145,7 @@ class SubscriptionConnectorISpec
       result shouldBe Left(AlreadyRegisteredError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when backend returns 400 status" in {
+    "return UnableToCreateSubscriptionError when backend returns 400 status" in {
       val errorResponse = Json.obj(
         "status"  -> "Bad request",
         "message" -> "Invalid request"
@@ -161,10 +161,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when backend returns 500" in {
+    "return UnableToCreateSubscriptionError when backend returns 500" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -175,10 +175,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when backend returns 503" in {
+    "return UnableToCreateSubscriptionError when backend returns 503" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -189,10 +189,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when response body is not valid JSON" in {
+    "return UnableToCreateSubscriptionError when response body is not valid JSON" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -203,10 +203,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
-    "return UnableToCreateEMTPSubscriptionError when response body is empty JSON" in {
+    "return UnableToCreateSubscriptionError when response body is empty JSON" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -217,7 +217,7 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateEMTPSubscriptionError)
+      result shouldBe Left(UnableToCreateSubscriptionError)
     }
 
     "handle subscription request with no secondary contact" in {

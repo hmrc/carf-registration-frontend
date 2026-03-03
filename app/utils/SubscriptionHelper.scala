@@ -20,7 +20,7 @@ import models.JourneyType.*
 import models.requests.*
 import models.{IdentifierType, JourneyType, Name, UserAnswers}
 import pages.*
-import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.TradingNamePage
 import pages.organisation.*
@@ -49,7 +49,6 @@ class SubscriptionHelper {
       case Some(IndWithoutId)                    => buildIndividualContact(userAnswers, IndWithoutNinoNamePage)
       case Some(IndWithUtr)                      => buildIndividualContact(userAnswers, WhatIsYourNamePage)
       case Some(OrgWithUtr) | Some(OrgWithoutId) => buildOrganisationPrimaryContact(userAnswers)
-      case _                                     => None
     }
 
   private def buildIndividualContact(
@@ -57,13 +56,19 @@ class SubscriptionHelper {
       namePage: QuestionPage[Name]
   ): Option[SubscriptionContactDetails] =
     for {
-      name  <- userAnswers.get(namePage)
-      email <- userAnswers.get(IndividualEmailPage)
+      name      <- userAnswers.get(namePage)
+      email     <- userAnswers.get(IndividualEmailPage)
+      havePhone <- userAnswers.get(IndividualHavePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(IndividualPhoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
     } yield SubscriptionContactDetails(
       individual = Some(SubscriptionIndividualContact(name.firstName, name.lastName)),
       organisation = None,
       email = email,
-      phone = userAnswers.get(IndividualPhoneNumberPage)
+      phone = phone
     )
 
   private def buildOrganisationPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =

@@ -22,7 +22,7 @@ import models.JourneyType.*
 import models.countries.CountryUk
 import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import pages.*
-import pages.individual.{IndividualEmailPage, IndividualPhoneNumberPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.TradingNamePage
 import pages.organisation.*
@@ -73,6 +73,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
+            .set(IndividualHavePhonePage, true)
+            .success
+            .value
             .set(IndividualPhoneNumberPage, testIndividualPhone)
             .success
             .value
@@ -106,6 +109,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(IndividualEmailPage, testIndividualEmail)
+            .success
+            .value
+            .set(IndividualHavePhonePage, false)
             .success
             .value
             .set(NiNumberPage, testNino)
@@ -162,6 +168,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
+            .set(IndividualHavePhonePage, true)
+            .success
+            .value
             .set(IndividualPhoneNumberPage, testIndividualPhone)
             .success
             .value
@@ -197,6 +206,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(IndividualEmailPage, testIndividualEmail)
             .success
             .value
+            .set(IndividualHavePhonePage, false)
+            .success
+            .value
             .set(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddressGb)
             .success
             .value
@@ -212,6 +224,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .copy(journeyType = Some(IndWithoutId))
             .copy(safeId = Some(exampleSafeId))
             .set(IndWithoutNinoNamePage, testIndividualName)
+            .success
+            .value
+            .set(IndividualHavePhonePage, false)
             .success
             .value
             .set(IndividualEmailPage, testIndividualEmail)
@@ -250,6 +265,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(IndividualEmailPage, testIndividualEmail)
+            .success
+            .value
+            .set(IndividualHavePhonePage, true)
             .success
             .value
             .set(IndividualPhoneNumberPage, testIndividualPhone)

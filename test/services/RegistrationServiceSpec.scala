@@ -47,7 +47,8 @@ class RegistrationServiceSpec extends SpecBase {
     addressLine3 = None,
     addressLine4 = None,
     postalCode = Some("B23 2AZ"),
-    countryCode = "GB"
+    countryCode = "GB",
+    countryName = None
   )
 
   val testRegisterIndividualWithIdSuccessResponse = RegisterIndividualWithIdResponse(
@@ -73,7 +74,8 @@ class RegistrationServiceSpec extends SpecBase {
       addressLine3 = None,
       addressLine4 = None,
       postalCode = Some("B23 2AZ"),
-      countryCode = "GB"
+      countryCode = "GB",
+      countryName = None
     )
   )
 

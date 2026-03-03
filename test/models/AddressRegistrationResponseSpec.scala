@@ -29,7 +29,8 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
     addressLine3 = None,
     addressLine4 = None,
     postalCode = Some("B23 2AZ"),
-    countryCode = "GB"
+    countryCode = "GB",
+    countryName = None
   )
 
   val nonUkAddressResponse = AddressRegistrationResponse(
@@ -38,7 +39,8 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
     addressLine3 = Some("NY"),
     addressLine4 = None,
     postalCode = Some("10771"),
-    countryCode = "US"
+    countryCode = "US",
+    countryName = Some("United States")
   )
 
   "AddressRegistrationResponse" - {
@@ -56,14 +58,14 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
         result must not include "GB"
       }
 
-      "must render non-UK address correctly with country code" in {
+      "must render non-UK address correctly with country name" in {
         val result = nonUkAddressResponse.renderHTML
 
         result must include("321 Pear")
         result must include("New York")
         result must include("NY")
         result must include("10771")
-        result must include("US")
+        result must include("United States")
         result must include("<br>")
         result must include("""<span class="govuk-!-margin-bottom-0">""")
       }
@@ -75,12 +77,13 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
           addressLine3 = None,
           addressLine4 = None,
           postalCode = None,
-          countryCode = "FR"
+          countryCode = "FR",
+          countryName = Some("France")
         )
 
         val result = minimalAddress.renderHTML
 
-        result mustEqual """<span class="govuk-!-margin-bottom-0">1 Apple Street</span><br>FR"""
+        result mustEqual """<span class="govuk-!-margin-bottom-0">1 Apple Street</span><br>France"""
       }
 
       "must filter out empty optional fields" in {
@@ -90,7 +93,8 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
           addressLine3 = Some("Valid Line"),
           addressLine4 = Some(""),
           postalCode = Some("12345"),
-          countryCode = "DE"
+          countryCode = "DE",
+          countryName = Some("Germany")
         )
 
         val result = addressWithEmpties.renderHTML
@@ -98,7 +102,7 @@ class AddressRegistrationResponseSpec extends AnyFreeSpec with Matchers with Opt
         result must include("123 Orange Street")
         result must include("Valid Line")
         result must include("12345")
-        result must include("DE")
+        result must include("Germany")
         result must not include """<span class="govuk-!-margin-bottom-0"></span>"""
       }
     }

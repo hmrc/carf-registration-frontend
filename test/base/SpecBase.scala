@@ -144,7 +144,8 @@ trait SpecBase
     addressLine3 = None,
     addressLine4 = None,
     postalCode = Some("B23 2AZ"),
-    countryCode = "GB"
+    countryCode = "GB",
+    countryName = None
   )
 
   val testBusinessDetails =

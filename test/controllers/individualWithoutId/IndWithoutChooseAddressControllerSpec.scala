@@ -399,12 +399,12 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
       addresses.map { address =>
         val addressFormatted = {
           val addressLines = Seq(
-            address.addressLine1,
+            Some(address.addressLine1),
             address.addressLine2,
             address.addressLine3,
-            address.townOrCity,
-            address.postCode
-          ) ++ {
+            Some(address.townOrCity),
+            Some(address.postCode)
+          ).flatten ++ {
             if (address.countryUk.code == "GB") {
               Seq.empty
             } else {

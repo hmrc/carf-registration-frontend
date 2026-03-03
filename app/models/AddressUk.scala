@@ -67,18 +67,17 @@ extension (address: AddressUk) {
 
   def format: String = {
 
-    val addressLines = Seq(
-      address.addressLine1,
+    val addressLines: Seq[String] = Seq(
+      Some(address.addressLine1),
       address.addressLine2,
       address.addressLine3,
-      address.townOrCity,
-      address.postCode
-    ) ++ {
+      Some(address.townOrCity),
+      Some(address.postCode)
+    ).flatten ++ {
       if (address.countryUk.code == UnitedKingdom.code) {
         Seq.empty
       } else Seq(address.countryUk.name)
     }
-
     addressLines.mkString(", ")
   }
 }

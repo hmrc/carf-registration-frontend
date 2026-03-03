@@ -660,6 +660,36 @@ class SubscriptionHelperSpec extends SpecBase {
 
           result mustBe None
         }
+
+        "should fall back to business name when trading name is not set" in {
+          val userAnswers = emptyUserAnswers
+            .copy(journeyType = Some(OrgWithoutId))
+            .copy(safeId = Some(exampleSafeId))
+            .set(FirstContactNamePage, testOrganisationFirstContactName)
+            .success
+            .value
+            .set(FirstContactEmailPage, testOrganisationFirstEmail)
+            .success
+            .value
+            .set(FirstContactPhonePage, false)
+            .success
+            .value
+            .set(OrganisationHaveSecondContactPage, false)
+            .success
+            .value
+            .set(RegisteredAddressInUkPage, true)
+            .success
+            .value
+            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .success
+            .value
+
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+
+          result                 mustBe defined
+          result.get.tradingName mustBe Some(testBusinessName)
+        }
+
       }
 
       "for unknown or missing journey type" - {

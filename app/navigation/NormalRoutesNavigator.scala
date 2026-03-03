@@ -16,6 +16,7 @@
 
 package navigation
 
+import config.Constants.noneOfTheseValue
 import controllers.routes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
@@ -135,10 +136,27 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
     case IndWithoutIdAddressPageForNavigatorOnly =>
       _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-    case NavigatorOnlyCheckYourAnswersErrors     => userAnswers => checkYourAnswersErrorNavigation(userAnswers)
-    case _                                       =>
+
+    case IndWithoutIdChooseAddressPage => userAnswers => navigateFromChooseAddressPage(userAnswers)
+
+    case NavigatorOnlyCheckYourAnswersErrors => userAnswers => checkYourAnswersErrorNavigation(userAnswers)
+
+    case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers
+      .get(IndWithoutIdChooseAddressPage)
+      .fold {
+        routes.JourneyRecoveryController.onPageLoad()
+      } { answer =>
+        if (answer == noneOfTheseValue) {
+          controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
+        } else {
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+        }
+      }
 
   private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers): Call =
     userAnswers.get(WhereDoYouLivePage) match {
@@ -283,9 +301,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       case Some(addresses) if addresses.size == 1 =>
         controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
       case Some(addresses) if addresses.size > 1  =>
-        routes.PlaceholderController.onPageLoad(
-          "Must redirect to /register/individual-without-id/choose-address (CARF-312)"
-        )
+        controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
       case _                                      =>
         routes.JourneyRecoveryController.onPageLoad()
     }

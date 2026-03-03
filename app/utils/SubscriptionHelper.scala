@@ -73,24 +73,36 @@ class SubscriptionHelper {
 
   private def buildOrganisationPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
-      name  <- userAnswers.get(FirstContactNamePage)
-      email <- userAnswers.get(FirstContactEmailPage)
+      name      <- userAnswers.get(FirstContactNamePage)
+      email     <- userAnswers.get(FirstContactEmailPage)
+      havePhone <- userAnswers.get(FirstContactPhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(FirstContactPhoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
     } yield SubscriptionContactDetails(
       individual = None,
       organisation = Some(SubscriptionOrganisationContact(name)),
       email = email,
-      phone = userAnswers.get(FirstContactPhoneNumberPage)
+      phone = phone
     )
 
   private def buildOrganisationSecondaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
-      name  <- userAnswers.get(OrganisationSecondContactNamePage)
-      email <- userAnswers.get(OrganisationSecondContactEmailPage)
+      name      <- userAnswers.get(OrganisationSecondContactNamePage)
+      email     <- userAnswers.get(OrganisationSecondContactEmailPage)
+      havePhone <- userAnswers.get(OrganisationSecondContactHavePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(OrganisationSecondContactPhoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
     } yield SubscriptionContactDetails(
       individual = None,
       organisation = Some(SubscriptionOrganisationContact(name)),
       email = email,
-      phone = userAnswers.get(OrganisationSecondContactPhoneNumberPage)
+      phone = phone
     )
 
   private def buildSecondaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =

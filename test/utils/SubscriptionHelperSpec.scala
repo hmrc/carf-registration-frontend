@@ -323,6 +323,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
+            .set(FirstContactPhonePage, true)
+            .success
+            .value
             .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
             .success
             .value
@@ -364,6 +367,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
+            .set(FirstContactPhonePage, true)
+            .success
+            .value
             .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
             .success
             .value
@@ -374,6 +380,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
+            .success
+            .value
+            .set(OrganisationSecondContactHavePhonePage, true)
             .success
             .value
             .set(OrganisationSecondContactPhoneNumberPage, testOrganisationSecondPhone)
@@ -418,6 +427,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
+            .success
+            .value
+            .set(FirstContactPhonePage, false)
             .success
             .value
             .set(OrganisationHaveSecondContactPage, false)
@@ -484,6 +496,12 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
+            .set(FirstContactPhonePage, false)
+            .success
+            .value
+            .set(OrganisationSecondContactHavePhonePage, true)
+            .success
+            .value
             .set(OrganisationHaveSecondContactPage, true)
             .success
             .value
@@ -513,7 +531,13 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
+            .set(FirstContactPhonePage, false)
+            .success
+            .value
             .set(OrganisationHaveSecondContactPage, true)
+            .success
+            .value
+            .set(OrganisationSecondContactHavePhonePage, false)
             .success
             .value
             .set(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
@@ -542,6 +566,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
+            .success
+            .value
+            .set(FirstContactPhonePage, true)
             .success
             .value
             .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
@@ -585,10 +612,16 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(FirstContactEmailPage, testOrganisationFirstEmail)
             .success
             .value
+            .set(FirstContactPhonePage, false)
+            .success
+            .value
             .set(OrganisationHaveSecondContactPage, true)
             .success
             .value
             .set(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
+            .success
+            .value
+            .set(OrganisationSecondContactHavePhonePage, false)
             .success
             .value
             .set(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)

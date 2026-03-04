@@ -580,3 +580,11 @@ indvWithoutChooseAddress.error.required = Select your address or ‘None of thes
 indvWithoutChooseAddress.optionsDivider = or
 indvWithoutChooseAddress.noneOfThese = None of these
 indvWithoutChooseAddress.showing.results = We could not find a match for ‘{0}’ — showing all results for {1} instead.
+
+individualAlreadyRegistered.title = You’re already registered to use this service
+individualAlreadyRegistered.heading = You’re already registered to use this service
+individualAlreadyRegistered.p1 = You can access the service using the same Government Gateway details that you used to register for cryptoasset reporting.
+individualAlreadyRegistered.p2 = Sign in using Government Gateway
+individualAlreadyRegistered.p3.part1 = You can email
+individualAlreadyRegistered.p3.part2 = aeoi.enquiries@hmrc.gov.uk
+individualAlreadyRegistered.p3.part3 = if you need support with accessing this service.

@@ -17,13 +17,16 @@
 package services
 
 import connectors.RegistrationConnector
+import models.JourneyType.*
 import models.error.ApiError
-import models.error.ApiError.InternalServerError
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
 import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
 import models.responses.RegisterOrganisationWithIdResponse
 import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.individual.NiNumberPage
+import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -37,15 +40,25 @@ class SubscriptionService @Inject() extends Logging {
 
   def subscribe(userAnswers: UserAnswers): Future[Either[ApiError, String]] = {
     // For testing success and error scenarios
-    val idNumber = userAnswers
-      .get(UniqueTaxpayerReferenceInUserAnswers)
-      .fold(userAnswers.get(NiNumberPage).getOrElse("1"))(_.uniqueTaxPayerReference)
-      .take(1)
+    val journeyDifferentiator: String = {
+      val ref = userAnswers.journeyType match {
+        case Some(IndWithUtr) | Some(OrgWithUtr) =>
+          userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
+        case Some(OrgWithoutId)                  => userAnswers.get(OrgWithoutIdBusinessNamePage).map(_.toUpperCase)
+        case Some(IndWithNino)                   => userAnswers.get(NiNumberPage)
+        case Some(IndWithoutId)                  => userAnswers.get(IndWithoutNinoNamePage).map(_.firstName.toUpperCase)
+        case None                                => Some("1")
+      }
+      ref.getOrElse("1").take(1)
+    }
 
-    if (idNumber == "2" | idNumber == "B") {
-      Future.successful(Left(InternalServerError))
-    } else {
-      Future.successful(Right("Stub success!"))
+    journeyDifferentiator match {
+      case "2" | "B" =>
+        Future.successful(Left(InternalServerError))
+      case "5" | "Z" =>
+        Future.successful(Left(AlreadyRegisteredError))
+      case _         =>
+        Future.successful(Right("Stub success!"))
     }
   }
 }

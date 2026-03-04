@@ -19,7 +19,10 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.{JourneyType, UserAnswers}
+import models.error.ApiError.AlreadyRegisteredError
+import models.{JourneyType, NormalMode, UserAnswers}
+import navigation.Navigator
+import pages.NavigatorOnlyCheckYourAnswersErrors
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,6 +39,7 @@ class CheckYourAnswersController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    navigator: Navigator,
     val controllerComponents: MessagesControllerComponents,
     helper: CheckYourAnswersHelper,
     submissionLock: SubmissionLockAction,
@@ -113,8 +117,10 @@ class CheckYourAnswersController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
     subscriptionService.subscribe(request.userAnswers) map {
-      case Right(response) => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-      case Left(error)     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      case Right(response)              => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+      case Left(AlreadyRegisteredError) =>
+        Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+      case Left(_)                      => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 
   }

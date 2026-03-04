@@ -18,6 +18,7 @@ package navigation
 
 import config.Constants.noneOfTheseValue
 import controllers.routes
+import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
@@ -137,6 +138,8 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
 
     case IndWithoutIdChooseAddressPage => userAnswers => navigateFromChooseAddressPage(userAnswers)
+
+    case NavigatorOnlyCheckYourAnswersErrors => userAnswers => checkYourAnswersErrorNavigation(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -303,4 +306,13 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
+  private def checkYourAnswersErrorNavigation(userAnswers: UserAnswers): Call =
+    userAnswers.journeyType.fold(routes.JourneyRecoveryController.onPageLoad()) {
+      case IndWithUtr | IndWithNino | IndWithoutId =>
+        controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad()
+      case OrgWithUtr | OrgWithoutId               =>
+        routes.PlaceholderController.onPageLoad(
+          "Must redirect to /problem/organisation-already-registered (CARF-260)"
+        )
+    }
 }

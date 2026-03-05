@@ -17,12 +17,9 @@
 package controllers
 
 import base.SpecBase
-import cats.data.EitherT
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
-import models.{CheckMode, JourneyType, UserAnswers}
 import models.error.ApiError
-import models.error.ApiError.InternalServerError
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
 import models.{CheckMode, JourneyType, SafeId, SubscriptionId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
@@ -33,7 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.SubscriptionService
+import services.{RegistrationService, SubscriptionService}
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow}
@@ -436,6 +433,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "onSubmit" - {
       "when the service call is successful" - {
         "must redirect to the confirmation page" in new Setup(AffinityGroup.Organisation, orgWithUtrUserAnswers) {
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(Future.successful(SafeId(testSafeId)))
           when(mockSessionRepository.set(any[UserAnswers]))
             .thenReturn(Future.successful(true))
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
@@ -455,6 +454,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       "when the service call is NOT successful" - {
         "must redirect to the journey recovery page" in new Setup(AffinityGroup.Organisation, orgWithUtrUserAnswers) {
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(Future.successful(SafeId(testSafeId)))
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
             .thenReturn(Future.successful(Left(InternalServerError)))
 
@@ -470,6 +471,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(Future.successful(SafeId(testSafeId)))
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
             .thenReturn(Future.successful(Left(AlreadyRegisteredError)))
 
@@ -478,6 +481,23 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
+
+        }
+
+        "must redirect to journey recovery page when getSafeId throws an unexpected exception" in new Setup(
+          AffinityGroup.Organisation,
+          orgWithUtrUserAnswers
+        ) {
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(Future.failed(new Exception("Unexpected getSafeId error")))
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(Future.failed(new Exception("Unexpected error")))
+
+          val request                = FakeRequest(POST, cyaRoute)
+          val result: Future[Result] = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
 
         }
       }
@@ -508,17 +528,16 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
   }
 
-  class Setup(
-      affinityGroup: AffinityGroup,
-      userAnswers: UserAnswers
-  ) {
+  class Setup(affinityGroup: AffinityGroup, userAnswers: UserAnswers) {
     final val mockSubscriptionService = mock[SubscriptionService]
     final val mockCYAHelper           = mock[CheckYourAnswersHelper]
+    final val mockRegistrationService = mock[RegistrationService]
 
     val application: Application =
       applicationBuilder(affinityGroup = affinityGroup, userAnswers = Some(userAnswers))
         .overrides(
           bind[SubscriptionService].toInstance(mockSubscriptionService),
+          bind[RegistrationService].toInstance(mockRegistrationService),
           bind[CheckYourAnswersHelper].toInstance(mockCYAHelper),
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[Clock].toInstance(clock)

@@ -695,6 +695,7 @@ class SubscriptionHelperSpec extends SpecBase {
       "for unknown or missing journey type" - {
         "should return None" in {
           val userAnswers = emptyUserAnswers
+            .copy(safeId = Some(exampleSafeId))
             .set(FirstContactNamePage, testOrganisationFirstContactName)
             .success
             .value

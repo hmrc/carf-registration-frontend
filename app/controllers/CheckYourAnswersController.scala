@@ -20,7 +20,10 @@ import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.error.ApiError
-import models.{JourneyType, SafeId, SubscriptionId, UserAnswers}
+import models.error.ApiError.AlreadyRegisteredError
+import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
+import navigation.Navigator
+import pages.NavigatorOnlyCheckYourAnswersErrors
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,6 +41,7 @@ class CheckYourAnswersController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    navigator: Navigator,
     val controllerComponents: MessagesControllerComponents,
     helper: CheckYourAnswersHelper,
     submissionLock: SubmissionLockAction,
@@ -117,25 +121,29 @@ class CheckYourAnswersController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
     .async { implicit request =>
-      {
-        for {
-          safeId                <- registrationService.getSafeId(request.userAnswers)
-          userAnswersWithSafeId <- Future.successful(request.userAnswers.copy(safeId = Some(safeId)))
-          subscriptionId        <- subscriptionService.subscribe(userAnswersWithSafeId).flatMap {
-                                     case Right(id)   => Future.successful(id)
-                                     case Left(error) =>
-                                       logger.error(
-                                         s"[CheckYourAnswersController] Failed to subscribe: $error"
-                                       )
-                                       Future.failed(new Exception(error.toString))
-                                   }
-          userAnswersWithSubId  <- Future.successful(userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId)))
-          _                     <- sessionRepository.set(userAnswersWithSubId)
-        } yield Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-      }.recover { case e: Exception =>
+      (for {
+        safeId               <- registrationService.getSafeId(request.userAnswers)
+        userAnswersWithSafeId = request.userAnswers.copy(safeId = Some(safeId))
+        subscriptionResult   <- subscriptionService.subscribe(userAnswersWithSafeId)
+      } yield subscriptionResult match {
+        case Right(subscriptionId) =>
+          val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
+          sessionRepository.set(updatedUserAnswers).map { _ =>
+            Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+          }
+
+        case Left(AlreadyRegisteredError) =>
+          Future.successful(
+            Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+          )
+
+        case Left(error) =>
+          logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+
+      }).flatten.recoverWith { case e: Exception =>
         logger.error(s"[CheckYourAnswersController] Error during subscription: ${e.toString}")
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
     }
-
 }

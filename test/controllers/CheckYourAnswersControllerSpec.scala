@@ -19,6 +19,8 @@ package controllers
 import base.SpecBase
 import cats.data.EitherT
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
+import models.{CheckMode, JourneyType, UserAnswers}
 import models.error.ApiError
 import models.error.ApiError.InternalServerError
 import models.{CheckMode, JourneyType, SafeId, SubscriptionId, UserAnswers}
@@ -450,6 +452,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         }
       }
+
       "when the service call is NOT successful" - {
         "must redirect to the journey recovery page" in new Setup(AffinityGroup.Organisation, orgWithUtrUserAnswers) {
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
@@ -460,6 +463,21 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+
+        }
+
+        "must redirect to the individual already registered page when user is already registered" in new Setup(
+          AffinityGroup.Individual,
+          indWithNinoUserAnswers
+        ) {
+          when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
+            .thenReturn(Future.successful(Left(AlreadyRegisteredError)))
+
+          val request                = FakeRequest(POST, cyaRoute)
+          val result: Future[Result] = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
 
         }
       }

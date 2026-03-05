@@ -49,6 +49,7 @@ class SubscriptionHelper {
       case Some(IndWithoutId)                    => buildIndividualContact(userAnswers, IndWithoutNinoNamePage)
       case Some(IndWithUtr)                      => buildIndividualContact(userAnswers, WhatIsYourNamePage)
       case Some(OrgWithUtr) | Some(OrgWithoutId) => buildOrganisationPrimaryContact(userAnswers)
+      case _                                     => None
     }
 
   private def buildIndividualContact(

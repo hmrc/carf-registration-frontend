@@ -18,7 +18,6 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.routes
 import pages.SubmissionSucceededPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -28,7 +27,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.IndividualAlreadyRegisteredView
 
 import javax.inject.Inject
-import scala.concurrent.impl.Promise
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualAlreadyRegisteredController @Inject() (
@@ -36,7 +34,6 @@ class IndividualAlreadyRegisteredController @Inject() (
     sessionRepository: SessionRepository,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: IndividualAlreadyRegisteredView,
@@ -46,15 +43,14 @@ class IndividualAlreadyRegisteredController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData).async {
-    implicit request =>
-      val signOutNoSurveyUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
-      val aeoiEmailAddress: String   = appConfig.aeoiEmailAddress
+  def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
+    val signOutNoSurveyUrl: String = s"${appConfig.signOutNoSurveyUrl}?continue=${appConfig.loginContinueUrl}"
+    val aeoiEmailAddress: String   = appConfig.aeoiEmailAddress
 
-      for {
-        updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
-        _              <- sessionRepository.set(updatedAnswers)
-      } yield Ok(view(signOutNoSurveyUrl, aeoiEmailAddress))
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield Ok(view(signOutNoSurveyUrl, aeoiEmailAddress))
 
   }
 }

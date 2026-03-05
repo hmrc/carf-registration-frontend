@@ -26,12 +26,13 @@ import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
+import play.api.Logging
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
 import java.time.LocalDate
 
-trait NormalRoutesNavigator extends UserAnswersHelper {
+trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
@@ -308,11 +309,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
 
   private def checkYourAnswersErrorNavigation(userAnswers: UserAnswers): Call =
     userAnswers.journeyType.fold(routes.JourneyRecoveryController.onPageLoad()) {
-      case IndWithUtr | IndWithNino | IndWithoutId =>
+      case IndWithUtr | IndWithNino    =>
         controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad()
-      case OrgWithUtr | OrgWithoutId               =>
+      case OrgWithUtr                  =>
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /problem/organisation-already-registered (CARF-260)"
         )
+      case OrgWithoutId | IndWithoutId => routes.JourneyRecoveryController.onPageLoad()
     }
 }

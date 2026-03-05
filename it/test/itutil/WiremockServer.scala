@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 object WireMockConstants:
   val stubPort = 11111
   val stubHost = "localhost"
+  val stubEnrolmentsUri = "/dac6/dprs0101/v1"
 
 class WireMock:
   val stubPort = 11111

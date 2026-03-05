@@ -315,6 +315,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         routes.PlaceholderController.onPageLoad(
           "Must redirect to /problem/organisation-already-registered (CARF-260)"
         )
-      case OrgWithoutId | IndWithoutId => routes.JourneyRecoveryController.onPageLoad()
+      case OrgWithoutId | IndWithoutId =>
+        logger.warn(
+          s"Already registered response has been returned for without id journeys. This should not be possible!"
+        )
+        routes.JourneyRecoveryController.onPageLoad()
     }
 }

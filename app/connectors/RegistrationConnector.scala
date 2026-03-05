@@ -94,22 +94,15 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
         .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
-          case response if response.status == OK        =>
+          case response if response.status == OK =>
             Try(response.json.as[RegisterIndividualWithoutIdResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
                 logger.warn(s"Error parsing RegisterIndividualWithoutIdResponse with endpoint: ${endpoint.toURI}")
                 Left(ApiError.JsonValidationError)
             }
-          case response if response.status == NOT_FOUND =>
-            logger.warn(
-              s"No match could be found for this individual (without ID): status code: ${response.status}, from endpoint: ${endpoint.toURI}"
-            )
-            Left(ApiError.NotFoundError)
-          case response                                 =>
-            logger.warn(
-              s"Unexpected response for individualWithoutId: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
-            )
+          case response                          =>
+            logger.warn(s"Unexpected response from endpoint ${endpoint.toURI}, status: ${response.status}")
             Left(ApiError.InternalServerError)
         }
     }

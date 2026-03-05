@@ -379,20 +379,6 @@ class RegistrationConnectorISpec
       result shouldBe Left(ApiError.JsonValidationError)
     }
 
-    "return a not found error if 404 status response is returned from backend" in {
-      stubFor(
-        post(urlPathMatching("/carf-registration/individual-without-id"))
-          .willReturn(
-            aResponse()
-              .withStatus(NOT_FOUND)
-              .withBody(Json.toJson("test_body").toString)
-          )
-      )
-
-      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
-      result shouldBe Left(ApiError.NotFoundError)
-    }
-
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
         post(urlPathMatching("/carf-registration/individual-without-id"))

@@ -18,12 +18,11 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.format
-import models.*
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.*
 import models.countries.*
-import models.responses.{AddressRecord, AddressRegistrationResponse, CountryRecord}
+import models.*
+import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
 import pages.individual.*
@@ -1179,7 +1178,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NavigatorOnlyCheckYourAnswersErrors,
           NormalMode,
           userAnswers
-        ) mustBe controllers.individual.routes.IndividualAlreadyRegisteredController.onPageLoad()
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
       "when journey type is organisation with utr" in {
         val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
@@ -1199,9 +1198,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NavigatorOnlyCheckYourAnswersErrors,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /problem/organisation-already-registered (CARF-260)"
-        )
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
       "to journey recovery when journey type is missing" in {
         val userAnswers = emptyUserAnswers

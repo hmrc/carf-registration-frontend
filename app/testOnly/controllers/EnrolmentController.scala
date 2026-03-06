@@ -40,7 +40,7 @@ class EnrolmentController @Inject() (
       verifierValue: String
   ): Action[AnyContent] = Action.async { implicit request =>
     connector
-      .createEnrollment(
+      .createEnrolment(
         EnrolmentRequest(
           Seq(Identifier(identifierKey, identifierValue)),
           Seq(Verifier(verifierKey, verifierValue))

@@ -22,7 +22,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
   val enrolmentRequestValidAsJson: JsValue = Json.parse(
     s"""
        |{
-       |  "identifiers": [ { "key": "UTR", "value": "AA000003D" } ],
+       |  "identifiers": [ { "key": "CARFID", "value": "AA000003D" } ],
        |  "verifiers": [
        |          {
        |              "key": "PostCode",
@@ -38,14 +38,14 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
   )
 
   val enrolmentRequestValid = EnrolmentRequest(
-    Seq(Identifier("UTR", "AA000003D")),
+    Seq(Identifier("CARFID", "AA000003D")),
     Seq(
       Verifier("PostCode", "N15 2FY"),
       Verifier("IsAbroad", "N"),
     )
   )
 
-  "createEnrollment" should {
+  "createEnrolment" should {
     "successfully receive NO Content response" in {
 
       stubFor(
@@ -57,7 +57,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
           )
       )
 
-      val result = connector.createEnrollment(enrolmentRequestValid).value.futureValue
+      val result = connector.createEnrolment(enrolmentRequestValid).value.futureValue
 
       assert(result.isRight)
 
@@ -73,7 +73,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
           )
       )
 
-      val result = connector.createEnrollment(enrolmentRequestValid).value.futureValue
+      val result = connector.createEnrolment(enrolmentRequestValid).value.futureValue
 
       result shouldBe Left(ApiError.BadRequestError)
 
@@ -89,7 +89,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
           )
       )
 
-      val result = connector.createEnrollment(enrolmentRequestValid).value.futureValue
+      val result = connector.createEnrolment(enrolmentRequestValid).value.futureValue
 
       result shouldBe Left(ApiError.InternalServerError)
 

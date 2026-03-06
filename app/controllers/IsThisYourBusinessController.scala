@@ -23,7 +23,7 @@ import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError}
 import models.requests.DataRequest
 import models.responses.AddressRegistrationResponse
-import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, UniqueTaxpayerReference}
+import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails, Mode, SafeId, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.IsThisYourBusinessPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
@@ -130,10 +130,10 @@ class IsThisYourBusinessController @Inject() (
           businessDetails.name,
           businessDetails.address,
           utr,
-          mode
+          mode,
+          SafeId(businessDetails.safeId)
         )
-
-      case Left(NotFoundError) =>
+      case Left(NotFoundError)    =>
         if (isAutoMatch) {
           logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -141,7 +141,7 @@ class IsThisYourBusinessController @Inject() (
           logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
           Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
-      case Left(error)         =>
+      case Left(error)            =>
         logger.warn(s"Unexpected error. Error: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
@@ -157,7 +157,8 @@ class IsThisYourBusinessController @Inject() (
           individualDetails.fullName,
           individualDetails.address,
           utr,
-          mode
+          mode,
+          SafeId(individualDetails.safeId)
         )
 
       case Left(NotFoundError) =>
@@ -176,7 +177,8 @@ class IsThisYourBusinessController @Inject() (
       name: String,
       address: AddressRegistrationResponse,
       utr: String,
-      mode: Mode
+      mode: Mode,
+      safeId: SafeId
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     countryListFactory
       .getDescriptionFromCode(address.countryCode)
@@ -187,7 +189,7 @@ class IsThisYourBusinessController @Inject() (
 
         val updatedAddress = address.copy(countryName = Some(countryDescriptionName))
 
-        val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress)
+        val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress, safeId.value)
 
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,
@@ -198,7 +200,7 @@ class IsThisYourBusinessController @Inject() (
 
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers)
+          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
         } yield {
           val existingAnswer =
             request.userAnswers

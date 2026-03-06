@@ -17,11 +17,11 @@
 package services
 
 import connectors.RegistrationConnector
-import models.error.ApiError.NotFoundError
+import models.JourneyType.{IndWithoutId, OrgWithoutId}
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
 import pages.*
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 import play.api.Logging
@@ -33,6 +33,27 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
+
+  def getSafeId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[SafeId] =
+    userAnswers.journeyType match {
+      case Some(OrgWithoutId) | Some(IndWithoutId) =>
+        registerWithoutId().flatMap {
+          case Right(id)   => Future.successful(id)
+          case Left(error) =>
+            logger.error(s"[RegistrationService] Failed to register without ID: $error")
+            Future.failed(new Exception(error.toString))
+        }
+      case _                                       =>
+        userAnswers.safeId match {
+          case Some(id) => Future.successful(id)
+          case None     =>
+            logger.error(s"[RegistrationService] SafeId missing from userAnswers")
+            Future.failed(new Exception("SafeId is missing"))
+        }
+    }
+
+  private def registerWithoutId(): Future[Either[CarfError, SafeId]] =
+    Future.successful(Right(SafeId("XE00123456789")))
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
@@ -111,7 +132,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     responseFuture.flatMap {
       case Right(response)       =>
         logger.info("Successfully retrieved organisation details.")
-        Future.successful(Right(BusinessDetails(name = response.organisationName, address = response.address)))
+        Future.successful(
+          Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
+        )
       case Left(error: ApiError) =>
         logger.error(s"Failed to retrieve organisation details: $error")
         Future.successful(Left(error))

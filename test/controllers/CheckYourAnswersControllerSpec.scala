@@ -488,8 +488,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers
         ) {
-          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
-            .thenReturn(Future.failed(new Exception("Unexpected getSafeId error")))
+
           when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
             .thenReturn(Future.failed(new Exception("Unexpected error")))
 

@@ -22,7 +22,7 @@ import models.{IdentifierType, JourneyType, Name, UserAnswers}
 import pages.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
-import pages.orgWithoutId.TradingNamePage
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.*
 
 class SubscriptionHelper {
@@ -121,11 +121,26 @@ class SubscriptionHelper {
       case _                         => false
     }
 
-  private def getTradingName(userAnswers: UserAnswers): Option[String] =
-    userAnswers.journeyType.flatMap {
-      case OrgWithoutId => userAnswers.get(TradingNamePage).orElse(userAnswers.get(WhatIsTheNameOfYourBusinessPage))
-      case _            => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+  private def getTradingName(userAnswers: UserAnswers): Option[String] = {
+
+    val businessNameAutoMatch: Option[String] =
+      userAnswers.get(IsThisYourBusinessPage).map(_.businessDetails.name)
+
+    if (userAnswers.isCtAutoMatched) {
+      businessNameAutoMatch
+    } else {
+      userAnswers.journeyType.flatMap {
+        case IndWithUtr   => businessNameAutoMatch
+        case OrgWithoutId =>
+          userAnswers
+            .get(TradingNamePage)
+            .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
+            .orElse(userAnswers.get(OrgWithoutIdBusinessNamePage))
+
+        case _ => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
+      }
     }
+  }
 
   private def isGBUser(userAnswers: UserAnswers): Boolean = {
     val businessHasUtr              = checkBusinessHasUtr(userAnswers)

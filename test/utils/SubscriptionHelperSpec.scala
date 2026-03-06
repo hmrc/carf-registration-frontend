@@ -25,7 +25,10 @@ import pages.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.TradingNamePage
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.orgWithoutId.HaveTradingNamePage
 import pages.organisation.*
+import models.responses.AddressRegistrationResponse
 
 class SubscriptionHelperSpec extends SpecBase {
 
@@ -310,6 +313,41 @@ class SubscriptionHelperSpec extends SpecBase {
 
           result mustBe None
         }
+
+        "should populate the tradingName field correctly" in {
+          val userAnswers = emptyUserAnswers
+            .copy(journeyType = Some(IndWithUtr))
+            .copy(safeId = Some(exampleSafeId))
+            .set(
+              IsThisYourBusinessPage,
+              IsThisYourBusinessPageDetails(
+                businessDetails = BusinessDetails(
+                  testTradingName,
+                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB", None),
+                  safeId = testSafeId
+                ),
+                Some(false)
+              )
+            )
+            .success
+            .value
+            .set(WhatIsYourNamePage, testIndividualName)
+            .success
+            .value
+            .set(IndividualEmailPage, testIndividualEmail)
+            .success
+            .value
+            .set(IndividualHavePhonePage, false)
+            .success
+            .value
+
+          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+
+          result mustBe defined
+          val request = result.get
+
+          request.tradingName mustBe Some(testTradingName)
+        }
       }
 
       "for Organisation with UTR journey" - {
@@ -574,6 +612,9 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
             .success
             .value
+            .set(HaveTradingNamePage, true)
+            .success
+            .value
             .set(TradingNamePage, testTradingName)
             .success
             .value
@@ -680,7 +721,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(RegisteredAddressInUkPage, true)
             .success
             .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .set(OrgWithoutIdBusinessNamePage, testBusinessName)
             .success
             .value
 
@@ -688,6 +729,41 @@ class SubscriptionHelperSpec extends SpecBase {
 
           result                 mustBe defined
           result.get.tradingName mustBe Some(testBusinessName)
+        }
+
+        "should use tradingName over businessName when both are set" in {
+          val userAnswers = emptyUserAnswers
+            .copy(journeyType = Some(OrgWithoutId))
+            .copy(safeId = Some(exampleSafeId))
+            .set(FirstContactNamePage, testOrganisationFirstContactName)
+            .success
+            .value
+            .set(FirstContactEmailPage, testOrganisationFirstEmail)
+            .success
+            .value
+            .set(FirstContactPhonePage, false)
+            .success
+            .value
+            .set(OrganisationHaveSecondContactPage, false)
+            .success
+            .value
+            .set(RegisteredAddressInUkPage, true)
+            .success
+            .value
+            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .success
+            .value
+            .set(HaveTradingNamePage, true)
+            .success
+            .value
+            .set(TradingNamePage, testTradingName)
+            .success
+            .value
+
+          val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+
+          result                 mustBe defined
+          result.get.tradingName mustBe Some(testTradingName)
         }
 
       }
@@ -707,6 +783,49 @@ class SubscriptionHelperSpec extends SpecBase {
 
           result mustBe None
         }
+      }
+
+      "should populate the tradingName field correctly from an auto-matched business" in {
+        val testUtr = UniqueTaxpayerReference("1234567890")
+
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(OrgWithUtr))
+          .copy(safeId = Some(exampleSafeId))
+          .copy(isCtAutoMatched = true)
+          .set(
+            IsThisYourBusinessPage,
+            IsThisYourBusinessPageDetails(
+              businessDetails = BusinessDetails(
+                testTradingName,
+                AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB", None),
+                safeId = testSafeId
+              ),
+              Some(false)
+            )
+          )
+          .success
+          .value
+          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .success
+          .value
+          .set(FirstContactNamePage, testOrganisationFirstContactName)
+          .success
+          .value
+          .set(FirstContactEmailPage, testOrganisationFirstEmail)
+          .success
+          .value
+          .set(FirstContactPhonePage, false)
+          .success
+          .value
+          .set(OrganisationHaveSecondContactPage, false)
+          .success
+          .value
+
+        val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+
+        result                 mustBe defined
+        result.get.tradingName mustBe Some(testTradingName)
+        result.get.idNumber    mustBe exampleSafeId.value
       }
     }
 

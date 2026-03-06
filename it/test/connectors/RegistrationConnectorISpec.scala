@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import itutil.ApplicationWithWiremock
 import models.error.ApiError
 import models.requests.*
-import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
+import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterIndividualWithoutIdResponse, RegisterOrganisationWithIdResponse}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
@@ -92,6 +92,30 @@ class RegistrationConnectorISpec
     organisationName = "Monsters Inc",
     address = addressResponse
   )
+
+  private val validWithoutIdRequest: RegisterIndividualWithoutIdRequest =
+    RegisterIndividualWithoutIdRequest(
+      firstName = "John",
+      lastName = "Doe",
+      dateOfBirth = "1990-01-01",
+      address = AddressDetails(
+        addressLine1 = "123 Test Street",
+        addressLine2 = Some("Flat 1"),
+        addressLine3 = None,
+        townOrCity = "London",
+        postalCode = Some("SW1A 1AA"),
+        countryCode = "GB"
+      ),
+      contactDetails = ContactDetails(
+        emailAddress = "john.doe@example.com",
+        phoneNumber = Some("07123456789")
+      )
+    )
+
+  private val validWithoutIdResponse: RegisterIndividualWithoutIdResponse =
+    RegisterIndividualWithoutIdResponse(
+      safeId = "SAFE123456"
+    )
 
   "individualWithNino" should {
     "successfully retrieve a name and address" in {
@@ -321,6 +345,51 @@ class RegistrationConnectorISpec
 
       val result = connector.organisationWithUtrCTAutoMatch(validOrganisationCTAutoMatchRequestBody).value.futureValue
 
+      result shouldBe Left(ApiError.InternalServerError)
+    }
+  }
+
+  "individualWithoutId" should {
+
+    "successfully retrieve the minimal response (safeId)" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual-without-id"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(validWithoutIdResponse).toString)
+          )
+      )
+
+      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
+      result shouldBe Right(validWithoutIdResponse)
+    }
+
+    "return a Json validation error if unexpected response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual-without-id"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson("invalid response").toString)
+          )
+      )
+
+      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
+      result shouldBe Left(ApiError.JsonValidationError)
+    }
+
+    "return an internal server error if 500 status response is returned from backend" in {
+      stubFor(
+        post(urlPathMatching("/carf-registration/individual-without-id"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(Json.toJson("test_body").toString)
+          )
+      )
+
+      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
       result shouldBe Left(ApiError.InternalServerError)
     }
   }

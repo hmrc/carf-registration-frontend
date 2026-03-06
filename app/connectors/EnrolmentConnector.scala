@@ -36,21 +36,21 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
     ec: ExecutionContext
 ) extends Logging {
 
-  private val enrollmentUrl = config.taxEnrolmentBaseUrl
+  private val enrolmentUrl = config.taxEnrolmentBaseUrl
 
-  def createEnrollment(requestBody: EnrolmentRequest)(implicit hc: HeaderCarrier): EitherT[Future, ApiError, Unit] =
+  def createEnrolment(requestBody: EnrolmentRequest)(implicit hc: HeaderCarrier): EitherT[Future, ApiError, Unit] =
     EitherT {
       http
-        .put(url"$enrollmentUrl")
+        .put(url"$enrolmentUrl")
         .withBody(Json.toJson(requestBody))
         .execute[HttpResponse]
         .map {
           case response if response.status == NO_CONTENT  => Right(())
           case response if response.status == BAD_REQUEST =>
-            logger.error(s"Failed to create enrollment as Bad request was returned with message: ${response.body}")
+            logger.error(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
             Left(ApiError.BadRequestError)
           case response                                   =>
-            logger.error(s"Failed to create enrollment due to ${response.body}")
+            logger.error(s"Failed to create enrolment due to ${response.body}")
             Left(ApiError.InternalServerError)
 
         }

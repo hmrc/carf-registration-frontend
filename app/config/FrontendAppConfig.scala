@@ -28,8 +28,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val host: String    = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
-  val carfRegistrationHost: String    = servicesConfig.baseUrl("carf-registration")
+  private val carfRegistrationHost: String = servicesConfig.baseUrl("carf-registration")
+  private val taxEnrolmentHost: String     = servicesConfig.baseUrl("tax-enrolments")
+
   val carfRegistrationBaseUrl: String = s"$carfRegistrationHost/carf-registration"
+  val taxEnrolmentBaseUrl: String     =
+    s"$taxEnrolmentHost${configuration.get[String]("microservice.services.tax-enrolments.uri")}"
 
   val addressLookupHost: String    = servicesConfig.baseUrl("address-lookup")
   val addressLookupBaseUrl: String = s"$addressLookupHost/address-lookup"

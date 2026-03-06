@@ -37,8 +37,11 @@ trait ApplicationWithWiremock
       "microservice.services.auth.port"              -> WireMockConstants.stubPort,
       "microservice.services.carf-registration.host" -> WireMockConstants.stubHost,
       "microservice.services.carf-registration.port" -> WireMockConstants.stubPort,
-      "microservice.services.address-lookup.host"    -> WireMockConstants.stubHost,
-      "microservice.services.address-lookup.port"    -> WireMockConstants.stubPort
+      "microservice.services.tax-enrolments.host" -> WireMockConstants.stubHost,
+      "microservice.services.tax-enrolments.port" -> WireMockConstants.stubPort,
+      "microservice.services.tax-enrolments.url" -> WireMockConstants.stubEnrolmentsUri,
+      "microservice.services.address-lookup.host" -> WireMockConstants.stubHost,
+      "microservice.services.address-lookup.port" -> WireMockConstants.stubPort
     )
 
   override lazy val app: Application = new GuiceApplicationBuilder()

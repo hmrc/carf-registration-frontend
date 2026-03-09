@@ -100,11 +100,11 @@ class RegistrationConnectorISpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(validIndividualResponse).toString)
+              .withBody(Json.toJson(validIndividualResponse).toString) //TODO use string json instead as using a model doesn't test the json serialiser
           )
       )
       val result = connector.individualWithNino(validIndWithNinoRequestBody).value.futureValue
-      result shouldBe Right(validIndividualResponse)
+      result shouldBe Right(validIndividualResponse) //TODO use string json instead as using a model doesn't test the json deserialiser
     }
 
     "return a Json validation error if unexpected response is returned from backend" in {

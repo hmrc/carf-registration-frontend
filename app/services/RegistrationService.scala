@@ -20,7 +20,7 @@ import connectors.RegistrationConnector
 import models.error.ApiError.NotFoundError
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
-import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
+import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterIndividualWithoutIdResponse, RegisterOrganisationWithIdResponse}
 import models.{BusinessDetails, IndividualDetails, Name, OrganisationRegistrationType, UserAnswers}
 import pages.*
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
@@ -138,4 +138,44 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         logger.error(s"Failed to retrieve Individual details: $error")
         Future.successful(Left(error))
     }
+
+  def individualWithoutId(
+      request: RegisterIndividualWithoutIdRequest
+  )(implicit hc: HeaderCarrier): Future[Either[CarfError, IndividualDetails]] =
+    handleIndividualWithoutIdRegistrationResponse(connector.individualWithoutId(request).value, request)
+
+  private def handleIndividualWithoutIdRegistrationResponse(
+      responseFuture: Future[Either[ApiError, RegisterIndividualWithoutIdResponse]],
+      request: RegisterIndividualWithoutIdRequest
+  ): Future[Either[ApiError, IndividualDetails]] =
+    responseFuture.flatMap {
+      case Right(response)       =>
+        logger.info("Successfully retrieved Individual without ID details.")
+        Future.successful(
+          Right(
+            IndividualDetails(
+              safeId = response.safeId,
+              firstName = request.firstName,
+              middleName = None,
+              lastName = request.lastName,
+              address = mapAddressDetailsToAddress(request.address)
+            )
+          )
+        )
+      case Left(error: ApiError) =>
+        logger.error(s"Failed to retrieve Individual without ID details: $error")
+        Future.successful(Left(error))
+    }
+
+  private def mapAddressDetailsToAddress(addressDetails: AddressDetails): AddressRegistrationResponse =
+    AddressRegistrationResponse(
+      addressLine1 = addressDetails.addressLine1,
+      addressLine2 = addressDetails.addressLine2,
+      addressLine3 = addressDetails.addressLine3,
+      addressLine4 = None,
+      postalCode = addressDetails.postalCode,
+      countryCode = addressDetails.countryCode,
+      countryName = None
+    )
+
 }

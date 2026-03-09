@@ -51,7 +51,7 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/utr")
 
-  def individualWithoutID(
+  def individualWithoutId(
       request: RegisterIndividualWithoutIdRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithoutIdResponse] =
     registerIndividualWithoutId(request, url"$backendBaseUrl/individual-without-id")

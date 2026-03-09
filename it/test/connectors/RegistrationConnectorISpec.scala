@@ -361,7 +361,7 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
+      val result = connector.individualWithoutId(validWithoutIdRequest).value.futureValue
       result shouldBe Right(validWithoutIdResponse)
     }
 
@@ -375,7 +375,7 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
+      val result = connector.individualWithoutId(validWithoutIdRequest).value.futureValue
       result shouldBe Left(ApiError.JsonValidationError)
     }
 
@@ -389,7 +389,7 @@ class RegistrationConnectorISpec
           )
       )
 
-      val result = connector.individualWithoutID(validWithoutIdRequest).value.futureValue
+      val result = connector.individualWithoutId(validWithoutIdRequest).value.futureValue
       result shouldBe Left(ApiError.InternalServerError)
     }
   }

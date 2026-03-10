@@ -20,17 +20,20 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
+import models.error.ApiError.InternalServerError
 import models.requests.EnrolmentRequest
 import models.requests.EnrolmentRequest.*
 import play.api.Logging
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
@@ -38,7 +41,7 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
 
   private val enrolmentUrl = config.taxEnrolmentBaseUrl
 
-  def createEnrolment(requestBody: EnrolmentRequest)(implicit hc: HeaderCarrier): EitherT[Future, ApiError, Unit] =
+  def createEnrolment(requestBody: EnrolmentRequest)(implicit hc: HeaderCarrier): ResultT[Unit] =
     EitherT {
       http
         .put(url"$enrolmentUrl")
@@ -52,7 +55,9 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
           case response                                   =>
             logger.error(s"Failed to create enrolment due to ${response.body}")
             Left(ApiError.InternalServerError)
-
+        }.recover { case NonFatal(e) =>
+          logger.error(s"Future Failed to complete due to: ${e.getMessage}")
+          Left(InternalServerError)
         }
     }
 }

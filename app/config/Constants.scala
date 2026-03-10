@@ -63,4 +63,6 @@ object Constants {
   )
 
   val noneOfTheseValue = "none"
+  
+  val CARFID = "CARFID"
 }

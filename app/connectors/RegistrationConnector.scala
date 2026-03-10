@@ -42,18 +42,18 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
 
   def individualWithNino(
       request: RegisterIndividualWithNinoRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
 
   def individualWithUtr(
       request: RegisterIndividualWithUtrRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/utr")
 
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
       endpoint: URL
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterIndividualWithIdResponse] =
     EitherT {
       http
         .post(endpoint)
@@ -80,18 +80,18 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
 
   def organisationWithUtrNonAutoMatch(
       request: RegOrgWithIdNonAutoMatchRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterOrganisationWithIdResponse] =
     registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr/user-entered")
 
   def organisationWithUtrCTAutoMatch(
       request: RegOrgWithIdCTAutoMatchRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterOrganisationWithIdResponse] =
     registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr/ct-auto-match")
 
   private def registerOrganisationWithId(
       request: RegisterOrganisationWithIdRequest,
       endpoint: URL
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterOrganisationWithIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterOrganisationWithIdResponse] =
     EitherT {
       http
         .post(endpoint)

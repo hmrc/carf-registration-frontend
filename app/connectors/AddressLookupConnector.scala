@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import cats.data.EitherT
 import cats.syntax.all.*
+import types.ResultT
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -42,7 +43,7 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
 
   def searchByPostcode(
       request: SearchByPostcodeRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, Seq[AddressResponse]] =
+  )(implicit hc: HeaderCarrier): ResultT[Seq[AddressResponse]] =
     EitherT {
       http
         .post(searchByPostcodeUrl)

@@ -16,19 +16,24 @@
 
 package controllers
 
+import cats.data.EitherT
+import cats.syntax.*
+import cats.implicits.*
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.error.ApiError
 import models.error.ApiError.AlreadyRegisteredError
+import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
 import pages.NavigatorOnlyCheckYourAnswersErrors
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.{RegistrationService, SubscriptionService}
+import services.{EnrolmentService, RegistrationService, SubscriptionService}
+import types.ResultT
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
 import viewmodels.Section
@@ -47,6 +52,7 @@ class CheckYourAnswersController @Inject() (
     submissionLock: SubmissionLockAction,
     registrationService: RegistrationService,
     subscriptionService: SubscriptionService,
+    enrolmentService: EnrolmentService,
     view: CheckYourAnswersView,
     sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
@@ -112,38 +118,37 @@ class CheckYourAnswersController @Inject() (
           logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
           None
       }
-
-      sectionsMaybe match {
-        case Some(sections: Seq[Section]) => Ok(view(sections))
-        case None                         => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+      sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())){ sections =>
+        Ok(view(sections))
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
     .async { implicit request =>
-      (for {
-        safeId               <- registrationService.getSafeId(request.userAnswers)
-        userAnswersWithSafeId = request.userAnswers.copy(safeId = Some(safeId))
-        subscriptionResult   <- subscriptionService.subscribe(userAnswersWithSafeId)
-      } yield subscriptionResult match {
-        case Right(subscriptionId) =>
-          val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
-          sessionRepository.set(updatedUserAnswers).map { _ =>
-            Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-          }
-
+      subscribeAndEnrol().value.map {
+        case Right(result) => result
         case Left(AlreadyRegisteredError) =>
-          Future.successful(
-            Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
-          )
-
-        case Left(error) =>
+          Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+        case error =>
           logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-
-      }).flatten.recoverWith { case e: Exception =>
-        logger.error(s"[CheckYourAnswersController] Error during subscription: ${e.toString}")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
+
+  private def subscribeAndEnrol()(implicit request: DataRequest[AnyContent], ec: ExecutionContext) = {
+      for {
+        safeId <- ResultT.fromFuture {
+          registrationService.getSafeId(request.userAnswers).map(Right(_))
+        }
+        userAnswersWithSafeId = request.userAnswers.copy(safeId = Some(safeId))
+        subscriptionId <- subscriptionService.subscribe(userAnswersWithSafeId)
+        _ <- enrolmentService.enrol("", "", true)
+        result <- ResultT.fromFuture {
+          val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
+          sessionRepository.set(updatedUserAnswers).map { _ =>
+            Right[ApiError, Result](Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad()))
+          }
+        }
+      } yield result
+  }
 }

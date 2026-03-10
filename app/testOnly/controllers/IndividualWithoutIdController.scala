@@ -23,7 +23,7 @@ import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualWithoutIdController @Inject() (
     registrationService: RegistrationService,
@@ -32,33 +32,34 @@ class IndividualWithoutIdController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def registerWithoutId: Action[AnyContent] = Action.async { implicit request =>
+  def registerWithoutId(firstName: String, filter: Option[String]): Action[AnyContent] = Action.async {
+    implicit request =>
 
-    val testRequest =
-      RegisterIndividualWithoutIdRequest(
-        firstName = "John",
-        lastName = "Doe",
-        dateOfBirth = "1990-01-01",
-        address = AddressDetails(
-          addressLine1 = "1 Test Street",
-          addressLine2 = None,
-          addressLine3 = None,
-          townOrCity = "London",
-          postalCode = Some("SW1A1AA"),
-          countryCode = "GB"
-        ),
-        contactDetails = ContactDetails(
-          emailAddress = "john.doe@test.com",
-          phoneNumber = Some("07123456789")
+      val testRequest =
+        RegisterIndividualWithoutIdRequest(
+          firstName = firstName,
+          lastName = "Doe",
+          dateOfBirth = "1990-01-01",
+          address = AddressDetails(
+            addressLine1 = "1 Test Street",
+            addressLine2 = None,
+            addressLine3 = None,
+            townOrCity = "London",
+            postalCode = Some("SW1A1AA"),
+            countryCode = "GB"
+          ),
+          contactDetails = ContactDetails(
+            emailAddress = "john.doe@test.com",
+            phoneNumber = Some("07123456789")
+          )
         )
-      )
 
-    registrationService.individualWithoutId(testRequest).map {
-      case Right(response) =>
-        Ok(s"SAFE ID returned: ${response.safeId}")
+      registrationService.individualWithoutId(testRequest).map {
+        case Right(response) =>
+          Ok(s"SAFE ID returned: ${response.safeId}")
 
-      case Left(error) =>
-        Ok(s"Error returned: $error")
-    }
+        case Left(error) =>
+          Ok(error.toString)
+      }
   }
 }

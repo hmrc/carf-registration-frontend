@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,49 +16,47 @@
 
 package services
 
-import connectors.RegistrationConnector
-import models.JourneyType.*
+import connectors.SubscriptionConnector
 import models.error.ApiError
-import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
-import models.requests.{RegisterIndividualWithIdRequest, RegisterOrganisationWithIdRequest}
-import models.responses.RegisterOrganisationWithIdResponse
-import models.{BusinessDetails, IndividualDetails, IndividualRegistrationType, Name, OrganisationRegistrationType, UserAnswers}
-import pages.*
-import pages.individual.NiNumberPage
-import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
-import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
+import models.error.ApiError.MandatoryInformationMissingError
+import models.requests.CreateSubscriptionRequest
+import models.{SubscriptionId, UserAnswers}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.SubscriptionHelper
 
-import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubscriptionService @Inject() extends Logging {
+class SubscriptionService @Inject() (
+    subscriptionConnector: SubscriptionConnector,
+    subscriptionHelper: SubscriptionHelper
+) extends Logging {
 
-  def subscribe(userAnswers: UserAnswers): Future[Either[ApiError, String]] = {
-    // For testing success and error scenarios
-    val journeyDifferentiator: String = {
-      val ref = userAnswers.journeyType match {
-        case Some(IndWithUtr) | Some(OrgWithUtr) =>
-          userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
-        case Some(OrgWithoutId)                  => userAnswers.get(OrgWithoutIdBusinessNamePage).map(_.toUpperCase)
-        case Some(IndWithNino)                   => userAnswers.get(NiNumberPage)
-        case Some(IndWithoutId)                  => userAnswers.get(IndWithoutNinoNamePage).map(_.firstName.toUpperCase)
-        case None                                => Some("1")
-      }
-      ref.getOrElse("1").take(1)
+  def subscribe(userAnswers: UserAnswers)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext
+  ): Future[Either[ApiError, SubscriptionId]] =
+    subscriptionHelper.buildSubscriptionRequest(userAnswers) match {
+      case Some(request) =>
+        subscriptionConnector
+          .createSubscription(request)
+          .value
+          .map {
+            case Right(result) => Right(result)
+            case Left(error)   =>
+              logger.error(s"Failed to create subscription: $error")
+              Left(error)
+          }
+      case None          =>
+        logger.error("There has been an error building the subscription request from userAnswers")
+        Future.successful(
+          Left(
+            MandatoryInformationMissingError(
+              s"There has been an error building the subscription request from userAnswers"
+            )
+          )
+        )
     }
-
-    journeyDifferentiator match {
-      case "2" | "B" =>
-        Future.successful(Left(InternalServerError))
-      case "5" | "Z" =>
-        Future.successful(Left(AlreadyRegisteredError))
-      case _         =>
-        Future.successful(Right("Stub success!"))
-    }
-  }
 }

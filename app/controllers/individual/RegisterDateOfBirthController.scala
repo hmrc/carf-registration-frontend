@@ -22,7 +22,7 @@ import forms.individual.RegisterDateOfBirthFormProvider
 import models.error.ApiError
 import models.error.ApiError.NotFoundError
 import models.requests.DataRequest
-import models.{Mode, UserAnswers}
+import models.{Mode, SafeId, UserAnswers}
 import navigation.Navigator
 import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.Logging
@@ -91,7 +91,10 @@ class RegisterDateOfBirthController @Inject() (
           .getIndividualByNino(nino, name, dob)
           .flatMap {
             case Right(individualDetails) =>
-              Future.successful(Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, updatedAnswers)))
+              val answersWithSafeId = updatedAnswers.copy(safeId = Some(SafeId(individualDetails.safeId)))
+              for {
+                _ <- sessionRepository.set(answersWithSafeId)
+              } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, answersWithSafeId))
             case Left(NotFoundError)      =>
               Future.successful(
                 Redirect(

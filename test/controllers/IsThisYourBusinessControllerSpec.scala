@@ -50,13 +50,15 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
   val businessTestBusiness: BusinessDetails = BusinessDetails(
     name = "Test Business Ltd",
     address =
-      AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB", None)
+      AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "GB", None),
+    safeId = testSafeId
   )
 
   val businessTestBusinessNonUk: BusinessDetails = BusinessDetails(
     name = "Test Business Ltd",
     address =
-      AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "FR", None)
+      AddressRegistrationResponse("123 Test Street", Some("Birmingham"), None, None, Some("B23 2AZ"), "FR", None),
+    safeId = testSafeId
   )
 
   val soleTraderTestIndividual: IndividualDetails = IndividualDetails(
@@ -84,7 +86,11 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
   )
 
   val testPageDetails: IsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(
-    businessDetails = BusinessDetails(name = businessTestBusiness.name, address = businessTestBusiness.address),
+    businessDetails = BusinessDetails(
+      name = businessTestBusiness.name,
+      address = businessTestBusiness.address,
+      safeId = businessTestBusiness.safeId
+    ),
     pageAnswer = None
   )
 
@@ -198,7 +204,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
       "must prepopulate the page if it has been answered previously" in {
         val soleTraderUtr       = UniqueTaxpayerReference("5234567890")
-        val testBusinessDetails = BusinessDetails("testName", soleTraderTestIndividual.address)
+        val testBusinessDetails = BusinessDetails("testName", soleTraderTestIndividual.address, testSafeId)
         val userAnswers         = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
@@ -233,7 +239,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
             NormalMode,
             BusinessDetails(
               s"${soleTraderTestIndividual.firstName} ${soleTraderTestIndividual.lastName}",
-              soleTraderTestIndividual.address
+              soleTraderTestIndividual.address,
+              testSafeId
             )
           )(
             request,
@@ -409,7 +416,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       }
 
       "must prepopulate the page if it has been answered previously" in {
-        val testBusinessDetails = BusinessDetails("testName", businessTestBusiness.address)
+        val testBusinessDetails = BusinessDetails("testName", businessTestBusiness.address, businessTestBusiness.safeId)
 
         val userAnswers = UserAnswers(userAnswersId)
           .copy(journeyType = Some(OrgWithUtr))
@@ -444,7 +451,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           contentAsString(result) mustEqual view(
             form.fill(true),
             NormalMode,
-            BusinessDetails(businessTestBusiness.name, businessTestBusiness.address)
+            BusinessDetails(businessTestBusiness.name, businessTestBusiness.address, businessTestBusiness.safeId)
           )(
             request,
             messages(application)

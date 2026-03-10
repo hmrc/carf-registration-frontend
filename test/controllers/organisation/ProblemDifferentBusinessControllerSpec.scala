@@ -45,7 +45,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         countryName = None
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
-        businessDetails = BusinessDetails(name = businessName, address = address),
+        businessDetails = BusinessDetails(name = businessName, address = address, safeId = testSafeId),
         pageAnswer = Some(true)
       )
       val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value
@@ -77,7 +77,7 @@ class ProblemDifferentBusinessControllerSpec extends SpecBase {
         countryName = None
       )
       val pageDetails  = IsThisYourBusinessPageDetails(
-        businessDetails = BusinessDetails(name = businessName, address = address),
+        businessDetails = BusinessDetails(name = businessName, address = address, safeId = testSafeId),
         pageAnswer = Some(true)
       )
       val userAnswers  = emptyUserAnswers.set(IsThisYourBusinessPage, pageDetails).success.value

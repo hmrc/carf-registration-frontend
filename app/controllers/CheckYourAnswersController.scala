@@ -19,20 +19,22 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
+import models.error.ApiError
 import models.error.ApiError.AlreadyRegisteredError
-import models.{JourneyType, NormalMode, UserAnswers}
+import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
 import pages.NavigatorOnlyCheckYourAnswersErrors
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SubscriptionService
+import repositories.SessionRepository
+import services.{RegistrationService, SubscriptionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
 import viewmodels.Section
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -43,8 +45,10 @@ class CheckYourAnswersController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     helper: CheckYourAnswersHelper,
     submissionLock: SubmissionLockAction,
+    registrationService: RegistrationService,
     subscriptionService: SubscriptionService,
-    view: CheckYourAnswersView
+    view: CheckYourAnswersView,
+    sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with Logging
@@ -115,13 +119,31 @@ class CheckYourAnswersController @Inject() (
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
-    subscriptionService.subscribe(request.userAnswers) map {
-      case Right(response)              => Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-      case Left(AlreadyRegisteredError) =>
-        Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
-      case Left(_)                      => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-    }
+  def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
+    .async { implicit request =>
+      (for {
+        safeId               <- registrationService.getSafeId(request.userAnswers)
+        userAnswersWithSafeId = request.userAnswers.copy(safeId = Some(safeId))
+        subscriptionResult   <- subscriptionService.subscribe(userAnswersWithSafeId)
+      } yield subscriptionResult match {
+        case Right(subscriptionId) =>
+          val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
+          sessionRepository.set(updatedUserAnswers).map { _ =>
+            Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+          }
 
-  }
+        case Left(AlreadyRegisteredError) =>
+          Future.successful(
+            Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+          )
+
+        case Left(error) =>
+          logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+
+      }).flatten.recoverWith { case e: Exception =>
+        logger.error(s"[CheckYourAnswersController] Error during subscription: ${e.toString}")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
+    }
 }

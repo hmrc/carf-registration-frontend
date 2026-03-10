@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.SubscriptionId
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.*
 
-case object SubscriptionIdPage extends QuestionPage[SubscriptionId] {
-  override def path: JsPath = JsPath \ "subscriptionId"
+case class SafeId(value: String)
+
+object SafeId {
+  implicit val format: OFormat[SafeId] = Json.format[SafeId]
 }

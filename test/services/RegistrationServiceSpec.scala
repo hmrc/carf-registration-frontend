@@ -157,7 +157,13 @@ class RegistrationServiceSpec extends SpecBase {
           .getBusinessWithUtr(emptyUserAnswers.copy(isCtAutoMatched = true), testUtrString)
           .futureValue
 
-        result mustBe Right(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
+        result mustBe Right(
+          BusinessDetails(
+            orgUkBusinessResponse.organisationName,
+            orgUkBusinessResponse.address,
+            orgUkBusinessResponse.safeId
+          )
+        )
         verify(mockConnector).organisationWithUtrCTAutoMatch(eqTo(expectedRequest))(any())
       }
 
@@ -188,7 +194,13 @@ class RegistrationServiceSpec extends SpecBase {
 
         val result = testService.getBusinessWithUtr(organisationUserAnswersUtr, testUtrString).futureValue
 
-        result mustBe Right(BusinessDetails(orgUkBusinessResponse.organisationName, orgUkBusinessResponse.address))
+        result mustBe Right(
+          BusinessDetails(
+            orgUkBusinessResponse.organisationName,
+            orgUkBusinessResponse.address,
+            orgUkBusinessResponse.safeId
+          )
+        )
         verify(mockConnector).organisationWithUtrNonAutoMatch(eqTo(expectedRequest))(any())
       }
 

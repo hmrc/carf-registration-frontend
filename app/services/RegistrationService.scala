@@ -21,7 +21,7 @@ import models.JourneyType.{IndWithoutId, OrgWithoutId}
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
 import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterIndividualWithoutIdResponse, RegisterOrganisationWithIdResponse}
-import models.{BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, OrganisationRegistrationType, UserAnswers}
+import models.{BusinessDetails, IndividualDetails, JourneyType, Name, OrganisationRegistrationType, SafeId, UserAnswers}
 import pages.*
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 import play.api.Logging

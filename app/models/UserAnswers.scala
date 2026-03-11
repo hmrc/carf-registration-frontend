@@ -16,6 +16,7 @@
 
 package models
 
+import models.responses.DisplaySubscriptionResponse
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
@@ -29,6 +30,7 @@ final case class UserAnswers(
     isCtAutoMatched: Boolean = false,
     safeId: Option[SafeId] = None,
     subscriptionId: Option[SubscriptionId] = None,
+    displaySubscriptionResponse: Option[DisplaySubscriptionResponse] = None,
     data: JsObject = Json.obj(),
     lastUpdated: Instant = Instant.now
 ) {
@@ -79,6 +81,7 @@ object UserAnswers {
         (__ \ "isCtAutoMatched").read[Boolean] and
         (__ \ "safeId").readNullable[SafeId] and
         (__ \ "subscriptionId").readNullable[SubscriptionId] and
+        (__ \ "displaySubscriptionResponse").readNullable[DisplaySubscriptionResponse] and
         (__ \ "data").read[JsObject] and
         (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
     )(UserAnswers.apply _)
@@ -94,9 +97,21 @@ object UserAnswers {
         (__ \ "isCtAutoMatched").write[Boolean] and
         (__ \ "safeId").writeNullable[SafeId] and
         (__ \ "subscriptionId").writeNullable[SubscriptionId] and
+        (__ \ "displaySubscriptionResponse").writeNullable[DisplaySubscriptionResponse] and
         (__ \ "data").write[JsObject] and
         (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    )(ua => (ua.id, ua.journeyType, ua.isCtAutoMatched, ua.safeId, ua.subscriptionId, ua.data, ua.lastUpdated))
+    )(ua =>
+      (
+        ua.id,
+        ua.journeyType,
+        ua.isCtAutoMatched,
+        ua.safeId,
+        ua.subscriptionId,
+        ua.displaySubscriptionResponse,
+        ua.data,
+        ua.lastUpdated
+      )
+    )
   }
 
   implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)

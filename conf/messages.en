@@ -588,3 +588,17 @@ individualAlreadyRegistered.p2 = Sign in using Government Gateway
 individualAlreadyRegistered.p3.part1 = You can email
 individualAlreadyRegistered.p3.part2 = aeoi.enquiries@hmrc.gov.uk
 individualAlreadyRegistered.p3.part3 = if you need support with accessing this service.
+
+changeDetails.title.normal = Change your contact details
+changeDetails.heading.normal = Change your contact details
+changeDetails.title.dynamic = Check your contact details
+changeDetails.heading.dynamic = Check your contact details
+changeDetails.subtitle.dynamic = Now send your updated contact details
+changeDetails.p1.dynamic = By sending these details, you are confirming that the information is correct and complete to the best of your knowledge.
+changeDetails.summaryList.email.key = Email address
+changeDetails.summaryList.email.key.hidden = Change email address
+changeDetails.summaryList.havePhone.key = Can we contact you by phone?
+changeDetails.summaryList.havePhone.key.hidden = Change if we can contact you by phone
+changeDetails.summaryList.phoneNumber.key = Phone number
+changeDetails.summaryList.phoneNumber.key.hidden = Change phone number
+changeDetails.linkText = Back to manage your cryptoasset reports

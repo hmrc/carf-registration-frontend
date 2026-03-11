@@ -224,3 +224,8 @@ GET         /register/individual-without-id/change-choose-address               
 POST        /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutChooseAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/individual-already-registered                     controllers.individual.IndividualAlreadyRegisteredController.onPageLoad()
+
+GET         /change-contact/individual/details                                  controllers.changeContactDetails.ChangeIndividualContactDetailsController.onPageLoad()
+POST        /change-contact/individual/details                                  controllers.changeContactDetails.ChangeIndividualContactDetailsController.onSubmit()
+
+GET         /change-contact                                                     controllers.changeContactDetails.ChangeContactDetailsIndexController.onPageLoad()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages.changeContactDetails
 
-object IdentifierType {
-  val ABROADFLAG = "AbroadFlag"
-  val UTR        = "UTR"
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-  val CARFID = "CARFID"
+case object ChangeDetailsIndividualHavePhonePage extends QuestionPage[Boolean] {
 
-  val SAFE = "SAFE"
+  override def path: JsPath = JsPath \ toString
 
-  val NINO = "NINO"
+  override def toString: String = "changeDetailsIndividualHavePhonePage"
 }

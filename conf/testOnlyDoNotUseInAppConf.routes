@@ -10,6 +10,7 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-->         /         prod.Routes
+->         /                                                                                                       prod.Routes
 
-GET         /register-for-cryptoasset-reporting/test-only/address-lookup/:postcode        testOnly.controllers.AddressLookupController.searchByPostcode(postcode: String, filter: Option[String] ?= None)
+GET        /register-for-cryptoasset-reporting/test-only/address-lookup/:postcode                                  testOnly.controllers.AddressLookupController.searchByPostcode(postcode: String, filter: Option[String] ?= None)
+GET        /register-for-cryptoasset-reporting/test-only/change-details/manipulate-user-answers/:key/:value        testOnly.controllers.ChangeDetailsManipulateUserAnswersController.changeUserAnswers(key: String, value: String)

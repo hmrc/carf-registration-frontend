@@ -224,3 +224,5 @@ GET         /register/individual-without-id/change-choose-address               
 POST        /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutChooseAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /register/problem/individual-already-registered                     controllers.individual.IndividualAlreadyRegisteredController.onPageLoad()
+
+GET         /register/problem/organisation-already-registered                   controllers.organisation.OrganisationAlreadyRegisteredController.onPageLoad()

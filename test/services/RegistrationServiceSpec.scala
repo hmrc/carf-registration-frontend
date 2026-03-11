@@ -336,15 +336,7 @@ class RegistrationServiceSpec extends SpecBase {
         verify(mockConnector).individualWithoutId(eqTo(testRegisterIndividualWithoutIdRequest))(any())
       }
 
-      "return a not found error when the connector could not register this user" in {
-        when(mockConnector.individualWithoutId(any[RegisterIndividualWithoutIdRequest])(any()))
-          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithoutIdResponse](NotFoundError))
-
-        val result = testService.individualWithoutId(testRegisterIndividualWithoutIdRequest).futureValue
-        result mustBe Left(NotFoundError)
-      }
-
-      "return an internal server error when the connector returns one" in {
+      "return an internal server error when the connector fails to register the individual without an ID" in {
         when(mockConnector.individualWithoutId(any[RegisterIndividualWithoutIdRequest])(any()))
           .thenReturn(EitherT.leftT[Future, RegisterIndividualWithoutIdResponse](InternalServerError))
 

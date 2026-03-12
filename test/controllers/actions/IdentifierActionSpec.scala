@@ -84,7 +84,7 @@ class IdentifierActionSpec extends SpecBase {
       contentAsString(result) mustBe testContent
     }
 
-    "return ok with a message if credential role is Assistant" in {
+    "redirect to StandardUserSignInProblem page when affinity group is Assistant" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
         mockAuthConnector.authorise(
@@ -100,8 +100,8 @@ class IdentifierActionSpec extends SpecBase {
 
       val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
 
-      status(result)        mustBe OK
-      contentAsString(result) must include("User is an assistant so cannot use the service")
+      status(result)           mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.StandardUserSignInProblemController.onPageLoad().url)
     }
 
     "redirect to AgentSignInProblem page when affinity group is Agent" in {

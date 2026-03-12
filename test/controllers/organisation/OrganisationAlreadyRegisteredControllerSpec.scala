@@ -17,10 +17,11 @@
 package controllers.organisation
 
 import base.SpecBase
-import controllers.routes
 import models.JourneyType.OrgWithUtr
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models.UserAnswers
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{times, verify, when}
+import pages.SubmissionSucceededPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.organisation.OrganisationAlreadyRegisteredView
@@ -28,8 +29,6 @@ import views.html.organisation.OrganisationAlreadyRegisteredView
 import scala.concurrent.Future
 
 class OrganisationAlreadyRegisteredControllerSpec extends SpecBase {
-
-  val testTaxAndSchemeManagement: String = "https://www.tax.service.gov.uk/tax-and-scheme-management/services"
 
   val testAeoiEmailAddress: String = "aeoi.enquiries@hmrc.gov.uk"
 
@@ -48,10 +47,11 @@ class OrganisationAlreadyRegisteredControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[OrganisationAlreadyRegisteredView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(testTaxAndSchemeManagement, testAeoiEmailAddress)(
+        contentAsString(result) mustEqual view(testAeoiEmailAddress)(
           request,
           messages(application)
         ).toString
+        verify(mockSessionRepository).set(argThat(_.get(SubmissionSucceededPage).get == true))
       }
     }
   }

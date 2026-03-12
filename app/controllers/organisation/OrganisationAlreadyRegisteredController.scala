@@ -45,12 +45,11 @@ class OrganisationAlreadyRegisteredController @Inject() (
     with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
-    val taxAndSchemeManagement: String = appConfig.taxAndSchemeManagement
-    val aeoiEmailAddress: String       = appConfig.aeoiEmailAddress
+    val aeoiEmailAddress: String = appConfig.aeoiEmailAddress
 
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
       _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(taxAndSchemeManagement, aeoiEmailAddress))
+    } yield Ok(view(aeoiEmailAddress))
   }
 }

@@ -20,7 +20,7 @@
         link: components.Link
 )
 
-@(taxAndSchemeManagement: String, aeoiEmailAddress: String)(implicit request: Request[_], messages: Messages)
+@(aeoiEmailAddress: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("organisationAlreadyRegistered.title")), showBackLink = false) {
 
@@ -31,7 +31,8 @@
         <li>@messages("organisationAlreadyRegistered.p1.part2")</li>
         <li>
             @messages("organisationAlreadyRegistered.p1.part3")
-            @link(taxAndSchemeManagement, "organisationAlreadyRegistered.p1.part4")
+            @link(routes.PlaceholderController.onPageLoad("Should redirect to tax and management service (CARF-405)").url,
+                "organisationAlreadyRegistered.p1.part4")
         </li>
     </ul>
     <p class="govuk-body">

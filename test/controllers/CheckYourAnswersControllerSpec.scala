@@ -484,6 +484,23 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         }
 
+        "must redirect to the organisation already registered page when user is already registered" in new Setup(
+          AffinityGroup.Organisation,
+          orgWithUtrUserAnswers
+        ) {
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(Future.successful(SafeId(testSafeId)))
+          when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
+            .thenReturn(Future.successful(Left(AlreadyRegisteredError)))
+
+          val request                = FakeRequest(POST, cyaRoute)
+          val result: Future[Result] = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+
+        }
+
         "must redirect to journey recovery page when getSafeId throws an unexpected exception" in new Setup(
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers

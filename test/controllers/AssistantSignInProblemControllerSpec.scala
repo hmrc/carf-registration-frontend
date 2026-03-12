@@ -19,22 +19,22 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.StandardUserSignInProblemView
+import views.html.AssistantSignInProblemView
 
-class StandardUserSignInProblemControllerSpec extends SpecBase {
+class AssistantSignInProblemControllerSpec extends SpecBase {
 
-  "StandardUserSignInProblem Controller" - {
+  "AssistantSignInProblem Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.StandardUserSignInProblemController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.AssistantSignInProblemController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[StandardUserSignInProblemView]
+        val view = application.injector.instanceOf[AssistantSignInProblemView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString

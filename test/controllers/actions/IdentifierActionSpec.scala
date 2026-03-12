@@ -101,7 +101,7 @@ class IdentifierActionSpec extends SpecBase {
       val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
 
       status(result)           mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.StandardUserSignInProblemController.onPageLoad().url)
+      redirectLocation(result) mustBe Some(routes.AssistantSignInProblemController.onPageLoad().url)
     }
 
     "redirect to AgentSignInProblem page when affinity group is Agent" in {

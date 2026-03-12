@@ -225,4 +225,4 @@ POST        /register/individual-without-id/change-choose-address               
 
 GET         /register/problem/individual-already-registered                     controllers.individual.IndividualAlreadyRegisteredController.onPageLoad()
 
-GET         /register/problem/standard-user-sign-in-problem                     controllers.StandardUserSignInProblemController.onPageLoad()
+GET         /register/problem/standard-user-sign-in-problem                     controllers.AssistantSignInProblemController.onPageLoad()

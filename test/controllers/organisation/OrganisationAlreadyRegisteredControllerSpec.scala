@@ -30,7 +30,9 @@ import scala.concurrent.Future
 
 class OrganisationAlreadyRegisteredControllerSpec extends SpecBase {
 
-  val testAeoiEmailAddress: String = "aeoi.enquiries@hmrc.gov.uk"
+  val testTaxAndSchemeManagement: String =
+    controllers.routes.PlaceholderController.onPageLoad("Should redirect to tax and management service (CARF-405)").url
+  val testAeoiEmailAddress: String       = "aeoi.enquiries@hmrc.gov.uk"
 
   "OrganisationAlreadyRegistered Controller" - {
 
@@ -47,7 +49,7 @@ class OrganisationAlreadyRegisteredControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[OrganisationAlreadyRegisteredView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(testAeoiEmailAddress)(
+        contentAsString(result) mustEqual view(testTaxAndSchemeManagement, testAeoiEmailAddress)(
           request,
           messages(application)
         ).toString

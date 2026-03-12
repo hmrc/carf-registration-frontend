@@ -45,11 +45,15 @@ class OrganisationAlreadyRegisteredController @Inject() (
     with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData).async { implicit request =>
-    val aeoiEmailAddress: String = appConfig.aeoiEmailAddress
+    val taxAndSchemeManagement: String =
+      controllers.routes.PlaceholderController
+        .onPageLoad("Should redirect to tax and management service (CARF-405)")
+        .url
+    val aeoiEmailAddress: String       = appConfig.aeoiEmailAddress
 
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
       _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(aeoiEmailAddress))
+    } yield Ok(view(taxAndSchemeManagement, aeoiEmailAddress))
   }
 }

@@ -16,46 +16,93 @@
 
 package services
 
+import connectors.{EmailConnector, EmailSent, EmailStatus}
 import javax.inject.{Inject, Singleton}
 import play.api.Logging
+import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EmailService @Inject() ()(implicit ec: ExecutionContext) extends Logging {
+class EmailService @Inject() (
+    emailConnector: EmailConnector
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   /** Sends a registration confirmation email to the provided addresses.
     *
-    * @param emails
-    *   List of email addresses to notify
+    * @param contacts
+    *   List of (name, email) pairs
     * @param subscriptionId
     *   The CARF User ID (subscription ID) to include in the email content
     * @param idNumberOpt
     *   Optional UTR or NINO to determine stub behavior
     */
-
-  // TODO [CARF-325]: Remove stubbed behaviour and integrate with DC email service
-
   def sendRegistrationConfirmation(
-      emails: List[String],
+      contacts: List[ContactEmailInfo],
       subscriptionId: String,
       idNumberOpt: Option[String]
-  ): Future[Unit] = {
+  )(implicit hc: HeaderCarrier): Future[Unit] =
+    applyStubBehavior(subscriptionId, idNumberOpt) match {
+      case Some(failure) => failure
+      case None          => sendEmails(contacts, subscriptionId)
+    }
 
+  private def applyStubBehavior(subscriptionId: String, idNumberOpt: Option[String]): Option[Future[Unit]] = {
     idNumberOpt match {
       case Some(idNumber) =>
         val firstTwo   = idNumber.take(2).toUpperCase
         val shouldFail = firstTwo == "44" || firstTwo == "AA"
         if (shouldFail) {
-          logger.warn("[EmailService] Failed to send registration confirmation")
+          logger.warn("[EmailService] Failed to send registration confirmation stub")
+          return Some(Future.failed(new Exception("Stubbed email failure")))
         } else {
-          logger.info("[EmailService] Successfully sent registration confirmation")
+          logger.info("[EmailService] Successfully sent registration confirmation stub")
         }
 
       case None =>
-        logger.info("[EmailService] Successfully sent registration confirmation (no ID provided)")
+        logger.info("[EmailService] Successfully sent registration confirmation (no ID provided) stub")
     }
-
-    Future.successful(())
+    None // No failure, continue with actual email sending
   }
 
+  private def sendEmails(
+      contacts: List[ContactEmailInfo],
+      subscriptionId: String
+  )(implicit hc: HeaderCarrier): Future[Unit] = {
+
+    val templateId    = "carf_registration_successful"
+    val carfReference = generateCarfReference(subscriptionId)
+
+    if (contacts.isEmpty) {
+      logger.warn(s"No contacts to send registration confirmation emails to")
+      Future.successful(())
+    } else {
+      logger.info(s"Sending ${contacts.length} registration confirmation emails")
+
+      val emailRequests = contacts.map { contact =>
+        val parameters = Map(
+          "name"          -> contact.name,
+          "carfReference" -> carfReference
+        )
+
+        emailConnector.sendEmail(
+          emailAddress = contact.email,
+          templateName = templateId,
+          templateParams = parameters
+        )
+      }
+
+      Future.sequence(emailRequests).map { statuses =>
+        val successCount = statuses.count(_ == EmailSent)
+        val failureCount = statuses.length - successCount
+
+        if (failureCount > 0) {
+          logger.warn(s"Failed to send $failureCount out of ${statuses.length} email(s) for CARF")
+        }
+
+        logger.info(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
+      }
+    }
+  }
+  private def generateCarfReference(subscriptionId: String): String                                        = s"XXCAR${subscriptionId.take(10).toUpperCase}"
 }

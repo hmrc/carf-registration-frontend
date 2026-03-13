@@ -50,7 +50,7 @@ class RegistrationConfirmationController @Inject() (
 
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen getData() andThen requireData).async { implicit request =>
-      
+
       val result = for {
         subscriptionId <- request.userAnswers.subscriptionId
         journeyType    <- request.userAnswers.journeyType

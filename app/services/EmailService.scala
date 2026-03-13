@@ -100,7 +100,7 @@ class EmailService @Inject() (
         }
     }
   }
-  private val CarfReferenceLength = 10
-  private def generateCarfReference(subscriptionId: String): String =
+  private val CarfReferenceLength                                                                          = 10
+  private def generateCarfReference(subscriptionId: String): String                                        =
     s"XXCAR${subscriptionId.take(CarfReferenceLength).toUpperCase}"
 }

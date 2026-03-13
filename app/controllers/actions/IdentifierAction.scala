@@ -76,7 +76,7 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
       case _ ~ enrolments ~ _ ~ _ if enrolments.enrolments.exists(_.key == enrolmentKey) && redirect =>
         Future.successful(Ok("User is already enrolled! TODO: Redirect to CARF Management FE when ready"))
       case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
-        Future.successful(Ok("User is an assistant so cannot use the service so we must Redirect them as per CARF-118"))
+        Future.successful(Redirect(routes.AssistantSignInProblemController.onPageLoad()))
       case _ ~ _ ~ Some(Agent) ~ _                                                                   =>
         Future.successful(Redirect(routes.AgentSignInProblemController.onPageLoad()))
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>

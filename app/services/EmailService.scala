@@ -54,15 +54,16 @@ class EmailService @Inject() (
         val shouldFail = firstTwo == "44" || firstTwo == "AA"
         if (shouldFail) {
           logger.warn("[EmailService] Failed to send registration confirmation stub")
-          return Some(Future.failed(new Exception("Stubbed email failure")))
+          Some(Future.failed(new Exception("Stubbed email failure")))
         } else {
           logger.info("[EmailService] Successfully sent registration confirmation stub")
+          None
         }
 
       case None =>
         logger.info("[EmailService] Successfully sent registration confirmation (no ID provided) stub")
+        None
     }
-    None // No failure, continue with actual email sending
   }
 
   private def sendEmails(
@@ -74,35 +75,32 @@ class EmailService @Inject() (
     val carfReference = generateCarfReference(subscriptionId)
 
     if (contacts.isEmpty) {
-      logger.warn(s"No contacts to send registration confirmation emails to")
+      logger.warn("No contacts to send registration confirmation emails to")
       Future.successful(())
     } else {
       logger.info(s"Sending ${contacts.length} registration confirmation emails")
 
-      val emailRequests = contacts.map { contact =>
-        val parameters = Map(
-          "name"          -> contact.name,
-          "carfReference" -> carfReference
-        )
-
-        emailConnector.sendEmail(
-          emailAddress = contact.email,
-          templateName = templateId,
-          templateParams = parameters
-        )
-      }
-
-      Future.sequence(emailRequests).map { statuses =>
-        val successCount = statuses.count(_ == EmailSent)
-        val failureCount = statuses.length - successCount
-
-        if (failureCount > 0) {
-          logger.warn(s"Failed to send $failureCount out of ${statuses.length} email(s) for CARF")
+      Future
+        .traverse(contacts) { contact =>
+          val parameters = Map(
+            "name"          -> contact.name,
+            "carfReference" -> carfReference
+          )
+          emailConnector.sendEmail(contact.email, templateId, parameters)
         }
+        .map { statuses =>
+          val successCount = statuses.count(_ == EmailSent)
+          val failureCount = statuses.length - successCount
 
-        logger.info(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
-      }
+          if (failureCount > 0) {
+            logger.warn(s"Failed to send $failureCount out of ${statuses.length} email(s) for CARF")
+          }
+
+          logger.info(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
+        }
     }
   }
-  private def generateCarfReference(subscriptionId: String): String                                        = s"XXCAR${subscriptionId.take(10).toUpperCase}"
+  private val CarfReferenceLength = 10
+  private def generateCarfReference(subscriptionId: String): String =
+    s"XXCAR${subscriptionId.take(CarfReferenceLength).toUpperCase}"
 }

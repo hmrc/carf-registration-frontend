@@ -17,74 +17,182 @@
 package services
 
 import base.SpecBase
-import scala.concurrent.ExecutionContext.Implicits.global
+import connectors.{EmailConnector, EmailSent, EmailStatus}
+import org.mockito.Mockito.{never, reset, times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.Future
 
-class EmailServiceSpec extends SpecBase {
+class EmailServiceSpec extends SpecBase with MockitoSugar {
 
-  val service: EmailService = new EmailService()
+  private val mockEmailConnector = mock[EmailConnector]
+  private val service            = new EmailService(mockEmailConnector)
+
+  override implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  override def beforeEach(): Unit = {
+    reset(mockEmailConnector)
+    super.beforeEach()
+  }
 
   "EmailService" - {
 
     "sendRegistrationConfirmation" - {
 
-      "must successfully send email when only primary email is provided and idNumber exists" in {
-        val emails         = List("primary@example.com")
+      "must successfully send email for a single contact with ID" in {
+        val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = Some("1234567890")
+        val contacts       = List(contact)
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
+        when(
+          mockEmailConnector.sendEmail(
+            contact.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
+        ).thenReturn(Future.successful(EmailSent))
 
-        whenReady(result) { r =>
-          r mustBe ()
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            contact.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
         }
       }
 
-      "must successfully send email when primary and secondary emails are provided and idNumber exists" in {
-        val emails         = List("primary@example.com", "secondary@example.com")
+      "must send emails for multiple contacts" in {
+        val contact1       = ContactEmailInfo("John Doe", "john@example.com")
+        val contact2       = ContactEmailInfo("Jane Smith", "jane@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = Some("1234567890")
+        val contacts       = List(contact1, contact2)
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
+        when(
+          mockEmailConnector.sendEmail(
+            contact1.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact1.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
+        ).thenReturn(Future.successful(EmailSent))
 
-        whenReady(result) { r =>
-          r mustBe ()
+        when(
+          mockEmailConnector.sendEmail(
+            contact2.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact2.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
+        ).thenReturn(Future.successful(EmailSent))
+
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            contact1.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact1.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
+          verify(mockEmailConnector, times(1)).sendEmail(
+            contact2.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact2.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
         }
       }
 
-      "must log a warning if idNumber starts with 44" in {
-        val emails         = List("primary@example.com", "secondary@example.com")
+      "must fail when idNumber starts with 44 (stub failure)" in {
+        val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = Some("4412345678")
+        val contacts       = List(contact)
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
 
-        whenReady(result) { r =>
-          r mustBe ()
+        whenReady(result.failed) { ex =>
+          ex          mustBe a[Exception]
+          ex.getMessage must include("Stubbed email failure")
+          verify(mockEmailConnector, never()).sendEmail(any(), any(), any())
         }
       }
 
-      "must log a warning if idNumber starts with AA" in {
-        val emails         = List("primary@example.com")
+      "must fail when idNumber starts with AA (stub failure)" in {
+        val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = Some("AA12345678")
+        val contacts       = List(contact)
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
 
-        whenReady(result) { r =>
-          r mustBe ()
+        whenReady(result.failed) { ex =>
+          ex          mustBe a[Exception]
+          ex.getMessage must include("Stubbed email failure")
+          verify(mockEmailConnector, never()).sendEmail(any(), any(), any())
         }
       }
 
-      "must successfully send email when idNumber is None" in {
-        val emails         = List("primary@example.com")
+      "must send email when user is withoutId" in {
+        val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = None
+        val contacts       = List(contact)
 
-        val result: Future[Unit] = service.sendRegistrationConfirmation(emails, subscriptionId, idNumberOpt)
+        when(
+          mockEmailConnector.sendEmail(
+            contact.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
+        ).thenReturn(Future.successful(EmailSent))
 
-        whenReady(result) { r =>
-          r mustBe ()
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            contact.email,
+            "carf_registration_successful",
+            Map(
+              "name"          -> contact.name,
+              "carfReference" -> "XXCARSUB123"
+            )
+          )
+        }
+      }
+
+      "must handle empty contact list without sending emails" in {
+        val contacts       = Nil
+        val subscriptionId = "sub123"
+        val idNumberOpt    = Some("1234567890")
+
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, never()).sendEmail(any[String](), any[String](), any[Map[String, String]]())
         }
       }
     }

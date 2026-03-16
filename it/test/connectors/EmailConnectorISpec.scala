@@ -16,7 +16,7 @@
 
 package connectors
 
-import itutil.ApplicationWithWiremock
+import itutil.{ApplicationWithWiremock, WireMockConstants}
 import config.FrontendAppConfig
 import models.SendEmailRequest
 import org.scalatest.wordspec.AnyWordSpec
@@ -32,7 +32,7 @@ import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock._
 import scala.concurrent.ExecutionContext
 
-class EmailConnectorISpec extends AnyWordSpec with Matchers with ApplicationWithWiremock:
+class EmailConnectorISpec extends AnyWordSpec with Matchers with ApplicationWithWiremock {
 
   implicit val hc: HeaderCarrier    = HeaderCarrier()
   implicit val request: Request[_]  = FakeRequest()
@@ -40,9 +40,12 @@ class EmailConnectorISpec extends AnyWordSpec with Matchers with ApplicationWith
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
-      Map(
-        "microservice.services.email.sendAnEmailURL" -> s"${wireMock.url}/hmrc/email",
-        "emailSendForce"                             -> true
+      extraConfig ++ Map(
+        "microservice.services.email.protocol" -> "http",
+        "microservice.services.email.host"     -> wireMock.stubHost,
+        "microservice.services.email.port"     -> wireMock.port(),
+        "microservice.services.email.url"      -> s"${wireMock.url}/hmrc/email",
+        "microservice.services.email.force"    -> true
       )
     )
     .build()
@@ -92,16 +95,24 @@ class EmailConnectorISpec extends AnyWordSpec with Matchers with ApplicationWith
       }
 
       "return EmailNotSent when the backend cannot be reached" in {
-        val httpClient = app.injector.instanceOf[uk.gov.hmrc.http.client.HttpClientV2]
+        val badApp = new GuiceApplicationBuilder()
+          .configure(
+            extraConfig ++ Map(
+              "microservice.services.email.host"  -> "localhost",
+              "microservice.services.email.port"  -> 9999,
+              "microservice.services.email.url"   -> "http://localhost:9999",
+              "microservice.services.email.force" -> true
+            )
+          )
+          .build()
 
-        val badConnector = new EmailConnector(
-          app.injector.instanceOf[FrontendAppConfig].copy(emailUrl = "http://localhost:9999/fail"),
-          httpClient
-        )
-        val result       = await(badConnector.sendEmail(testRecipient, testTemplateId, templateParams))
+        val badConnector = badApp.injector.instanceOf[EmailConnector]
+
+        val result = await(badConnector.sendEmail(testRecipient, testTemplateId, templateParams))
         result shouldBe EmailNotSent
+
+        badApp.stop()
       }
-
     }
-
   }
+}

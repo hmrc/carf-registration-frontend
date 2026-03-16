@@ -42,6 +42,6 @@ class WireMock:
   def resetAll(): Unit =
     wireMockServer.resetMappings()
     wireMockServer.resetRequests()
-
-  def port(): Int = wireMockServer.port()
-  def url: String = s"http://$stubHost:${wireMockServer.port()}"
+  
+  def port(): Int = WireMockConstants.stubPort
+  def url: String = s"http://${WireMockConstants.stubHost}:${WireMockConstants.stubPort}"

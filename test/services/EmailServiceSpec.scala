@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.{EmailConnector, EmailSent, EmailStatus}
 import org.mockito.Mockito.{never, reset, times, verify, when}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -47,11 +47,16 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         val idNumberOpt    = Some("1234567890")
         val contacts       = List(contact)
 
+        val expectedParams = Map(
+          "name"          -> contact.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+
         when(
           mockEmailConnector.sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
           )(any[HeaderCarrier](), any[ExecutionContext]())
         ).thenReturn(Future.successful(EmailSent))
 
@@ -59,9 +64,9 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(1)).sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
           )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
@@ -73,21 +78,43 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         val idNumberOpt    = Some("1234567890")
         val contacts       = List(contact1, contact2)
 
+        val params1 = Map(
+          "name"          -> contact1.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+        val params2 = Map(
+          "name"          -> contact2.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+
         when(
-          mockEmailConnector.sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
-          )(any[HeaderCarrier](), any[ExecutionContext]())
-        ).thenReturn(Future.successful(EmailSent))
+          mockEmailConnector.sendEmail(meq(contact1.email), meq("carf_registration_successful"), meq(params1))(
+            any[HeaderCarrier](),
+            any[ExecutionContext]()
+          )
+        )
+          .thenReturn(Future.successful(EmailSent))
+
+        when(
+          mockEmailConnector.sendEmail(meq(contact2.email), meq("carf_registration_successful"), meq(params2))(
+            any[HeaderCarrier](),
+            any[ExecutionContext]()
+          )
+        )
+          .thenReturn(Future.successful(EmailSent))
 
         val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
 
         whenReady(result) { _ =>
-          verify(mockEmailConnector, times(2)).sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact1.email),
+            meq("carf_registration_successful"),
+            meq(params1)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact2.email),
+            meq("carf_registration_successful"),
+            meq(params2)
           )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
@@ -103,11 +130,10 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         whenReady(result.failed) { ex =>
           ex          mustBe a[Exception]
           ex.getMessage must include("Stubbed email failure")
-          verify(mockEmailConnector, never()).sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
-          )(any[HeaderCarrier](), any[ExecutionContext]())
+          verify(mockEmailConnector, never()).sendEmail(any[String](), any[String](), any[Map[String, String]]())(
+            any[HeaderCarrier](),
+            any[ExecutionContext]()
+          )
         }
       }
 
@@ -122,11 +148,10 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         whenReady(result.failed) { ex =>
           ex          mustBe a[Exception]
           ex.getMessage must include("Stubbed email failure")
-          verify(mockEmailConnector, never()).sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
-          )(any[HeaderCarrier](), any[ExecutionContext]())
+          verify(mockEmailConnector, never()).sendEmail(any[String](), any[String](), any[Map[String, String]]())(
+            any[HeaderCarrier](),
+            any[ExecutionContext]()
+          )
         }
       }
 
@@ -136,11 +161,16 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         val idNumberOpt    = None
         val contacts       = List(contact)
 
+        val expectedParams = Map(
+          "name"          -> contact.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+
         when(
           mockEmailConnector.sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
           )(any[HeaderCarrier](), any[ExecutionContext]())
         ).thenReturn(Future.successful(EmailSent))
 
@@ -148,9 +178,9 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(1)).sendEmail(
-            any[String](),
-            any[String](),
-            any[Map[String, String]]()
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
           )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
@@ -170,6 +200,8 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
           )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
+
     }
   }
+
 }

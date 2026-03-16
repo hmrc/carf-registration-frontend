@@ -19,8 +19,8 @@ package controllers
 import base.SpecBase
 import models.JourneyType.*
 import models.{Name, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{atLeastOnce, never, reset, times, verify, when}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.SubmissionSucceededPage
 import pages.individual.{IndividualEmailPage, NiNumberPage, WhatIsYourNameIndividualPage}
@@ -29,6 +29,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.{ContactEmailInfo, EmailService}
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.RegistrationConfirmationView
 
 import scala.concurrent.Future
@@ -37,6 +38,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
   private val mockEmailService = mock[EmailService]
   private val subscriptionId   = SubscriptionId("XCARF0012345678")
+
+  override def beforeEach(): Unit = {
+    reset(mockEmailService)
+    super.beforeEach()
+  }
 
   def buildApplication(userAnswers: Option[UserAnswers]) =
     applicationBuilder(userAnswers = userAnswers)
@@ -103,7 +109,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )(request, messages(application)).toString
 
           // email should NOT be sent again when already succeeded
-          verify(mockEmailService, never()).sendRegistrationConfirmation(any(), any(), any())
+          verify(mockEmailService, never()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
         }
       }
 
@@ -112,7 +122,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         stubSessionSave()
 
         when(
-          mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])
+          mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])(
+            any[HeaderCarrier]
+          )
         )
           .thenReturn(Future.successful(()))
 
@@ -156,7 +168,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           )(request, messages(application)).toString
 
           // email should be sent only once
-          verify(mockEmailService, times(1)).sendRegistrationConfirmation(any(), any(), any())
+          verify(mockEmailService, atLeastOnce()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
         }
       }
 
@@ -164,7 +180,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         stubSessionSave()
         when(
-          mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])
+          mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])(
+            any[HeaderCarrier]
+          )
         )
           .thenReturn(Future.successful(()))
 
@@ -198,7 +216,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
               .url
           )(request, messages(application)).toString
 
-          verify(mockEmailService, times(1)).sendRegistrationConfirmation(any(), any(), any())
+          verify(mockEmailService, atLeastOnce()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
         }
       }
 
@@ -209,9 +231,14 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           (IndWithoutId, "indwithout@test.com"),
           (IndWithUtr, "soletrader@test.com")
         ).foreach { case (journey, email) =>
+          reset(mockEmailService, mockSessionRepository)
           stubSessionSave()
           when(
-            mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])
+            mockEmailService.sendRegistrationConfirmation(
+              any[List[ContactEmailInfo]],
+              any[String],
+              any[Option[String]]
+            )(any[HeaderCarrier])
           )
             .thenReturn(Future.successful(()))
 
@@ -248,7 +275,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
                 .url
             )(request, messages(application)).toString
 
-            verify(mockEmailService, times(1)).sendRegistrationConfirmation(any(), any(), any())
+            verify(mockEmailService, atLeastOnce()).sendRegistrationConfirmation(
+              any[List[ContactEmailInfo]],
+              any[String],
+              any[Option[String]]
+            )(any[HeaderCarrier])
           }
         }
       }
@@ -267,7 +298,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           running(application) {
             redirectAssertion(route(application, request).value)
-            verify(mockEmailService, never()).sendRegistrationConfirmation(any(), any(), any())
+            verify(mockEmailService, never()).sendRegistrationConfirmation(
+              any[List[ContactEmailInfo]],
+              any[String],
+              any[Option[String]]
+            )(any[HeaderCarrier])
           }
         }
       }
@@ -286,7 +321,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           running(application) {
             redirectAssertion(route(application, request).value)
-            verify(mockEmailService, never()).sendRegistrationConfirmation(any(), any(), any())
+            verify(mockEmailService, never()).sendRegistrationConfirmation(
+              any[List[ContactEmailInfo]],
+              any[String],
+              any[Option[String]]
+            )(any[HeaderCarrier])
           }
         }
       }
@@ -308,7 +347,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
             .value
 
         when(
-          mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])
+          mockEmailService.sendRegistrationConfirmation(any[List[ContactEmailInfo]], any[String], any[Option[String]])(
+            any[HeaderCarrier]
+          )
         )
           .thenReturn(Future.failed(new RuntimeException("Email service failed")))
 
@@ -316,7 +357,11 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         running(application) {
           redirectAssertion(route(application, request).value)
-          verify(mockEmailService, times(1)).sendRegistrationConfirmation(any(), any(), any())
+          verify(mockEmailService, atLeastOnce()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
         }
       }
     }

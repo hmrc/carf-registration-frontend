@@ -589,6 +589,17 @@ individualAlreadyRegistered.p3.part1 = You can email
 individualAlreadyRegistered.p3.part2 = aeoi.enquiries@hmrc.gov.uk
 individualAlreadyRegistered.p3.part3 = if you need support with accessing this service.
 
+organisationAlreadyRegistered.title = Your organisation is already registered to use this service
+organisationAlreadyRegistered.heading = Your organisation is already registered to use this service
+organisationAlreadyRegistered.p1.part1 = To access the cryptoasset reporting framework service, you must either:
+organisationAlreadyRegistered.p1.part2 = sign in with the Government Gateway user ID used to register for this service
+organisationAlreadyRegistered.p1.part3 = make sure you have permission to use this service through the
+organisationAlreadyRegistered.p1.part4 = tax and scheme management service
+organisationAlreadyRegistered.p2.part1 = You can email
+organisationAlreadyRegistered.p2.part2 = aeoi.enquiries@hmrc.gov.uk
+organisationAlreadyRegistered.p2.part3 = if you need support with accessing this service.
+
+
 assistantSignInProblem.title = You’re currently unable to access this service
 assistantSignInProblem.heading = You’re currently unable to access this service
 assistantSignInProblem.p1 = You have signed in as a standard user. Someone in your organisation with an administrator role must give you permission to access this service.

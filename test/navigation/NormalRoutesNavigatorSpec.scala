@@ -1187,9 +1187,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NavigatorOnlyCheckYourAnswersErrors,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Must redirect to /problem/organisation-already-registered (CARF-260)"
-        )
+        ) mustBe controllers.organisation.routes.OrganisationAlreadyRegisteredController.onPageLoad()
       }
       "when journey type is organisation without id" in {
         val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithoutId))

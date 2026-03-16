@@ -47,7 +47,7 @@ class EmailService @Inject() (
       case None          => sendEmails(contacts, subscriptionId)
     }
 
-  private def applyStubBehavior(subscriptionId: String, idNumberOpt: Option[String]): Option[Future[Unit]] = {
+  private def applyStubBehavior(subscriptionId: String, idNumberOpt: Option[String]): Option[Future[Unit]] =
     idNumberOpt match {
       case Some(idNumber) =>
         val firstTwo   = idNumber.take(2).toUpperCase
@@ -64,7 +64,6 @@ class EmailService @Inject() (
         logger.info("[EmailService] Successfully sent registration confirmation (no ID provided) stub")
         None
     }
-  }
 
   private def sendEmails(
       contacts: List[ContactEmailInfo],

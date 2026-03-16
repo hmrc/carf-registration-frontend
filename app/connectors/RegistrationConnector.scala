@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
 import models.requests.*
-import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
+import models.responses.{RegisterIndividualWithIdResponse, RegisterIndividualWithoutIdResponse, RegisterOrganisationWithIdResponse}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
@@ -50,6 +50,11 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithIdResponse] =
     registerIndividualWithId(request, url"$backendBaseUrl/individual/utr")
 
+  def individualWithoutId(
+      request: RegisterIndividualWithoutIdRequest
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithoutIdResponse] =
+    registerIndividualWithoutId(request, url"$backendBaseUrl/individual-without-id")
+
   private def registerIndividualWithId(
       request: RegisterIndividualWithIdRequest,
       endpoint: URL
@@ -74,6 +79,29 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
             Left(ApiError.NotFoundError)
           case response                                 =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+            Left(ApiError.InternalServerError)
+        }
+    }
+
+  private def registerIndividualWithoutId(
+      request: RegisterIndividualWithoutIdRequest,
+      endpoint: URL
+  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterIndividualWithoutIdResponse] =
+    EitherT {
+      http
+        .post(endpoint)
+        .withBody(Json.toJson(request))
+        .execute[HttpResponse]
+        .map {
+          case response if response.status == OK =>
+            Try(response.json.as[RegisterIndividualWithoutIdResponse]) match {
+              case Success(data)      => Right(data)
+              case Failure(exception) =>
+                logger.warn(s"Error parsing RegisterIndividualWithoutIdResponse with endpoint: ${endpoint.toURI}")
+                Left(ApiError.JsonValidationError)
+            }
+          case response                          =>
+            logger.warn(s"Unexpected response from endpoint ${endpoint.toURI}, status: ${response.status}")
             Left(ApiError.InternalServerError)
         }
     }

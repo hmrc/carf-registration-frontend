@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package models.responses
 
 import base.SpecBase
@@ -31,27 +47,32 @@ class DisplaySubscriptionResponseSpec extends SpecBase {
 
   "DisplaySubscriptionResponse object extension method hasIndividualChangedData" - {
     "must return true if email changed" - {
-      val result = testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = "DIFF EMAIL", phone = Some(testPhone))
+      val result = testIndividualDisplaySubscriptionResponse(true)
+        .hasIndividualChangedData(email = "DIFF EMAIL", phone = Some(testPhone))
 
       result mustBe true
     }
     "must return true if phone changed" - {
-      val result = testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = testEmail, phone = Some("DIFF PHONE"))
+      val result = testIndividualDisplaySubscriptionResponse(true)
+        .hasIndividualChangedData(email = testEmail, phone = Some("DIFF PHONE"))
 
       result mustBe true
     }
     "must return true if phone is None" - {
-      val result = testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = testEmail, phone = None)
+      val result =
+        testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = testEmail, phone = None)
 
       result mustBe true
     }
     "must return true if email and phone changed" - {
-      val result = testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = "DIFF EMAIL", phone = Some("DIFF PHONE"))
+      val result = testIndividualDisplaySubscriptionResponse(true)
+        .hasIndividualChangedData(email = "DIFF EMAIL", phone = Some("DIFF PHONE"))
 
       result mustBe true
     }
     "must return false if nothing changed" - {
-      val result = testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = testEmail, phone = Some(testPhone))
+      val result = testIndividualDisplaySubscriptionResponse(true)
+        .hasIndividualChangedData(email = testEmail, phone = Some(testPhone))
 
       result mustBe false
     }

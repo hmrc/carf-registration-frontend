@@ -17,22 +17,12 @@
 package utils
 
 import com.google.inject.Inject
-import models.{RegistrationType, UserAnswers}
+import models.UserAnswers
 import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
-import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
-import pages.orgWithoutId.HaveTradingNamePage
-import pages.organisation.*
-import pages.{RegisteredAddressInUkPage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.Section
 import viewmodels.checkAnswers.changeContactDetails.{ChangeDetailsIndividualEmailSummary, ChangeDetailsIndividualHavePhoneSummary, ChangeDetailsIndividualPhoneNumberSummary}
-import viewmodels.checkAnswers.individual.*
-import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdAddressUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
-import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
-import viewmodels.checkAnswers.organisation.*
-import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 
 class ChangeDetailsHelper @Inject() extends Logging {
 

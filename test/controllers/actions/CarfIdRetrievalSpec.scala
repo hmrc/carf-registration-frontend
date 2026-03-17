@@ -113,7 +113,7 @@ class CarfIdRetrievalSpec extends SpecBase {
 
       val result: Future[Result] = testCarfIdRetrievalActionExtractor.invokeBlock(FakeRequest(), testAction)
 
-      status(result) mustBe SEE_OTHER
+      status(result)           mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(s"${routes.UnauthorisedController.onPageLoad()}")
     }
 

@@ -17,7 +17,6 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
-import controllers.routes
 import models.error.ApiError.InternalServerError
 import models.{CheckMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -75,9 +74,8 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
     .withPage(ChangeDetailsIndividualHavePhonePage, true)
     .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
 
-  val testBackToManageLink: String = "/register-for-cryptoasset-reporting" + routes.PlaceholderController
-    .onPageLoad("Must redirect to service home page (CARF-411)")
-    .url
+  val testBackToManageLink: String =
+    "/register-for-cryptoasset-reporting/placeholder?message=Must+redirect+to+service+home+page+%28CARF-411%29"
 
   "Change Individual Contact Details Controller" - {
     "onPageLoad" - {
@@ -199,7 +197,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
       }
     }
-    
+
     "onSubmit" - {
       "must redirect to success page if update subscription is successful" in new Setup(emptyUserAnswers) {
         when(mockSubscriptionService.updateSubscription(any())(any()))

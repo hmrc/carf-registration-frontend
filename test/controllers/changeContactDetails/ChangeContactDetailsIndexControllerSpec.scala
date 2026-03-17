@@ -117,7 +117,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
 
         val result: Future[Result] = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
           controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad().url
         )

@@ -39,8 +39,8 @@ class FakeCarfIdRetrievalAction @Inject() (bodyParsers: PlayBodyParsers)
   override protected def executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
 
-  override def apply()
-      : ActionBuilder[IdentifierRequestWithSubscriptionId, AnyContent] with ActionFunction[Request, IdentifierRequestWithSubscriptionId] =
+  override def apply(): ActionBuilder[IdentifierRequestWithSubscriptionId, AnyContent]
+    with ActionFunction[Request, IdentifierRequestWithSubscriptionId] =
     this
 
 }

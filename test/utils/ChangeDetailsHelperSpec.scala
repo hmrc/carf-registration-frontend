@@ -73,7 +73,8 @@ class ChangeDetailsHelperSpec extends SpecBase {
         rows mustBe None
       }
       "must return None if user answers does not contain have phone" in new TestData {
-        val rows: Option[Seq[SummaryListRow]] = testHelper.getFirstContactDetailsSectionMaybe(userAnswersWithoutHavePhone)
+        val rows: Option[Seq[SummaryListRow]] =
+          testHelper.getFirstContactDetailsSectionMaybe(userAnswersWithoutHavePhone)
 
         rows mustBe None
       }
@@ -86,7 +87,8 @@ class ChangeDetailsHelperSpec extends SpecBase {
   }
 
   class TestData {
-    val userAnswersWithoutHavePhone: UserAnswers = emptyUserAnswers.withPage(ChangeDetailsIndividualEmailPage, testEmail)
+    val userAnswersWithoutHavePhone: UserAnswers =
+      emptyUserAnswers.withPage(ChangeDetailsIndividualEmailPage, testEmail)
 
     val userAnswersWithoutPhone: UserAnswers = emptyUserAnswers
       .withPage(ChangeDetailsIndividualEmailPage, testEmail)

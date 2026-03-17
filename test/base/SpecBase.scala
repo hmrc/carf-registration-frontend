@@ -156,7 +156,7 @@ trait SpecBase
 
   val testEmail = "hi@example.com"
   val testPhone = "07123456789"
-          
+
   def testIndividualDisplaySubscriptionResponse(hasPhone: Boolean) = DisplaySubscriptionResponse(success =
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
@@ -201,7 +201,8 @@ trait SpecBase
         tradingName = Some("testTradingName"),
         gbUser = true,
         primaryContact = DisplaySubscriptionContact(
-          individual = Some(DisplaySubscriptionIndividual(firstName = "Timmy", middleName = Some("Tim"), lastName = "Timothy")),
+          individual =
+            Some(DisplaySubscriptionIndividual(firstName = "Timmy", middleName = Some("Tim"), lastName = "Timothy")),
           organisation = Some(DisplaySubscriptionOrganisation(name = "Timmy Ltd.")),
           email = testEmail,
           phone = Some(testPhone),

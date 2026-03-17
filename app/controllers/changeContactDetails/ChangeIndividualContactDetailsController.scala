@@ -19,6 +19,7 @@ package controllers.changeContactDetails
 import com.google.inject.Inject
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import controllers.routes
+import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.Logging
 import play.api.i18n.I18nSupport

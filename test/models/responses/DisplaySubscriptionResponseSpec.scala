@@ -45,7 +45,7 @@ class DisplaySubscriptionResponseSpec extends SpecBase {
     }
   }
 
-  "DisplaySubscriptionResponse object extension method hasIndividualChangedData" - {
+  "DisplaySubscriptionResponse extension method hasIndividualChangedData" - {
     "must return true if email changed" - {
       val result = testIndividualDisplaySubscriptionResponse(true)
         .hasIndividualChangedData(email = "DIFF EMAIL", phone = Some(testPhone))

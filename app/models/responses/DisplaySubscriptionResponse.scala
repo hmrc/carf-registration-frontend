@@ -32,16 +32,16 @@ case class DisplaySubscriptionResponse(success: DisplaySubscriptionSuccess) {
 
 object DisplaySubscriptionResponse {
   implicit val format: OFormat[DisplaySubscriptionResponse] = Json.format[DisplaySubscriptionResponse]
+}
 
-  extension (displaySubscriptionResponse: DisplaySubscriptionResponse) {
-    def hasIndividualChangedData(email: String, phone: Option[String]): Boolean =
-      val primaryContact                 = displaySubscriptionResponse.success.carfSubscriptionDetails.primaryContact
-      val hasEmailChanged: Boolean       = !(primaryContact.email == email)
-      val hasPhoneNumberChanged: Boolean = !(primaryContact.phone == phone)
+extension (displaySubscriptionResponse: DisplaySubscriptionResponse) {
+  def hasIndividualChangedData(email: String, phone: Option[String]): Boolean =
+    val primaryContact                 = displaySubscriptionResponse.success.carfSubscriptionDetails.primaryContact
+    val hasEmailChanged: Boolean       = !(primaryContact.email == email)
+    val hasPhoneNumberChanged: Boolean = !(primaryContact.phone == phone)
 
-      hasEmailChanged | hasPhoneNumberChanged
+    hasEmailChanged | hasPhoneNumberChanged
 
-  }
 }
 
 case class DisplaySubscriptionSuccess(processingDate: String, carfSubscriptionDetails: DisplaySubscriptionDetails)

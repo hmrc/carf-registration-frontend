@@ -34,7 +34,6 @@ class OrganisationAlreadyRegisteredController @Inject() (
     sessionRepository: SessionRepository,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: OrganisationAlreadyRegisteredView,

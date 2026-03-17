@@ -28,6 +28,8 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalactic.Prettifier.default
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
+import models.requests.{AddressDetails, ContactDetails, RegisterIndividualWithoutIdRequest}
+import models.responses.RegisterIndividualWithoutIdResponse
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -77,6 +79,32 @@ class RegistrationServiceSpec extends SpecBase {
       countryCode = "GB",
       countryName = None
     )
+  )
+
+  val testContactDetails = ContactDetails(
+    emailAddress = "test@example.com",
+    phoneNumber = Some("07123456789")
+  )
+
+  val testAddressDetails = AddressDetails(
+    addressLine1 = "123 Test Street",
+    addressLine2 = Some("Test Area"),
+    addressLine3 = None,
+    townOrCity = "Test City",
+    postalCode = Some("TE5T 1NG"),
+    countryCode = "GB"
+  )
+
+  val testRegisterIndividualWithoutIdRequest = RegisterIndividualWithoutIdRequest(
+    firstName = "John",
+    lastName = "Doe",
+    dateOfBirth = "1990-01-01",
+    address = testAddressDetails,
+    contactDetails = testContactDetails
+  )
+
+  val testRegisterIndividualWithoutIdResponse = RegisterIndividualWithoutIdResponse(
+    safeId = "testSafeIdWithoutId"
   )
 
   val organisationUserAnswersUtr: UserAnswers = UserAnswers(userAnswersId)
@@ -277,6 +305,42 @@ class RegistrationServiceSpec extends SpecBase {
 
         val result = testService.getIndividualByUtr(individualDetailsUtrUserAnswers).futureValue
 
+        result mustBe Left(InternalServerError)
+      }
+    }
+
+    "individualWithoutId method should" - {
+      "successfully return individual details when the connector returns them successfully" in {
+        when(mockConnector.individualWithoutId(any[RegisterIndividualWithoutIdRequest])(any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testRegisterIndividualWithoutIdResponse))
+
+        val result = testService.individualWithoutId(testRegisterIndividualWithoutIdRequest).futureValue
+
+        result mustBe Right(
+          IndividualDetails(
+            safeId = "testSafeIdWithoutId",
+            firstName = "John",
+            lastName = "Doe",
+            middleName = None,
+            address = AddressRegistrationResponse(
+              addressLine1 = "123 Test Street",
+              addressLine2 = Some("Test Area"),
+              addressLine3 = None,
+              addressLine4 = None,
+              postalCode = Some("TE5T 1NG"),
+              countryCode = "GB",
+              countryName = None
+            )
+          )
+        )
+        verify(mockConnector).individualWithoutId(eqTo(testRegisterIndividualWithoutIdRequest))(any())
+      }
+
+      "return an internal server error when the connector fails to register the individual without an ID" in {
+        when(mockConnector.individualWithoutId(any[RegisterIndividualWithoutIdRequest])(any()))
+          .thenReturn(EitherT.leftT[Future, RegisterIndividualWithoutIdResponse](InternalServerError))
+
+        val result = testService.individualWithoutId(testRegisterIndividualWithoutIdRequest).futureValue
         result mustBe Left(InternalServerError)
       }
     }

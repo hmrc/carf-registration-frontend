@@ -589,6 +589,27 @@ individualAlreadyRegistered.p3.part1 = You can email
 individualAlreadyRegistered.p3.part2 = aeoi.enquiries@hmrc.gov.uk
 individualAlreadyRegistered.p3.part3 = if you need support with accessing this service.
 
+organisationAlreadyRegistered.title = Your organisation is already registered to use this service
+organisationAlreadyRegistered.heading = Your organisation is already registered to use this service
+organisationAlreadyRegistered.p1.part1 = To access the cryptoasset reporting framework service, you must either:
+organisationAlreadyRegistered.p1.part2 = sign in with the Government Gateway user ID used to register for this service
+organisationAlreadyRegistered.p1.part3 = make sure you have permission to use this service through the
+organisationAlreadyRegistered.p1.part4 = tax and scheme management service
+organisationAlreadyRegistered.p2.part1 = You can email
+organisationAlreadyRegistered.p2.part2 = aeoi.enquiries@hmrc.gov.uk
+organisationAlreadyRegistered.p2.part3 = if you need support with accessing this service.
+
+assistantSignInProblem.title = You’re currently unable to access this service
+assistantSignInProblem.heading = You’re currently unable to access this service
+assistantSignInProblem.p1 = You have signed in as a standard user. Someone in your organisation with an administrator role must give you permission to access this service.
+assistantSignInProblem.p2.heading = What your administrator must do next
+assistantSignInProblem.p2.item1 = Sign in with their Government Gateway details.
+assistantSignInProblem.p2.item2 = Register for the cryptoasset reporting framework service, if they have not done so already.
+assistantSignInProblem.p2.item3 = Give you permission to use this service through the tax and scheme management service.
+assistantSignInProblem.p3.body = If your administrator does not have the link for the tax and scheme management service, then you can share this link with them. The link will only work for your administrator:
+assistantSignInProblem.p3.url = www.tax.service.gov.uk/tax-and-scheme-management/services
+assistantSignInProblem.p4 = Once your administrator has completed these steps, you will then be able to sign in with your own Government Gateway details to use this service.
+
 changeDetails.title.normal = Change your contact details
 changeDetails.heading.normal = Change your contact details
 changeDetails.title.dynamic = Check your contact details

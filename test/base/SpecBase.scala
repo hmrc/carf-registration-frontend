@@ -19,9 +19,9 @@ package base
 import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
-import models.countries.{Country, CountryUk}
-import models.responses.{AddressRecord, AddressRegistrationResponse, AddressResponse, CountryRecord}
-import models.{AddressUk, BusinessDetails, UniqueTaxpayerReference, UserAnswers}
+import models.countries.CountryUk
+import models.responses.*
+import models.{AddressUk, BusinessDetails, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -34,15 +34,15 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{Json, Writes}
-import play.api.mvc.{BodyParsers, PlayBodyParsers}
+import play.api.libs.json.Writes
+import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import queries.Settable
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.{Clock, Instant, ZoneId}
+import java.time.{Clock, Instant, LocalDate, ZoneId}
 import scala.concurrent.ExecutionContext
 
 trait SpecBase
@@ -58,11 +58,12 @@ trait SpecBase
     with MockitoSugar
     with Generators {
 
-  val userAnswersId: String            = "id"
-  val testUtr: UniqueTaxpayerReference = UniqueTaxpayerReference("1234567890")
-  val testUtrString: String            = testUtr.uniqueTaxPayerReference
-  val testInternalId: String           = "12345"
-  val testSafeId: String               = "XE0000123456789"
+  val userAnswersId: String              = "id"
+  val testUtr: UniqueTaxpayerReference   = UniqueTaxpayerReference("1234567890")
+  val testUtrString: String              = testUtr.uniqueTaxPayerReference
+  val testInternalId: String             = "12345"
+  val testSubscriptionId: SubscriptionId = SubscriptionId("67890")
+  val testSafeId: String                 = "XE0000123456789"
 
   private val UtcZoneId          = "UTC"
   implicit val fixedClock: Clock = Clock.fixed(Instant.parse("2020-05-20T12:34:56.789012Z"), ZoneId.of(UtcZoneId))
@@ -91,6 +92,8 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers, affinityGroup)),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalActionProvider(userAnswers, requestUtr)),
+        bind[CarfIdRetrievalAction].toInstance(new FakeCarfIdRetrievalAction(injectedParsers)),
+        bind[ChangeDetailsDataRequiredAction].toInstance(new FakeChangeDetailsDataRequiredAction(userAnswers)),
         bind[SubmissionLockAction].to[FakeSubmissionLockAction],
         bind[SessionRepository].toInstance(mockSessionRepository)
       )
@@ -151,4 +154,79 @@ trait SpecBase
   val testBusinessDetails =
     BusinessDetails(name = "TestName", address = testAddressRegistrationResponse, safeId = testSafeId)
 
+  val testEmail = "hi@example.com"
+  val testPhone = "07123456789"
+          
+  def testIndividualDisplaySubscriptionResponse(hasPhone: Boolean) = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual =
+            Some(DisplaySubscriptionIndividual(firstName = "Timmy", middleName = Some("Tim"), lastName = "Timothy")),
+          organisation = None,
+          email = testEmail,
+          phone = if (hasPhone) Some(testPhone) else None,
+          mobile = None
+        ),
+        secondaryContact = None
+      )
+    )
+  )
+
+  val testOrganisationDisplaySubscriptionResponse = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = None,
+          organisation = Some(DisplaySubscriptionOrganisation(name = "Timmy Ltd.")),
+          email = testEmail,
+          phone = Some(testPhone),
+          mobile = None
+        ),
+        secondaryContact = None
+      )
+    )
+  )
+
+  val testInvalidDisplaySubscriptionResponseBoth = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = Some(DisplaySubscriptionIndividual(firstName = "Timmy", middleName = Some("Tim"), lastName = "Timothy")),
+          organisation = Some(DisplaySubscriptionOrganisation(name = "Timmy Ltd.")),
+          email = testEmail,
+          phone = Some(testPhone),
+          mobile = None
+        ),
+        secondaryContact = None
+      )
+    )
+  )
+
+  val testInvalidDisplaySubscriptionResponse = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = None,
+          organisation = None,
+          email = testEmail,
+          phone = Some(testPhone),
+          mobile = None
+        ),
+        secondaryContact = None
+      )
+    )
+  )
 }

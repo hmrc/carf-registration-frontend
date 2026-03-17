@@ -122,7 +122,7 @@ class SubscriptionService @Inject() (
       )
     }
 
-  def updateSubscription(subscriptionId: SubscriptionId): Future[Either[CarfError, Unit]] =
+  def updateSubscription(subscriptionId: SubscriptionId)(implicit hc: HeaderCarrier): Future[Either[CarfError, Unit]] =
     if (subscriptionId.value.take(3) == "199") {
       Future.successful(Left(InternalServerError))
     } else {

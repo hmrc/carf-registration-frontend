@@ -23,7 +23,6 @@ import models.{IdentifierRequestWithSubscriptionId, IdentifierType, Subscription
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*
-import services.SubscriptionService
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -43,7 +42,6 @@ trait CarfIdRetrievalAction {
 class CarfIdRetrievalActionImpl @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
-    subscriptionService: SubscriptionService,
     val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)
     extends CarfIdRetrievalAction
@@ -51,13 +49,12 @@ class CarfIdRetrievalActionImpl @Inject() (
 
   override def apply(): ActionBuilder[IdentifierRequestWithSubscriptionId, AnyContent]
     with ActionFunction[Request, IdentifierRequestWithSubscriptionId] =
-    new CarfIdRetrievalActionExtractor(authConnector, subscriptionService, config, parser)
+    new CarfIdRetrievalActionExtractor(authConnector, config, parser)
 
 }
 
 class CarfIdRetrievalActionExtractor @Inject() (
     override val authConnector: AuthConnector,
-    subscriptionService: SubscriptionService,
     config: FrontendAppConfig,
     val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)
@@ -73,21 +70,20 @@ class CarfIdRetrievalActionExtractor @Inject() (
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
-      .retrieve(Retrievals.internalId and Retrievals.allEnrolments) {
-        case Some(internalId) ~ enrolments =>
-          getCarfId(enrolments) match {
-            case Some(subscriptionId) =>
-              block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
-            case None                 =>
-              logger.info("User has no CARF enrolment. Taking user to the start of the registration journey.")
-              Future.successful(Redirect(controllers.routes.IndexController.onPageLoad()))
-          }
-        case _                             =>
-          val msg = "Unable to retrieve internal id"
-          logger.warn(msg)
-          throw AuthorisationException.fromString(msg)
-      } recover {
+    authorised().retrieve(Retrievals.internalId and Retrievals.allEnrolments) {
+      case Some(internalId) ~ enrolments =>
+        getCarfId(enrolments) match {
+          case Some(subscriptionId) =>
+            block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
+          case None                 =>
+            logger.info("User has no CARF enrolment. Taking user to the start of the registration journey.")
+            Future.successful(Redirect(controllers.routes.IndexController.onPageLoad()))
+        }
+      case _                             =>
+        val msg = "Unable to retrieve internal id"
+        logger.warn(msg)
+        throw AuthorisationException.fromString(msg)
+    } recover {
       case _: NoActiveSession        =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>

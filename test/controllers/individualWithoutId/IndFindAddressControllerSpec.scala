@@ -105,9 +105,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
 
     "must return OK and remove IndWithoutIdAddressPagePrePop from ua when performing a GET" in {
       val userAnswers = emptyUserAnswers.set(IndWithoutIdAddressPagePrePop, testAddressUk).success.value
-
-      val userAnswersWithout = emptyUserAnswers
-
+      
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)

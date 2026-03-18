@@ -51,7 +51,7 @@ class ChangeDetailsManipulateUserAnswersController @Inject() (
           )
         case "havePhone"             =>
           Future.fromTry(
-            request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, if (key.toUpperCase == "Y") true else false)
+            request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, if (value.toUpperCase == "Y") true else false)
           )
         case _                       => throw new Exception("not a recognised key")
       }

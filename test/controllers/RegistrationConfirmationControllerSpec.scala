@@ -383,6 +383,54 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         }
       }
 
+      "must redirect when subscriptionId is missing" in {
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr)) // no subscriptionId
+
+        val application = buildApplication(Some(userAnswers))
+
+        running(application) {
+          redirectAssertion(route(application, request).value)
+          verify(mockEmailService, never()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
+        }
+      }
+
+      "must redirect when journeyType is missing" in {
+        val userAnswers = emptyUserAnswers.copy(subscriptionId = Some(subscriptionId)) // no journeyType
+
+        val application = buildApplication(Some(userAnswers))
+
+        running(application) {
+          redirectAssertion(route(application, request).value)
+          verify(mockEmailService, never()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
+        }
+      }
+
+      "must redirect when contacts cannot be built" in {
+        val userAnswers =
+          emptyUserAnswers
+            .copy(subscriptionId = Some(subscriptionId))
+            .copy(journeyType = Some(OrgWithUtr)) // OrgWithUtr but missing required contact pages
+
+        val application = buildApplication(Some(userAnswers))
+
+        running(application) {
+          redirectAssertion(route(application, request).value)
+          verify(mockEmailService, never()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
+        }
+      }
+
       "must redirect when email service fails" in {
 
         val userAnswers =

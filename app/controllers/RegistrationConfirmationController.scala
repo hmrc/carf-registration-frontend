@@ -27,8 +27,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.EmailService
-import services.ContactEmailInfo
+import services.{ContactEmailInfo, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
 
@@ -52,48 +51,55 @@ class RegistrationConfirmationController @Inject() (
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen getData() andThen requireData).async { implicit request =>
       request.userAnswers.get(SubmissionSucceededPage) match {
-        case Some(true) =>
-          val subscriptionId = request.userAnswers.subscriptionId.get
-          val journeyType    = request.userAnswers.journeyType.get
-          val contacts       = getContacts(journeyType, request.userAnswers).getOrElse(Nil)
-          val idNumberOpt    = getIdNumber(journeyType, request.userAnswers)
-          val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
-          val emailAddresses = contacts.map(_.email)
 
-          Future.successful(
-            Ok(
+        case Some(true) =>
+          (request.userAnswers.subscriptionId, request.userAnswers.journeyType) match {
+            case (Some(subscriptionId), Some(journeyType)) =>
+              val contactsOpt    = getContacts(journeyType, request.userAnswers)
+              val contacts       = contactsOpt.getOrElse(Nil)
+              val idNumberOpt    = getIdNumber(journeyType, request.userAnswers)
+              val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
+              val emailAddresses = contacts.map(_.email)
+
+              Future.successful(
+                Ok(
+                  view(
+                    subscriptionId = subscriptionId.value,
+                    emailAddresses = emailAddresses,
+                    addProviderUrl = addProviderUrl
+                  )
+                )
+              )
+
+            case _ =>
+              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
+          }
+
+        case _ =>
+          val resultOpt = for {
+            subscriptionId <- request.userAnswers.subscriptionId
+            journeyType    <- request.userAnswers.journeyType
+            contacts       <- getContacts(journeyType, request.userAnswers)
+          } yield {
+            val idNumberOpt    = getIdNumber(journeyType, request.userAnswers)
+            val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
+            val emailAddresses = contacts.map(_.email)
+
+            for {
+              _              <- emailService.sendRegistrationConfirmation(contacts, subscriptionId.value, idNumberOpt)
+              _               = logger.info("[RegistrationConfirmationController] Email(s) sent successfully.")
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Ok(
               view(
                 subscriptionId = subscriptionId.value,
                 emailAddresses = emailAddresses,
                 addProviderUrl = addProviderUrl
               )
             )
-          )
+          }
 
-        case _ =>
-          val result = for {
-            subscriptionId <- request.userAnswers.subscriptionId
-            journeyType    <- request.userAnswers.journeyType
-            contacts       <- getContacts(journeyType, request.userAnswers)
-            idNumberOpt     = getIdNumber(journeyType, request.userAnswers)
-            addProviderUrl  = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
-            emailAddresses  = contacts.map(_.email)
-          } yield for {
-            _              <- emailService.sendRegistrationConfirmation(contacts, subscriptionId.value, idNumberOpt)
-            _               = logger.info("[RegistrationConfirmationController] Email(s) sent successfully.")
-            updatedAnswers <- Future.fromTry(
-                                request.userAnswers.set(SubmissionSucceededPage, true)
-                              )
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Ok(
-            view(
-              subscriptionId = subscriptionId.value,
-              emailAddresses = emailAddresses,
-              addProviderUrl = addProviderUrl
-            )
-          )
-
-          result match {
+          resultOpt match {
             case Some(successF) =>
               successF.recover { case ex =>
                 logger.error("[RegistrationConfirmationController] Error sending confirmation emails", ex)
@@ -112,7 +118,8 @@ class RegistrationConfirmationController @Inject() (
           firstName  <- userAnswers.get(FirstContactNamePage)
           firstEmail <- userAnswers.get(FirstContactEmailPage)
         } yield {
-          val firstContact     = ContactEmailInfo(firstName, firstEmail)
+          val firstContact = ContactEmailInfo(firstName, firstEmail)
+
           val secondContactOpt = for {
             hasSecond <- userAnswers.get(OrganisationHaveSecondContactPage)
             if hasSecond
@@ -142,10 +149,8 @@ class RegistrationConfirmationController @Inject() (
     journeyType match {
       case OrgWithUtr | IndWithUtr     =>
         userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
-      case IndWithNino                 =>
-        userAnswers.get(NiNumberPage)
-      case OrgWithoutId | IndWithoutId =>
-        None
+      case IndWithNino                 => userAnswers.get(NiNumberPage)
+      case OrgWithoutId | IndWithoutId => None
     }
 
   private def getAddProviderUrl(journeyType: JourneyType, isCtAutoMatched: Boolean): String =

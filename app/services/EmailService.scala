@@ -42,27 +42,37 @@ class EmailService @Inject() (
       subscriptionId: String,
       idNumberOpt: Option[String]
   )(implicit hc: HeaderCarrier): Future[Unit] =
-    applyStubBehavior(subscriptionId, idNumberOpt) match {
+    applyStubBehavior(subscriptionId, idNumberOpt, contacts) match {
       case Some(failure) => failure
       case None          => sendEmails(contacts, subscriptionId)
     }
 
-  private def applyStubBehavior(subscriptionId: String, idNumberOpt: Option[String]): Option[Future[Unit]] =
+  private def applyStubBehavior(
+      subscriptionId: String,
+      idNumberOpt: Option[String],
+      contacts: List[ContactEmailInfo]
+  ): Option[Future[Unit]] =
     idNumberOpt match {
       case Some(idNumber) =>
         val firstTwo   = idNumber.take(2).toUpperCase
         val shouldFail = firstTwo == "44" || firstTwo == "AA"
         if (shouldFail) {
-          logger.warn("[EmailService] Failed to send registration confirmation stub")
+          logger.warn("[EmailService] Failed to send registration confirmation stub (ID-based)")
           Some(Future.failed(new Exception("Stubbed email failure")))
         } else {
-          logger.info("[EmailService] Successfully sent registration confirmation stub")
+          logger.info("[EmailService] Successfully sent registration confirmation stub (ID-based)")
           None
         }
 
       case None =>
-        logger.info("[EmailService] Successfully sent registration confirmation (no ID provided) stub")
-        None
+        contacts.headOption match {
+          case Some(firstContact) if firstContact.name.toUpperCase.startsWith("F") =>
+            logger.warn("[EmailService] Failed to send registration confirmation stub (name-based)")
+            Some(Future.failed(new Exception("Stubbed email failure (no ID)")))
+          case _                                                                   =>
+            logger.info("[EmailService] Successfully sent registration confirmation stub (no ID)")
+            None
+        }
     }
 
   private def sendEmails(
@@ -99,7 +109,7 @@ class EmailService @Inject() (
         }
     }
   }
-  private val CarfReferenceLength                                                                          = 10
-  private def generateCarfReference(subscriptionId: String): String                                        =
+  private val CarfReferenceLength                                   = 10
+  private def generateCarfReference(subscriptionId: String): String =
     s"XXCAR${subscriptionId.take(CarfReferenceLength).toUpperCase}"
 }

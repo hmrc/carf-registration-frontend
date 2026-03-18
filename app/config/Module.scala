@@ -19,7 +19,7 @@ package config
 import com.google.inject.AbstractModule
 import controllers.actions.*
 
-import java.time.{Clock, ZoneId, ZoneOffset}
+import java.time.{Clock, ZoneId}
 
 class Module extends AbstractModule {
 
@@ -31,6 +31,7 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
     bind(classOf[ChangeDetailsDataRequiredAction]).to(classOf[ChangeDetailsDataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[CarfIdRetrievalAction]).to(classOf[CarfIdRetrievalActionImpl]).asEagerSingleton()
+    bind(classOf[BasicAuthAction]).to(classOf[BasicAuthActionImpl]).asEagerSingleton()
 
     // For session based storage instead of cred based, change to SessionIdentifierAction
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()

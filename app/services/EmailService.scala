@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EmailConnector, EmailSent, EmailStatus}
+import connectors.{EmailConnector, EmailSent}
 import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,45 +41,40 @@ class EmailService @Inject() (
       contacts: List[ContactEmailInfo],
       subscriptionId: String,
       idNumberOpt: Option[String]
-  )(implicit hc: HeaderCarrier): Future[Unit] =
-    applyStubBehavior(subscriptionId, idNumberOpt, contacts) match {
-      case Some(failure) => failure
-      case None          => sendEmails(contacts, subscriptionId)
-    }
+  )(implicit hc: HeaderCarrier): Future[Unit] = {
+    applyStubBehavior(subscriptionId, idNumberOpt, contacts)
+    sendEmails(contacts, subscriptionId)
+  }
 
+  /** Stub behavior logs warning but does NOT fail the journey */
   private def applyStubBehavior(
       subscriptionId: String,
       idNumberOpt: Option[String],
       contacts: List[ContactEmailInfo]
-  ): Option[Future[Unit]] =
+  ): Unit =
     idNumberOpt match {
       case Some(idNumber) =>
-        val firstTwo   = idNumber.take(2).toUpperCase
-        val shouldFail = firstTwo == "44" || firstTwo == "AA"
-        if (shouldFail) {
-          logger.warn("[EmailService] Failed to send registration confirmation stub (ID-based)")
-          Some(Future.failed(new Exception("Stubbed email failure")))
+        val firstTwo = idNumber.take(2).toUpperCase
+        if (firstTwo == "44" || firstTwo == "AA") {
+          logger.warn("[EmailService] Stub: Failed to send registration confirmation (ID-based)")
         } else {
-          logger.info("[EmailService] Successfully sent registration confirmation stub (ID-based)")
-          None
+          logger.info("[EmailService] Stub: Sent registration confirmation (ID-based)")
         }
 
       case None =>
         contacts.headOption match {
-          case Some(firstContact) if firstContact.name.toUpperCase.startsWith("F") =>
-            logger.warn("[EmailService] Failed to send registration confirmation stub (name-based)")
-            Some(Future.failed(new Exception("Stubbed email failure (no ID)")))
+          case Some(firstContact) if firstContact.name.toUpperCase.startsWith("W") =>
+            logger.warn("[EmailService] Stub: Failed to send registration confirmation (name-based, no ID)")
           case _                                                                   =>
-            logger.info("[EmailService] Successfully sent registration confirmation stub (no ID)")
-            None
+            logger.info("[EmailService] Stub: Sent registration confirmation (no ID)")
         }
     }
 
+  /** Sends emails via connector, logs warnings for failures, but does not block journey */
   private def sendEmails(
       contacts: List[ContactEmailInfo],
       subscriptionId: String
   )(implicit hc: HeaderCarrier): Future[Unit] = {
-
     val templateId    = "carf_registration_successful"
     val carfReference = generateCarfReference(subscriptionId)
 
@@ -87,8 +82,6 @@ class EmailService @Inject() (
       logger.warn("No contacts to send registration confirmation emails to")
       Future.successful(())
     } else {
-      logger.info(s"Sending ${contacts.length} registration confirmation emails")
-
       Future
         .traverse(contacts) { contact =>
           val parameters = Map(
@@ -102,13 +95,14 @@ class EmailService @Inject() (
           val failureCount = statuses.length - successCount
 
           if (failureCount > 0) {
-            logger.warn(s"Failed to send $failureCount out of ${statuses.length} email(s) for CARF")
+            logger.warn(s"Failed to send $failureCount out of ${statuses.length} registration confirmation email(s)")
           }
 
           logger.info(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
         }
     }
   }
+
   private val CarfReferenceLength                                   = 10
   private def generateCarfReference(subscriptionId: String): String =
     s"XXCAR${subscriptionId.take(CarfReferenceLength).toUpperCase}"

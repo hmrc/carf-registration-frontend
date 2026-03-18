@@ -21,6 +21,7 @@ import models.JourneyType.*
 import models.{JourneyType, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.organisation.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -79,6 +80,7 @@ class RegistrationConfirmationController @Inject() (
             emailAddresses  = contacts.map(_.email)
           } yield for {
             _              <- emailService.sendRegistrationConfirmation(contacts, subscriptionId.value, idNumberOpt)
+            _               = logger.info("[RegistrationConfirmationController] Email(s) sent successfully.")
             updatedAnswers <- Future.fromTry(
                                 request.userAnswers.set(SubmissionSucceededPage, true)
                               )
@@ -125,8 +127,12 @@ class RegistrationConfirmationController @Inject() (
         }
 
       case IndWithNino | IndWithUtr | IndWithoutId =>
+        val nameOpt = journeyType match {
+          case IndWithoutId             => userAnswers.get(IndWithoutNinoNamePage)
+          case IndWithNino | IndWithUtr => userAnswers.get(WhatIsYourNameIndividualPage)
+        }
         for {
-          name  <- userAnswers.get(WhatIsYourNameIndividualPage)
+          name  <- nameOpt
           email <- userAnswers.get(IndividualEmailPage)
         } yield List(ContactEmailInfo(s"${name.firstName} ${name.lastName}", email))
     }

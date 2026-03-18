@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.SubmissionSucceededPage
 import pages.individual.{IndividualEmailPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.organisation.*
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -224,23 +225,23 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         }
       }
 
-      "must return OK and render view for individual journeys" in {
+      "must return OK and render view for individual journeys with ID (NINO/UTR)" in {
 
         Seq(
           (IndWithNino, "individual@test.com"),
-          (IndWithoutId, "indwithout@test.com"),
           (IndWithUtr, "soletrader@test.com")
         ).foreach { case (journey, email) =>
           reset(mockEmailService, mockSessionRepository)
+
           stubSessionSave()
+
           when(
             mockEmailService.sendRegistrationConfirmation(
               any[List[ContactEmailInfo]],
               any[String],
               any[Option[String]]
             )(any[HeaderCarrier])
-          )
-            .thenReturn(Future.successful(()))
+          ).thenReturn(Future.successful(()))
 
           val base =
             emptyUserAnswers
@@ -254,10 +255,14 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
               .value
 
           val userAnswers = journey match {
-            case IndWithNino => base.set(NiNumberPage, "AB123456C").success.value
-            case IndWithUtr  =>
-              base.set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210")).success.value
-            case _           => base
+            case IndWithNino =>
+              base.set(NiNumberPage, "AB123456C").success.value
+
+            case IndWithUtr =>
+              base
+                .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
+                .success
+                .value
           }
 
           val application = buildApplication(Some(userAnswers))
@@ -281,6 +286,54 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
               any[Option[String]]
             )(any[HeaderCarrier])
           }
+        }
+      }
+
+      "must return OK and render view for individual without ID journeys" in {
+
+        reset(mockEmailService, mockSessionRepository)
+
+        stubSessionSave()
+
+        when(
+          mockEmailService.sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
+        ).thenReturn(Future.successful(()))
+
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(IndWithoutId))
+            .copy(subscriptionId = Some(subscriptionId))
+            .set(IndWithoutNinoNamePage, Name("John", "Smith"))
+            .success
+            .value
+            .set(IndividualEmailPage, "indwithout@test.com")
+            .success
+            .value
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("indwithout@test.com"),
+            addProviderUrl = controllers.routes.PlaceholderController
+              .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
+              .url
+          )(request, messages(application)).toString
+
+          verify(mockEmailService, atLeastOnce()).sendRegistrationConfirmation(
+            any[List[ContactEmailInfo]],
+            any[String],
+            any[Option[String]]
+          )(any[HeaderCarrier])
         }
       }
 

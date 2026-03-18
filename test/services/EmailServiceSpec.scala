@@ -119,39 +119,93 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must fail when idNumber starts with 44 (stub failure)" in {
+      "must log a warning if idNumber starts with 44 (stub failure)" in {
         val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = Some("4412345678")
         val contacts       = List(contact)
 
+        val expectedParams = Map(
+          "name"          -> contact.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+
+        when(
+          mockEmailConnector.sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        ).thenReturn(Future.successful(EmailSent))
+
         val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
 
-        whenReady(result.failed) { ex =>
-          ex          mustBe a[Exception]
-          ex.getMessage must include("Stubbed email failure")
-          verify(mockEmailConnector, never()).sendEmail(any[String](), any[String](), any[Map[String, String]]())(
-            any[HeaderCarrier](),
-            any[ExecutionContext]()
-          )
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
 
-      "must fail when idNumber starts with AA (stub failure)" in {
+      "must log a warning if idNumber starts with AA (stub failure)" in {
         val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val idNumberOpt    = Some("AA12345678")
         val contacts       = List(contact)
 
+        val expectedParams = Map(
+          "name"          -> contact.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+
+        when(
+          mockEmailConnector.sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        ).thenReturn(Future.successful(EmailSent))
+
         val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
 
-        whenReady(result.failed) { ex =>
-          ex          mustBe a[Exception]
-          ex.getMessage must include("Stubbed email failure")
-          verify(mockEmailConnector, never()).sendEmail(any[String](), any[String](), any[Map[String, String]]())(
-            any[HeaderCarrier](),
-            any[ExecutionContext]()
-          )
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        }
+      }
+
+      "must log a warning if user is without ID and name starts with W" in {
+        val contact        = ContactEmailInfo("William Smith", "william@example.com")
+        val subscriptionId = "sub123"
+        val idNumberOpt    = None
+        val contacts       = List(contact)
+
+        val expectedParams = Map(
+          "name"          -> contact.name,
+          "carfReference" -> "XXCARSUB123"
+        )
+
+        when(
+          mockEmailConnector.sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        ).thenReturn(Future.successful(EmailSent))
+
+        val result = service.sendRegistrationConfirmation(contacts, subscriptionId, idNumberOpt)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
 

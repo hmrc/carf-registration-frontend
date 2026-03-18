@@ -458,6 +458,14 @@ class CheckYourAnswersControllerSpec extends SpecBase {
             .thenReturn(ResultT.fromValue(subscriptionId))
 
           when(
+            mockCYAHelper.getUserPostcode(
+              ArgumentMatchers.eq(orgWithUtrUserAnswers.journeyType.get),
+              ArgumentMatchers.eq(orgWithUtrUserAnswers),
+              ArgumentMatchers.eq(false)
+            )
+          ).thenReturn(testBusinessDetails.address.postalCode)
+
+          when(
             mockEnrolmentService.enrol(
               ArgumentMatchers.eq(subscriptionId),
               ArgumentMatchers.eq(testBusinessDetails.address.postalCode),

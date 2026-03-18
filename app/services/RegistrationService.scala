@@ -39,13 +39,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   def getSafeId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] =
     userAnswers.journeyType match {
       case Some(OrgWithoutId) | Some(IndWithoutId) =>
-        ResultT.fromFuture {
-          registerWithoutId().value.map {
-            case Right(id)   => Right(id)
-            case Left(error) =>
-              logger.error(s"[RegistrationService] Failed to register without ID")
-              Left(InternalServerError)
-          }
+        registerWithoutId().leftMap { error =>
+          logger.error(s"[RegistrationService] Failed to register without ID")
+          InternalServerError
         }
       case _                                       =>
         userAnswers.safeId match {

@@ -16,6 +16,8 @@
 
 package generators
 
+import models.JourneyType
+import models.JourneyType.*
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.*
 import org.scalacheck.{Gen, Shrink}
@@ -152,5 +154,10 @@ trait Generators extends ModelGenerators {
       sector <- Gen.choose(0, 9)
       unit   <- Gen.listOfN(2, Gen.alphaChar).map(_.mkString)
     } yield s"$area$district$subDistrict$space$sector$unit"
+
+  def genJourneyType: Gen[JourneyType] =
+    Gen.oneOf(Seq(OrgWithUtr, OrgWithoutId, IndWithNino, IndWithUtr, IndWithoutId))
+
+  def genBoolean: Gen[Boolean] = Gen.oneOf(true, false)
 
 }

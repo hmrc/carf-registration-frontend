@@ -25,9 +25,8 @@ import models.error.ApiError.AlreadyRegisteredError
 import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
 import pages.orgWithoutId.OrganisationBusinessAddressPage
-import pages.{IsThisYourBusinessPage, NavigatorOnlyCheckYourAnswersErrors, WhereDoYouLivePage}
+import pages.{NavigatorOnlyCheckYourAnswersErrors, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -159,28 +158,16 @@ class CheckYourAnswersController @Inject() (
       hc: HeaderCarrier
   ): ResultT[Unit] =
     userAnswers.journeyType.fold(ResultT.fromValue(())) {
-      case OrgWithUtr | IndWithUtr =>
-        val postcodeMaybe = userAnswers.get(IsThisYourBusinessPage).flatMap { details =>
-          details.businessDetails.address.postalCode
-        }
+      case journeyType @ (OrgWithUtr | IndWithUtr) =>
+        val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
         enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = false)
-      case IndWithNino             => enrolmentService.enrol(subscriptionId, None, isAbroad = false)
-      case OrgWithoutId            =>
-        val postcodeMaybe = userAnswers.get(OrganisationBusinessAddressPage).flatMap { details =>
-          details.postcode
-        }
+      case journeyType @ IndWithNino               => enrolmentService.enrol(subscriptionId, None, isAbroad = false)
+      case journeyType @ OrgWithoutId              =>
+        val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
         enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = true)
-      case IndWithoutId            =>
+      case journeyType @ IndWithoutId              =>
         userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
-          val postcodeMaybe = if (inUk) {
-            userAnswers.get(IndWithoutIdUkAddressInUserAnswers).map { addressUk =>
-              addressUk.postCode
-            }
-          } else {
-            userAnswers.get(IndWithoutIdAddressNonUkPage).flatMap { addressNonUk =>
-              addressNonUk.postcode
-            }
-          }
+          val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
           enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = !inUk)
         }
     }

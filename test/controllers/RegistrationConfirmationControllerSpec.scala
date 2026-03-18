@@ -109,7 +109,6 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
               .url
           )(request, messages(application)).toString
 
-          // email should NOT be sent again when already succeeded
           verify(mockEmailService, never()).sendRegistrationConfirmation(
             any[List[ContactEmailInfo]],
             any[String],
@@ -168,7 +167,6 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
               .url
           )(request, messages(application)).toString
 
-          // email should be sent only once
           verify(mockEmailService, atLeastOnce()).sendRegistrationConfirmation(
             any[List[ContactEmailInfo]],
             any[String],
@@ -384,7 +382,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       }
 
       "must redirect when subscriptionId is missing" in {
-        val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr)) // no subscriptionId
+        val userAnswers = emptyUserAnswers.copy(journeyType = Some(OrgWithUtr))
 
         val application = buildApplication(Some(userAnswers))
 
@@ -399,7 +397,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
       }
 
       "must redirect when journeyType is missing" in {
-        val userAnswers = emptyUserAnswers.copy(subscriptionId = Some(subscriptionId)) // no journeyType
+        val userAnswers = emptyUserAnswers.copy(subscriptionId = Some(subscriptionId))
 
         val application = buildApplication(Some(userAnswers))
 
@@ -417,7 +415,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         val userAnswers =
           emptyUserAnswers
             .copy(subscriptionId = Some(subscriptionId))
-            .copy(journeyType = Some(OrgWithUtr)) // OrgWithUtr but missing required contact pages
+            .copy(journeyType = Some(OrgWithUtr))
 
         val application = buildApplication(Some(userAnswers))
 

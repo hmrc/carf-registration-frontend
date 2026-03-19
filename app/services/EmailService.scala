@@ -33,50 +33,19 @@ class EmailService @Inject() (
     * @param contacts
     *   List of (name, email) pairs
     * @param subscriptionId
-    *   The CARF User ID (subscription ID) to include in the email content
-    * @param idNumberOpt
-    *   Optional UTR or NINO to determine stub behavior
+    *   The CARF User ID (subscription ID) to include in the email content returned from the subscription service
     */
   def sendRegistrationConfirmation(
       contacts: List[ContactEmailInfo],
-      subscriptionId: String,
-      idNumberOpt: Option[String]
-  )(implicit hc: HeaderCarrier): Future[Unit] = {
-    applyStubBehavior(subscriptionId, idNumberOpt, contacts)
+      subscriptionId: String
+  )(implicit hc: HeaderCarrier): Future[Unit] =
     sendEmails(contacts, subscriptionId)
-  }
 
-  /** Stub behavior logs warning but does NOT fail the journey */
-  private def applyStubBehavior(
-      subscriptionId: String,
-      idNumberOpt: Option[String],
-      contacts: List[ContactEmailInfo]
-  ): Unit =
-    idNumberOpt match {
-      case Some(idNumber) =>
-        val firstTwo = idNumber.take(2).toUpperCase
-        if (firstTwo == "44" || firstTwo == "AA") {
-          logger.warn("[EmailService] Stub: Failed to send registration confirmation (ID-based)")
-        } else {
-          logger.info("[EmailService] Stub: Sent registration confirmation (ID-based)")
-        }
-
-      case None =>
-        contacts.headOption match {
-          case Some(firstContact) if firstContact.name.toUpperCase.startsWith("W") =>
-            logger.warn("[EmailService] Stub: Failed to send registration confirmation (name-based, no ID)")
-          case _                                                                   =>
-            logger.info("[EmailService] Stub: Sent registration confirmation (no ID)")
-        }
-    }
-
-  /** Sends emails via connector, logs warnings for failures, but does not block journey */
   private def sendEmails(
       contacts: List[ContactEmailInfo],
       subscriptionId: String
   )(implicit hc: HeaderCarrier): Future[Unit] = {
     val templateId    = "carf_registration_successful"
-    val carfReference = generateCarfReference(subscriptionId)
 
     if (contacts.isEmpty) {
       logger.warn("No contacts to send registration confirmation emails to")
@@ -86,7 +55,7 @@ class EmailService @Inject() (
         .traverse(contacts) { contact =>
           val parameters = Map(
             "name"          -> contact.name,
-            "carfReference" -> carfReference
+            "carfReference" -> subscriptionId
           )
           emailConnector.sendEmail(contact.email, templateId, parameters)
         }
@@ -102,8 +71,4 @@ class EmailService @Inject() (
         }
     }
   }
-
-  private val CarfReferenceLength                                   = 10
-  private def generateCarfReference(subscriptionId: String): String =
-    s"XXCAR${subscriptionId.take(CarfReferenceLength).toUpperCase}"
 }

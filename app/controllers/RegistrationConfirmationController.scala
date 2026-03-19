@@ -20,12 +20,12 @@ import controllers.actions.*
 import models.JourneyType.*
 import models.{JourneyType, UserAnswers}
 import pages.*
-import pages.individual.{IndividualEmailPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.organisation.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{ContactEmailInfo, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -57,7 +57,6 @@ class RegistrationConfirmationController @Inject() (
             case (Some(subscriptionId), Some(journeyType)) =>
               val contactsOpt    = getContacts(journeyType, request.userAnswers)
               val contacts       = contactsOpt.getOrElse(Nil)
-              val idNumberOpt    = getIdNumber(journeyType, request.userAnswers)
               val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
               val emailAddresses = contacts.map(_.email)
 
@@ -81,12 +80,11 @@ class RegistrationConfirmationController @Inject() (
             journeyType    <- request.userAnswers.journeyType
             contacts       <- getContacts(journeyType, request.userAnswers)
           } yield {
-            val idNumberOpt    = getIdNumber(journeyType, request.userAnswers)
             val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
             val emailAddresses = contacts.map(_.email)
 
             for {
-              _              <- emailService.sendRegistrationConfirmation(contacts, subscriptionId.value, idNumberOpt)
+              _              <- emailService.sendRegistrationConfirmation(contacts, subscriptionId.value)
               _               = logger.info("[RegistrationConfirmationController] Email(s) sent successfully.")
               updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
               _              <- sessionRepository.set(updatedAnswers)
@@ -142,15 +140,6 @@ class RegistrationConfirmationController @Inject() (
           name  <- nameOpt
           email <- userAnswers.get(IndividualEmailPage)
         } yield List(ContactEmailInfo(s"${name.firstName} ${name.lastName}", email))
-    }
-
-  // Stub ID selector used by EmailService to simulate failures/successes
-  private def getIdNumber(journeyType: JourneyType, userAnswers: UserAnswers): Option[String] =
-    journeyType match {
-      case OrgWithUtr | IndWithUtr     =>
-        userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference)
-      case IndWithNino                 => userAnswers.get(NiNumberPage)
-      case OrgWithoutId | IndWithoutId => None
     }
 
   private def getAddProviderUrl(journeyType: JourneyType, isCtAutoMatched: Boolean): String =

@@ -161,10 +161,15 @@ class CheckYourAnswersController @Inject() (
       val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
       journeyType match {
         case OrgWithUtr | IndWithUtr =>
-          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = false)
-        case IndWithNino             => enrolmentService.enrol(subscriptionId, None, isAbroad = false)
+          enrolmentService.enrol(
+            subscriptionId,
+            postcodeMaybe,
+            isAbroad = helper.getUserIsAbroad(journeyType)
+          )
+        case IndWithNino             =>
+          enrolmentService.enrol(subscriptionId, None, isAbroad = helper.getUserIsAbroad(journeyType))
         case OrgWithoutId            =>
-          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = true)
+          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType))
         case IndWithoutId            =>
           userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
             enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = !inUk)

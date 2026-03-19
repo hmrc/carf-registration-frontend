@@ -225,6 +225,14 @@ class CheckYourAnswersHelper @Inject() extends Logging {
         }
     }
 
+  def getUserIsAbroad(journeyType: JourneyType, inUk: Boolean = true) =
+    journeyType match {
+      case OrgWithUtr | IndWithUtr => false
+      case IndWithNino             => false
+      case OrgWithoutId            => true
+      case IndWithoutId            => !inUk
+    }
+
   private def getAddressRowMaybe(userAnswers: UserAnswers, liveInUkOrCd: Boolean)(implicit
       messages: Messages
   ): Option[SummaryListRow] =

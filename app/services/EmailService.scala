@@ -45,7 +45,7 @@ class EmailService @Inject() (
       contacts: List[ContactEmailInfo],
       subscriptionId: String
   )(implicit hc: HeaderCarrier): Future[Unit] = {
-    val templateId    = "carf_registration_successful"
+    val templateId = "carf_registration_successful"
 
     if (contacts.isEmpty) {
       logger.warn("No contacts to send registration confirmation emails to")

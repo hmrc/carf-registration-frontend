@@ -157,18 +157,18 @@ class CheckYourAnswersController @Inject() (
   private def enrolmentCall(userAnswers: UserAnswers, subscriptionId: SubscriptionId)(implicit
       hc: HeaderCarrier
   ): ResultT[Unit] =
-    userAnswers.journeyType.fold(ResultT.fromValue(())) {
-      case journeyType @ (OrgWithUtr | IndWithUtr) =>
-        val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
-        enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = false)
-      case journeyType @ IndWithNino               => enrolmentService.enrol(subscriptionId, None, isAbroad = false)
-      case journeyType @ OrgWithoutId              =>
-        val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
-        enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = true)
-      case journeyType @ IndWithoutId              =>
-        userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
-          val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
-          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = !inUk)
-        }
+    userAnswers.journeyType.fold(ResultT.fromValue(())) { journeyType =>
+      val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
+      journeyType match {
+        case OrgWithUtr | IndWithUtr =>
+          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = false)
+        case IndWithNino             => enrolmentService.enrol(subscriptionId, None, isAbroad = false)
+        case OrgWithoutId            =>
+          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = true)
+        case IndWithoutId            =>
+          userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
+            enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = !inUk)
+          }
+      }
     }
 }

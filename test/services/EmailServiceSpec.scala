@@ -48,7 +48,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedParams = Map(
           "name"          -> contact.name,
-          "carfReference" -> "XXCARSUB123"
+          "carfReference" -> subscriptionId
         )
 
         when(
@@ -78,11 +78,11 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
 
         val params1 = Map(
           "name"          -> contact1.name,
-          "carfReference" -> "XXCARSUB123"
+          "carfReference" -> subscriptionId
         )
         val params2 = Map(
           "name"          -> contact2.name,
-          "carfReference" -> "XXCARSUB123"
+          "carfReference" -> subscriptionId
         )
 
         when(
@@ -107,6 +107,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
             meq("carf_registration_successful"),
             meq(params1)
           )(any[HeaderCarrier](), any[ExecutionContext]())
+
           verify(mockEmailConnector, times(1)).sendEmail(
             meq(contact2.email),
             meq("carf_registration_successful"),
@@ -151,14 +152,14 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must generate correct CARF reference" in {
+      "must pass subscriptionId through without modification" in {
         val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "verylongsubscriptionid123"
         val contacts       = List(contact)
 
         val expectedParams = Map(
           "name"          -> contact.name,
-          "carfReference" -> "XXCARVERYLON" // Only first 10 chars after XXCAR
+          "carfReference" -> subscriptionId
         )
 
         when(

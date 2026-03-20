@@ -50,63 +50,34 @@ class RegistrationConfirmationController @Inject() (
 
   def onPageLoad(): Action[AnyContent] =
     (identify() andThen getData() andThen requireData).async { implicit request =>
-      request.userAnswers.get(SubmissionSucceededPage) match {
-
-        case Some(true) =>
-          (request.userAnswers.subscriptionId, request.userAnswers.journeyType) match {
-            case (Some(subscriptionId), Some(journeyType)) =>
-              val contactsOpt    = getContacts(journeyType, request.userAnswers)
-              val contacts       = contactsOpt.getOrElse(Nil)
-              val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
-              val emailAddresses = contacts.map(_.email)
-
-              Future.successful(
-                Ok(
-                  view(
-                    subscriptionId = subscriptionId.value,
-                    emailAddresses = emailAddresses,
-                    addProviderUrl = addProviderUrl
-                  )
-                )
-              )
-
-            case _ =>
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
-          }
-
-        case _ =>
-          val resultOpt = for {
-            subscriptionId <- request.userAnswers.subscriptionId
-            journeyType    <- request.userAnswers.journeyType
-            contacts       <- getContacts(journeyType, request.userAnswers)
-          } yield {
-            val addProviderUrl = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
-            val emailAddresses = contacts.map(_.email)
-
-            for {
-              _              <- emailService.sendRegistrationConfirmation(contacts, subscriptionId.value)
-              _               = logger.info("[RegistrationConfirmationController] Email(s) sent successfully.")
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Ok(
-              view(
-                subscriptionId = subscriptionId.value,
-                emailAddresses = emailAddresses,
-                addProviderUrl = addProviderUrl
-              )
-            )
-          }
-
-          resultOpt match {
-            case Some(successF) =>
-              successF.recover { case ex =>
-                logger.error("[RegistrationConfirmationController] Error sending confirmation emails", ex)
-                Redirect(routes.JourneyRecoveryController.onPageLoad().url)
-              }
-            case None           =>
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
-          }
+      val resultOpt = for {
+        subscriptionId <- request.userAnswers.subscriptionId
+        journeyType    <- request.userAnswers.journeyType
+        contacts       <- getContacts(journeyType, request.userAnswers)
+      } yield {
+        val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
+        // use getOrElse below. In your version we had code duplication as you were handling
+        // the SubmissionSucceededPage cases separately in the code when they can be handled much more easily
+        val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
+        for {
+          _              <- emailService.sendEmails(contacts, subscriptionId.value, haveEmailsSentAlready)
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Ok(
+          view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = contacts.map(_.email),
+            addProviderUrl = addProviderUrl
+          )
+        )
       }
+
+      resultOpt match {
+        case Some(result) => result
+        case None         =>
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
+      }
+
     }
 
   private def getContacts(journeyType: JourneyType, userAnswers: UserAnswers): Option[List[ContactEmailInfo]] =
@@ -119,16 +90,13 @@ class RegistrationConfirmationController @Inject() (
           val firstContact = ContactEmailInfo(firstName, firstEmail)
 
           val secondContactOpt = for {
-            hasSecond <- userAnswers.get(OrganisationHaveSecondContactPage)
+            hasSecond   <- userAnswers.get(OrganisationHaveSecondContactPage)
             if hasSecond
-            n         <- userAnswers.get(OrganisationSecondContactNamePage)
-            e         <- userAnswers.get(OrganisationSecondContactEmailPage)
-          } yield ContactEmailInfo(n, e)
+            secondName  <- userAnswers.get(OrganisationSecondContactNamePage)
+            secondEmail <- userAnswers.get(OrganisationSecondContactEmailPage)
+          } yield ContactEmailInfo(secondName, secondEmail)
 
-          secondContactOpt match {
-            case Some(second) => List(firstContact, second)
-            case None         => List(firstContact)
-          }
+          List(firstContact) ++ secondContactOpt // reduce cyclomatic complexity warns using syntax sugar
         }
 
       case IndWithNino | IndWithUtr | IndWithoutId =>
@@ -139,7 +107,7 @@ class RegistrationConfirmationController @Inject() (
         for {
           name  <- nameOpt
           email <- userAnswers.get(IndividualEmailPage)
-        } yield List(ContactEmailInfo(s"${name.firstName} ${name.lastName}", email))
+        } yield List(ContactEmailInfo(name.fullName, email)) // Using full name helper method
     }
 
   private def getAddProviderUrl(journeyType: JourneyType, isCtAutoMatched: Boolean): String =

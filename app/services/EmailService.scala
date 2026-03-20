@@ -28,28 +28,17 @@ class EmailService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  /** Sends a registration confirmation email to the provided addresses.
-    *
-    * @param contacts
-    *   List of (name, email) pairs
-    * @param subscriptionId
-    *   The CARF User ID (subscription ID) to include in the email content returned from the subscription service
-    */
-  def sendRegistrationConfirmation(
-      contacts: List[ContactEmailInfo],
-      subscriptionId: String
-  )(implicit hc: HeaderCarrier): Future[Unit] =
-    sendEmails(contacts, subscriptionId)
-
+  // Add extra param in here. What's a simple way we can us it here to reduce code duplication in the controller?
   private def sendEmails(
       contacts: List[ContactEmailInfo],
       subscriptionId: String
   )(implicit hc: HeaderCarrier): Future[Unit] = {
+    // TODO move this to Constants file
     val templateId = "carf_registration_successful"
 
     if (contacts.isEmpty) {
       logger.warn("No contacts to send registration confirmation emails to")
-      Future.successful(())
+      Future.successful((): Unit)
     } else {
       Future
         .traverse(contacts) { contact =>

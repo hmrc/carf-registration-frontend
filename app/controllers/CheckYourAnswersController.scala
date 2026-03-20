@@ -157,23 +157,10 @@ class CheckYourAnswersController @Inject() (
   private def enrolmentCall(userAnswers: UserAnswers, subscriptionId: SubscriptionId)(implicit
       hc: HeaderCarrier
   ): ResultT[Unit] =
-    userAnswers.journeyType.fold(ResultT.fromValue(())) { journeyType =>
-      val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
-      journeyType match {
-        case OrgWithUtr | IndWithUtr =>
-          enrolmentService.enrol(
-            subscriptionId,
-            postcodeMaybe,
-            isAbroad = helper.getUserIsAbroad(journeyType)
-          )
-        case IndWithNino             =>
-          enrolmentService.enrol(subscriptionId, None, isAbroad = helper.getUserIsAbroad(journeyType))
-        case OrgWithoutId            =>
-          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType))
-        case IndWithoutId            =>
-          userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
-            enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = !inUk)
-          }
-      }
-    }
+    for {
+      postcodeMaybe <- helper.getUserPostcode(userAnswers)
+      isAbroad      <- helper.getUserIsAbroad(userAnswers)
+      result        <- enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad)
+    } yield result
+
 }

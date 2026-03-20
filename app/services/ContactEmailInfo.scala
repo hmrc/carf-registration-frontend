@@ -16,13 +16,4 @@
 
 package services
 
-/** Represents a contact's name and email address.
-  *
-  * Used for sending registration confirmation emails.
-  *
-  * @param name
-  *   Full name of the contact
-  * @param email
-  *   Email address of the contact
-  */
 case class ContactEmailInfo(name: String, email: String)

@@ -21,6 +21,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
+import config.Constants._
 
 @Singleton
 class EmailService @Inject() (
@@ -28,26 +29,17 @@ class EmailService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  /** Sends a registration confirmation email to the provided addresses.
-    *
-    * @param contacts
-    *   List of (name, email) pairs
-    * @param subscriptionId
-    *   The CARF User ID (subscription ID) to include in the email content returned from the subscription service
-    */
-  def sendRegistrationConfirmation(
+  private val templateId = registrationSuccessfulEmailTemplateId
+
+  def sendEmails(
       contacts: List[ContactEmailInfo],
-      subscriptionId: String
+      subscriptionId: String,
+      haveEmailsSentAlready: Boolean
   )(implicit hc: HeaderCarrier): Future[Unit] =
-    sendEmails(contacts, subscriptionId)
-
-  private def sendEmails(
-      contacts: List[ContactEmailInfo],
-      subscriptionId: String
-  )(implicit hc: HeaderCarrier): Future[Unit] = {
-    val templateId = "carf_registration_successful"
-
-    if (contacts.isEmpty) {
+    if (haveEmailsSentAlready) {
+      logger.info("Emails already sent — skipping email sending")
+      Future.successful(())
+    } else if (contacts.isEmpty) {
       logger.warn("No contacts to send registration confirmation emails to")
       Future.successful(())
     } else {
@@ -70,5 +62,4 @@ class EmailService @Inject() (
           logger.info(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
         }
     }
-  }
 }

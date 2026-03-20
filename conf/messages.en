@@ -599,7 +599,6 @@ organisationAlreadyRegistered.p2.part1 = You can email
 organisationAlreadyRegistered.p2.part2 = aeoi.enquiries@hmrc.gov.uk
 organisationAlreadyRegistered.p2.part3 = if you need support with accessing this service.
 
-
 assistantSignInProblem.title = You’re currently unable to access this service
 assistantSignInProblem.heading = You’re currently unable to access this service
 assistantSignInProblem.p1 = You have signed in as a standard user. Someone in your organisation with an administrator role must give you permission to access this service.
@@ -611,5 +610,16 @@ assistantSignInProblem.p3.body = If your administrator does not have the link fo
 assistantSignInProblem.p3.url = www.tax.service.gov.uk/tax-and-scheme-management/services
 assistantSignInProblem.p4 = Once your administrator has completed these steps, you will then be able to sign in with your own Government Gateway details to use this service.
 
-
-
+changeDetails.title.normal = Change your contact details
+changeDetails.heading.normal = Change your contact details
+changeDetails.title.dynamic = Check your contact details
+changeDetails.heading.dynamic = Check your contact details
+changeDetails.subtitle.dynamic = Now send your updated contact details
+changeDetails.p1.dynamic = By sending these details, you are confirming that the information is correct and complete to the best of your knowledge.
+changeDetails.summaryList.email.key = Email address
+changeDetails.summaryList.email.key.hidden = Change email address
+changeDetails.summaryList.havePhone.key = Can we contact you by phone?
+changeDetails.summaryList.havePhone.key.hidden = Change if we can contact you by phone
+changeDetails.summaryList.phoneNumber.key = Phone number
+changeDetails.summaryList.phoneNumber.key.hidden = Change phone number
+changeDetails.linkText = Back to manage your cryptoasset reports

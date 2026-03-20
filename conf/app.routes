@@ -228,3 +228,8 @@ GET         /register/problem/individual-already-registered                     
 GET         /register/problem/organisation-already-registered                   controllers.organisation.OrganisationAlreadyRegisteredController.onPageLoad()
 
 GET         /register/problem/standard-user-sign-in-problem                     controllers.AssistantSignInProblemController.onPageLoad()
+
+GET         /change-contact/individual/details                                  controllers.changeContactDetails.ChangeIndividualContactDetailsController.onPageLoad()
+POST        /change-contact/individual/details                                  controllers.changeContactDetails.ChangeIndividualContactDetailsController.onSubmit()
+
+GET         /change-contact                                                     controllers.changeContactDetails.ChangeContactDetailsIndexController.onPageLoad()

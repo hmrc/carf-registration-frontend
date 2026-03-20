@@ -16,13 +16,12 @@
 
 package models
 
-object IdentifierType {
-  val ABROADFLAG = "AbroadFlag"
-  val UTR        = "UTR"
+import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment}
+import models.responses.DisplaySubscriptionResponse
 
-  val CARFID = "CARFID"
-
-  val SAFE = "SAFE"
-
-  val NINO = "NINO"
-}
+case class IdentifierRequestWithSubscriptionId[A](
+    request: Request[A],
+    userId: String,
+    subscriptionId: SubscriptionId
+) extends WrappedRequest[A](request)

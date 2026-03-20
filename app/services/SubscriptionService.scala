@@ -17,9 +17,10 @@
 package services
 
 import connectors.SubscriptionConnector
-import models.error.ApiError
-import models.error.ApiError.MandatoryInformationMissingError
+import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
+import models.error.{ApiError, CarfError}
 import models.requests.CreateSubscriptionRequest
+import models.responses.*
 import models.{SubscriptionId, UserAnswers}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -58,5 +59,73 @@ class SubscriptionService @Inject() (
             )
           )
         )
+    }
+
+  def displaySubscription(subscriptionId: SubscriptionId)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext
+  ): Future[Option[DisplaySubscriptionResponse]] =
+    if (subscriptionId.value.take(1) == "9") {
+      Future.successful(None)
+    } else {
+      Future.successful(
+        Some(
+          DisplaySubscriptionResponse(success =
+            DisplaySubscriptionSuccess(
+              processingDate = "test-time",
+              carfSubscriptionDetails = DisplaySubscriptionDetails(
+                tradingName = Some("test-trading-name"),
+                gbUser = true,
+                primaryContact = primaryContactDetail(subscriptionId),
+                secondaryContact = secondaryContactDetail(subscriptionId)
+              )
+            )
+          )
+        )
+      )
+    }
+
+  private def primaryContactDetail(subscriptionId: SubscriptionId): DisplaySubscriptionContact =
+    if (subscriptionId.value.take(1) == "1") {
+      DisplaySubscriptionContact(
+        individual =
+          Some(DisplaySubscriptionIndividual(firstName = "Timmy", middleName = Some("John"), lastName = "Jimmy")),
+        organisation = None,
+        email = "hi@example.com",
+        phone = Some("12345"),
+        mobile = Some("67890")
+      )
+    } else {
+      DisplaySubscriptionContact(
+        individual = None,
+        organisation = Some(DisplaySubscriptionOrganisation(name = "ABC Fruit Limited")),
+        email = "hi@example.com",
+        phone = Some("12345"),
+        mobile = Some("67890")
+      )
+    }
+
+  private def secondaryContactDetail(subscriptionId: SubscriptionId): Option[DisplaySubscriptionContact] =
+    if (subscriptionId.value.take(1) == "1") {
+      None
+    } else if (subscriptionId.value.take(1) == "2") {
+      None
+    } else {
+      Some(
+        DisplaySubscriptionContact(
+          individual = None,
+          organisation = Some(DisplaySubscriptionOrganisation(name = "WindsAndWaves.pkmn")),
+          email = "hi@example.com",
+          phone = Some("12345"),
+          mobile = Some("67890")
+        )
+      )
+    }
+
+  def updateSubscription(subscriptionId: SubscriptionId)(implicit hc: HeaderCarrier): Future[Either[CarfError, Unit]] =
+    if (subscriptionId.value.take(3) == "199") {
+      Future.successful(Left(InternalServerError))
+    } else {
+      Future.successful(Right((): Unit))
     }
 }

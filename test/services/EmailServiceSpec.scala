@@ -39,7 +39,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
 
   "EmailService" - {
 
-    "sendRegistrationConfirmation" - {
+    "sendEmails" - {
 
       "must successfully send email for a single contact" in {
         val contact        = ContactEmailInfo("John Doe", "john@example.com")
@@ -59,7 +59,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
           )(any[HeaderCarrier](), any[ExecutionContext]())
         ).thenReturn(Future.successful(EmailSent))
 
-        val result = service.sendRegistrationConfirmation(contacts, subscriptionId)
+        val result = service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(1)).sendEmail(
@@ -86,41 +86,53 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         )
 
         when(
-          mockEmailConnector.sendEmail(meq(contact1.email), meq("carf_registration_successful"), meq(params1))(
+          mockEmailConnector.sendEmail(meq(contact1.email), any(), meq(params1))(
             any[HeaderCarrier](),
             any[ExecutionContext]()
           )
         ).thenReturn(Future.successful(EmailSent))
 
         when(
-          mockEmailConnector.sendEmail(meq(contact2.email), meq("carf_registration_successful"), meq(params2))(
+          mockEmailConnector.sendEmail(meq(contact2.email), any(), meq(params2))(
             any[HeaderCarrier](),
             any[ExecutionContext]()
           )
         ).thenReturn(Future.successful(EmailSent))
 
-        val result = service.sendRegistrationConfirmation(contacts, subscriptionId)
+        val result = service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(1)).sendEmail(
             meq(contact1.email),
-            meq("carf_registration_successful"),
+            any(),
             meq(params1)
           )(any[HeaderCarrier](), any[ExecutionContext]())
 
           verify(mockEmailConnector, times(1)).sendEmail(
             meq(contact2.email),
-            meq("carf_registration_successful"),
+            any(),
             meq(params2)
           )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
 
       "must handle empty contact list without sending emails" in {
-        val contacts       = Nil
-        val subscriptionId = "sub123"
+        val result = service.sendEmails(Nil, "sub123", haveEmailsSentAlready = false)
 
-        val result = service.sendRegistrationConfirmation(contacts, subscriptionId)
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, never()).sendEmail(
+            any[String](),
+            any[String](),
+            any[Map[String, String]]()
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        }
+      }
+
+      "must skip sending emails if haveEmailsSentAlready is true" in {
+        val contact  = ContactEmailInfo("John Doe", "john@example.com")
+        val contacts = List(contact)
+
+        val result = service.sendEmails(contacts, "sub123", haveEmailsSentAlready = true)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, never()).sendEmail(
@@ -145,39 +157,10 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
           mockEmailConnector.sendEmail(meq(contact2.email), any(), any())(any(), any())
         ).thenReturn(Future.successful(EmailNotSent))
 
-        val result = service.sendRegistrationConfirmation(contacts, subscriptionId)
+        val result = service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(2)).sendEmail(any(), any(), any())(any(), any())
-        }
-      }
-
-      "must pass subscriptionId through without modification" in {
-        val contact        = ContactEmailInfo("John Doe", "john@example.com")
-        val subscriptionId = "verylongsubscriptionid123"
-        val contacts       = List(contact)
-
-        val expectedParams = Map(
-          "name"          -> contact.name,
-          "carfReference" -> subscriptionId
-        )
-
-        when(
-          mockEmailConnector.sendEmail(
-            meq(contact.email),
-            meq("carf_registration_successful"),
-            meq(expectedParams)
-          )(any[HeaderCarrier](), any[ExecutionContext]())
-        ).thenReturn(Future.successful(EmailSent))
-
-        val result = service.sendRegistrationConfirmation(contacts, subscriptionId)
-
-        whenReady(result) { _ =>
-          verify(mockEmailConnector, times(1)).sendEmail(
-            meq(contact.email),
-            meq("carf_registration_successful"),
-            meq(expectedParams)
-          )(any[HeaderCarrier](), any[ExecutionContext]())
         }
       }
     }

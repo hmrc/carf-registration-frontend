@@ -63,4 +63,7 @@ object Constants {
   )
 
   val noneOfTheseValue = "none"
+
+  val registrationSuccessfulEmailTemplateId: String = "carf_registration_successful"
+
 }

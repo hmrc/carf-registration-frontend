@@ -167,12 +167,12 @@ class CheckYourAnswersController @Inject() (
             isAbroad = helper.getUserIsAbroad(journeyType)
           )
         case IndWithNino             =>
-          enrolmentService.enrol(subscriptionId, None, isAbroad = helper.getUserIsAbroad(journeyType))
+          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType))
         case OrgWithoutId            =>
           enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType))
         case IndWithoutId            =>
           userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
-            enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = !inUk)
+            enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType, inUk))
           }
       }
     }

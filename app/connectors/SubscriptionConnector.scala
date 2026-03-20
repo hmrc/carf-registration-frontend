@@ -20,26 +20,28 @@ import cats.data.EitherT
 import config.FrontendAppConfig
 import models.SubscriptionId
 import models.error.ApiError
-import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateSubscriptionError}
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, UnableToCreateSubscriptionError}
 import models.requests.CreateSubscriptionRequest
 import models.responses.CreateSubscriptionResponse
 import play.api.Logging
 import play.api.http.Status.CREATED
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) extends Logging {
 
   def createSubscription(
       createSubscriptionRequest: CreateSubscriptionRequest
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, ApiError, SubscriptionId] = {
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[SubscriptionId] = {
 
     val submissionUrl = url"${config.carfRegistrationBaseUrl}/subscription/subscribe"
 
@@ -63,6 +65,10 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
           case response                               =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl")
             Left(handleErrorResponse(response))
+        }
+        .recover { case NonFatal(e) =>
+          logger.error(s"Future Failed to complete due to: ${e.getMessage}")
+          Left(InternalServerError)
         }
     }
   }

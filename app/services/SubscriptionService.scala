@@ -16,6 +16,7 @@
 
 package services
 
+import cats.data.EitherT
 import connectors.SubscriptionConnector
 import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
 import models.error.{ApiError, CarfError}
@@ -23,6 +24,7 @@ import models.requests.CreateSubscriptionRequest
 import models.responses.*
 import models.{SubscriptionId, UserAnswers}
 import play.api.Logging
+import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SubscriptionHelper
 
@@ -38,27 +40,26 @@ class SubscriptionService @Inject() (
   def subscribe(userAnswers: UserAnswers)(implicit
       hc: HeaderCarrier,
       ec: ExecutionContext
-  ): Future[Either[ApiError, SubscriptionId]] =
+  ): ResultT[SubscriptionId] =
     subscriptionHelper.buildSubscriptionRequest(userAnswers) match {
       case Some(request) =>
         subscriptionConnector
           .createSubscription(request)
-          .value
-          .map {
-            case Right(result) => Right(result)
-            case Left(error)   =>
-              logger.error(s"Failed to create subscription: $error")
-              Left(error)
+          .leftMap { error =>
+            logger.error(s"Failed to create subscription: $error")
+            error
           }
       case None          =>
         logger.error("There has been an error building the subscription request from userAnswers")
-        Future.successful(
-          Left(
-            MandatoryInformationMissingError(
-              s"There has been an error building the subscription request from userAnswers"
+        EitherT {
+          Future.successful(
+            Left(
+              MandatoryInformationMissingError(
+                s"There has been an error building the subscription request from userAnswers"
+              )
             )
           )
-        )
+        }
     }
 
   def displaySubscription(subscriptionId: SubscriptionId)(implicit

@@ -18,6 +18,7 @@ package services
 
 import connectors.RegistrationConnector
 import models.JourneyType.{IndWithoutId, OrgWithoutId}
+import models.error.ApiError.{ApplicationError, InternalServerError}
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
 import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterIndividualWithoutIdResponse, RegisterOrganisationWithIdResponse}
@@ -25,6 +26,7 @@ import models.{BusinessDetails, IndividualDetails, JourneyType, Name, Organisati
 import pages.*
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 import play.api.Logging
+import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -34,26 +36,24 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getSafeId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[SafeId] =
+  def getSafeId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] =
     userAnswers.journeyType match {
       case Some(OrgWithoutId) | Some(IndWithoutId) =>
-        registerWithoutId().flatMap {
-          case Right(id)   => Future.successful(id)
-          case Left(error) =>
-            logger.error(s"[RegistrationService] Failed to register without ID: $error")
-            Future.failed(new Exception(error.toString))
+        registerWithoutId().leftMap { error =>
+          logger.error(s"[RegistrationService] Failed to register without ID")
+          InternalServerError
         }
       case _                                       =>
         userAnswers.safeId match {
-          case Some(id) => Future.successful(id)
+          case Some(id) => ResultT.fromValue(id)
           case None     =>
             logger.error(s"[RegistrationService] SafeId missing from userAnswers")
-            Future.failed(new Exception("SafeId is missing"))
+            ResultT.fromError(ApplicationError)
         }
     }
 
-  private def registerWithoutId(): Future[Either[CarfError, SafeId]] =
-    Future.successful(Right(SafeId("XE00123456789")))
+  private def registerWithoutId(): ResultT[SafeId] =
+    ResultT.fromValue(SafeId("XE00123456789"))
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
@@ -66,7 +66,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
       firstName = name.firstName,
       lastName = name.lastName
     )
-    handleIndividualRegistrationResponse(connector.individualWithNino(request).value)
+    handleIndividualRegistrationResponse(connector.individualWithNino(request))
   }
 
   def getIndividualByUtr(
@@ -86,7 +86,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           firstName = name.firstName,
           lastName = name.lastName
         )
-        handleIndividualRegistrationResponse(connector.individualWithUtr(request).value)
+        handleIndividualRegistrationResponse(connector.individualWithUtr(request))
       case None              =>
         logger.warn("Required Individual data was missing from UserAnswers.")
         Future.successful(Left(DataError))
@@ -112,7 +112,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
             organisationName = businessName,
             organisationType = orgType
           )
-          handleOrganisationRegistrationResponse(connector.organisationWithUtrNonAutoMatch(request).value)
+          handleOrganisationRegistrationResponse(connector.organisationWithUtrNonAutoMatch(request))
         case None                          =>
           logger.warn("Required data was missing from UserAnswers.")
           Future.successful(Left(DataError))
@@ -123,13 +123,13 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         IDNumber = utr,
         IDType = "UTR"
       )
-      handleOrganisationRegistrationResponse(connector.organisationWithUtrCTAutoMatch(request).value)
+      handleOrganisationRegistrationResponse(connector.organisationWithUtrCTAutoMatch(request))
     }
 
   private def handleOrganisationRegistrationResponse(
-      responseFuture: Future[Either[ApiError, RegisterOrganisationWithIdResponse]]
+      responseFuture: ResultT[RegisterOrganisationWithIdResponse]
   ): Future[Either[ApiError, BusinessDetails]] =
-    responseFuture.flatMap {
+    responseFuture.value.flatMap {
       case Right(response)       =>
         logger.info("Successfully retrieved organisation details.")
         Future.successful(
@@ -141,9 +141,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
     }
 
   private def handleIndividualRegistrationResponse(
-      responseFuture: Future[Either[ApiError, RegisterIndividualWithIdResponse]]
+      responseFuture: ResultT[RegisterIndividualWithIdResponse]
   ): Future[Either[ApiError, IndividualDetails]] =
-    responseFuture.flatMap {
+    responseFuture.value.flatMap {
       case Right(response)       =>
         logger.info("Successfully retrieved Individual details.")
         Future.successful(

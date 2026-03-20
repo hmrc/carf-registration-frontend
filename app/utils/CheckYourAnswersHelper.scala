@@ -17,18 +17,20 @@
 package utils
 
 import com.google.inject.Inject
-import models.{RegistrationType, UserAnswers}
+import models.JourneyType.*
+import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
-import pages.orgWithoutId.HaveTradingNamePage
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
+import pages.orgWithoutId.{HaveTradingNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import pages.{RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
-import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdAddressUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
-import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
+import viewmodels.checkAnswers.individualWithoutId.*
+import viewmodels.checkAnswers.orgWithoutId.*
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 
@@ -199,6 +201,37 @@ class CheckYourAnswersHelper @Inject() extends Logging {
         Some(Seq(email, havePhoneRow))
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualContactDetails"), _))
+
+  def getUserPostcode(journeyType: JourneyType, userAnswers: UserAnswers, inUk: Boolean = true): Option[String] =
+    journeyType match {
+      case OrgWithUtr | IndWithUtr =>
+        userAnswers.get(IsThisYourBusinessPage).flatMap { details =>
+          details.businessDetails.address.postalCode
+        }
+      case IndWithNino             => None
+      case OrgWithoutId            =>
+        userAnswers.get(OrganisationBusinessAddressPage).flatMap { details =>
+          details.postcode
+        }
+      case IndWithoutId            =>
+        if (inUk) {
+          userAnswers.get(IndWithoutIdUkAddressInUserAnswers).map { addressUk =>
+            addressUk.postCode
+          }
+        } else {
+          userAnswers.get(IndWithoutIdAddressNonUkPage).flatMap { addressNonUk =>
+            addressNonUk.postcode
+          }
+        }
+    }
+
+  def getUserIsAbroad(journeyType: JourneyType, inUk: Boolean = true) =
+    journeyType match {
+      case OrgWithUtr | IndWithUtr => false
+      case IndWithNino             => false
+      case OrgWithoutId            => true
+      case IndWithoutId            => !inUk
+    }
 
   private def getAddressRowMaybe(userAnswers: UserAnswers, liveInUkOrCd: Boolean)(implicit
       messages: Messages

@@ -586,14 +586,14 @@ class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks 
                 .copy(journeyType = Some(journeyType))
                 .withPage(IsThisYourBusinessPage, IsThisYourBusinessPageDetails(testBusinessDetails, Some(true)))
 
-              val result = testHelper.getUserPostcode(journeyType, userAnswers)
-              result mustBe testBusinessDetails.address.postalCode
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Right(testBusinessDetails.address.postalCode)
 
             case journeyType @ IndWithNino =>
               val userAnswers = emptyUserAnswers.copy(journeyType = Some(journeyType))
 
-              val result = testHelper.getUserPostcode(journeyType, userAnswers)
-              result mustBe None
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Right(None)
 
             case journeyType @ OrgWithoutId =>
               val userAnswers = emptyUserAnswers
@@ -610,19 +610,21 @@ class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks 
                   )
                 )
 
-              val result = testHelper.getUserPostcode(journeyType, userAnswers)
-              result mustBe Some("postcode")
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Right(Some("postcode"))
             case journeyType @ IndWithoutId =>
               if (inUk) {
                 val userAnswers = emptyUserAnswers
                   .copy(journeyType = Some(journeyType))
                   .withPage(IndWithoutIdUkAddressInUserAnswers, testAddressUk)
+                  .withPage(WhereDoYouLivePage, inUk)
 
-                val result = testHelper.getUserPostcode(journeyType, userAnswers, inUk)
-                result mustBe Some(testAddressUk.postCode)
+                val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+                result mustBe Right(Some(testAddressUk.postCode))
               } else {
                 val userAnswers = emptyUserAnswers
                   .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
                   .withPage(
                     IndWithoutIdAddressNonUkPage,
                     IndWithoutIdAddressNonUk(
@@ -635,8 +637,55 @@ class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks 
                     )
                   )
 
-                val result = testHelper.getUserPostcode(journeyType, userAnswers, inUk)
-                result mustBe Some("postcode")
+                val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+                result mustBe Right(Some("postcode"))
+              }
+
+          }
+        }
+      }
+    }
+
+    "getUserIsAbroad" - {
+      "should successfully return if abroad depending on journey type" in new TestData {
+
+        forAll(genJourneyType, genBoolean) { (genJourneyType, inUk) =>
+          genJourneyType match {
+            case journeyType @ (OrgWithUtr | IndWithUtr) =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+              result mustBe Right(false)
+
+            case journeyType @ IndWithNino =>
+              val userAnswers = emptyUserAnswers.copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+              result mustBe Right(false)
+
+            case journeyType @ OrgWithoutId =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+              result mustBe Right(true)
+
+            case journeyType @ IndWithoutId =>
+              if (inUk) {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+                result mustBe Right(!inUk)
+              } else {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+                result mustBe Right(!inUk)
               }
 
           }

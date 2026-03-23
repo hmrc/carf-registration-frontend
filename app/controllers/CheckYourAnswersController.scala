@@ -20,7 +20,7 @@ import cats.implicits.*
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.ApiError
+import models.error.{ApiError, DataError}
 import models.error.ApiError.AlreadyRegisteredError
 import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
@@ -129,6 +129,9 @@ class CheckYourAnswersController @Inject() (
         case Right(result)                => result
         case Left(AlreadyRegisteredError) =>
           Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+        case Left(DataError)              =>
+          logger.error(s"[CheckYourAnswersController] Had missing data on submission")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case error                        =>
           logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
@@ -157,23 +160,9 @@ class CheckYourAnswersController @Inject() (
   private def enrolmentCall(userAnswers: UserAnswers, subscriptionId: SubscriptionId)(implicit
       hc: HeaderCarrier
   ): ResultT[Unit] =
-    userAnswers.journeyType.fold(ResultT.fromValue(())) { journeyType =>
-      val postcodeMaybe = helper.getUserPostcode(journeyType, userAnswers)
-      journeyType match {
-        case OrgWithUtr | IndWithUtr =>
-          enrolmentService.enrol(
-            subscriptionId,
-            postcodeMaybe,
-            isAbroad = helper.getUserIsAbroad(journeyType)
-          )
-        case IndWithNino             =>
-          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType))
-        case OrgWithoutId            =>
-          enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType))
-        case IndWithoutId            =>
-          userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError[Unit](ApiError.InternalServerError)) { inUk =>
-            enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad = helper.getUserIsAbroad(journeyType, inUk))
-          }
-      }
-    }
+    for {
+      postcodeMaybe <- helper.getUserPostcode(userAnswers)
+      isAbroad      <- helper.getUserIsAbroad(userAnswers)
+      result        <- enrolmentService.enrol(subscriptionId, postcodeMaybe, isAbroad)
+    } yield result
 }

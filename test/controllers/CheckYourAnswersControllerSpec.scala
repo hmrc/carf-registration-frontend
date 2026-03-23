@@ -18,12 +18,12 @@ package controllers
 
 import base.SpecBase
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.ApiError
+import models.error.{ApiError, DataError}
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
 import models.{CheckMode, IsThisYourBusinessPageDetails, JourneyType, SafeId, SubscriptionId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import pages.IsThisYourBusinessPage
 import play.api.Application
@@ -457,13 +457,11 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
             .thenReturn(ResultT.fromValue(subscriptionId))
 
-          when(
-            mockCYAHelper.getUserPostcode(
-              ArgumentMatchers.eq(orgWithUtrUserAnswers.journeyType.get),
-              ArgumentMatchers.eq(orgWithUtrUserAnswers),
-              ArgumentMatchers.eq(false)
-            )
-          ).thenReturn(testBusinessDetails.address.postalCode)
+          when(mockCYAHelper.getUserPostcode(any()))
+            .thenReturn(ResultT.fromValue(testBusinessDetails.address.postalCode))
+
+          when(mockCYAHelper.getUserIsAbroad(any()))
+            .thenReturn(ResultT.fromValue(false))
 
           when(
             mockEnrolmentService.enrol(
@@ -482,6 +480,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
             .onPageLoad()
             .url
 
+          verify(mockCYAHelper).getUserPostcode(
+            ArgumentMatchers.eq(orgWithUtrUserAnswers)
+          )
         }
       }
 
@@ -531,6 +532,45 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
 
+        }
+
+        "must redirect to journey recovery page when getUserPostcode returns a data erro" in new Setup(
+          AffinityGroup.Organisation,
+          orgWithUtrUserAnswers
+        ) {
+
+          val subscriptionId = SubscriptionId("XCARF1234567890")
+
+          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+            .thenReturn(ResultT.fromValue(SafeId(testSafeId)))
+
+          when(mockSessionRepository.set(any[UserAnswers]))
+            .thenReturn(Future.successful(true))
+
+          when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
+            .thenReturn(ResultT.fromValue(subscriptionId))
+
+          when(mockCYAHelper.getUserPostcode(any()))
+            .thenReturn(ResultT.fromError(DataError))
+
+          when(
+            mockEnrolmentService.enrol(
+              ArgumentMatchers.eq(subscriptionId),
+              ArgumentMatchers.eq(testBusinessDetails.address.postalCode),
+              ArgumentMatchers.eq(false)
+            )(any(), any())
+          )
+            .thenReturn(ResultT.fromValue(()))
+
+          val request                = FakeRequest(POST, cyaRoute)
+          val result: Future[Result] = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+
+          verify(mockCYAHelper).getUserPostcode(
+            ArgumentMatchers.eq(orgWithUtrUserAnswers)
+          )
         }
       }
     }

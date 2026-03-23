@@ -38,7 +38,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val addressLookupHost: String    = servicesConfig.baseUrl("address-lookup")
   val addressLookupBaseUrl: String = s"$addressLookupHost/address-lookup"
 
-  val emailUrl: String = servicesConfig.getString("microservice.services.email")
+  val emailUrl: String = s"${servicesConfig.baseUrl("email")}/hmrc/email"
 
   private val contactHost                  = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "carf-registration-frontend"

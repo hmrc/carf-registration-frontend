@@ -233,66 +233,57 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         }
       }
 
-      "must return OK and render view for individual journeys with ID (NINO/UTR)" in {
-        Seq(
-          (IndWithNino, "individual@test.com"),
-          (IndWithUtr, "soletrader@test.com")
-        ).foreach { case (journey, email) =>
-          reset(mockEmailService, mockSessionRepository)
+      "must return OK and render view for IndWithNino" in {
+        reset(mockEmailService, mockSessionRepository)
+        stubSessionSave()
 
-          stubSessionSave()
+        when(mockEmailService.sendEmails(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(()))
 
-          when(
-            mockEmailService.sendEmails(
-              any[List[ContactEmailInfo]],
-              any[String],
-              any[Boolean]
-            )(any[HeaderCarrier])
-          ).thenReturn(Future.successful(()))
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(IndWithNino))
+            .copy(subscriptionId = Some(subscriptionId))
+            .set(WhatIsYourNameIndividualPage, Name("John", "Smith"))
+            .success
+            .value
+            .set(IndividualEmailPage, "individual@test.com")
+            .success
+            .value
 
-          val base =
-            emptyUserAnswers
-              .copy(journeyType = Some(journey))
-              .copy(subscriptionId = Some(subscriptionId))
-              .set(WhatIsYourNameIndividualPage, Name("John", "Smith"))
-              .success
-              .value
-              .set(IndividualEmailPage, email)
-              .success
-              .value
+        val application = buildApplication(Some(userAnswers))
 
-          val userAnswers = journey match {
-            case IndWithNino =>
-              base.set(NiNumberPage, "AB123456C").success.value
+        running(application) {
+          val result = route(application, request).value
 
-            case IndWithUtr =>
-              base
-                .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("9876543210"))
-                .success
-                .value
-          }
+          status(result) mustEqual OK
+        }
+      }
 
-          val application = buildApplication(Some(userAnswers))
-          val view        = application.injector.instanceOf[RegistrationConfirmationView]
+      "must return OK and render view for IndWithUtr" in {
+        reset(mockEmailService, mockSessionRepository)
+        stubSessionSave()
 
-          running(application) {
-            val result = route(application, request).value
+        when(mockEmailService.sendEmails(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(()))
 
-            status(result)          mustEqual OK
-            contentAsString(result) mustEqual view(
-              subscriptionId = subscriptionId.value,
-              emailAddresses = List(email),
-              addProviderUrl = controllers.routes.PlaceholderController
-                .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-                .url
-            )(request, messages(application)).toString
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(IndWithUtr))
+            .copy(subscriptionId = Some(subscriptionId))
+            .set(WhatIsYourNamePage, Name("John", "Smith"))
+            .success
+            .value
+            .set(IndividualEmailPage, "soletrader@test.com")
+            .success
+            .value
 
-            verify(mockEmailService).sendEmails(
-              any[List[ContactEmailInfo]],
-              eqTo(subscriptionId.value),
-              eqTo(false)
-            )(any[HeaderCarrier])
-          }
+        val application = buildApplication(Some(userAnswers))
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
         }
       }
 

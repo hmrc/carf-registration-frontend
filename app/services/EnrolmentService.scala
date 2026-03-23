@@ -43,7 +43,7 @@ class EnrolmentService @Inject() (enrolmentConnector: EnrolmentConnector) extend
     )
 
     enrolmentConnector.createEnrolment(enrolmentRequest).leftMap { error =>
-      logger.error(s"Failed to create subscription: $error")
+      logger.error(s"Failed to create enrolment: $error")
       error
     }
   }

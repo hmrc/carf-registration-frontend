@@ -44,9 +44,10 @@ class EmailConnector @Inject() (
       emailAddress: String,
       templateName: String,
       templateParams: Map[String, String]
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[EmailStatus] =
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[EmailStatus] = {
+    val url = url"${appConfig.emailUrl}"
     httpV2Client
-      .post(url"${appConfig.emailUrl}")
+      .post(url)
       .withBody(
         Json.toJson(
           SendEmailRequest(
@@ -72,4 +73,5 @@ class EmailConnector @Inject() (
         logger.warn(s"Unable to connect to Email Service", t)
         Future.successful(EmailNotSent)
       }
+  }
 }

@@ -99,8 +99,9 @@ class RegistrationConfirmationController @Inject() (
 
       case IndWithNino | IndWithUtr | IndWithoutId =>
         val nameOpt = journeyType match {
-          case IndWithoutId             => userAnswers.get(IndWithoutNinoNamePage)
-          case IndWithNino | IndWithUtr => userAnswers.get(WhatIsYourNameIndividualPage)
+          case IndWithoutId => userAnswers.get(IndWithoutNinoNamePage)
+          case IndWithNino  => userAnswers.get(WhatIsYourNameIndividualPage)
+          case IndWithUtr   => userAnswers.get(WhatIsYourNamePage)
         }
 
         for {

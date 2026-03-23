@@ -39,7 +39,7 @@ class EnrolmentService @Inject() (enrolmentConnector: EnrolmentConnector) extend
 
     val enrolmentRequest = EnrolmentRequest(
       Seq(Identifier(CARFID, carfId.value)),
-      postCodeVerifierSeq.toSeq ++ Seq(Verifier("isAbroad", if (isAbroad) "Y" else "N"))
+      postCodeVerifierSeq.toSeq ++ Seq(Verifier("IsAbroad", if (isAbroad) "Y" else "N"))
     )
 
     enrolmentConnector.createEnrolment(enrolmentRequest).leftMap { error =>

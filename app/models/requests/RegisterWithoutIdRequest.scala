@@ -21,10 +21,7 @@ import play.api.libs.json.{Json, OFormat, Writes}
 sealed trait RegisterWithoutIdRequest
 
 object RegisterWithoutIdRequest {
-  implicit val writes: Writes[RegisterWithoutIdRequest] = Writes {
-    case ind: RegisterIndividualWithoutIdRequest   => Json.toJson(ind)
-    case org: RegisterOrganisationWithoutIdRequest => Json.toJson(org)
-  }
+  implicit val format: OFormat[RegisterWithoutIdRequest] = Json.format[RegisterWithoutIdRequest]
 }
 
 case class RegisterIndividualWithoutIdRequest(

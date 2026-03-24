@@ -66,4 +66,6 @@ object ApiError {
 
   case object UnexpectedStatusCode extends ApiError
 
+  case object ApplicationError extends CarfError
+
 }

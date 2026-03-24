@@ -17,18 +17,22 @@
 package utils
 
 import com.google.inject.Inject
-import models.{RegistrationType, UserAnswers}
+import models.JourneyType.*
+import models.error.{ApiError, DataError}
+import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
-import pages.orgWithoutId.HaveTradingNamePage
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
+import pages.orgWithoutId.{HaveTradingNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import pages.{RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
+import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
-import viewmodels.checkAnswers.individualWithoutId.{IndWithoutIdAddressNonUkSummary, IndWithoutIdAddressUkSummary, IndWithoutIdDateOfBirthSummary, IndWithoutNinoNameSummary}
-import viewmodels.checkAnswers.orgWithoutId.{HaveTradingNameSummary, OrgWithoutIdBusinessNameSummary, OrganisationBusinessAddressSummary, TradingNameSummary}
+import viewmodels.checkAnswers.individualWithoutId.*
+import viewmodels.checkAnswers.orgWithoutId.*
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
 
@@ -199,6 +203,42 @@ class CheckYourAnswersHelper @Inject() extends Logging {
         Some(Seq(email, havePhoneRow))
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualContactDetails"), _))
+
+  def getUserPostcode(userAnswers: UserAnswers): ResultT[Option[String]] =
+    userAnswers.journeyType.fold(ResultT.fromError(DataError)) {
+      case OrgWithUtr | IndWithUtr =>
+        userAnswers.get(IsThisYourBusinessPage).fold(ResultT.fromError(DataError)) { details =>
+          ResultT.fromValue(details.businessDetails.address.postalCode)
+        }
+      case IndWithNino             => ResultT.fromValue(None)
+      case OrgWithoutId            =>
+        userAnswers.get(OrganisationBusinessAddressPage).fold(ResultT.fromError(DataError)) { details =>
+          ResultT.fromValue(details.postcode)
+        }
+      case IndWithoutId            =>
+        userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError(DataError)) { inUk =>
+          if (inUk) {
+            userAnswers.get(IndWithoutIdUkAddressInUserAnswers).fold(ResultT.fromError(DataError)) { addressUk =>
+              ResultT.fromValue(Some(addressUk.postCode))
+            }
+          } else {
+            userAnswers.get(IndWithoutIdAddressNonUkPage).fold(ResultT.fromError(DataError)) { addressNonUk =>
+              ResultT.fromValue(addressNonUk.postcode)
+            }
+          }
+        }
+    }
+
+  def getUserIsAbroad(userAnswers: UserAnswers): ResultT[Boolean] =
+    userAnswers.journeyType.fold(ResultT.fromError(DataError)) {
+      case OrgWithUtr | IndWithUtr => ResultT.fromValue(false)
+      case IndWithNino             => ResultT.fromValue(false)
+      case OrgWithoutId            => ResultT.fromValue(true)
+      case IndWithoutId            =>
+        userAnswers.get(WhereDoYouLivePage).fold(ResultT.fromError(DataError)) { inUk =>
+          ResultT.fromValue(!inUk)
+        }
+    }
 
   private def getAddressRowMaybe(userAnswers: UserAnswers, liveInUkOrCd: Boolean)(implicit
       messages: Messages

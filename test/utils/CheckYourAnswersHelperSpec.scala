@@ -17,10 +17,14 @@
 package utils
 
 import base.SpecBase
+import generators.Generators
+import models.JourneyType.*
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
+import models.error.DataError
 import models.responses.AddressRegistrationResponse
-import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, UserAnswers}
+import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, JourneyType, Name, OrganisationBusinessAddress, UserAnswers}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages.individual.*
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
@@ -32,7 +36,7 @@ import viewmodels.Section
 
 import java.time.LocalDate
 
-class CheckYourAnswersHelperSpec extends SpecBase {
+class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks with Generators {
 
   val testHelper                  = new CheckYourAnswersHelper()
   implicit val messages: Messages = messages(app)
@@ -47,11 +51,11 @@ class CheckYourAnswersHelperSpec extends SpecBase {
     val formattedExpectedKeys = expectedKeys.map(key => Text(key))
 
     withClue(s"""
-         |Expected table keys to match in order
-         |Expected: $formattedExpectedKeys
-         |Actual:   $actualKeys
-         |
-         |""".stripMargin) {
+                |Expected table keys to match in order
+                |Expected: $formattedExpectedKeys
+                |Actual:   $actualKeys
+                |
+                |""".stripMargin) {
 
       expectedTitle mustEqual section.sectionName
       actualKeys         must have size formattedExpectedKeys.size
@@ -458,6 +462,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
         section mustBe None
       }
     }
+
     "getSecondContactDetailsSectionMaybe" - {
       "must return a section when there is no second contact" in new TestData {
         val section: Section          =
@@ -529,6 +534,7 @@ class CheckYourAnswersHelperSpec extends SpecBase {
         section mustBe None
       }
     }
+
     "indContactDetailsMaybe" - {
       "must return a section when all pages have been answered and user doesn't have a phone number" in new TestData {
         val section: Section          = testHelper.indContactDetailsMaybe(testUserAnswersIndWithoutPhoneNumber).get
@@ -568,6 +574,190 @@ class CheckYourAnswersHelperSpec extends SpecBase {
         val section: Option[Section] = testHelper.indContactDetailsMaybe(testUserAnswers)
 
         section mustBe None
+      }
+    }
+
+    "getUserPostcode" - {
+      "should successfully return a optional postcode depending on journey type" in new TestData {
+
+        forAll(genJourneyType, genBoolean) { (genJourneyType, inUk) =>
+          genJourneyType match {
+            case journeyType @ (OrgWithUtr | IndWithUtr) =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+                .withPage(IsThisYourBusinessPage, IsThisYourBusinessPageDetails(testBusinessDetails, Some(true)))
+
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Right(testBusinessDetails.address.postalCode)
+
+            case journeyType @ IndWithNino =>
+              val userAnswers = emptyUserAnswers.copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Right(None)
+
+            case journeyType @ OrgWithoutId =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+                .withPage(
+                  OrganisationBusinessAddressPage,
+                  OrganisationBusinessAddress(
+                    "",
+                    None,
+                    "",
+                    None,
+                    Some("postcode"),
+                    Country("TS", "test", Some("test"))
+                  )
+                )
+
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Right(Some("postcode"))
+            case journeyType @ IndWithoutId =>
+              if (inUk) {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(IndWithoutIdUkAddressInUserAnswers, testAddressUk)
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+                result mustBe Right(Some(testAddressUk.postCode))
+              } else {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+                  .withPage(
+                    IndWithoutIdAddressNonUkPage,
+                    IndWithoutIdAddressNonUk(
+                      "",
+                      None,
+                      "",
+                      None,
+                      Some("postcode"),
+                      Country("TS", "test", Some("test"))
+                    )
+                  )
+
+                val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+                result mustBe Right(Some("postcode"))
+              }
+
+          }
+        }
+      }
+
+      "should fail depending on journey type" in new TestData {
+
+        forAll(genJourneyType, genBoolean) { (genJourneyType, inUk) =>
+          genJourneyType match {
+            case journeyType @ (OrgWithUtr | IndWithUtr) =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Left(DataError)
+
+            case journeyType @ IndWithNino => assert(true) // no possible error case but need to satisfy scalacheck
+
+            case journeyType @ OrgWithoutId =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+              result mustBe Left(DataError)
+            case journeyType @ IndWithoutId =>
+              if (inUk) {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+                result mustBe Left(DataError)
+              } else {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+                result mustBe Left(DataError)
+              }
+
+          }
+        }
+      }
+
+      "should fail when where do you live is not supplied for the IndWithoutId Journey" in new TestData {
+
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(JourneyType.IndWithoutId))
+
+        val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+        result mustBe Left(DataError)
+      }
+    }
+
+    "getUserIsAbroad" - {
+      "should successfully return if abroad depending on journey type" in new TestData {
+
+        forAll(genJourneyType, genBoolean) { (genJourneyType, inUk) =>
+          genJourneyType match {
+            case journeyType @ (OrgWithUtr | IndWithUtr) =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+              result mustBe Right(false)
+
+            case journeyType @ IndWithNino =>
+              val userAnswers = emptyUserAnswers.copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+              result mustBe Right(false)
+
+            case journeyType @ OrgWithoutId =>
+              val userAnswers = emptyUserAnswers
+                .copy(journeyType = Some(journeyType))
+
+              val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+              result mustBe Right(true)
+
+            case journeyType @ IndWithoutId =>
+              if (inUk) {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+                result mustBe Right(!inUk)
+              } else {
+                val userAnswers = emptyUserAnswers
+                  .copy(journeyType = Some(journeyType))
+                  .withPage(WhereDoYouLivePage, inUk)
+
+                val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+                result mustBe Right(!inUk)
+              }
+
+          }
+        }
+      }
+
+      "should fail if journey type is not supplied" in new TestData {
+
+        val userAnswers = emptyUserAnswers
+
+        val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+        result mustBe Left(DataError)
+
+      }
+
+      "should fail if Where do you live page is not supplied" in new TestData {
+        val userAnswers = emptyUserAnswers
+          .copy(journeyType = Some(JourneyType.IndWithoutId))
+
+        val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+        result mustBe Left(DataError)
+
       }
     }
   }

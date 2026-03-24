@@ -20,6 +20,8 @@ import base.SpecBase
 import connectors.EnrolmentConnector
 import models.SubscriptionId
 import models.error.ApiError.InternalServerError
+import models.requests.{EnrolmentRequest, Identifier, Verifier}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import types.ResultT
@@ -32,11 +34,24 @@ class EnrolmentServiceSpec extends SpecBase {
   "EnrolmentService" - {
     "createEnrolment" - {
       "should successfully enrol" in {
-        when(mockConnector.createEnrolment(any())(any())).thenReturn(ResultT.fromValue(()))
 
-        val result = enrolmentService.enrol(SubscriptionId("testCarfI"), Some("NW6 8RT"), false).value.futureValue
+        val carfId   = "testCarfI"
+        val postcode = "NW6 8RT"
 
-        assert(result.isRight)
+        val enrolmentRequest = EnrolmentRequest(
+          Seq(Identifier("CARFID", carfId)),
+          Seq(
+            Verifier("PostCode", postcode),
+            Verifier("IsAbroad", "N")
+          )
+        )
+
+        when(mockConnector.createEnrolment(ArgumentMatchers.eq(enrolmentRequest))(any()))
+          .thenReturn(ResultT.fromValue(()))
+
+        val result = enrolmentService.enrol(SubscriptionId(carfId), Some(postcode), false).value.futureValue
+
+        result.isRight mustBe true
       }
 
       "should return error when connector fails" in {
@@ -44,7 +59,7 @@ class EnrolmentServiceSpec extends SpecBase {
 
         val result = enrolmentService.enrol(SubscriptionId("testCarfI"), Some("NW6 8RT"), false).value.futureValue
 
-        assert(result.isLeft)
+        result.isLeft mustBe true
       }
     }
   }

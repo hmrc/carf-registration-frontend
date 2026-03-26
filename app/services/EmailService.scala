@@ -31,12 +31,9 @@ class EmailService @Inject() (
 
   private val templateId = registrationSuccessfulEmailTemplateId
 
-  def sendEmails(
-      contacts: List[ContactEmailInfo],
-      subscriptionId: String,
-      haveEmailsSentAlready: Boolean,
-      includeCarfReference: Boolean = false
-  )(implicit hc: HeaderCarrier): Future[Unit] =
+  def sendEmails(contacts: List[ContactEmailInfo], subscriptionId: Option[String], haveEmailsSentAlready: Boolean)(
+      implicit hc: HeaderCarrier
+  ): Future[Unit] =
     if (haveEmailsSentAlready) {
       logger.info("Emails already sent — skipping email sending")
       Future.successful(())
@@ -47,11 +44,8 @@ class EmailService @Inject() (
       Future
         .traverse(contacts) { contact =>
           val baseParameters = Map("name" -> contact.name)
-          val parameters     = if (includeCarfReference) {
-            baseParameters + ("carfReference" -> subscriptionId)
-          } else {
-            baseParameters
-          }
+          val parameters =
+            baseParameters ++ subscriptionId.map(ref => "carfReference" -> ref)
           emailConnector.sendEmail(contact.email, templateId, parameters)
         }
         .map { statuses =>

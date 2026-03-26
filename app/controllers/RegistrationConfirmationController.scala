@@ -58,10 +58,13 @@ class RegistrationConfirmationController @Inject() (
       } yield {
         val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
-        val includeCarfReference           = shouldIncludeCarfReference(journeyType, request.userAnswers)
-
+        val maybeSubscriptionId =
+          Option.when(shouldIncludeCarfReference(journeyType, request.userAnswers))(
+            subscriptionId.value
+          )
+          
         for {
-          _              <- emailService.sendEmails(contacts, subscriptionId.value, haveEmailsSentAlready, includeCarfReference)
+          _              <- emailService.sendEmails(contacts, maybeSubscriptionId, haveEmailsSentAlready)
           updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Ok(

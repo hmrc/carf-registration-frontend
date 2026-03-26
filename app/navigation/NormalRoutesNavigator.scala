@@ -145,19 +145,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case NavigatorOnlyCheckYourAnswersErrors => userAnswers => checkYourAnswersErrorNavigation(userAnswers)
 
     case ChangeDetailsIndividualEmailPage =>
-      userAnswers => navigateFromIndividualEmailPage(userAnswers)
+      _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
     case _                                =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
-
-  private def navigateFromIndividualEmailPage(userAnswers: UserAnswers): Call =
-    userAnswers
-      .get(ChangeDetailsIndividualEmailPage)
-      .fold(
-        routes.JourneyRecoveryController.onPageLoad()
-      ) { _ =>
-        changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
-      }
 
   private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =
     userAnswers

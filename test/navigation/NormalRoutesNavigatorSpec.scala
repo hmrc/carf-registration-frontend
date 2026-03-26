@@ -1224,16 +1224,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
       }
-
-      "must navigate from ChangeDetailsIndividualEmailPage to the Journey recovery when ChangeDetailsIndividualEmailPage is not present" in {
-        val userAnswers = UserAnswers(userAnswersId)
-
-        navigator.nextPage(
-          ChangeDetailsIndividualEmailPage,
-          NormalMode,
-          userAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
     }
   }
 }

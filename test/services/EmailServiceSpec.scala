@@ -41,7 +41,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
 
     "sendEmails" - {
 
-      "must successfully send email for a single contact" in {
+      "must successfully send email for a single contact with CARF reference" in {
         val contact        = ContactEmailInfo("John Doe", "john@example.com")
         val subscriptionId = "sub123"
         val contacts       = List(contact)
@@ -59,7 +59,8 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
           )(any[HeaderCarrier](), any[ExecutionContext]())
         ).thenReturn(Future.successful(EmailSent))
 
-        val result = service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false)
+        val result =
+          service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false, includeCarfReference = true)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(1)).sendEmail(
@@ -70,7 +71,36 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must send emails for multiple contacts" in {
+      "must successfully send email for a single contact without CARF reference" in {
+        val contact        = ContactEmailInfo("John Doe", "john@example.com")
+        val subscriptionId = "sub123"
+        val contacts       = List(contact)
+
+        val expectedParams = Map(
+          "name" -> contact.name
+        )
+
+        when(
+          mockEmailConnector.sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        ).thenReturn(Future.successful(EmailSent))
+
+        val result =
+          service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false, includeCarfReference = false)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact.email),
+            meq("carf_registration_successful"),
+            meq(expectedParams)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        }
+      }
+
+      "must send emails for multiple contacts with CARF reference" in {
         val contact1       = ContactEmailInfo("John Doe", "john@example.com")
         val contact2       = ContactEmailInfo("Jane Smith", "jane@example.com")
         val subscriptionId = "sub123"
@@ -99,7 +129,49 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
           )
         ).thenReturn(Future.successful(EmailSent))
 
-        val result = service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false)
+        val result =
+          service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false, includeCarfReference = true)
+
+        whenReady(result) { _ =>
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact1.email),
+            any(),
+            meq(params1)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+
+          verify(mockEmailConnector, times(1)).sendEmail(
+            meq(contact2.email),
+            any(),
+            meq(params2)
+          )(any[HeaderCarrier](), any[ExecutionContext]())
+        }
+      }
+
+      "must send emails for multiple contacts without CARF reference" in {
+        val contact1       = ContactEmailInfo("John Doe", "john@example.com")
+        val contact2       = ContactEmailInfo("Jane Smith", "jane@example.com")
+        val subscriptionId = "sub123"
+        val contacts       = List(contact1, contact2)
+
+        val params1 = Map("name" -> contact1.name)
+        val params2 = Map("name" -> contact2.name)
+
+        when(
+          mockEmailConnector.sendEmail(meq(contact1.email), any(), meq(params1))(
+            any[HeaderCarrier](),
+            any[ExecutionContext]()
+          )
+        ).thenReturn(Future.successful(EmailSent))
+
+        when(
+          mockEmailConnector.sendEmail(meq(contact2.email), any(), meq(params2))(
+            any[HeaderCarrier](),
+            any[ExecutionContext]()
+          )
+        ).thenReturn(Future.successful(EmailSent))
+
+        val result =
+          service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false, includeCarfReference = false)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(1)).sendEmail(
@@ -117,7 +189,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
       }
 
       "must handle empty contact list without sending emails" in {
-        val result = service.sendEmails(Nil, "sub123", haveEmailsSentAlready = false)
+        val result = service.sendEmails(Nil, "sub123", haveEmailsSentAlready = false, includeCarfReference = true)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, never()).sendEmail(
@@ -132,7 +204,7 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
         val contact  = ContactEmailInfo("John Doe", "john@example.com")
         val contacts = List(contact)
 
-        val result = service.sendEmails(contacts, "sub123", haveEmailsSentAlready = true)
+        val result = service.sendEmails(contacts, "sub123", haveEmailsSentAlready = true, includeCarfReference = true)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, never()).sendEmail(
@@ -157,7 +229,8 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
           mockEmailConnector.sendEmail(meq(contact2.email), any(), any())(any(), any())
         ).thenReturn(Future.successful(EmailNotSent))
 
-        val result = service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false)
+        val result =
+          service.sendEmails(contacts, subscriptionId, haveEmailsSentAlready = false, includeCarfReference = true)
 
         whenReady(result) { _ =>
           verify(mockEmailConnector, times(2)).sendEmail(any(), any(), any())(any(), any())

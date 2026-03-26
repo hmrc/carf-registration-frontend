@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import models.JourneyType.*
-import models.{JourneyType, UserAnswers}
+import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
@@ -58,8 +58,10 @@ class RegistrationConfirmationController @Inject() (
       } yield {
         val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
+        val includeCarfReference           = shouldIncludeCarfReference(journeyType, request.userAnswers)
+
         for {
-          _              <- emailService.sendEmails(contacts, subscriptionId.value, haveEmailsSentAlready)
+          _              <- emailService.sendEmails(contacts, subscriptionId.value, haveEmailsSentAlready, includeCarfReference)
           updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Ok(
@@ -76,6 +78,27 @@ class RegistrationConfirmationController @Inject() (
         case None         =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
       }
+    }
+
+  private def shouldIncludeCarfReference(journeyType: JourneyType, userAnswers: UserAnswers): Boolean =
+    journeyType match {
+      case OrgWithUtr | OrgWithoutId               =>
+        userAnswers.get(RegistrationTypePage) match {
+          case Some(registrationType) => isAllowedOrganisationType(registrationType)
+          case None                   => false
+        }
+      case IndWithNino | IndWithUtr | IndWithoutId =>
+        false
+    }
+
+  private def isAllowedOrganisationType(registrationType: RegistrationType): Boolean =
+    registrationType match {
+      case RegistrationType.LimitedCompany => true
+      case RegistrationType.Partnership    => true
+      case RegistrationType.LLP            => true
+      case RegistrationType.Trust          => true
+      case RegistrationType.SoleTrader     => false
+      case _                               => false
     }
 
   private def getContacts(journeyType: JourneyType, userAnswers: UserAnswers): Option[List[ContactEmailInfo]] =

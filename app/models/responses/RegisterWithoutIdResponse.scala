@@ -18,10 +18,10 @@ package models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterIndividualWithoutIdResponse(
+case class RegisterWithoutIdResponse(
     safeId: String
 )
 
-object RegisterIndividualWithoutIdResponse {
-  implicit val format: OFormat[RegisterIndividualWithoutIdResponse] = Json.format[RegisterIndividualWithoutIdResponse]
+object RegisterWithoutIdResponse {
+  implicit val format: OFormat[RegisterWithoutIdResponse] = Json.format[RegisterWithoutIdResponse]
 }

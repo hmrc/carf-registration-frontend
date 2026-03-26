@@ -14,7 +14,8 @@
 
 GET        /register-for-cryptoasset-reporting/test-only/address-lookup/:postcode                                                            testOnly.controllers.AddressLookupController.searchByPostcode(postcode: String, filter: Option[String] ?= None)
 
-GET        /register-for-cryptoasset-reporting/test-only/individual-without-id/:firstName                                                    testOnly.controllers.IndividualWithoutIdController.registerWithoutId(firstName: String, filter: Option[String] ?= None)
+GET        /register-for-cryptoasset-reporting/test-only/individual-without-id/:firstName                                                    testOnly.controllers.TestOnlyRegWithoutIdController.regIndWithoutId(firstName: String)
+GET        /register-for-cryptoasset-reporting/test-only/organisation-without-id/:orgName                                                    testOnly.controllers.TestOnlyRegWithoutIdController.regOrgWithoutId(orgName: String)
 
 GET        /register-for-cryptoasset-reporting/test-only/create-enrolment/:identifierKey/:identifierValue/:verifierKey/:verifierValue        testOnly.controllers.EnrolmentController.createEnrolment(identifierKey: String, identifierValue: String, verifierKey: String, verifierValue: String)
 

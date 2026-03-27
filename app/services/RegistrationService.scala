@@ -36,24 +36,36 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  def getSafeId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] =
+  def registerForWithoutIdJourneys(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[UserAnswers] =
     userAnswers.journeyType match {
-      case Some(OrgWithoutId) | Some(IndWithoutId) =>
-        registerWithoutId().leftMap { error =>
-          logger.error(s"[RegistrationService] Failed to register without ID")
-          InternalServerError
+      case Some(journeyType) if (journeyType == OrgWithoutId | journeyType == IndWithoutId) =>
+        val result = if (journeyType == OrgWithoutId) {
+          ???
+        } else {
+          registerIndWithoutId(userAnswers)
         }
-      case _                                       =>
-        userAnswers.safeId match {
-          case Some(id) => ResultT.fromValue(id)
-          case None     =>
-            logger.error(s"[RegistrationService] SafeId missing from userAnswers")
-            ResultT.fromError(ApplicationError)
-        }
+        
+        result.bimap(
+          err =>
+            logger.error(
+              s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}"
+            )
+            InternalServerError
+          ,
+          success =>
+            logger.info(
+              s"[RegistrationService] Successfully registered user without id. JourneyType: ${userAnswers.journeyType}"
+            )
+            userAnswers.copy(safeId = Some(success))
+        )
+      case _                                       => ResultT.fromValue(userAnswers)
     }
 
-  private def registerWithoutId(): ResultT[SafeId] =
-    ResultT.fromValue(SafeId("XE00123456789"))
+  private def registerIndWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
+    val request = ???
+    
+    val response = connector.individualWithNino(request)
+  }
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier

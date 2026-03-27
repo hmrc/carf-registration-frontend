@@ -43,7 +43,7 @@ class ChangeDetailsUpdatedController @Inject() (
 
       val linkToHomePage = routes.PlaceholderController
         .onPageLoad(
-          "redirect to /home-url-not-available (CARF-461)"
+          "redirect to /home-url-not-available (CARF-411)"
         )
         .url
 

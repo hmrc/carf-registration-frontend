@@ -44,7 +44,7 @@ class EmailService @Inject() (
       Future
         .traverse(contacts) { contact =>
           val baseParameters = Map("name" -> contact.name)
-          val parameters =
+          val parameters     =
             baseParameters ++ subscriptionId.map(ref => "carfReference" -> ref)
           emailConnector.sendEmail(contact.email, templateId, parameters)
         }

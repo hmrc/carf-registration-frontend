@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import models.JourneyType.*
-import models.{JourneyType, UserAnswers}
+import models.{JourneyType, RegistrationType, SubscriptionId, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
@@ -58,8 +58,10 @@ class RegistrationConfirmationController @Inject() (
       } yield {
         val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
+        val maybeSubscriptionId            = getSubscriptionIdForAllowedTypes(request.userAnswers, subscriptionId)
+
         for {
-          _              <- emailService.sendEmails(contacts, subscriptionId.value, haveEmailsSentAlready)
+          _              <- emailService.sendEmails(contacts, maybeSubscriptionId, haveEmailsSentAlready)
           updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Ok(
@@ -76,6 +78,16 @@ class RegistrationConfirmationController @Inject() (
         case None         =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
       }
+    }
+
+  private def getSubscriptionIdForAllowedTypes(
+      userAnswers: UserAnswers,
+      subscriptionId: SubscriptionId
+  ): Option[String] =
+    userAnswers.get(RegistrationTypePage) collect {
+      case RegistrationType.LimitedCompany | RegistrationType.Partnership | RegistrationType.LLP |
+          RegistrationType.Trust =>
+        subscriptionId.value
     }
 
   private def getContacts(journeyType: JourneyType, userAnswers: UserAnswers): Option[List[ContactEmailInfo]] =

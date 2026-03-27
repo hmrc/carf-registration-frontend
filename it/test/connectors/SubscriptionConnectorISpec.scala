@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathMatching}
 import itutil.ApplicationWithWiremock
 import models.SubscriptionId
-import models.error.ApiError.{AlreadyRegisteredError, UnableToCreateSubscriptionError}
+import models.error.ApiError.{AlreadyRegisteredError, JsonValidationError, UnableToCreateSubscriptionError}
 import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
@@ -71,7 +71,7 @@ class SubscriptionConnectorISpec
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(CREATED)
+              .withStatus(OK)
               .withBody(validSubscriptionResponseJson)
           )
       )
@@ -80,7 +80,7 @@ class SubscriptionConnectorISpec
       result shouldBe Right(SubscriptionId("CARF123456"))
     }
 
-    "return UnableToCreateSubscriptionError when response JSON is invalid" in {
+    "return JsonValidationError when response JSON is invalid" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -91,10 +91,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(JsonValidationError)
     }
 
-    "return UnableToCreateSubscriptionError when response JSON structure is incorrect" in {
+    "return JsonValidationError when response JSON structure is incorrect" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -105,7 +105,7 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(JsonValidationError)
     }
 
     "return AlreadyRegisteredError when backend returns already_registered status" in {
@@ -227,7 +227,7 @@ class SubscriptionConnectorISpec
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
             aResponse()
-              .withStatus(CREATED)
+              .withStatus(OK)
               .withBody(validSubscriptionResponseJson)
           )
       )

@@ -72,9 +72,8 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
       }
 
       "must successfully send email for a single contact without CARF reference" in {
-        val contact        = ContactEmailInfo("John Doe", "john@example.com")
-        val subscriptionId = "sub123"
-        val contacts       = List(contact)
+        val contact  = ContactEmailInfo("John Doe", "john@example.com")
+        val contacts = List(contact)
 
         val expectedParams = Map(
           "name" -> contact.name
@@ -148,10 +147,9 @@ class EmailServiceSpec extends SpecBase with MockitoSugar {
       }
 
       "must send emails for multiple contacts without CARF reference" in {
-        val contact1       = ContactEmailInfo("John Doe", "john@example.com")
-        val contact2       = ContactEmailInfo("Jane Smith", "jane@example.com")
-        val subscriptionId = "sub123"
-        val contacts       = List(contact1, contact2)
+        val contact1 = ContactEmailInfo("John Doe", "john@example.com")
+        val contact2 = ContactEmailInfo("Jane Smith", "jane@example.com")
+        val contacts = List(contact1, contact2)
 
         val params1 = Map("name" -> contact1.name)
         val params2 = Map("name" -> contact2.name)

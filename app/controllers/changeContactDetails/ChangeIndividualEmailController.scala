@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,59 +14,57 @@
  * limitations under the License.
  */
 
-package controllers.individual
+package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.individual.IndividualEmailFormProvider
-import models.Mode
+import models.NormalMode
 import navigation.Navigator
-import pages.individual.IndividualEmailPage
+import pages.changeContactDetails.ChangeDetailsIndividualEmailPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.individual.IndividualEmailView
+import views.html.ChangeIndividualEmailView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class IndividualEmailController @Inject() (
+class ChangeIndividualEmailController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
+    carfIdRetrieval: CarfIdRetrievalAction,
+    changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     formProvider: IndividualEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: IndividualEmailView
+    view: ChangeIndividualEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] =
+    (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(IndividualEmailPage).fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(ChangeDetailsIndividualEmailPage).fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      Ok(view(preparedForm))
     }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualEmailPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(IndividualEmailPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(ChangeDetailsIndividualEmailPage, NormalMode, updatedAnswers))
         )
   }
 }

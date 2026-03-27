@@ -58,10 +58,7 @@ class RegistrationConfirmationController @Inject() (
       } yield {
         val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
-        val maybeSubscriptionId            = journeyType match {
-          case OrgWithUtr | OrgWithoutId => getSubscriptionIdForAllowedTypes(request.userAnswers, subscriptionId)
-          case _                         => None
-        }
+        val maybeSubscriptionId            = getSubscriptionIdForAllowedTypes(request.userAnswers, subscriptionId)
 
         for {
           _              <- emailService.sendEmails(contacts, maybeSubscriptionId, haveEmailsSentAlready)

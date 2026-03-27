@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import models.JourneyType.*
-import models.{JourneyType, RegistrationType, UserAnswers}
+import models.{JourneyType, RegistrationType, SubscriptionId, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
@@ -58,10 +58,10 @@ class RegistrationConfirmationController @Inject() (
       } yield {
         val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
-        val maybeSubscriptionId            =
-          Option.when(shouldIncludeCarfReference(journeyType, request.userAnswers))(
-            subscriptionId.value
-          )
+        val maybeSubscriptionId            = journeyType match {
+          case OrgWithUtr | OrgWithoutId => getSubscriptionIdForAllowedTypes(request.userAnswers, subscriptionId)
+          case _                         => None
+        }
 
         for {
           _              <- emailService.sendEmails(contacts, maybeSubscriptionId, haveEmailsSentAlready)
@@ -83,25 +83,14 @@ class RegistrationConfirmationController @Inject() (
       }
     }
 
-  private def shouldIncludeCarfReference(journeyType: JourneyType, userAnswers: UserAnswers): Boolean =
-    journeyType match {
-      case OrgWithUtr | OrgWithoutId               =>
-        userAnswers.get(RegistrationTypePage) match {
-          case Some(registrationType) => isAllowedOrganisationType(registrationType)
-          case None                   => false
-        }
-      case IndWithNino | IndWithUtr | IndWithoutId =>
-        false
-    }
-
-  private def isAllowedOrganisationType(registrationType: RegistrationType): Boolean =
-    registrationType match {
-      case RegistrationType.LimitedCompany => true
-      case RegistrationType.Partnership    => true
-      case RegistrationType.LLP            => true
-      case RegistrationType.Trust          => true
-      case RegistrationType.SoleTrader     => false
-      case _                               => false
+  private def getSubscriptionIdForAllowedTypes(
+      userAnswers: UserAnswers,
+      subscriptionId: SubscriptionId
+  ): Option[String] =
+    userAnswers.get(RegistrationTypePage) collect {
+      case RegistrationType.LimitedCompany | RegistrationType.Partnership | RegistrationType.LLP |
+          RegistrationType.Trust =>
+        subscriptionId.value
     }
 
   private def getContacts(journeyType: JourneyType, userAnswers: UserAnswers): Option[List[ContactEmailInfo]] =

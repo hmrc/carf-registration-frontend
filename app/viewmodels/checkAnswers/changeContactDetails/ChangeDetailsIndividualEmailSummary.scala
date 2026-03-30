@@ -35,9 +35,7 @@ object ChangeDetailsIndividualEmailSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad("Should redirect to change details email page (CARF-137)")
-              .url
+            href = controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
           ).withVisuallyHiddenText(messages("changeDetails.summaryList.email.key.hidden"))
         )
       )

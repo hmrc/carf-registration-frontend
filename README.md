@@ -54,7 +54,9 @@ Port: 17000
 ### How to sign in locally and on staging
 
 Local: 
-http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-cryptoasset-reporting
+Registration journey: http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-cryptoasset-reporting
+
+Post Registration (Change details): http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-cryptoasset-reporting/change-contact
 
 Staging:
 https://www.staging.tax.service.gov.uk/register-for-cryptoasset-reporting

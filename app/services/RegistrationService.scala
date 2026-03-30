@@ -18,10 +18,10 @@ package services
 
 import connectors.RegistrationConnector
 import models.JourneyType.{IndWithoutId, OrgWithoutId}
-import models.error.ApiError.{ApplicationError, InternalServerError}
+import models.error.ApiError.InternalServerError
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
-import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
+import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{toAddressDetails, toAddressDetailsNonUk, toAddressDetailsOrg, BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
@@ -113,23 +113,23 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
   private def handleOrganisationRegistrationResponse(
       responseFuture: ResultT[RegisterOrganisationWithIdResponse]
-  ): Future[Either[ApiError, BusinessDetails]] =
+  ): Future[Either[CarfError, BusinessDetails]] =
     responseFuture.value.flatMap {
-      case Right(response)       =>
+      case Right(response) =>
         logger.info("Successfully retrieved organisation details.")
         Future.successful(
           Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
         )
-      case Left(error: ApiError) =>
+      case Left(error)     =>
         logger.error(s"Failed to retrieve organisation details: $error")
         Future.successful(Left(error))
     }
 
   private def handleIndividualRegistrationResponse(
       responseFuture: ResultT[RegisterIndividualWithIdResponse]
-  ): Future[Either[ApiError, IndividualDetails]] =
+  ): Future[Either[CarfError, IndividualDetails]] =
     responseFuture.value.flatMap {
-      case Right(response)       =>
+      case Right(response) =>
         logger.info("Successfully retrieved Individual details.")
         Future.successful(
           Right(
@@ -142,7 +142,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
             )
           )
         )
-      case Left(error: ApiError) =>
+      case Left(error)     =>
         logger.error(s"Failed to retrieve Individual details: $error")
         Future.successful(Left(error))
     }
@@ -159,9 +159,9 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         result.bimap(
           err =>
             logger.error(
-              s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}"
+              s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}. Error: $err"
             )
-            InternalServerError
+            err
           ,
           success =>
             logger.info(
@@ -169,14 +169,17 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
             )
             userAnswers.copy(safeId = Some(success))
         )
-      case _                                                                              => ResultT.fromValue(userAnswers)
+
+      case None => ResultT.fromError(DataError)
+      case _    => ResultT.fromValue(userAnswers)
     }
 
   private def registerIndWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
     val formatter = DateTimeFormatter.ISO_LOCAL_DATE
     val request   = for {
-      firstName      <- userAnswers.get(IndWithoutNinoNamePage).map(_.firstName)
-      secondName     <- userAnswers.get(IndWithoutNinoNamePage).map(_.lastName)
+      name           <- userAnswers.get(IndWithoutNinoNamePage)
+      firstName       = name.firstName
+      lastName        = name.lastName
       dateOfBirth    <- userAnswers.get(IndWithoutIdDateOfBirthPage).map(_.format(formatter))
       inUk           <- userAnswers.get(WhereDoYouLivePage)
       addressDetails <- if (inUk) { userAnswers.get(IndWithoutIdUkAddressInUserAnswers).map(_.toAddressDetails) }
@@ -189,7 +192,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
                         )
     } yield RegisterIndividualWithoutIdRequest(
       firstName = firstName,
-      lastName = secondName,
+      lastName = lastName,
       dateOfBirth = dateOfBirth,
       address = addressDetails,
       contactDetails = contactDetails

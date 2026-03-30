@@ -19,9 +19,10 @@ package base
 import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
-import models.countries.CountryUk
+import models.countries.{Country, CountryUk}
+import models.requests.{AddressDetails, ContactDetails}
 import models.responses.*
-import models.{AddressUk, BusinessDetails, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, OrganisationBusinessAddress, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -155,8 +156,9 @@ trait SpecBase
   val testBusinessDetails =
     BusinessDetails(name = "TestName", address = testAddressRegistrationResponse, safeId = testSafeId)
 
-  val testEmail = "hi@example.com"
-  val testPhone = "07123456789"
+  val testEmail          = "hi@example.com"
+  val testPhone          = "07123456789"
+  val testDob: LocalDate = LocalDate.of(1990, 1, 31)
 
   def testIndividualDisplaySubscriptionResponse(hasPhone: Boolean) = DisplaySubscriptionResponse(success =
     DisplaySubscriptionSuccess(
@@ -230,5 +232,55 @@ trait SpecBase
         secondaryContact = None
       )
     )
+  )
+
+  val testContactDetails = ContactDetails(
+    emailAddress = testEmail,
+    phoneNumber = Some(testPhone)
+  )
+
+  val testAddressDetails = AddressDetails(
+    addressLine1 = "123 Test Street",
+    addressLine2 = Some("Test Area"),
+    addressLine3 = None,
+    townOrCity = "Test City",
+    postalCode = Some("TE5T 1NG"),
+    countryCode = "GB"
+  )
+
+  val testAddressDetailsUk = AddressDetails(
+    addressLine1 = "1 Test",
+    addressLine2 = Some("Test Street"),
+    addressLine3 = Some("Test Region"),
+    townOrCity = "Testingtown",
+    postalCode = Some(testPostcode),
+    countryCode = "GB"
+  )
+
+  val testBusinessAddress = OrganisationBusinessAddress(
+    addressLine1 = "123 Test Street",
+    addressLine2 = Some("Test Area"),
+    region = None,
+    townOrCity = "Test City",
+    postcode = Some("TE5T 1NG"),
+    country = Country("GB", "United Kingdom")
+  )
+
+  val testIndWithoutIdAddressNonUk: IndWithoutIdAddressNonUk = IndWithoutIdAddressNonUk(
+    addressLine1 = "1 Test",
+    addressLine2 = Some("Test Street"),
+    townOrCity = "Testingchussets",
+    region = Some("North of X"),
+    postcode = Some("123456"),
+    country = Country(code = "IE", description = "Ireland")
+  )
+
+  val testAddressDetailsIndNonUk = AddressDetails(
+    addressLine1 = "1 Test",
+    addressLine2 = Some("Test Street"),
+    addressLine3 = Some("North of X"),
+    townOrCity = "Testingchussets",
+    postalCode = Some("123456"),
+    countryCode = "IE"
   )
 }

@@ -58,8 +58,11 @@ class RegistrationConfirmationController @Inject() (
       } yield {
         val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
-        val maybeSubscriptionId            = getSubscriptionIdForAllowedTypes(request.userAnswers, subscriptionId)
-
+        val maybeSubscriptionId            =
+          journeyType match {
+            case OrgWithUtr | OrgWithoutId => Some(subscriptionId.value)
+            case _                         => None
+          }
         for {
           _              <- emailService.sendEmails(contacts, maybeSubscriptionId, haveEmailsSentAlready)
           updatedAnswers <- Future.fromTry(request.userAnswers.set(SubmissionSucceededPage, true))
@@ -78,16 +81,6 @@ class RegistrationConfirmationController @Inject() (
         case None         =>
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
       }
-    }
-
-  private def getSubscriptionIdForAllowedTypes(
-      userAnswers: UserAnswers,
-      subscriptionId: SubscriptionId
-  ): Option[String] =
-    userAnswers.get(RegistrationTypePage) collect {
-      case RegistrationType.LimitedCompany | RegistrationType.Partnership | RegistrationType.LLP |
-          RegistrationType.Trust =>
-        subscriptionId.value
     }
 
   private def getContacts(journeyType: JourneyType, userAnswers: UserAnswers): Option[List[ContactEmailInfo]] =

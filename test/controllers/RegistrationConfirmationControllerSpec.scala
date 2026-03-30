@@ -239,7 +239,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(None),
+            eqTo(Some(subscriptionId.value)),
             eqTo(false)
           )(any[HeaderCarrier])
         }
@@ -288,7 +288,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(None),
+            eqTo(Some(subscriptionId.value)),
             eqTo(false)
           )(any[HeaderCarrier])
         }
@@ -522,7 +522,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           status(result) mustEqual OK
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(None),
+            eqTo(Some(subscriptionId.value)),
             eqTo(false)
           )(any[HeaderCarrier])
         }

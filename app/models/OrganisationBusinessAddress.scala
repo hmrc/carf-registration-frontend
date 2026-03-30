@@ -18,6 +18,9 @@ package models
 
 import play.api.libs.json.*
 import models.countries.*
+import models.requests.AddressDetails
+
+import scala.collection.immutable.Seq
 
 case class OrganisationBusinessAddress(
     addressLine1: String,
@@ -28,7 +31,20 @@ case class OrganisationBusinessAddress(
     country: Country
 )
 
-object OrganisationBusinessAddress {
+extension (address: OrganisationBusinessAddress) {
+  def toAddressDetailsOrg: AddressDetails = {
+    val addressOptionalLines = Seq(address.addressLine2, address.region).flatten
+    AddressDetails(
+      addressLine1 = address.addressLine1,
+      addressLine2 = addressOptionalLines.headOption,
+      addressLine3 = addressOptionalLines.lift(1),
+      townOrCity = address.townOrCity,
+      postalCode = address.postcode,
+      countryCode = address.country.code
+    )
+  }
+}
 
+object OrganisationBusinessAddress {
   implicit val format: OFormat[OrganisationBusinessAddress] = Json.format[OrganisationBusinessAddress]
 }

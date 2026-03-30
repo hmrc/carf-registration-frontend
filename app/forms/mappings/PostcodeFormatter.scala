@@ -71,6 +71,8 @@ case class PostcodeFormatter(
           case Some(_)                         => Left(Seq(FormError("postcode", invalidRealCrownKey)))
           case None                            => Left(Seq(FormError("postcode", invalidFormatCrownKey)))
         }
+      case (false, "")                                       =>
+        Right(None)
       case _                                                 =>
         Right(Some(postcode))
     }

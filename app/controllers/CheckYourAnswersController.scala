@@ -142,17 +142,17 @@ class CheckYourAnswersController @Inject() (
     lazy val answers = request.userAnswers
     for {
       userAnswersWithSafeId <- registrationService.registerForWithoutIdJourneys(request.userAnswers)
-      subscriptionId       <- subscriptionService.subscribe(userAnswersWithSafeId)
-      journeyTypeMaybe      = request.userAnswers.journeyType
-      _                    <- enrolmentCall(answers, subscriptionId)
-      result               <- ResultT.fromFuture {
-                                val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
-                                sessionRepository.set(updatedUserAnswers).map { _ =>
-                                  Right[ApiError, Result](
-                                    Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
-                                  )
-                                }
-                              }
+      subscriptionId        <- subscriptionService.subscribe(userAnswersWithSafeId)
+      journeyTypeMaybe       = request.userAnswers.journeyType
+      _                     <- enrolmentCall(answers, subscriptionId)
+      result                <- ResultT.fromFuture {
+                                 val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
+                                 sessionRepository.set(updatedUserAnswers).map { _ =>
+                                   Right[ApiError, Result](
+                                     Redirect(controllers.routes.RegistrationConfirmationController.onPageLoad())
+                                   )
+                                 }
+                               }
     } yield result
   }
 

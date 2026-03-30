@@ -22,50 +22,23 @@ import models.error.ApiError.{ApplicationError, InternalServerError}
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
 import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
-import models.{BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
+import models.{toAddressDetails, toAddressDetailsNonUk, toAddressDetailsOrg, BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
 import pages.*
-import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
+import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
+import pages.organisation.*
 import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
-
-  def registerForWithoutIdJourneys(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[UserAnswers] =
-    userAnswers.journeyType match {
-      case Some(journeyType) if (journeyType == OrgWithoutId | journeyType == IndWithoutId) =>
-        val result = if (journeyType == OrgWithoutId) {
-          ???
-        } else {
-          registerIndWithoutId(userAnswers)
-        }
-        
-        result.bimap(
-          err =>
-            logger.error(
-              s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}"
-            )
-            InternalServerError
-          ,
-          success =>
-            logger.info(
-              s"[RegistrationService] Successfully registered user without id. JourneyType: ${userAnswers.journeyType}"
-            )
-            userAnswers.copy(safeId = Some(success))
-        )
-      case _                                       => ResultT.fromValue(userAnswers)
-    }
-
-  private def registerIndWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
-    val request = ???
-    
-    val response = connector.individualWithNino(request)
-  }
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
@@ -174,43 +147,92 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         Future.successful(Left(error))
     }
 
-  def individualWithoutId(
-      request: RegisterIndividualWithoutIdRequest
-  )(implicit hc: HeaderCarrier): Future[Either[CarfError, IndividualDetails]] =
-    handleIndividualWithoutIdRegistrationResponse(connector.registerIndividualWithoutId(request).value, request)
+  def registerForWithoutIdJourneys(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[UserAnswers] =
+    userAnswers.journeyType match {
+      case Some(journeyType) if journeyType == OrgWithoutId | journeyType == IndWithoutId =>
+        val result = if (journeyType == OrgWithoutId) {
+          registerOrgWithoutId(userAnswers)
+        } else {
+          registerIndWithoutId(userAnswers)
+        }
 
-  private def handleIndividualWithoutIdRegistrationResponse(
-      responseFuture: Future[Either[ApiError, RegisterWithoutIdResponse]],
-      request: RegisterIndividualWithoutIdRequest
-  ): Future[Either[ApiError, IndividualDetails]] =
-    responseFuture.flatMap {
-      case Right(response)       =>
-        logger.info("Successfully retrieved Individual without ID details.")
-        Future.successful(
-          Right(
-            IndividualDetails(
-              safeId = response.safeId,
-              firstName = request.firstName,
-              middleName = None,
-              lastName = request.lastName,
-              address = mapAddressDetailsToAddress(request.address)
+        result.bimap(
+          err =>
+            logger.error(
+              s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}"
             )
-          )
+            InternalServerError
+          ,
+          success =>
+            logger.info(
+              s"[RegistrationService] Successfully registered user without id. JourneyType: ${userAnswers.journeyType}"
+            )
+            userAnswers.copy(safeId = Some(success))
         )
-      case Left(error: ApiError) =>
-        logger.error(s"Failed to retrieve Individual without ID details: $error")
-        Future.successful(Left(error))
+      case _                                                                              => ResultT.fromValue(userAnswers)
     }
 
-  private def mapAddressDetailsToAddress(addressDetails: AddressDetails): AddressRegistrationResponse =
-    AddressRegistrationResponse(
-      addressLine1 = addressDetails.addressLine1,
-      addressLine2 = addressDetails.addressLine2,
-      addressLine3 = addressDetails.addressLine3,
-      addressLine4 = None,
-      postalCode = addressDetails.postalCode,
-      countryCode = addressDetails.countryCode,
-      countryName = None
+  private def registerIndWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+    val request   = for {
+      firstName      <- userAnswers.get(IndWithoutNinoNamePage).map(_.firstName)
+      secondName     <- userAnswers.get(IndWithoutNinoNamePage).map(_.lastName)
+      dateOfBirth    <- userAnswers.get(IndWithoutIdDateOfBirthPage).map(_.format(formatter))
+      inUk           <- userAnswers.get(WhereDoYouLivePage)
+      addressDetails <- if (inUk) { userAnswers.get(IndWithoutIdUkAddressInUserAnswers).map(_.toAddressDetails) }
+                        else { userAnswers.get(IndWithoutIdAddressNonUkPage).map(_.toAddressDetailsNonUk) }
+      contactDetails <- getWithoutIdContactDetails(
+                          userAnswers = userAnswers,
+                          emailPage = IndividualEmailPage,
+                          havePhonePage = IndividualHavePhonePage,
+                          phoneNumberPage = IndividualPhoneNumberPage
+                        )
+    } yield RegisterIndividualWithoutIdRequest(
+      firstName = firstName,
+      lastName = secondName,
+      dateOfBirth = dateOfBirth,
+      address = addressDetails,
+      contactDetails = contactDetails
     )
+    request.fold(ResultT.fromError(DataError))(request =>
+      connector.registerIndividualWithoutId(request).map(response => SafeId(response.safeId))
+    )
+  }
+
+  private def registerOrgWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
+    val request = for {
+      organisationName <- userAnswers.get(OrgWithoutIdBusinessNamePage)
+      addressDetails   <- userAnswers.get(OrganisationBusinessAddressPage).map(_.toAddressDetailsOrg)
+      contactDetails   <- getWithoutIdContactDetails(
+                            userAnswers = userAnswers,
+                            emailPage = FirstContactEmailPage,
+                            havePhonePage = FirstContactPhonePage,
+                            phoneNumberPage = FirstContactPhoneNumberPage
+                          )
+    } yield RegisterOrganisationWithoutIdRequest(
+      organisationName = organisationName,
+      address = addressDetails,
+      contactDetails = contactDetails
+    )
+    request.fold(ResultT.fromError(DataError))(request =>
+      connector.registerOrganisationWithoutId(request).map(response => SafeId(response.safeId))
+    )
+  }
+
+  private def getWithoutIdContactDetails(
+      userAnswers: UserAnswers,
+      emailPage: QuestionPage[String],
+      havePhonePage: QuestionPage[Boolean],
+      phoneNumberPage: QuestionPage[String]
+  ): Option[ContactDetails] =
+    for {
+      email     <- userAnswers.get(emailPage)
+      havePhone <- userAnswers.get(havePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(phoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
+    } yield ContactDetails(email, phone)
 
 }

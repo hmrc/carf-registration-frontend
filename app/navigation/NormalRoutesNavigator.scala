@@ -17,13 +17,12 @@
 package navigation
 
 import config.Constants.noneOfTheseValue
-import controllers.routes
 import controllers.changeContactDetails.routes as changeDetailsRoutes
+import controllers.routes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage}
 import pages.individual.*
 import pages.individualWithoutId.*
@@ -147,7 +146,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
     case ChangeDetailsIndividualHavePhonePage =>
       userAnswers => navigateFromChangeDetailsIndividualHavePhonePage(userAnswers)
-      
+
     case ChangeDetailsIndividualEmailPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
     case _                                =>

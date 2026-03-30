@@ -18,10 +18,12 @@ package navigation
 
 import config.Constants.noneOfTheseValue
 import controllers.routes
+import controllers.changeContactDetails.routes as changeDetailsRoutes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage}
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
@@ -142,7 +144,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
     case NavigatorOnlyCheckYourAnswersErrors => userAnswers => checkYourAnswersErrorNavigation(userAnswers)
 
-    case _ =>
+    case ChangeDetailsIndividualEmailPage =>
+      _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+    case _                                =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 

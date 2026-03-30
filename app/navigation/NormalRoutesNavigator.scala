@@ -294,23 +294,18 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
   private def navigateFromChangeDetailsIndividualHavePhonePage(userAnswers: UserAnswers): Call =
     userAnswers.get(ChangeDetailsIndividualHavePhonePage) match {
       case Some(true)  =>
-        logger.warn("A1")
         // TODO: Should retrieve change individual phone number page (CARF-139)
         userAnswers.get(IndividualPhoneNumberPage) match {
           case Some(phone) =>
-            logger.warn("A2")
             controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
           case None        =>
-            logger.warn("A3")
             controllers.routes.PlaceholderController.onPageLoad(
               "Should redirect to change individual phone number page (CARF-139)"
             )
         }
       case Some(false) =>
-        logger.warn("A4")
         controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
       case None        =>
-        logger.warn("A5")
         routes.JourneyRecoveryController.onPageLoad()
     }
 

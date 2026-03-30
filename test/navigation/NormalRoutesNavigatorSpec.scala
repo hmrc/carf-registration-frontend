@@ -25,6 +25,7 @@ import models.*
 import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
+import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
@@ -1208,6 +1209,48 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
 
       }
+    }
+
+    "ChangeDetailsIndividualHavePhonePage navigation" - {
+      "must navigate from ChangeDetailsIndividualHavePhonePage to ChangeIndividualContactDetailsController" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsIndividualHavePhonePage, true)
+          .success
+          .value
+          .set(IndividualPhoneNumberPage, "123456")
+          .success
+          .value
+
+        navigator.nextPage(
+          ChangeDetailsIndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
+      }
+
+      "must navigate from ChangeDetailsIndividualHavePhonePage to ChangeIndividualPhoneNumberPage" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsIndividualHavePhonePage, true)
+          .success
+          .value
+
+        navigator.nextPage(
+          ChangeDetailsIndividualHavePhonePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.routes.PlaceholderController.onPageLoad(
+          "Should redirect to change individual phone number page (CARF-139)"
+        )
+      }
+
+      "must navigate from ChangeDetailsIndividualHavePhonePage to JourneyRecoveryController" in {
+        navigator.nextPage(
+          ChangeDetailsIndividualHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
     }
   }
 }

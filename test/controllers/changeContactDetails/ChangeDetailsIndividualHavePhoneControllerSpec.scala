@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.changeContactDetails
 
 import base.SpecBase
+import controllers.routes
 import forms.ChangeDetailsIndividualHavePhoneFormProvider
-import models.{NormalMode, ChangeDetailsIndividualHavePhone, UserAnswers}
+import models.UserAnswers
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import repositories.SessionRepository
+import play.api.test.Helpers.*
 import views.html.ChangeDetailsIndividualHavePhoneView
 
 import scala.concurrent.Future
@@ -36,10 +37,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val changeDetailsIndividualHavePhoneRoute = routes.ChangeDetailsIndividualHavePhoneController.onPageLoad(NormalMode).url
+  lazy val changeDetailsIndividualHavePhoneRoute =
+    controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController.onPageLoad().url
 
   val formProvider = new ChangeDetailsIndividualHavePhoneFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   "ChangeDetailsIndividualHavePhone Controller" - {
 
@@ -54,14 +56,17 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         val view = application.injector.instanceOf[ChangeDetailsIndividualHavePhoneView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualHavePhone.values.head).success.value
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(ChangeDetailsIndividualHavePhonePage, true)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -72,8 +77,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ChangeDetailsIndividualHavePhone.values.head), NormalMode)(request, messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(true))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -90,11 +98,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
       running(application) {
         val request =
           FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
-            .withFormUrlEncodedBody(("value", ChangeDetailsIndividualHavePhone.values.head.toString))
+            .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -114,8 +122,8 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        status(result)          mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
       }
     }
 
@@ -128,7 +136,7 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -140,7 +148,7 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
       running(application) {
         val request =
           FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
-            .withFormUrlEncodedBody(("value", ChangeDetailsIndividualHavePhone.values.head.toString))
+            .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 

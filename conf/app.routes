@@ -244,3 +244,5 @@ POST        /change-contact/individual/have-phone                               
 
 GET         /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad()
 POST        /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit()
+
+GET         /problem/contact-details-are-missing/:continueUrl                   controllers.changeContactDetails.ContactDetailsMissingController.onPageLoad(continueUrl: String)

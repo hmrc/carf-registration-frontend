@@ -16,6 +16,7 @@
 
 package models.error
 
+import play.api.Logger
 import play.api.http.Status.SERVICE_UNAVAILABLE
 import uk.gov.hmrc.http.HttpErrorFunctions.{is4xx, is5xx}
 import uk.gov.hmrc.http.HttpReads
@@ -27,6 +28,11 @@ case object DataError extends CarfError
 case object ConversionError extends CarfError
 
 sealed trait ApiError extends CarfError
+
+extension (carfError: CarfError) {
+  def log(message: String)(implicit logger: Logger): CarfError =
+    carfError
+}
 
 object ApiError {
 

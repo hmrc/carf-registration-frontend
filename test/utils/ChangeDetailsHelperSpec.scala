@@ -18,6 +18,8 @@ package utils
 
 import base.SpecBase
 import models.UserAnswers
+import models.error.ApiError.ApplicationError
+import models.error.DataError
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -82,6 +84,131 @@ class ChangeDetailsHelperSpec extends SpecBase {
         val rows: Option[Seq[SummaryListRow]] = testHelper.getFirstContactDetailsSectionMaybe(userAnswersWithoutPhone)
 
         rows mustBe None
+      }
+    }
+
+    "getHasChanged" - {
+      "must return false when (nothing) has changed" in {
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+          .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = true)))
+          .withPage(ChangeDetailsIndividualHavePhonePage, true)
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
+
+        val result = testHelper.getHasChanged(Some(testEmail), Some(true), fullUserAnswers)
+
+        result mustBe Right(false)
+
+      }
+
+      "must return true when (email) has changed" in {
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+          .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = true)))
+          .withPage(ChangeDetailsIndividualHavePhonePage, true)
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
+
+        val result = testHelper.getHasChanged(Some("new@domain.com"), Some(true), fullUserAnswers)
+
+        result mustBe Right(true)
+
+      }
+
+      "must return true when (have phone true -> false) has changed" in {
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+          .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = true)))
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
+
+        val result = testHelper.getHasChanged(Some(testEmail), Some(false), fullUserAnswers)
+
+        result mustBe Right(true)
+
+      }
+
+      "must return true when (have phone false -> true) has changed" in {
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+          .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = false)))
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
+
+        val result = testHelper.getHasChanged(Some(testEmail), Some(true), fullUserAnswers)
+
+        result mustBe Right(true)
+
+      }
+
+      "must return left when (have phone false -> true) has changed but ChangeDetailsIndividualPhoneNumberPage is not supplied" in {
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+          .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = false)))
+
+        val result = testHelper.getHasChanged(Some(testEmail), Some(true), fullUserAnswers)
+
+        result mustBe Left(DataError)
+
+      }
+
+      "must return Left when displaySubscriptionResponse is not supplied" in {
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+
+        val result = testHelper.getHasChanged(Some(testEmail), Some(true), fullUserAnswers)
+
+        result mustBe Left(ApplicationError)
+
+      }
+    }
+
+    "decideContinueUrl" - {
+      "must return None when no data is missing" in {
+
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
+
+        val result = testHelper.decideContinueUrl(Some(testEmail), Some(true), fullUserAnswers)
+
+        result mustBe None
+      }
+
+      "must return email page's url when email is missing" in {
+
+        val fullUserAnswers: UserAnswers = emptyUserAnswers
+
+        val result = testHelper.decideContinueUrl(None, Some(false), emptyUserAnswers)
+
+        result mustBe Some(
+          controllers.routes.PlaceholderController
+            .onPageLoad("Should redirect to change email page (CARF-137)")
+            .url
+        )
+      }
+
+      "must return contact by phone page's Url when havePhone is missing" in {
+
+        val result = testHelper.decideContinueUrl(Some(testEmail), None, emptyUserAnswers)
+
+        result mustBe Some(
+          controllers.routes.PlaceholderController
+            .onPageLoad("Should redirect to change contact by phone page (CARF-138)")
+            .url
+        )
+      }
+
+      "must return phone number page's url when phone number is missing" in {
+
+        val result = testHelper.decideContinueUrl(None, Some(true), emptyUserAnswers)
+
+        result mustBe Some(
+          controllers.routes.PlaceholderController
+            .onPageLoad("Should redirect to change email page (CARF-137)")
+            .url
+        )
+      }
+
+      "must return email page's url when all data is missing" in {
+
+        val result = testHelper.decideContinueUrl(None, None, emptyUserAnswers)
+
+        result mustBe Some(
+          controllers.routes.PlaceholderController
+            .onPageLoad("Should redirect to change email page (CARF-137)")
+            .url
+        )
       }
     }
   }

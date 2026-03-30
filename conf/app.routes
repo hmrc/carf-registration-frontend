@@ -233,3 +233,6 @@ GET         /change-contact/individual/details                                  
 POST        /change-contact/individual/details                                  controllers.changeContactDetails.ChangeIndividualContactDetailsController.onSubmit()
 
 GET         /change-contact                                                     controllers.changeContactDetails.ChangeContactDetailsIndexController.onPageLoad()
+
+GET         /change-contact/individual/have-phone                               controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onPageLoad()
+POST        /change-contact/individual/have-phone                               controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onSubmit()

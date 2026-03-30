@@ -23,6 +23,11 @@ import models.countries.*
 
 trait ModelGenerators {
 
+  implicit lazy val arbitraryChangeDetailsIndividualHavePhone: Arbitrary[ChangeDetailsIndividualHavePhone] =
+    Arbitrary {
+      Gen.oneOf(ChangeDetailsIndividualHavePhone.values.toSeq)
+    }
+
   implicit lazy val arbitraryIndWithoutIdAddressNonUk: Arbitrary[IndWithoutIdAddressNonUk] =
     Arbitrary {
       for {

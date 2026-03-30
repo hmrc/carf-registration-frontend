@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package models.responses
+package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class RegisterIndividualWithoutIdResponse(
-    safeId: String
+case class SendEmailRequest(
+    to: List[String],
+    templateId: String,
+    parameters: Map[String, String],
+    force: Boolean
 )
 
-object RegisterIndividualWithoutIdResponse {
-  implicit val format: OFormat[RegisterIndividualWithoutIdResponse] = Json.format[RegisterIndividualWithoutIdResponse]
+object SendEmailRequest {
+  implicit val format: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }

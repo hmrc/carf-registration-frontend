@@ -17,6 +17,7 @@
 package navigation
 
 import base.SpecBase
+import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.*
@@ -25,6 +26,7 @@ import models.*
 import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage}
 import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import pages.individual.*
 import pages.individualWithoutId.*
@@ -1250,7 +1252,20 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           emptyUserAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
+    }
 
+    "ChangeDetailsIndividualEmailPage navigation " - {
+      "must navigate from ChangeDetailsIndividualEmailPage to the ChangeIndividualContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsIndividualEmailPage, "email@domain.com")
+          .withPage(ChangeDetailsIndividualHavePhonePage, false)
+
+        navigator.nextPage(
+          ChangeDetailsIndividualEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+      }
     }
   }
 }

@@ -21,8 +21,8 @@ import models.JourneyType.{IndWithoutId, OrgWithoutId}
 import models.error.ApiError.{ApplicationError, InternalServerError}
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
-import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterIndividualWithoutIdResponse, RegisterOrganisationWithIdResponse}
-import models.{BusinessDetails, IndividualDetails, JourneyType, Name, OrganisationRegistrationType, SafeId, UserAnswers}
+import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
+import models.{BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
 import pages.*
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 import play.api.Logging
@@ -165,10 +165,10 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   def individualWithoutId(
       request: RegisterIndividualWithoutIdRequest
   )(implicit hc: HeaderCarrier): Future[Either[CarfError, IndividualDetails]] =
-    handleIndividualWithoutIdRegistrationResponse(connector.individualWithoutId(request).value, request)
+    handleIndividualWithoutIdRegistrationResponse(connector.registerIndividualWithoutId(request).value, request)
 
   private def handleIndividualWithoutIdRegistrationResponse(
-      responseFuture: Future[Either[ApiError, RegisterIndividualWithoutIdResponse]],
+      responseFuture: Future[Either[ApiError, RegisterWithoutIdResponse]],
       request: RegisterIndividualWithoutIdRequest
   ): Future[Either[ApiError, IndividualDetails]] =
     responseFuture.flatMap {

@@ -26,7 +26,7 @@ import models.error.ApiError
 import models.requests.{EnrolmentRequest, Identifier, Verifier}
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT}
 
-class EnrolmentConnectorSpec extends ApplicationWithWiremock
+class EnrolmentConnectorISpec extends ApplicationWithWiremock
   with Matchers
   with ScalaFutures
   with IntegrationPatience {
@@ -65,7 +65,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
     "successfully receive NO Content response" in {
 
       stubFor(
-        put(urlPathMatching("/dac6/dprs0101/v1"))
+        put(urlPathMatching("/tax-enrolments/service/HMRC-CARF-ORG/enrolment"))
           .withRequestBody(equalToJson(enrolmentRequestValidAsJson.toString))
           .willReturn(
             aResponse()
@@ -81,7 +81,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
 
     "return Left when a Bad Request response status is received" in {
       stubFor(
-        put(urlPathMatching("/dac6/dprs0101/v1"))
+        put(urlPathMatching("/tax-enrolments/service/HMRC-CARF-ORG/enrolment"))
           .willReturn(
             aResponse()
               .withStatus(BAD_REQUEST)
@@ -97,7 +97,7 @@ class EnrolmentConnectorSpec extends ApplicationWithWiremock
     
     "return Left when a Internal Server Error response status is received" in {
       stubFor(
-        put(urlPathMatching("/dac6/dprs0101/v1"))
+        put(urlPathMatching("/tax-enrolments/service/HMRC-CARF-ORG/enrolment"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)

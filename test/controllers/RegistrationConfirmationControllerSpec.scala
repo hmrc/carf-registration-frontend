@@ -88,9 +88,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
             .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
             .success
             .value
-            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-            .success
-            .value
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
             .set(SubmissionSucceededPage, true)
             .success
             .value
@@ -217,9 +215,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
             .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
             .success
             .value
-            .set(RegistrationTypePage, RegistrationType.SoleTrader)
-            .success
-            .value
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
             .copy(isCtAutoMatched = false)
 
         val application = buildApplication(Some(userAnswers))

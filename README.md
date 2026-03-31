@@ -5,7 +5,7 @@ This is the Frontend repository for the Crypto Asset Reporting Framework (CARF) 
 ## What this service does
 This service handles organisation and individual registration journeys with integrated navigation, form validation, and HMRC authentication.
 
-### Running the service locally
+### Running the service locally 
 
 Prerequisites:
 - Java 21

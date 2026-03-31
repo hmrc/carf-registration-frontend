@@ -16,11 +16,9 @@
 
 package controllers.changeContactDetails
 
-import cats.syntax.all.*
 import com.google.inject.Inject
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import controllers.routes
-import models.error.ApiError.ApplicationError
 import models.error.DataError
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage}
 import play.api.Logging
@@ -64,17 +62,14 @@ class ChangeIndividualContactDetailsController @Inject() (
         userAnswers
       )
 
-      lazy val redirectOnMissingDetails = changeDetailsHelper
-        .decideContinueUrl(maybeEmail, maybeHavePhone, userAnswers)
-        .fold(
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        ) { url =>
-          Future.successful(
-            Redirect(
-              controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad(url)
+      lazy val redirectOnMissingDetails =
+        Future.successful(
+          Redirect(
+            controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad(
+              controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
             )
           )
-        }
+        )
 
       eitherHasChanged match {
         case Right(hasChanged) =>

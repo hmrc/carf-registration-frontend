@@ -87,7 +87,6 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
           .thenReturn(Some(Seq(testRow)))
 
         when(mockChangeDetailsHelper.getHasChanged(any(), any(), any())).thenReturn(Right(false))
-        when(mockChangeDetailsHelper.decideContinueUrl(any(), any(), any())).thenReturn(None)
 
         val request                = FakeRequest(GET, pageRoute)
         private val view           = application.injector.instanceOf[ChangeIndividualContactDetailsView]
@@ -105,15 +104,11 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         emptyUserAnswers
       ) {
 
-        val expectedUrl: String = controllers.routes.PlaceholderController
-          .onPageLoad(
-            "Should redirect to change contact by phone page"
-          )
-          .url
+        val expectedUrl: String =
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
 
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any())).thenReturn(None)
         when(mockChangeDetailsHelper.getHasChanged(any(), any(), any())).thenReturn(Right(false))
-        when(mockChangeDetailsHelper.decideContinueUrl(any(), any(), any())).thenReturn(Some(expectedUrl))
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
@@ -134,8 +129,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(None)
         when(mockChangeDetailsHelper.getHasChanged(any(), any(), any()))
-          .thenReturn(Right(false)) // would return in practise but for test coverage
-        when(mockChangeDetailsHelper.decideContinueUrl(any(), any(), any())).thenReturn(Some(expectedUrl))
+          .thenReturn(Right(false)) // would not return in practise but for test coverage
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
@@ -152,17 +146,13 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         userAnswersWithEmail
       ) {
 
-        val expectedUrl: String = controllers.routes.PlaceholderController
-          .onPageLoad(
-            "Should redirect to change contact by phone page"
-          )
-          .url
+        val expectedUrl: String =
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
 
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(None)
         when(mockChangeDetailsHelper.getHasChanged(any(), any(), any()))
-          .thenReturn(Right(false)) // would return in practise but for test coverage
-        when(mockChangeDetailsHelper.decideContinueUrl(any(), any(), any())).thenReturn(Some(expectedUrl))
+          .thenReturn(Right(false)) // would not return in practise but for test coverage
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
@@ -178,17 +168,13 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         userAnswersWithoutPhone
       ) {
 
-        val expectedUrl: String = controllers.routes.PlaceholderController
-          .onPageLoad(
-            "Should redirect to change contact by phone page"
-          )
-          .url
+        val expectedUrl: String =
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
 
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(None)
         when(mockChangeDetailsHelper.getHasChanged(any(), any(), any()))
-          .thenReturn(Right(false)) // would return in practise but for test coverage
-        when(mockChangeDetailsHelper.decideContinueUrl(any(), any(), any())).thenReturn(Some(expectedUrl))
+          .thenReturn(Right(false)) // would not return in practise but for test coverage
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
@@ -214,8 +200,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
           .thenReturn(Some(Seq(testRow)))
 
         when(mockChangeDetailsHelper.getHasChanged(any(), any(), any()))
-          .thenReturn(Left(ApplicationError)) // would return in practise but for test coverage)
-        when(mockChangeDetailsHelper.decideContinueUrl(any(), any(), any())).thenReturn(Some(expectedUrl))
+          .thenReturn(Left(ApplicationError))
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value

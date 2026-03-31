@@ -72,32 +72,4 @@ class ChangeDetailsHelper @Inject() extends Logging {
                               Right(None)
                             }
     } yield displaySubResponse.hasIndividualChangedData(email, phone)
-
-  def decideContinueUrl(
-      maybeEmail: Option[String],
-      maybeHavePhone: Option[Boolean],
-      userAnswers: UserAnswers
-  ): Option[String] = {
-
-    lazy val placeholderUrl: String => String = content =>
-      controllers.routes.PlaceholderController
-        .onPageLoad(content)
-        .url
-
-    lazy val havePhonePageUrl   = placeholderUrl("Should redirect to change contact by phone page (CARF-138)")
-    lazy val phoneNumberPageUrl = placeholderUrl("Should redirect to change phone number page (CARF-139)")
-    lazy val emailPageUrl       = controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
-
-    val successPartial: Any => Option[String] = _ => None
-
-    val emailContinueUrl = maybeEmail.fold(Option(emailPageUrl))(successPartial)
-    val phoneMissingUrl  = maybeHavePhone.fold(Option(havePhonePageUrl)) { havePhone =>
-      if (havePhone) {
-        userAnswers.get(ChangeDetailsIndividualPhoneNumberPage).fold(Option(phoneNumberPageUrl))(successPartial)
-      } else {
-        Option.empty[String]
-      }
-    }
-    Seq(emailContinueUrl, phoneMissingUrl).find(_.isDefined).flatten
-  }
 }

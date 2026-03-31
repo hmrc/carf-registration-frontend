@@ -153,58 +153,6 @@ class ChangeDetailsHelperSpec extends SpecBase {
 
       }
     }
-
-    "decideContinueUrl" - {
-      "must return None when no data is missing" in {
-
-        val fullUserAnswers: UserAnswers = emptyUserAnswers
-          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
-
-        val result = testHelper.decideContinueUrl(Some(testEmail), Some(true), fullUserAnswers)
-
-        result mustBe None
-      }
-
-      "must return email page's url when email is missing" in {
-
-        val fullUserAnswers: UserAnswers = emptyUserAnswers
-
-        val result = testHelper.decideContinueUrl(None, Some(false), emptyUserAnswers)
-
-        result mustBe Some(
-          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
-        )
-      }
-
-      "must return contact by phone page's Url when havePhone is missing" in {
-
-        val result = testHelper.decideContinueUrl(Some(testEmail), None, emptyUserAnswers)
-
-        result mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad("Should redirect to change contact by phone page (CARF-138)")
-            .url
-        )
-      }
-
-      "must return phone number page's url when phone number is missing" in {
-
-        val result = testHelper.decideContinueUrl(None, Some(true), emptyUserAnswers)
-
-        result mustBe Some(
-          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
-        )
-      }
-
-      "must return email page's url when all data is missing" in {
-
-        val result = testHelper.decideContinueUrl(None, None, emptyUserAnswers)
-
-        result mustBe Some(
-          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
-        )
-      }
-    }
   }
 
   class TestData {

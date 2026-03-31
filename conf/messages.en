@@ -623,3 +623,8 @@ changeDetails.summaryList.havePhone.key.hidden = Change if we can contact you by
 changeDetails.summaryList.phoneNumber.key = Phone number
 changeDetails.summaryList.phoneNumber.key.hidden = Change phone number
 changeDetails.linkText = Back to manage your cryptoasset reports
+
+changeDetails.detail.updated.title = Contact details updated
+changeDetails.detail.updated.heading = Contact details updated
+changeDetails.detail.updated.p1 = We will use your new details if we need to contact you.
+changeDetails.detail.updated.linkText = Back to manage your cryptoasset reports

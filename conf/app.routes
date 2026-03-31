@@ -241,3 +241,6 @@ GET         /change-contact/details-updated                                     
 
 GET         /change-contact/individual/have-phone                               controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onPageLoad()
 POST        /change-contact/individual/have-phone                               controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onSubmit()
+
+GET         /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad()
+POST        /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit()

@@ -84,9 +84,7 @@ class ChangeIndividualContactDetailsController @Inject() (
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case Right(())   =>
           Redirect(
-            controllers.routes.PlaceholderController.onPageLoad(
-              "Should redirect to change details success page (CARF-140)"
-            )
+            controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad()
           )
       }
 

@@ -5,7 +5,7 @@ This is the Frontend repository for the Crypto Asset Reporting Framework (CARF) 
 ## What this service does
 This service handles organisation and individual registration journeys with integrated navigation, form validation, and HMRC authentication.
 
-### Running the service locally
+### Running the service locally 
 
 Prerequisites:
 - Java 21
@@ -54,7 +54,9 @@ Port: 17000
 ### How to sign in locally and on staging
 
 Local: 
-http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-cryptoasset-reporting
+Registration journey: http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-cryptoasset-reporting
+
+Post Registration (Change details): http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:17000/register-for-cryptoasset-reporting/change-contact
 
 Staging:
 https://www.staging.tax.service.gov.uk/register-for-cryptoasset-reporting

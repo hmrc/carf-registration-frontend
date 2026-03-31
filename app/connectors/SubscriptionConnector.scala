@@ -24,7 +24,7 @@ import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, Unabl
 import models.requests.CreateSubscriptionRequest
 import models.responses.CreateSubscriptionResponse
 import play.api.Logging
-import play.api.http.Status.CREATED
+import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import types.ResultT
@@ -55,14 +55,14 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
         .withBody(Json.toJson(createSubscriptionRequest))
         .execute[HttpResponse]
         .map {
-          case response if response.status == CREATED =>
+          case response if response.status == OK =>
             Try(response.json.as[CreateSubscriptionResponse]) match {
               case Success(data)      => Right(data.subscriptionId)
               case Failure(exception) =>
                 logger.warn(s"Error parsing CreateSubscriptionResponse with endpoint: $submissionUrl")
                 Left(ApiError.JsonValidationError)
             }
-          case response                               =>
+          case response                          =>
             logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl")
             Left(handleErrorResponse(response))
         }

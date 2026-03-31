@@ -172,9 +172,7 @@ class ChangeDetailsHelperSpec extends SpecBase {
         val result = testHelper.decideContinueUrl(None, Some(false), emptyUserAnswers)
 
         result mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad("Should redirect to change email page (CARF-137)")
-            .url
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
         )
       }
 
@@ -194,9 +192,7 @@ class ChangeDetailsHelperSpec extends SpecBase {
         val result = testHelper.decideContinueUrl(None, Some(true), emptyUserAnswers)
 
         result mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad("Should redirect to change email page (CARF-137)")
-            .url
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
         )
       }
 
@@ -205,9 +201,7 @@ class ChangeDetailsHelperSpec extends SpecBase {
         val result = testHelper.decideContinueUrl(None, None, emptyUserAnswers)
 
         result mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad("Should redirect to change email page (CARF-137)")
-            .url
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
         )
       }
     }

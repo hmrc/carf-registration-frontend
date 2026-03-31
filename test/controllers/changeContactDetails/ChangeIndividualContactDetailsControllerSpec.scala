@@ -128,11 +128,8 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       "must redirect to some details are missing page when email is missing from user answers" in new Setup(
         emptyUserAnswers
       ) {
-        val expectedUrl: String = controllers.routes.PlaceholderController
-          .onPageLoad(
-            "Should redirect to change email"
-          )
-          .url
+        val expectedUrl: String =
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
 
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(None)

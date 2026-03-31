@@ -86,7 +86,7 @@ class ChangeDetailsHelper @Inject() extends Logging {
 
     lazy val havePhonePageUrl   = placeholderUrl("Should redirect to change contact by phone page (CARF-138)")
     lazy val phoneNumberPageUrl = placeholderUrl("Should redirect to change phone number page (CARF-139)")
-    lazy val emailPageUrl       = placeholderUrl("Should redirect to change email page (CARF-137)")
+    lazy val emailPageUrl       = controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
 
     val successPartial: Any => Option[String] = _ => None
 

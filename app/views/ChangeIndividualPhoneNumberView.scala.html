@@ -12,7 +12,7 @@
 
 @layout(pageTitle = title(form, messages("changeIndividualPhoneNumber.title"))) {
 
-    @formHelper(action = routes.ChangeIndividualPhoneNumberController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit()) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -21,10 +21,12 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("changeIndividualPhoneNumber.heading")).asPageHeading()
+                label = LabelViewModel(messages("individualPhoneNumber.heading")).asPageHeading()
             )
-            .asNumeric()
-            .withWidth(Fixed10)
+            .withHint(HintViewModel(content = HtmlContent(messages("individualPhoneNumber.hint"))))
+            .withWidth(Fixed20)
+            .withInputType("tel")
+            .withAutocomplete("tel")
         )
 
         @govukButton(

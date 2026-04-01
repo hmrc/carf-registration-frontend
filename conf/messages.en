@@ -631,4 +631,3 @@ changeDetailsIndividualHavePhone.yes = Yes
 changeDetailsIndividualHavePhone.no = No
 changeDetailsIndividualHavePhone.checkYourAnswersLabel = Can we contact you by phone?
 changeDetailsIndividualHavePhone.error.required = Select yes if we can contact you by phone
-changeDetailsIndividualHavePhone.change.hidden = ChangeDetailsIndividualHavePhone

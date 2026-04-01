@@ -18,12 +18,12 @@ package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.ChangeDetailsIndividualHavePhoneFormProvider
-import models.{Mode, NormalMode}
+import models.{DataRequestWithSubscriptionId, NormalMode}
 import navigation.Navigator
 import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeDetailsIndividualHavePhoneView
@@ -35,10 +35,6 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     formProvider: ChangeDetailsIndividualHavePhoneFormProvider,
@@ -65,10 +61,39 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
           value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, NormalMode, updatedAnswers))
+            request.userAnswers.get(ChangeDetailsIndividualHavePhonePage) match {
+              case Some(oldValue) => handleRedirectionAndUpdateUserAnswers(oldValue, value)
+              case None           =>
+                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            }
         )
   }
+
+  private def handleRedirectionAndUpdateUserAnswers(
+      oldValue: Boolean,
+      newValue: Boolean
+  )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
+    if (newValue) {
+      if (oldValue) {
+        Future.successful(
+          Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, NormalMode, request.userAnswers))
+        )
+      } else {
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(
+          controllers.routes.PlaceholderController.onPageLoad(
+            "Should redirect to change individual phone number page (CARF-139)"
+          )
+        )
+      }
+    } else {
+      for {
+        // TODO: Remove value when page exists (CARF-139)
+        // removedPhone   <- Future.fromTry(request.userAnswers.remove(ChangeDetailsIndividualPhoneNumberPage))
+        updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, NormalMode, updatedAnswers))
+    }
 }

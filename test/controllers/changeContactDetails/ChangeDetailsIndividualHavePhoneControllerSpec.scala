@@ -21,10 +21,11 @@ import controllers.routes
 import forms.ChangeDetailsIndividualHavePhoneFormProvider
 import models.UserAnswers
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -37,11 +38,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val changeDetailsIndividualHavePhoneRoute =
+  lazy val changeDetailsIndividualHavePhoneRoute: String =
     controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController.onPageLoad().url
 
-  val formProvider = new ChangeDetailsIndividualHavePhoneFormProvider()
-  val form         = formProvider()
+  val formProvider        = new ChangeDetailsIndividualHavePhoneFormProvider()
+  val form: Form[Boolean] = formProvider()
 
   "ChangeDetailsIndividualHavePhone Controller" - {
 
@@ -85,25 +86,118 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    "must redirect to the next page when valid data is submitted" - {
+      "when changing from Yes -> Yes, redirect via navigator" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(ChangeDetailsIndividualHavePhonePage, true)
+          .success
+          .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-          )
-          .build()
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      running(application) {
-        val request =
-          FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
 
-        val result = route(application, request).value
+        running(application) {
+          val request =
+            FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
+              .withFormUrlEncodedBody(("value", "true"))
 
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+        }
+      }
+
+      "when changing from Yes -> No, redirect via navigator" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(ChangeDetailsIndividualHavePhonePage, true)
+          .success
+          .value
+
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
+              .withFormUrlEncodedBody(("value", "false"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == false))
+        }
+      }
+
+      "when changing from No -> No, redirect via navigator" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(ChangeDetailsIndividualHavePhonePage, false)
+          .success
+          .value
+
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
+              .withFormUrlEncodedBody(("value", "false"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == false))
+        }
+      }
+
+      "when changing from No -> Yes, redirect to ChangeDetailsIndividualPhoneNumberPage" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(ChangeDetailsIndividualHavePhonePage, false)
+          .success
+          .value
+
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
+              .withFormUrlEncodedBody(("value", "true"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.PlaceholderController
+            .onPageLoad("Should redirect to change individual phone number page (CARF-139)")
+            .url
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
+        }
       }
     }
 

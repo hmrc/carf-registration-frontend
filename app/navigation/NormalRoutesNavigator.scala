@@ -145,7 +145,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case NavigatorOnlyCheckYourAnswersErrors => userAnswers => checkYourAnswersErrorNavigation(userAnswers)
 
     case ChangeDetailsIndividualHavePhonePage =>
-      userAnswers => navigateFromChangeDetailsIndividualHavePhonePage(userAnswers)
+      _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
     case ChangeDetailsIndividualEmailPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
@@ -290,24 +290,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
-      case None        =>
-        routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  private def navigateFromChangeDetailsIndividualHavePhonePage(userAnswers: UserAnswers): Call =
-    userAnswers.get(ChangeDetailsIndividualHavePhonePage) match {
-      case Some(true)  =>
-        // TODO: Should retrieve change individual phone number page (CARF-139)
-        userAnswers.get(IndividualPhoneNumberPage) match {
-          case Some(phone) =>
-            controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
-          case None        =>
-            controllers.routes.PlaceholderController.onPageLoad(
-              "Should redirect to change individual phone number page (CARF-139)"
-            )
-        }
-      case Some(false) =>
-        controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }

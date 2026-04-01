@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import models.*
 import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
@@ -1220,6 +1220,19 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         navigator.nextPage(
           ChangeDetailsIndividualEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsIndividualPhoneNumberPage navigation" - {
+      "must navigate from ChangeDetailsIndividualPhoneNumberPage to the ChangeIndividualContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, "07777777777")
+
+        navigator.nextPage(
+          ChangeDetailsIndividualPhoneNumberPage,
           NormalMode,
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()

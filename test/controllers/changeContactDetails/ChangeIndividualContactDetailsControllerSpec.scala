@@ -206,12 +206,12 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         val request                = FakeRequest(POST, pageRoute)
         val result: Future[Result] = route(application, request).value
 
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.PlaceholderController
-          .onPageLoad(
-            "Should redirect to change details success page (CARF-140)"
-          )
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ChangeDetailsUpdatedController
+          .onPageLoad()
           .url
+
         verify(mockSubscriptionService, times(1)).updateSubscription(any())(any())
       }
       "must redirect to journey recovery if update subscription is unsuccessful" in new Setup(emptyUserAnswers) {

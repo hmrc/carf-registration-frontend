@@ -199,6 +199,26 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
           verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
         }
       }
+
+      "when old value is empty, redirect to JourneyRecoveryPage" in {
+        val application =
+          applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
+              .withFormUrlEncodedBody(("value", "true"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

@@ -18,42 +18,27 @@ package services
 
 import connectors.RegistrationConnector
 import models.JourneyType.{IndWithoutId, OrgWithoutId}
-import models.error.ApiError.{ApplicationError, InternalServerError}
+import models.error.ApiError.InternalServerError
 import models.error.{ApiError, CarfError, DataError}
 import models.requests.*
-import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
-import models.{BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
+import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
+import models.{toAddressDetails, toAddressDetailsNonUk, toAddressDetailsOrg, BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
 import pages.*
-import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
+import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
+import pages.organisation.*
 import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
-
-  def getSafeId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] =
-    userAnswers.journeyType match {
-      case Some(OrgWithoutId) | Some(IndWithoutId) =>
-        registerWithoutId().leftMap { error =>
-          logger.error(s"[RegistrationService] Failed to register without ID")
-          InternalServerError
-        }
-      case _                                       =>
-        userAnswers.safeId match {
-          case Some(id) => ResultT.fromValue(id)
-          case None     =>
-            logger.error(s"[RegistrationService] SafeId missing from userAnswers")
-            ResultT.fromError(ApplicationError)
-        }
-    }
-
-  private def registerWithoutId(): ResultT[SafeId] =
-    ResultT.fromValue(SafeId("XE00123456789"))
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
@@ -128,23 +113,23 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
   private def handleOrganisationRegistrationResponse(
       responseFuture: ResultT[RegisterOrganisationWithIdResponse]
-  ): Future[Either[ApiError, BusinessDetails]] =
+  ): Future[Either[CarfError, BusinessDetails]] =
     responseFuture.value.flatMap {
-      case Right(response)       =>
+      case Right(response) =>
         logger.info("Successfully retrieved organisation details.")
         Future.successful(
           Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
         )
-      case Left(error: ApiError) =>
+      case Left(error)     =>
         logger.error(s"Failed to retrieve organisation details: $error")
         Future.successful(Left(error))
     }
 
   private def handleIndividualRegistrationResponse(
       responseFuture: ResultT[RegisterIndividualWithIdResponse]
-  ): Future[Either[ApiError, IndividualDetails]] =
+  ): Future[Either[CarfError, IndividualDetails]] =
     responseFuture.value.flatMap {
-      case Right(response)       =>
+      case Right(response) =>
         logger.info("Successfully retrieved Individual details.")
         Future.successful(
           Right(
@@ -157,48 +142,100 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
             )
           )
         )
-      case Left(error: ApiError) =>
+      case Left(error)     =>
         logger.error(s"Failed to retrieve Individual details: $error")
         Future.successful(Left(error))
     }
 
-  def individualWithoutId(
-      request: RegisterIndividualWithoutIdRequest
-  )(implicit hc: HeaderCarrier): Future[Either[CarfError, IndividualDetails]] =
-    handleIndividualWithoutIdRegistrationResponse(connector.registerIndividualWithoutId(request).value, request)
+  def registerForWithoutIdJourneys(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[UserAnswers] =
+    userAnswers.journeyType match {
+      case Some(journeyType) if journeyType == OrgWithoutId | journeyType == IndWithoutId =>
+        val result = if (journeyType == OrgWithoutId) {
+          registerOrgWithoutId(userAnswers)
+        } else {
+          registerIndWithoutId(userAnswers)
+        }
 
-  private def handleIndividualWithoutIdRegistrationResponse(
-      responseFuture: Future[Either[ApiError, RegisterWithoutIdResponse]],
-      request: RegisterIndividualWithoutIdRequest
-  ): Future[Either[ApiError, IndividualDetails]] =
-    responseFuture.flatMap {
-      case Right(response)       =>
-        logger.info("Successfully retrieved Individual without ID details.")
-        Future.successful(
-          Right(
-            IndividualDetails(
-              safeId = response.safeId,
-              firstName = request.firstName,
-              middleName = None,
-              lastName = request.lastName,
-              address = mapAddressDetailsToAddress(request.address)
+        result.bimap(
+          err =>
+            logger.error(
+              s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}. Error: $err"
             )
-          )
+            err
+          ,
+          success =>
+            logger.info(
+              s"[RegistrationService] Successfully registered user without id. JourneyType: ${userAnswers.journeyType}"
+            )
+            userAnswers.copy(safeId = Some(success))
         )
-      case Left(error: ApiError) =>
-        logger.error(s"Failed to retrieve Individual without ID details: $error")
-        Future.successful(Left(error))
+
+      case None => ResultT.fromError(DataError)
+      case _    => ResultT.fromValue(userAnswers)
     }
 
-  private def mapAddressDetailsToAddress(addressDetails: AddressDetails): AddressRegistrationResponse =
-    AddressRegistrationResponse(
-      addressLine1 = addressDetails.addressLine1,
-      addressLine2 = addressDetails.addressLine2,
-      addressLine3 = addressDetails.addressLine3,
-      addressLine4 = None,
-      postalCode = addressDetails.postalCode,
-      countryCode = addressDetails.countryCode,
-      countryName = None
+  private def registerIndWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+    val request   = for {
+      name           <- userAnswers.get(IndWithoutNinoNamePage)
+      firstName       = name.firstName
+      lastName        = name.lastName
+      dateOfBirth    <- userAnswers.get(IndWithoutIdDateOfBirthPage).map(_.format(formatter))
+      inUk           <- userAnswers.get(WhereDoYouLivePage)
+      addressDetails <- if (inUk) { userAnswers.get(IndWithoutIdUkAddressInUserAnswers).map(_.toAddressDetails) }
+                        else { userAnswers.get(IndWithoutIdAddressNonUkPage).map(_.toAddressDetailsNonUk) }
+      contactDetails <- getWithoutIdContactDetails(
+                          userAnswers = userAnswers,
+                          emailPage = IndividualEmailPage,
+                          havePhonePage = IndividualHavePhonePage,
+                          phoneNumberPage = IndividualPhoneNumberPage
+                        )
+    } yield RegisterIndividualWithoutIdRequest(
+      firstName = firstName,
+      lastName = lastName,
+      dateOfBirth = dateOfBirth,
+      address = addressDetails,
+      contactDetails = contactDetails
     )
+    request.fold(ResultT.fromError(DataError))(request =>
+      connector.registerIndividualWithoutId(request).map(response => SafeId(response.safeId))
+    )
+  }
+
+  private def registerOrgWithoutId(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): ResultT[SafeId] = {
+    val request = for {
+      organisationName <- userAnswers.get(OrgWithoutIdBusinessNamePage)
+      addressDetails   <- userAnswers.get(OrganisationBusinessAddressPage).map(_.toAddressDetailsOrg)
+      contactDetails   <- getWithoutIdContactDetails(
+                            userAnswers = userAnswers,
+                            emailPage = FirstContactEmailPage,
+                            havePhonePage = FirstContactPhonePage,
+                            phoneNumberPage = FirstContactPhoneNumberPage
+                          )
+    } yield RegisterOrganisationWithoutIdRequest(
+      organisationName = organisationName,
+      address = addressDetails,
+      contactDetails = contactDetails
+    )
+    request.fold(ResultT.fromError(DataError))(request =>
+      connector.registerOrganisationWithoutId(request).map(response => SafeId(response.safeId))
+    )
+  }
+
+  private def getWithoutIdContactDetails(
+      userAnswers: UserAnswers,
+      emailPage: QuestionPage[String],
+      havePhonePage: QuestionPage[Boolean],
+      phoneNumberPage: QuestionPage[String]
+  ): Option[ContactDetails] =
+    for {
+      email     <- userAnswers.get(emailPage)
+      havePhone <- userAnswers.get(havePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(phoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
+    } yield ContactDetails(email, phone)
 
 }

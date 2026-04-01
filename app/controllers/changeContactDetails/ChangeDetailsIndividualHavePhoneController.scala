@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.ChangeDetailsIndividualHavePhoneFormProvider
 import models.{DataRequestWithSubscriptionId, NormalMode}
 import navigation.Navigator
-import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
+import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -73,12 +73,12 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
       oldValue: Boolean,
       newValue: Boolean
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
-    if (newValue) {
-      if (oldValue) {
+    (oldValue, newValue) match {
+      case (true, true)  =>
         Future.successful(
           Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, NormalMode, request.userAnswers))
         )
-      } else {
+      case (false, true) =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
@@ -87,13 +87,11 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
             "Should redirect to change individual phone number page (CARF-139)"
           )
         )
-      }
-    } else {
-      for {
-        // TODO: Remove value when page exists (CARF-139)
-        // removedPhone   <- Future.fromTry(request.userAnswers.remove(ChangeDetailsIndividualPhoneNumberPage))
-        updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
-        _              <- sessionRepository.set(updatedAnswers)
-      } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, NormalMode, updatedAnswers))
+      case _             =>
+        for {
+          removedPhone   <- Future.fromTry(request.userAnswers.remove(ChangeDetailsIndividualPhoneNumberPage))
+          updatedAnswers <- Future.fromTry(removedPhone.set(ChangeDetailsIndividualHavePhonePage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, NormalMode, updatedAnswers))
     }
 }

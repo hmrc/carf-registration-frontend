@@ -239,4 +239,4 @@ POST        /change-contact/individual/email                                    
 
 GET         /change-contact/details-updated                                     controllers.changeContactDetails.ChangeDetailsUpdatedController.onPageLoad()
 
-GET         /problem/contact-details-are-missing/:continueUrl                   controllers.changeContactDetails.ContactDetailsMissingController.onPageLoad(continueUrl: String)
+GET         /problem/contact-details-are-missing                                controllers.changeContactDetails.ContactDetailsMissingController.onPageLoad()

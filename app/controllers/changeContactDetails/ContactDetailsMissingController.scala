@@ -17,11 +17,11 @@
 package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.ContactDetailsMissingdView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.ContactDetailsMissingdView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -37,8 +37,23 @@ class ContactDetailsMissingController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(continueUrl: String): Action[AnyContent] =
+  def onPageLoad(): Action[AnyContent] =
     (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
-      Ok(view(continueUrl))
+      request.userAnswers.changeIsIndividualRegType
+        .fold(
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        ) {
+          case true  =>
+            val continueUrl: String =
+              controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
+
+            Ok(view(continueUrl))
+          case false =>
+            val continueUrl: String = controllers.routes.PlaceholderController
+              .onPageLoad("Redirect to /change-contact/organisation/email CARF-186")
+              .url
+
+            Ok(view(continueUrl))
+        }
     }
 }

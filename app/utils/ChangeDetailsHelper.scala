@@ -16,14 +16,9 @@
 
 package utils
 
-import cats.implicits.*
-import cats.syntax.all.*
 import com.google.inject.Inject
 import models.UserAnswers
-import models.error.ApiError.ApplicationError
-import models.error.{CarfError, DataError}
-import models.responses.hasIndividualChangedData
-import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -47,29 +42,4 @@ class ChangeDetailsHelper @Inject() extends Logging {
         Some(Seq(emailRow, havePhoneRow))
       }
   }.flatten
-
-  def getHasChanged(
-      maybeEmail: Option[String],
-      maybeHavePhone: Option[Boolean],
-      userAnswers: UserAnswers
-  ): Either[CarfError, Boolean] =
-    for {
-      displaySubResponse <- userAnswers.displaySubscriptionResponse.toRight[CarfError] {
-                              logger.debug(
-                                s"Subscription Response is missing and cannot continue to see what has changed"
-                              )
-                              ApplicationError
-                            }
-      maybeDetails       <-
-        (maybeEmail, maybeHavePhone).mapN((email, havePhone) => (email, havePhone)).toRight {
-          logger.debug(s"data is missing and cannot be used for comparison")
-          DataError
-        }
-      (email, havePhone)  = maybeDetails
-      phone              <- if (havePhone) {
-                              userAnswers.get(ChangeDetailsIndividualPhoneNumberPage).map(Some(_)).toRight(DataError)
-                            } else {
-                              Right(None)
-                            }
-    } yield displaySubResponse.hasIndividualChangedData(email, phone)
 }

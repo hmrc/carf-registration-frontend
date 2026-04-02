@@ -53,10 +53,13 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
       }
     }
+
     "when display subscription response is organisation" - {
       "must redirect user to the placeholder controller" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
           .thenReturn(Future.successful(Some(testOrganisationDisplaySubscriptionResponse)))
+
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
 
@@ -71,8 +74,13 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
             .url
         )
         verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.changeIsIndividualRegType.get == false)
+          )
       }
     }
+
     "when display subscription response is of type none" - {
       "must redirect user to journey recovery" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
@@ -87,6 +95,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
       }
     }
+
     "when display subscription response is individual" - {
       "must set user answers with all page info and redirect successfully when phone is none" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
@@ -107,10 +116,16 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
               ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
           )
         )
+
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.changeIsIndividualRegType.get == true)
+          )
       }
       "must set user answers with all page info and redirect successfully when phone is returned from the service" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
           .thenReturn(Future.successful(Some(testIndividualDisplaySubscriptionResponse(hasPhone = true))))
+
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
@@ -127,6 +142,11 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
               ua.get(ChangeDetailsIndividualPhoneNumberPage).contains(testPhone)
           )
         )
+
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.changeIsIndividualRegType.get == true)
+          )
       }
     }
   }

@@ -17,7 +17,8 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
-import models.error.ApiError.InternalServerError
+import models.error.ApiError.{ApplicationError, InternalServerError}
+import models.error.DataError
 import models.{CheckMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -58,10 +59,17 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       )
     )
 
-  val userAnswersWithEmail: UserAnswers    = emptyUserAnswers.withPage(ChangeDetailsIndividualEmailPage, testEmail)
+  val userAnswersWithEmail: UserAnswers = emptyUserAnswers
+    .withPage(ChangeDetailsIndividualEmailPage, testEmail)
+    .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = true)))
+
   val userAnswersWithoutPhone: UserAnswers = emptyUserAnswers
+    .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = true)))
     .withPage(ChangeDetailsIndividualEmailPage, testEmail)
     .withPage(ChangeDetailsIndividualHavePhonePage, true)
+
+  val userAnswersWithOnlyDisplaySubscription: UserAnswers = emptyUserAnswers
+    .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(hasPhone = true)))
 
   val userAnswersWithoutDisplaySubscription: UserAnswers = emptyUserAnswers
     .withPage(ChangeDetailsIndividualEmailPage, testEmail)
@@ -98,27 +106,23 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       }
 
       "must redirect to some details are missing page when summary list cannot be constructed" in new Setup(
-        emptyUserAnswers
+        userAnswersWithOnlyDisplaySubscription
       ) {
-        when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
-          .thenReturn(None)
+
+        when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any())).thenReturn(None)
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad(
-              "Required data is missing! Should redirect to Some details are missing page (CARF-278)"
-            )
-            .url
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
         )
         verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
       }
 
       "must redirect to some details are missing page when email is missing from user answers" in new Setup(
-        emptyUserAnswers
+        userAnswersWithOnlyDisplaySubscription
       ) {
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(Some(Seq(testRow)))
@@ -126,13 +130,10 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
 
-        status(result)           mustBe SEE_OTHER
+        status(result) mustBe SEE_OTHER
+
         redirectLocation(result) mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad(
-              "Required data is missing! Should redirect to Some details are missing page (CARF-278)"
-            )
-            .url
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
         )
         verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
       }
@@ -140,6 +141,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       "must redirect to some details are missing page when have phone is missing from user answers" in new Setup(
         userAnswersWithEmail
       ) {
+
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(Some(Seq(testRow)))
 
@@ -148,11 +150,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
 
         status(result)           mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad(
-              "Required data is missing! Should redirect to Some details are missing page (CARF-278)"
-            )
-            .url
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
         )
         verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
       }
@@ -160,6 +158,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       "must redirect to some details are missing page when phone is missing from user answers" in new Setup(
         userAnswersWithoutPhone
       ) {
+
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(Some(Seq(testRow)))
 
@@ -168,33 +167,21 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
 
         status(result)           mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad(
-              "Required data is missing! Should redirect to Some details are missing page (CARF-278)"
-            )
-            .url
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
         )
         verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
       }
 
-      "must redirect to some details are missing page when displaySubscriptionResponse is missing from user answers so hasChanged is None" in new Setup(
+      "must redirect to Journey Recovery page when displaySubscriptionResponse is missing from user answers so hasChanged is None" in new Setup(
         userAnswersWithoutDisplaySubscription
       ) {
-        when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
-          .thenReturn(Some(Seq(testRow)))
 
         val request                = FakeRequest(GET, pageRoute)
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad(
-              "Required data is missing! Should redirect to Some details are missing page (CARF-278)"
-            )
-            .url
-        )
-        verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
+        redirectLocation(result) mustBe Some(controllers.routes.JourneyRecoveryController.onPageLoad().url)
+
       }
     }
 

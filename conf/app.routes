@@ -237,9 +237,7 @@ POST        /change-contact/individual/details                                  
 GET         /change-contact/individual/email                                    controllers.changeContactDetails.ChangeIndividualEmailController.onPageLoad()
 POST        /change-contact/individual/email                                    controllers.changeContactDetails.ChangeIndividualEmailController.onSubmit()
 
-
-
-
-
-
 GET         /change-contact/details-updated                                     controllers.changeContactDetails.ChangeDetailsUpdatedController.onPageLoad()
+
+GET         /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad()
+POST        /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit()

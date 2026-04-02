@@ -36,9 +36,7 @@ object ChangeDetailsIndividualPhoneNumberSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad("Should redirect to change details phone number page (CARF-139)")
-              .url
+            href = controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad().url
           ).withVisuallyHiddenText(messages("individualPhoneNumber.change.hidden"))
         )
       )

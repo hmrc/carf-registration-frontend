@@ -29,16 +29,18 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
 
   "Contact Details Missing Controller" - {
     "onPageLoad" - {
-      "must return ok with the view" in {
-        val application: Application =
-          applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return ok with the view with individual continueUrl" in {
 
-        val expectedContinueUrl = controllers.routes.PlaceholderController
-          .onPageLoad("Should redirect to dummy page (CARF-???)")
-          .url
+        val userAnswers = emptyUserAnswers.copy(changeIsIndividualRegType = Some(true))
+
+        val application: Application =
+          applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        val expectedContinueUrl =
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
 
         lazy val pageRoute: String =
-          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad(expectedContinueUrl).url
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
 
         val request                = FakeRequest(GET, pageRoute)
         val view                   = application.injector.instanceOf[ContactDetailsMissingdView]
@@ -49,6 +51,48 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
           request,
           messages(application)
         ).toString
+      }
+
+      "must return ok with the view with organisation continueUrl" in {
+
+        val userAnswers = emptyUserAnswers.copy(changeIsIndividualRegType = Some(false))
+
+        val application: Application =
+          applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        val expectedContinueUrl = controllers.routes.PlaceholderController
+          .onPageLoad("Redirect to /change-contact/organisation/email CARF-186")
+          .url
+
+        lazy val pageRoute: String =
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
+
+        val request                = FakeRequest(GET, pageRoute)
+        val view                   = application.injector.instanceOf[ContactDetailsMissingdView]
+        val result: Future[Result] = route(application, request).value
+
+        status(result)          mustBe OK
+        contentAsString(result) mustBe view(expectedContinueUrl)(
+          request,
+          messages(application)
+        ).toString
+      }
+
+      "must redirect to journey recovery when changeIsIndividualRegType is missing from user answers" in {
+
+        val application: Application =
+          applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        lazy val pageRoute: String =
+          controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
+
+        val request                = FakeRequest(GET, pageRoute)
+        val view                   = application.injector.instanceOf[ContactDetailsMissingdView]
+        val result: Future[Result] = route(application, request).value
+
+        status(result)              mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+
       }
     }
   }

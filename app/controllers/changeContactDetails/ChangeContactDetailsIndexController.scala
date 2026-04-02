@@ -48,7 +48,10 @@ class ChangeContactDetailsIndexController @Inject() (
             for {
               individualDetails <- Future.successful(subscriptionDetails.success.carfSubscriptionDetails.primaryContact)
               a                 <- Future.fromTry(
-                                     UserAnswers(id = request.userId).set(ChangeDetailsIndividualEmailPage, individualDetails.email)
+                                     UserAnswers(
+                                       id = request.userId,
+                                       changeIsIndividualRegType = Some(true)
+                                     ).set(ChangeDetailsIndividualEmailPage, individualDetails.email)
                                    )
               b                 <- Future.fromTry(a.set(ChangeDetailsIndividualHavePhonePage, individualDetails.phone.nonEmpty))
               updatedAnswers    <- individualDetails.phone match {
@@ -61,11 +64,17 @@ class ChangeContactDetailsIndexController @Inject() (
               controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
             )
           case Some(false) =>
-            Future.successful(
-              Redirect(
-                routes.PlaceholderController.onPageLoad(
-                  "Should redirect to /change-contact/organisation/details (CARF-141)"
+            for {
+              _ <-
+                sessionRepository.set(
+                  UserAnswers(
+                    id = request.userId,
+                    changeIsIndividualRegType = Some(false)
+                  )
                 )
+            } yield Redirect(
+              routes.PlaceholderController.onPageLoad(
+                "Should redirect to /change-contact/organisation/details (CARF-141)"
               )
             )
           case None        =>

@@ -27,6 +27,7 @@ import scala.util.{Failure, Success, Try}
 final case class UserAnswers(
     id: String,
     journeyType: Option[JourneyType] = None,
+    changeIsIndividualRegType: Option[Boolean] = None,
     isCtAutoMatched: Boolean = false,
     safeId: Option[SafeId] = None,
     subscriptionId: Option[SubscriptionId] = None,
@@ -78,6 +79,7 @@ object UserAnswers {
     (
       (__ \ "_id").read[String] and
         (__ \ "journeyType").readNullable[JourneyType] and
+        (__ \ "changeIsIndividualRegType").readNullable[Boolean] and
         (__ \ "isCtAutoMatched").read[Boolean] and
         (__ \ "safeId").readNullable[SafeId] and
         (__ \ "subscriptionId").readNullable[SubscriptionId] and
@@ -94,6 +96,7 @@ object UserAnswers {
     (
       (__ \ "_id").write[String] and
         (__ \ "journeyType").writeNullable[JourneyType] and
+        (__ \ "changeIsIndividualRegType").writeNullable[Boolean] and
         (__ \ "isCtAutoMatched").write[Boolean] and
         (__ \ "safeId").writeNullable[SafeId] and
         (__ \ "subscriptionId").writeNullable[SubscriptionId] and
@@ -104,6 +107,7 @@ object UserAnswers {
       (
         ua.id,
         ua.journeyType,
+        ua.changeIsIndividualRegType,
         ua.isCtAutoMatched,
         ua.safeId,
         ua.subscriptionId,

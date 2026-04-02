@@ -27,17 +27,17 @@
 
 @layout(pageTitle = titleNoForm(messages("contactDetailsMissing.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("contactDetailsMissing.header")</h1>
+    <h1 class="govuk-heading-l">@messages("contactDetailsMissing.header")</h1>
 
     <p class="govuk-body">
     @messages("contactDetailsMissing.p1")
     </p>
 
-    <p class="govuk-body">
+    <div class="govuk-!-padding-top-5">
     @govukButton(
         ButtonViewModel(messages("site.continue"))
         .asLink(continueUrl)
         .withAttribute("id" -> "continue")
     )
-    </p>
+    </div>
 }

@@ -37,9 +37,7 @@ object ChangeDetailsIndividualHavePhoneSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad("Should redirect to change details have phone page (CARF-138)")
-              .url
+            href = controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController.onPageLoad().url
           ).withVisuallyHiddenText(messages("changeDetails.summaryList.havePhone.key.hidden"))
         )
       )

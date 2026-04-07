@@ -19,10 +19,10 @@ package navigation
 import base.SpecBase
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
+import models.*
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.*
 import models.countries.*
-import models.*
 import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
@@ -1209,6 +1209,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
 
+      }
+    }
+
+    "ChangeDetailsIndividualHavePhonePage navigation" - {
+      "must navigate from ChangeDetailsIndividualHavePhonePage to ChangeIndividualContactDetailsController" in {
+        navigator.nextPage(
+          ChangeDetailsIndividualHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
       }
     }
 

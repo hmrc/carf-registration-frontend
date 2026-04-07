@@ -96,6 +96,15 @@ class SubscriptionService @Inject() (
         phone = Some("12345"),
         mobile = Some("67890")
       )
+    } else if (subscriptionId.value.take(1) == "2") {
+      DisplaySubscriptionContact(
+        individual =
+          Some(DisplaySubscriptionIndividual(firstName = "Tommy", middleName = Some("Jim"), lastName = "Johnny")),
+        organisation = None,
+        email = "bye@example.com",
+        phone = None,
+        mobile = None
+      )
     } else {
       DisplaySubscriptionContact(
         individual = None,

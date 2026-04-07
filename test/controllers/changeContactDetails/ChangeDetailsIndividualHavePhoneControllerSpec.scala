@@ -192,9 +192,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
           val result = route(application, request).value
 
-          status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.PlaceholderController
-            .onPageLoad("Should redirect to change individual phone number page (CARF-139)")
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(
+            result
+          ).value        mustEqual controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController
+            .onPageLoad()
             .url
           verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
         }

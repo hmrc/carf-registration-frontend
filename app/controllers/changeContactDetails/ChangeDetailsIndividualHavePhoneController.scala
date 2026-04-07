@@ -83,9 +83,7 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          controllers.routes.PlaceholderController.onPageLoad(
-            "Should redirect to change individual phone number page (CARF-139)"
-          )
+          controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad()
         )
       case _             =>
         for {

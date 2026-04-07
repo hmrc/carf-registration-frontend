@@ -448,8 +448,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
           val subscriptionId = SubscriptionId("XCARF1234567890")
 
-          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
-            .thenReturn(ResultT.fromValue(SafeId(testSafeId)))
+          when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
+            .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers))
 
           when(mockSessionRepository.set(any[UserAnswers]))
             .thenReturn(Future.successful(true))
@@ -488,8 +488,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       "when the service call is NOT successful" - {
         "must redirect to the journey recovery page" in new Setup(AffinityGroup.Organisation, orgWithUtrUserAnswers) {
-          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
-            .thenReturn(ResultT.fromValue(SafeId(testSafeId)))
+          when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
+            .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers))
+
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
             .thenReturn(ResultT.fromError(InternalServerError))
 
@@ -505,8 +506,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           AffinityGroup.Individual,
           indWithNinoUserAnswers
         ) {
-          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
-            .thenReturn(ResultT.fromValue(SafeId(testSafeId)))
+          when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
+            .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers))
           when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
             .thenReturn(ResultT.fromError(AlreadyRegisteredError))
 
@@ -518,12 +519,12 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         }
 
-        "must redirect to journey recovery page when getSafeId returns left" in new Setup(
-          AffinityGroup.Organisation,
-          orgWithUtrUserAnswers
+        "must redirect to journey recovery page when registerForWithoutIdJourneys returns left" in new Setup(
+          AffinityGroup.Individual,
+          stWithoutIdUserAnswers
         ) {
 
-          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
+          when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
             .thenReturn(ResultT.fromError(InternalServerError))
 
           val request                = FakeRequest(POST, cyaRoute)
@@ -534,15 +535,15 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         }
 
-        "must redirect to journey recovery page when getUserPostcode returns a data erro" in new Setup(
+        "must redirect to journey recovery page when getUserPostcode returns a data error" in new Setup(
           AffinityGroup.Organisation,
           orgWithUtrUserAnswers
         ) {
 
           val subscriptionId = SubscriptionId("XCARF1234567890")
 
-          when(mockRegistrationService.getSafeId(any[UserAnswers])(any()))
-            .thenReturn(ResultT.fromValue(SafeId(testSafeId)))
+          when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
+            .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers))
 
           when(mockSessionRepository.set(any[UserAnswers]))
             .thenReturn(Future.successful(true))

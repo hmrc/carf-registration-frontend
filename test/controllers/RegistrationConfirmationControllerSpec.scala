@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import models.JourneyType.*
-import models.{Name, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import models.{Name, RegistrationType, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatestplus.mockito.MockitoSugar
@@ -65,42 +65,26 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
     "onPageLoad" - {
 
-      "must return OK and render view when submission already succeeded (OrgWithUtr)" in {
+      "must return OK and render view when submission already succeeded (OrgWithUtr with LimitedCompany)" in {
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(FirstContactNamePage, "John Doe")
-            .success
-            .value
-            .set(FirstContactEmailPage, "org@test.com")
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactNamePage, "Jane Smith")
-            .success
-            .value
-            .set(OrganisationSecondContactEmailPage, "org2@test.com")
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
-            .success
-            .value
-            .set(SubmissionSucceededPage, true)
-            .success
-            .value
+            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "org@test.com")
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, "Jane Smith")
+            .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+            .withPage(SubmissionSucceededPage, true)
             .copy(isCtAutoMatched = true)
 
         stubSessionSave()
 
         when(
-          mockEmailService.sendEmails(
-            any[List[ContactEmailInfo]],
-            any[String],
-            any[Boolean]
-          )(any[HeaderCarrier])
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
         ).thenReturn(Future.successful(()))
 
         val application = buildApplication(Some(userAnswers))
@@ -120,45 +104,31 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(subscriptionId.value),
+            eqTo(Some(subscriptionId.value)),
             eqTo(true)
           )(any[HeaderCarrier])
         }
       }
 
-      "must return OK and render view for organisation with UTR" in {
+      "must return OK and render view for organisation with UTR and allowed registration type" in {
         stubSessionSave()
 
         when(
-          mockEmailService.sendEmails(
-            any[List[ContactEmailInfo]],
-            any[String],
-            any[Boolean]
-          )(any[HeaderCarrier])
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
         ).thenReturn(Future.successful(()))
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(FirstContactNamePage, "John Doe")
-            .success
-            .value
-            .set(FirstContactEmailPage, "org@test.com")
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactNamePage, "Jane Smith")
-            .success
-            .value
-            .set(OrganisationSecondContactEmailPage, "org2@test.com")
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
-            .success
-            .value
+            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "org@test.com")
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, "Jane Smith")
+            .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+            .withPage(RegistrationTypePage, RegistrationType.Partnership)
             .copy(isCtAutoMatched = true)
 
         val application = buildApplication(Some(userAnswers))
@@ -178,7 +148,49 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(subscriptionId.value),
+            eqTo(Some(subscriptionId.value)),
+            eqTo(false)
+          )(any[HeaderCarrier])
+        }
+      }
+
+      "must return OK and render view for organisation with SoleTrader (no CARF reference)" in {
+        stubSessionSave()
+
+        when(
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
+        ).thenReturn(Future.successful(()))
+
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "org@test.com")
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+            .copy(isCtAutoMatched = false)
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("org@test.com"),
+            addProviderUrl = controllers.routes.PlaceholderController
+              .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
+              .url
+          )(request, messages(application)).toString
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(Some(subscriptionId.value)),
             eqTo(false)
           )(any[HeaderCarrier])
         }
@@ -188,26 +200,17 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         stubSessionSave()
 
         when(
-          mockEmailService.sendEmails(
-            any[List[ContactEmailInfo]],
-            any[String],
-            any[Boolean]
-          )(any[HeaderCarrier])
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
         ).thenReturn(Future.successful(()))
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(FirstContactNamePage, "John Doe")
-            .success
-            .value
-            .set(FirstContactEmailPage, "orgwithout@test.com")
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, false)
-            .success
-            .value
+            .copy(journeyType = Some(OrgWithoutId), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "orgwithout@test.com")
+            .withPage(OrganisationHaveSecondContactPage, false)
             .copy(isCtAutoMatched = false)
 
         val application = buildApplication(Some(userAnswers))
@@ -227,13 +230,13 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(subscriptionId.value),
+            eqTo(Some(subscriptionId.value)),
             eqTo(false)
           )(any[HeaderCarrier])
         }
       }
 
-      "must return OK and render view for IndWithNino" in {
+      "must return OK and render view for IndWithNino (no CARF reference)" in {
         reset(mockEmailService, mockSessionRepository)
         stubSessionSave()
 
@@ -242,14 +245,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(IndWithNino))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(WhatIsYourNameIndividualPage, Name("John", "Smith"))
-            .success
-            .value
-            .set(IndividualEmailPage, "individual@test.com")
-            .success
-            .value
+            .copy(journeyType = Some(IndWithNino), subscriptionId = Some(subscriptionId))
+            .withPage(WhatIsYourNameIndividualPage, Name("John", "Smith"))
+            .withPage(IndividualEmailPage, "individual@test.com")
 
         val application = buildApplication(Some(userAnswers))
 
@@ -257,10 +255,16 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           val result = route(application, request).value
 
           status(result) mustEqual OK
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(None),
+            eqTo(false)
+          )(any[HeaderCarrier])
         }
       }
 
-      "must return OK and render view for IndWithUtr" in {
+      "must return OK and render view for IndWithUtr (no CARF reference)" in {
         reset(mockEmailService, mockSessionRepository)
         stubSessionSave()
 
@@ -269,14 +273,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(IndWithUtr))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(WhatIsYourNamePage, Name("John", "Smith"))
-            .success
-            .value
-            .set(IndividualEmailPage, "soletrader@test.com")
-            .success
-            .value
+            .copy(journeyType = Some(IndWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(WhatIsYourNamePage, Name("John", "Smith"))
+            .withPage(IndividualEmailPage, "soletrader@test.com")
 
         val application = buildApplication(Some(userAnswers))
 
@@ -284,32 +283,31 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           val result = route(application, request).value
 
           status(result) mustEqual OK
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(None),
+            eqTo(false)
+          )(any[HeaderCarrier])
         }
       }
 
-      "must return OK and render view for individual without ID journeys" in {
+      "must return OK and render view for individual without ID journeys (no CARF reference)" in {
         reset(mockEmailService, mockSessionRepository)
 
         stubSessionSave()
 
         when(
-          mockEmailService.sendEmails(
-            any[List[ContactEmailInfo]],
-            any[String],
-            any[Boolean]
-          )(any[HeaderCarrier])
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
         ).thenReturn(Future.successful(()))
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(IndWithoutId))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(IndWithoutNinoNamePage, Name("John", "Smith"))
-            .success
-            .value
-            .set(IndividualEmailPage, "indwithout@test.com")
-            .success
-            .value
+            .copy(journeyType = Some(IndWithoutId), subscriptionId = Some(subscriptionId))
+            .withPage(IndWithoutNinoNamePage, Name("John", "Smith"))
+            .withPage(IndividualEmailPage, "indwithout@test.com")
 
         val application = buildApplication(Some(userAnswers))
         val view        = application.injector.instanceOf[RegistrationConfirmationView]
@@ -328,7 +326,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(subscriptionId.value),
+            eqTo(None),
             eqTo(false)
           )(any[HeaderCarrier])
         }
@@ -338,11 +336,8 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         Seq(OrgWithUtr, OrgWithoutId).foreach { journey =>
           val userAnswers =
             emptyUserAnswers
-              .copy(journeyType = Some(journey))
-              .copy(subscriptionId = Some(subscriptionId))
-              .set(FirstContactNamePage, "John Doe")
-              .success
-              .value
+              .copy(journeyType = Some(journey), subscriptionId = Some(subscriptionId))
+              .withPage(FirstContactNamePage, "John Doe")
 
           val application = buildApplication(Some(userAnswers))
 
@@ -351,7 +346,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
             verify(mockEmailService, never()).sendEmails(
               any[List[ContactEmailInfo]],
-              any[String],
+              any[Option[String]],
               any[Boolean]
             )(any[HeaderCarrier])
           }
@@ -362,14 +357,13 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
         Seq(IndWithNino, IndWithUtr, IndWithoutId).foreach { journey =>
           val base =
             emptyUserAnswers
-              .copy(journeyType = Some(journey))
-              .copy(subscriptionId = Some(subscriptionId))
+              .copy(journeyType = Some(journey), subscriptionId = Some(subscriptionId))
 
           val userAnswers = journey match {
             case IndWithoutId =>
-              base.set(IndWithoutNinoNamePage, Name("John", "Smith")).success.value
+              base.withPage(IndWithoutNinoNamePage, Name("John", "Smith"))
             case _            =>
-              base.set(WhatIsYourNameIndividualPage, Name("John", "Smith")).success.value
+              base.withPage(WhatIsYourNameIndividualPage, Name("John", "Smith"))
           }
 
           val application = buildApplication(Some(userAnswers))
@@ -379,7 +373,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
             verify(mockEmailService, never()).sendEmails(
               any[List[ContactEmailInfo]],
-              any[String],
+              any[Option[String]],
               any[Boolean]
             )(any[HeaderCarrier])
           }
@@ -388,7 +382,6 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
       "must redirect when journeyType is missing" in {
         val userAnswers = emptyUserAnswers.copy(subscriptionId = Some(subscriptionId))
-
         val application = buildApplication(Some(userAnswers))
 
         running(application) {
@@ -396,7 +389,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService, never()).sendEmails(
             any[List[ContactEmailInfo]],
-            any[String],
+            any[Option[String]],
             any[Boolean]
           )(any[HeaderCarrier])
         }
@@ -412,7 +405,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
           verify(mockEmailService, never()).sendEmails(
             any[List[ContactEmailInfo]],
-            any[String],
+            any[Option[String]],
             any[Boolean]
           )(any[HeaderCarrier])
         }
@@ -422,21 +415,16 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(subscriptionId = Some(subscriptionId))
-            .set(FirstContactNamePage, "John Doe")
-            .success
-            .value
-            .set(FirstContactEmailPage, "org@test.com")
-            .success
-            .value
+            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "org@test.com")
 
         stubSessionSave()
 
         when(
           mockEmailService.sendEmails(
             any[List[ContactEmailInfo]],
-            any[String],
+            any[Option[String]],
             any[Boolean]
           )(any[HeaderCarrier])
         ).thenReturn(Future.successful(()))
@@ -447,10 +435,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           val result = route(application, request).value
 
           status(result) mustEqual OK
-
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(subscriptionId.value),
+            eqTo(Some(subscriptionId.value)),
             eqTo(false)
           )(any[HeaderCarrier])
         }

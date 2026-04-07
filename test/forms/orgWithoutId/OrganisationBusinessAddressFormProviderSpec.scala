@@ -252,6 +252,12 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.hasErrors mustBe false
     }
 
+    "must be None if country is not a Crown Dependency and postcode is empty" in {
+      val formData = baseFormData ++ Map("country" -> "FR", "postcode" -> "")
+      val result   = form.bind(formData)
+      result.value.value.postcode mustBe None
+    }
+
     "must be valid if country is not a Crown Dependency and postcode is provided" in {
       val formData = baseFormData ++ Map("country" -> "GB", "postcode" -> "SW1A 0AA")
       val result   = form.bind(formData)

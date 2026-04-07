@@ -19,7 +19,7 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.error.ApiError
+import models.error.{ApiError, CarfError}
 import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
 import play.api.Logging
@@ -121,21 +121,21 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
 
   def registerIndividualWithoutId(
       request: RegisterIndividualWithoutIdRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterWithoutIdResponse] = {
+  )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] = {
     logger.info(s"Registering for an individual without id")
     registerWithoutId(request, url"$backendBaseUrl/individual-without-id")
   }
 
   def registerOrganisationWithoutId(
       request: RegisterOrganisationWithoutIdRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterWithoutIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] =
     logger.info(s"Registering for an organisation without id")
     registerWithoutId(request, url"$backendBaseUrl/organisation-without-id")
 
   private def registerWithoutId(
       request: RegisterWithoutIdRequest,
       endpoint: URL
-  )(implicit hc: HeaderCarrier): EitherT[Future, ApiError, RegisterWithoutIdResponse] =
+  )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] =
     EitherT {
       http
         .post(endpoint)

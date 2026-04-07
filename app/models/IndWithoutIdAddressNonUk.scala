@@ -17,7 +17,10 @@
 package models
 
 import models.countries.Country
+import models.requests.AddressDetails
 import play.api.libs.json.*
+
+import scala.collection.immutable.Seq
 
 case class IndWithoutIdAddressNonUk(
     addressLine1: String,
@@ -27,6 +30,20 @@ case class IndWithoutIdAddressNonUk(
     postcode: Option[String],
     country: Country
 )
+
+extension (address: IndWithoutIdAddressNonUk) {
+  def toAddressDetailsNonUk: AddressDetails = {
+    val addressOptionalLines = Seq(address.addressLine2, address.region).flatten
+    AddressDetails(
+      addressLine1 = address.addressLine1,
+      addressLine2 = addressOptionalLines.headOption,
+      addressLine3 = addressOptionalLines.lift(1),
+      townOrCity = address.townOrCity,
+      postalCode = address.postcode,
+      countryCode = address.country.code
+    )
+  }
+}
 
 object IndWithoutIdAddressNonUk {
 

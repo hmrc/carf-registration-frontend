@@ -58,7 +58,7 @@ class TestOnlyRegWithoutIdController @Inject() (
         contactDetails = testContact
       )
 
-    registrationService.individualWithoutId(testRequest).map {
+    registrationConnector.registerIndividualWithoutId(testRequest).value.map {
       case Right(response) =>
         Ok(s"SAFE ID returned: ${response.safeId}")
 

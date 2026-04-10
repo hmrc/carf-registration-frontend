@@ -22,7 +22,7 @@ import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.checkAnswers.changeContactDetails.{ChangeDetailsIndividualEmailSummary, ChangeDetailsIndividualHavePhoneSummary, ChangeDetailsIndividualPhoneNumberSummary}
+import viewmodels.checkAnswers.changeContactDetails.*
 
 class ChangeDetailsHelper @Inject() extends Logging {
 
@@ -42,5 +42,4 @@ class ChangeDetailsHelper @Inject() extends Logging {
         Some(Seq(emailRow, havePhoneRow))
       }
   }.flatten
-
 }

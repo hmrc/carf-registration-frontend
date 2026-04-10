@@ -18,6 +18,8 @@ package utils
 
 import base.SpecBase
 import models.UserAnswers
+import models.error.ApiError.ApplicationError
+import models.error.DataError
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text

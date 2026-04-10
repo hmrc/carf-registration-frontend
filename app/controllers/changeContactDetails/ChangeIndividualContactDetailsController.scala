@@ -19,6 +19,7 @@ package controllers.changeContactDetails
 import com.google.inject.Inject
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import controllers.routes
+import models.error.CarfError
 import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.Logging
@@ -50,29 +51,34 @@ class ChangeIndividualContactDetailsController @Inject() (
       val backToManageLink =
         routes.PlaceholderController.onPageLoad("Must redirect to service home page (CARF-411)").url
 
-      val pageDetails = for {
-        maybeSummaryListRows <- changeDetailsHelper.getFirstContactDetailsSectionMaybe(request.userAnswers)
-        email                <- request.userAnswers.get(ChangeDetailsIndividualEmailPage)
-        havePhone            <- request.userAnswers.get(ChangeDetailsIndividualHavePhonePage)
-        phone                <- if (havePhone) {
-                                  request.userAnswers.get(ChangeDetailsIndividualPhoneNumberPage).map(Some(_))
-                                } else {
-                                  Some(None)
-                                }
-        hasChanged           <- request.userAnswers.displaySubscriptionResponse.map(_.hasIndividualChangedData(email, phone))
-      } yield (maybeSummaryListRows, hasChanged)
+      request.userAnswers.displaySubscriptionResponse.fold(
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      ) { displaySubscriptionResponse =>
 
-      pageDetails match {
-        case Some((summaryListRows, hasChanged)) =>
-          Future.successful(Ok(view(summaryListRows, hasChanged, backToManageLink)))
-        case None                                =>
-          Future.successful(
-            Redirect(
-              controllers.routes.PlaceholderController.onPageLoad(
-                "Required data is missing! Should redirect to Some details are missing page (CARF-278)"
+        val pageDetails = for {
+          maybeSummaryListRows <- changeDetailsHelper.getFirstContactDetailsSectionMaybe(request.userAnswers)
+          email                <- request.userAnswers.get(ChangeDetailsIndividualEmailPage)
+          havePhone            <- request.userAnswers.get(ChangeDetailsIndividualHavePhonePage)
+          phone                <- if (havePhone) {
+                                    request.userAnswers.get(ChangeDetailsIndividualPhoneNumberPage).map(Some(_))
+                                  } else {
+                                    Some(None)
+                                  }
+        } yield {
+          val hasChanged = displaySubscriptionResponse.hasIndividualChangedData(email, phone)
+          (maybeSummaryListRows, hasChanged)
+        }
+
+        pageDetails match {
+          case Some((summaryListRows, hasChanged)) =>
+            Future.successful(Ok(view(summaryListRows, hasChanged, backToManageLink)))
+          case None                                =>
+            Future.successful(
+              Redirect(
+                controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()
               )
             )
-          )
+        }
       }
   }
 
@@ -87,6 +93,5 @@ class ChangeIndividualContactDetailsController @Inject() (
             controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad()
           )
       }
-
   }
 }

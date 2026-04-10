@@ -17,7 +17,9 @@
 package controllers.actions
 
 import base.SpecBase
+import cats.data.EitherT
 import controllers.routes
+import models.error.ApiError
 import models.{DataRequestWithSubscriptionId, IdentifierRequestWithSubscriptionId}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -119,9 +121,7 @@ class ChangeDetailsDataRequiredActionSpec extends SpecBase {
       )
 
       when(mockSubscriptionService.displaySubscription(any())(any(), any())).thenReturn(
-        Future.successful(
-          Some(testIndividualDisplaySubscriptionResponse(hasPhone = true))
-        )
+        EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = true))
       )
 
       val result =

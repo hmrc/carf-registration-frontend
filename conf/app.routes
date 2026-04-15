@@ -245,4 +245,13 @@ POST        /change-contact/individual/have-phone                               
 GET         /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad()
 POST        /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit()
 
+GET         /change-contact/individual/provide-email                            controllers.changeContactDetails.ChangeIndividualEmailController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/individual/provide-email                            controllers.changeContactDetails.ChangeIndividualEmailController.onSubmit(mode: Mode = ProvideMode)
+
+GET         /change-contact/individual/provide-have-phone                       controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/individual/provide-have-phone                       controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onSubmit(mode: Mode = ProvideMode)
+
+GET         /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit(mode: Mode = ProvideMode)
+
 GET         /problem/contact-details-are-missing                                controllers.changeContactDetails.ContactDetailsMissingController.onPageLoad()

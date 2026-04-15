@@ -36,7 +36,7 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
   val provideRoutes: Page => UserAnswers => Call = {
 
     case ChangeDetailsIndividualEmailPage =>
-      _ => changeDetailsRoutes.ChangeIndividualEmailController.onPageLoad(ProvideMode)
+      _ => changeDetailsRoutes.ChangeDetailsIndividualHavePhoneController.onPageLoad(ProvideMode)
 
     case ChangeDetailsIndividualHavePhonePage =>
       userAnswers => navigateFromProvideHavePhonePage(userAnswers)

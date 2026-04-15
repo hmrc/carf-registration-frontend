@@ -19,7 +19,7 @@ package controllers.changeContactDetails
 import base.SpecBase
 import controllers.{changeContactDetails, routes}
 import forms.individual.IndividualPhoneNumberFormProvider
-import models.UserAnswers
+import models.{NormalMode, ProvideMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -43,11 +43,14 @@ class ChangeIndividualPhoneNumberControllerSpec extends SpecBase with MockitoSug
   val validPhoneNumber: String                        = "07777777777"
 
   lazy val changeIndividualPhoneNumberRoute: String =
-    changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad().url
+    changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad(NormalMode).url
+
+  lazy val changeIndividualPhoneNumberProvideRoute: String =
+    changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad(ProvideMode).url
 
   "ChangeIndividualPhoneNumber Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET in NormalMode" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -57,7 +60,21 @@ class ChangeIndividualPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val view    = application.injector.instanceOf[ChangeIndividualPhoneNumberView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET in ProvideMode" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, changeIndividualPhoneNumberProvideRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[ChangeIndividualPhoneNumberView]
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, ProvideMode)(request, messages(application)).toString
       }
     }
 
@@ -65,6 +82,7 @@ class ChangeIndividualPhoneNumberControllerSpec extends SpecBase with MockitoSug
 
       val userAnswers =
         UserAnswers(userAnswersId).set(ChangeDetailsIndividualPhoneNumberPage, validPhoneNumber).success.value
+
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -73,11 +91,14 @@ class ChangeIndividualPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val result  = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validPhoneNumber))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validPhoneNumber), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when valid data is submitted in NormalMode" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -90,6 +111,28 @@ class ChangeIndividualPhoneNumberControllerSpec extends SpecBase with MockitoSug
       running(application) {
         val request =
           FakeRequest(POST, changeIndividualPhoneNumberRoute)
+            .withFormUrlEncodedBody(("value", validPhoneNumber))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted in ProvideMode" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeIndividualPhoneNumberProvideRoute)
             .withFormUrlEncodedBody(("value", validPhoneNumber))
 
         val result = route(application, request).value
@@ -113,7 +156,7 @@ class ChangeIndividualPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val result    = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 

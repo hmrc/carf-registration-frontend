@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeIndividualPhoneNumberView
+import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,24 +47,23 @@ class ChangeIndividualPhoneNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
       val preparedForm = request.userAnswers.get(ChangeDetailsIndividualPhoneNumberPage).fold(form)(form.fill)
+      Ok(view(preparedForm, mode))
+    }
 
-      Ok(view(preparedForm))
-  }
-
-  def onSubmit(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualPhoneNumberPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ChangeDetailsIndividualPhoneNumberPage, NormalMode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(ChangeDetailsIndividualPhoneNumberPage, mode, updatedAnswers))
         )
-  }
+    }
 }

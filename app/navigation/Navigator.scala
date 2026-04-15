@@ -23,7 +23,7 @@ import play.api.mvc.Call
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class Navigator @Inject() () extends NormalRoutesNavigator with ChangeRoutesNavigator {
+class Navigator @Inject() () extends NormalRoutesNavigator with ChangeRoutesNavigator with ProvideRoutesNavigator {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode  =>

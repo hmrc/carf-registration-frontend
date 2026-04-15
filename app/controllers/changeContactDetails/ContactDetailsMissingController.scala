@@ -22,6 +22,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ContactDetailsMissingdView
+import models.{Mode, ProvideMode}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -45,14 +46,12 @@ class ContactDetailsMissingController @Inject() (
         ) {
           case true  =>
             val continueUrl: String =
-              controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
-
+              controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad(ProvideMode).url
             Ok(view(continueUrl))
           case false =>
             val continueUrl: String = controllers.routes.PlaceholderController
               .onPageLoad("Redirect to /change-contact/organisation/email CARF-186")
               .url
-
             Ok(view(continueUrl))
         }
     }

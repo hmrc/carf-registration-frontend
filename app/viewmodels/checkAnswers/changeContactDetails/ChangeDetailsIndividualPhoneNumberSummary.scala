@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.changeContactDetails
 
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.ChangeDetailsIndividualPhoneNumberPage
 import pages.individual.IndividualPhoneNumberPage
 import play.api.i18n.Messages
@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import models.NormalMode
 
 object ChangeDetailsIndividualPhoneNumberSummary {
 
@@ -36,7 +37,8 @@ object ChangeDetailsIndividualPhoneNumberSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad().url
+            href =
+              controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad(NormalMode).url
           ).withVisuallyHiddenText(messages("individualPhoneNumber.change.hidden"))
         )
       )

@@ -236,21 +236,18 @@ POST        /change-contact/individual/details                                  
 
 GET         /change-contact/individual/email                                    controllers.changeContactDetails.ChangeIndividualEmailController.onPageLoad(mode: Mode = NormalMode)
 POST        /change-contact/individual/email                                    controllers.changeContactDetails.ChangeIndividualEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/individual/provide-email                            controllers.changeContactDetails.ChangeIndividualEmailController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/individual/provide-email                            controllers.changeContactDetails.ChangeIndividualEmailController.onSubmit(mode: Mode = ProvideMode)
 
 GET         /change-contact/details-updated                                     controllers.changeContactDetails.ChangeDetailsUpdatedController.onPageLoad()
 
 GET         /change-contact/individual/have-phone                               controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onPageLoad(mode: Mode = NormalMode)
 POST        /change-contact/individual/have-phone                               controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onSubmit(mode: Mode = NormalMode)
-
-GET         /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit(mode: Mode = NormalMode)
-
-GET         /change-contact/individual/provide-email                            controllers.changeContactDetails.ChangeIndividualEmailController.onPageLoad(mode: Mode = ProvideMode)
-POST        /change-contact/individual/provide-email                            controllers.changeContactDetails.ChangeIndividualEmailController.onSubmit(mode: Mode = ProvideMode)
-
 GET         /change-contact/individual/provide-have-phone                       controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/individual/provide-have-phone                       controllers.changeContactDetails.ChangeDetailsIndividualHavePhoneController.onSubmit(mode: Mode = ProvideMode)
 
+GET         /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/individual/phone                                    controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit(mode: Mode = NormalMode)
 GET         /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit(mode: Mode = ProvideMode)
 

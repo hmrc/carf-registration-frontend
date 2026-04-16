@@ -49,7 +49,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       s"[SubscriptionConnector] Creating subscription with request:\n ${Json.prettyPrint(Json.toJson(createSubscriptionRequest))}"
     )
 
-    EitherT {
+    ResultT.fromFuture(
       http
         .post(submissionUrl)
         .withBody(Json.toJson(createSubscriptionRequest))
@@ -70,7 +70,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
           logger.error(s"Future Failed to complete due to: ${e.getMessage}")
           Left(InternalServerError)
         }
-    }
+    )
   }
 
   def displaySubscription(
@@ -82,7 +82,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       s"[SubscriptionConnector] Displaying subscription with ID: $carfId"
     )
 
-    EitherT {
+    ResultT.fromFuture(
       http
         .get(baseUrl)
         .execute[HttpResponse]
@@ -104,9 +104,8 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
               logger.warn(s"Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}")
               Left(InternalServerError)
           }
-
         }
-    }
+    )
   }
 
   private def handleErrorResponse(response: HttpResponse): ApiError = {

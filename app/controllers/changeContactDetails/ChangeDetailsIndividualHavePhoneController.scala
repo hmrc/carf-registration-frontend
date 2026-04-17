@@ -75,9 +75,10 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
     (oldValue, newValue) match {
       case (true, true)  =>
-        Future.successful(
-          Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, request.userAnswers))
-        )
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, updatedAnswers))
       case (false, true) =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))

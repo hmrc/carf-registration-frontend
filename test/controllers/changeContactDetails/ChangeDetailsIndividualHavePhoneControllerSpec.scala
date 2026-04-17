@@ -130,6 +130,7 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
         }
       }
 
@@ -157,6 +158,7 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
         }
       }
 

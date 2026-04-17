@@ -17,6 +17,7 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
+import models.ProvideMode
 import play.api.Application
 import play.api.mvc.Result
 import play.api.test.FakeRequest
@@ -29,7 +30,7 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
 
   "Contact Details Missing Controller" - {
     "onPageLoad" - {
-      "must return ok with the view with individual continueUrl" in {
+      "must return ok with the view with individual continueUrl in ProvideMode" in {
 
         val userAnswers = emptyUserAnswers.copy(changeIsIndividualRegType = Some(true))
 
@@ -37,7 +38,7 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
           applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         val expectedContinueUrl =
-          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
+          controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad(ProvideMode).url
 
         lazy val pageRoute: String =
           controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
@@ -92,7 +93,6 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
 
         status(result)              mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
-
       }
     }
   }

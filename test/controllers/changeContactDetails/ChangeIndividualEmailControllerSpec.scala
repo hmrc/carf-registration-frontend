@@ -19,7 +19,7 @@ package controllers.changeContactDetails
 import base.SpecBase
 import controllers.{changeContactDetails, routes}
 import forms.individual.IndividualEmailFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, ProvideMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -39,19 +39,38 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute: Call                         = Call("GET", "/foo")
   val formProvider: IndividualEmailFormProvider = new IndividualEmailFormProvider()
   val form: Form[String]                        = formProvider()
-  val changeIndividualEmailRoute: String        =
-    changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
-  val validEmailAddress: String                 = "avalidemailaddress@email.com"
+
+  lazy val changeIndividualEmailRoute: String =
+    changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad(NormalMode).url
+
+  lazy val changeIndividualEmailProvideRoute: String =
+    changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad(ProvideMode).url
+
+  val validEmailAddress: String = "avalidemailaddress@email.com"
 
   "ChangeIndividualEmail Controller" - {
-    "must return OK and the correct view for a GET" in {
+
+    "must return OK and the correct view for a GET in NormalMode" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
         val request = FakeRequest(GET, changeIndividualEmailRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ChangeIndividualEmailView]
+
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET in ProvideMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      running(application) {
+        val request = FakeRequest(GET, changeIndividualEmailProvideRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[ChangeIndividualEmailView]
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, ProvideMode)(request, messages(application)).toString
       }
     }
 
@@ -64,15 +83,16 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, changeIndividualEmailRoute)
         val view    = application.injector.instanceOf[ChangeIndividualEmailView]
         val result  = route(application, request).value
+
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validEmailAddress))(
+        contentAsString(result) mustEqual view(form.fill(validEmailAddress), NormalMode)(
           request,
           messages(application)
         ).toString
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when valid data is submitted in NormalMode" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -92,6 +112,26 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to the next page when valid data is submitted in ProvideMode" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeIndividualEmailProvideRoute)
+            .withFormUrlEncodedBody(("value", validEmailAddress))
+
+        val result = route(application, request).value
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
     "must return a Bad Request and errors when empty email data is submitted" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
@@ -101,8 +141,9 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
         val boundForm = form.bind(Map("value" -> ""))
         val view      = application.injector.instanceOf[ChangeIndividualEmailView]
         val result    = route(application, request).value
+
         status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -120,7 +161,7 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
         val result    = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -129,6 +170,7 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, changeIndividualEmailRoute)
         val result  = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -141,6 +183,7 @@ class ChangeIndividualEmailControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, changeIndividualEmailRoute)
             .withFormUrlEncodedBody(("value", "answer"))
         val result  = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeIndividualEmailView
+import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,25 +47,23 @@ class ChangeIndividualEmailController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] =
+  def onPageLoad(mode: Mode): Action[AnyContent] =
     (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
-
       val preparedForm = request.userAnswers.get(ChangeDetailsIndividualEmailPage).fold(form)(form.fill)
-
-      Ok(view(preparedForm))
+      Ok(view(preparedForm, mode))
     }
 
-  def onSubmit(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ChangeDetailsIndividualEmailPage, NormalMode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(ChangeDetailsIndividualEmailPage, mode, updatedAnswers))
         )
-  }
+    }
 }

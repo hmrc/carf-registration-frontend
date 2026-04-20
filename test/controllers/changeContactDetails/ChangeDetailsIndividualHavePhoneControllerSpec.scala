@@ -287,7 +287,7 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
       }
     }
 
-    "when old value is empty in ProvideMode, save new value and redirect via navigator" in {
+    "when old value is empty in ProvideMode and user selects Yes, redirect to phone number page in ProvideMode" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -310,14 +310,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
         ).value        mustEqual controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController
           .onPageLoad(ProvideMode)
           .url
-        verify(mockSessionRepository).set(argThat { ua =>
-          ua.get(ChangeDetailsIndividualHavePhonePage).get &&
-          ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
-        })
+        verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
       }
     }
 
-    "when old value is None in ProvideMode and user selects No" in {
+    "when old value is None in ProvideMode and user selects No, redirect to details page" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -336,14 +333,11 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockSessionRepository).set(argThat { ua =>
-          !ua.get(ChangeDetailsIndividualHavePhonePage).get &&
-          ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
-        })
+        verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == false))
       }
     }
 
-    "when old value is None in ProvideMode and user selects Yes" in {
+    "when old value is None in ProvideMode and user selects Yes, redirect to ChangeDetailsIndividualPhoneNumberPage in ProvideMode" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =

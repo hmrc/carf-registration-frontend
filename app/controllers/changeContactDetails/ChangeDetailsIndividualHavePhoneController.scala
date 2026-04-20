@@ -59,42 +59,30 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
-            request.userAnswers.get(ChangeDetailsIndividualHavePhonePage) match {
-              case Some(oldValue) =>
-                handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
-              case None           =>
-                if (mode == ProvideMode) {
-                  for {
-                    updatedAnswers <-
-                      Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, value))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, updatedAnswers))
-                } else {
-                  Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-                }
-            }
+            val oldValue = request.userAnswers.get(ChangeDetailsIndividualHavePhonePage)
+            handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
         )
     }
 
   private def handleRedirectionAndUpdateUserAnswers(
-      oldValue: Boolean,
+      oldValue: Option[Boolean],
       newValue: Boolean,
       mode: Mode
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
     (oldValue, newValue) match {
-      case (true, true)  =>
+      case (Some(true), true) =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, updatedAnswers))
-      case (false, true) =>
+      case (_, true)          =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
           controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad(mode)
         )
-      case _             =>
+      case _                  =>
         for {
           removedPhone   <- Future.fromTry(request.userAnswers.remove(ChangeDetailsIndividualPhoneNumberPage))
           updatedAnswers <- Future.fromTry(removedPhone.set(ChangeDetailsIndividualHavePhonePage, newValue))

@@ -285,26 +285,6 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
           verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
         }
       }
-
-      "when old value is empty, redirect to JourneyRecoveryPage" in {
-        val application =
-          applicationBuilder(userAnswers = Some(emptyUserAnswers))
-            .overrides(
-              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-            )
-            .build()
-
-        running(application) {
-          val request =
-            FakeRequest(POST, changeDetailsIndividualHavePhoneRoute)
-              .withFormUrlEncodedBody(("value", "true"))
-
-          val result = route(application, request).value
-
-          status(result)                 mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
     }
 
     "when old value is empty in ProvideMode, save new value and redirect via navigator" in {
@@ -324,12 +304,69 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         val result = route(application, request).value
 
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(
+          result
+        ).value        mustEqual controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController
+          .onPageLoad(ProvideMode)
+          .url
+        verify(mockSessionRepository).set(argThat { ua =>
+          ua.get(ChangeDetailsIndividualHavePhonePage).get &&
+          ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
+        })
+      }
+    }
+
+    "when old value is None in ProvideMode and user selects No" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeDetailsIndividualHavePhoneProvideRoute)
+            .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
         verify(mockSessionRepository).set(argThat { ua =>
-          ua.get(ChangeDetailsIndividualHavePhonePage).get == true &&
+          !ua.get(ChangeDetailsIndividualHavePhonePage).get &&
           ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
         })
+      }
+    }
+
+    "when old value is None in ProvideMode and user selects Yes" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeDetailsIndividualHavePhoneProvideRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(
+          result
+        ).value        mustEqual controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController
+          .onPageLoad(ProvideMode)
+          .url
+        verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
       }
     }
 

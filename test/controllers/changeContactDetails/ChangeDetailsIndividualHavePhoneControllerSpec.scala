@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.ChangeDetailsIndividualHavePhonePage
+import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -187,6 +187,8 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
           verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == false))
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty))
+
         }
       }
 
@@ -215,6 +217,8 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
           verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == false))
+          verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty))
+
         }
       }
 
@@ -322,7 +326,10 @@ class ChangeDetailsIndividualHavePhoneControllerSpec extends SpecBase with Mocki
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockSessionRepository).set(argThat(_.get(ChangeDetailsIndividualHavePhonePage).get == true))
+        verify(mockSessionRepository).set(argThat { ua =>
+          ua.get(ChangeDetailsIndividualHavePhonePage).get == true &&
+          ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
+        })
       }
     }
 

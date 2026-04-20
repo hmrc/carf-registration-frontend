@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.ChangeDetailsIndividualHavePhoneFormProvider
-import models.{DataRequestWithSubscriptionId, NormalMode}
+import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.data.Form
@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeDetailsIndividualHavePhoneView
-import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,9 +60,18 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             request.userAnswers.get(ChangeDetailsIndividualHavePhonePage) match {
-              case Some(oldValue) => handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
+              case Some(oldValue) =>
+                handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
               case None           =>
-                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+                if (mode == ProvideMode) {
+                  for {
+                    updatedAnswers <-
+                      Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, value))
+                    _              <- sessionRepository.set(updatedAnswers)
+                  } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, updatedAnswers))
+                } else {
+                  Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+                }
             }
         )
     }

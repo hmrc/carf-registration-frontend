@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.ChangeDetailsIndividualHavePhoneFormProvider
-import models.{DataRequestWithSubscriptionId, NormalMode}
+import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.data.Form
@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeDetailsIndividualHavePhoneView
-import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,32 +59,30 @@ class ChangeDetailsIndividualHavePhoneController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
-            request.userAnswers.get(ChangeDetailsIndividualHavePhonePage) match {
-              case Some(oldValue) => handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
-              case None           =>
-                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            }
+            val oldValue = request.userAnswers.get(ChangeDetailsIndividualHavePhonePage)
+            handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
         )
     }
 
   private def handleRedirectionAndUpdateUserAnswers(
-      oldValue: Boolean,
+      oldValue: Option[Boolean],
       newValue: Boolean,
       mode: Mode
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
     (oldValue, newValue) match {
-      case (true, true)  =>
-        Future.successful(
-          Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, request.userAnswers))
-        )
-      case (false, true) =>
+      case (Some(true), true) =>
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(ChangeDetailsIndividualHavePhonePage, mode, updatedAnswers))
+      case (_, true)          =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsIndividualHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
           controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad(mode)
         )
-      case _             =>
+      case _                  =>
         for {
           removedPhone   <- Future.fromTry(request.userAnswers.remove(ChangeDetailsIndividualPhoneNumberPage))
           updatedAnswers <- Future.fromTry(removedPhone.set(ChangeDetailsIndividualHavePhonePage, newValue))

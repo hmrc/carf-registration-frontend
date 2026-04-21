@@ -24,6 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import models.NormalMode
 
 object ChangeDetailsIndividualEmailSummary {
 
@@ -35,7 +36,7 @@ object ChangeDetailsIndividualEmailSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad().url
+            href = controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad(NormalMode).url
           ).withVisuallyHiddenText(messages("changeDetails.summaryList.email.key.hidden"))
         )
       )

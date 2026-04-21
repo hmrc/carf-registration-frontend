@@ -23,6 +23,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import models.NormalMode
 
 object ChangeDetailsIndividualHavePhoneSummary {
 
@@ -37,7 +38,9 @@ object ChangeDetailsIndividualHavePhoneSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController.onPageLoad().url
+            href = controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController
+              .onPageLoad(NormalMode)
+              .url
           ).withVisuallyHiddenText(messages("changeDetails.summaryList.havePhone.key.hidden"))
         )
       )

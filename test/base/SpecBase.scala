@@ -63,7 +63,7 @@ trait SpecBase
   val testUtr: UniqueTaxpayerReference   = UniqueTaxpayerReference("1234567890")
   val testUtrString: String              = testUtr.uniqueTaxPayerReference
   val testInternalId: String             = "12345"
-  val testSubscriptionId: SubscriptionId = SubscriptionId("67890")
+  val testSubscriptionId: SubscriptionId = SubscriptionId("CARF0000000001")
   val testSafeId: String                 = "XE0000123456789"
 
   private val UtcZoneId          = "UTC"
@@ -164,6 +164,7 @@ trait SpecBase
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
       carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
         tradingName = Some("testTradingName"),
         gbUser = true,
         primaryContact = DisplaySubscriptionContact(
@@ -183,6 +184,7 @@ trait SpecBase
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
       carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
         tradingName = Some("testTradingName"),
         gbUser = true,
         primaryContact = DisplaySubscriptionContact(
@@ -201,6 +203,7 @@ trait SpecBase
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
       carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
         tradingName = Some("testTradingName"),
         gbUser = true,
         primaryContact = DisplaySubscriptionContact(
@@ -220,6 +223,7 @@ trait SpecBase
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
       carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
         tradingName = Some("testTradingName"),
         gbUser = true,
         primaryContact = DisplaySubscriptionContact(

@@ -17,6 +17,10 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
+import cats.data.EitherT
+import models.error.ApiError
+import models.error.ApiError.InternalServerError
+import models.responses.DisplaySubscriptionResponse
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
@@ -42,7 +46,8 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
   "Change Contact Details Index Controller" - {
     "when the service call to the get the display subscription details returns none" - {
       "must redirect to the journey recovery page" in new Setup {
-        when(mockSubscriptionService.displaySubscription(any())(any(), any())).thenReturn(Future.successful(None))
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.leftT[Future, DisplaySubscriptionResponse](InternalServerError))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
 
@@ -57,7 +62,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
     "when display subscription response is organisation" - {
       "must redirect user to the placeholder controller" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
-          .thenReturn(Future.successful(Some(testOrganisationDisplaySubscriptionResponse)))
+          .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponse))
 
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
@@ -84,7 +89,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
     "when display subscription response is of type none" - {
       "must redirect user to journey recovery" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
-          .thenReturn(Future.successful(Some(testInvalidDisplaySubscriptionResponse)))
+          .thenReturn(EitherT.rightT[Future, ApiError](testInvalidDisplaySubscriptionResponse))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
 
@@ -99,7 +104,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
     "when display subscription response is individual" - {
       "must set user answers with all page info and redirect successfully when phone is none" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
-          .thenReturn(Future.successful(Some(testIndividualDisplaySubscriptionResponse(hasPhone = false))))
+          .thenReturn(EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = false)))
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
@@ -124,8 +129,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
       }
       "must set user answers with all page info and redirect successfully when phone is returned from the service" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
-          .thenReturn(Future.successful(Some(testIndividualDisplaySubscriptionResponse(hasPhone = true))))
-
+          .thenReturn(EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = true)))
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)

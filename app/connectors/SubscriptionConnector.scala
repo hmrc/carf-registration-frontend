@@ -22,9 +22,9 @@ import models.SubscriptionId
 import models.error.ApiError
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, UnableToCreateSubscriptionError}
 import models.requests.CreateSubscriptionRequest
-import models.responses.CreateSubscriptionResponse
+import models.responses.{CreateSubscriptionResponse, DisplaySubscriptionResponse}
 import play.api.Logging
-import play.api.http.Status.OK
+import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import types.ResultT
@@ -49,7 +49,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       s"[SubscriptionConnector] Creating subscription with request:\n ${Json.prettyPrint(Json.toJson(createSubscriptionRequest))}"
     )
 
-    EitherT {
+    ResultT.fromFuture(
       http
         .post(submissionUrl)
         .withBody(Json.toJson(createSubscriptionRequest))
@@ -70,7 +70,42 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
           logger.error(s"Future Failed to complete due to: ${e.getMessage}")
           Left(InternalServerError)
         }
-    }
+    )
+  }
+
+  def displaySubscription(
+      carfId: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[DisplaySubscriptionResponse] = {
+    val baseUrl = url"${config.carfRegistrationBaseUrl}/subscription/display/$carfId"
+
+    logger.debug(
+      s"[SubscriptionConnector] Displaying subscription with ID: $carfId"
+    )
+
+    ResultT.fromFuture(
+      http
+        .get(baseUrl)
+        .execute[HttpResponse]
+        .map { httpResponse =>
+          httpResponse.status match {
+            case OK        =>
+              Try(httpResponse.json.as[DisplaySubscriptionResponse]) match {
+                case Success(data)      => Right(data)
+                case Failure(exception) =>
+                  logger.warn(s"Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}")
+                  Left(ApiError.JsonValidationError)
+              }
+            case NOT_FOUND =>
+              logger.warn(
+                s"No match could be found for this user: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
+              )
+              Left(ApiError.NotFoundError)
+            case _         =>
+              logger.warn(s"Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}")
+              Left(InternalServerError)
+          }
+        }
+    )
   }
 
   private def handleErrorResponse(response: HttpResponse): ApiError = {

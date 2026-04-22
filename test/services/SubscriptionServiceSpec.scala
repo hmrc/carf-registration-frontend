@@ -23,6 +23,7 @@ import models.*
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
 import models.requests.CreateSubscriptionRequest
+import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
@@ -53,6 +54,45 @@ class SubscriptionServiceSpec extends SpecBase {
     .set(IndividualPhoneNumberPage, "01234567890")
     .success
     .value
+
+  val exampleSubscriptionDisplayResponse = DisplaySubscriptionResponse(
+    success = DisplaySubscriptionSuccess(
+      processingDate = "2024-01-25T09:26:17Z",
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = exampleSubscriptionId.value,
+        tradingName = Some("CARF LTD"),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = Some(
+            DisplaySubscriptionIndividual(
+              firstName = "Joe",
+              middleName = None,
+              lastName = "Smith"
+            )
+          ),
+          email = "GroupRep@FATCACRS.com",
+          phone = Some("01232473743"),
+          mobile = Some("07232473743"),
+          organisation = None
+        ),
+        secondaryContact = Some(
+          DisplaySubscriptionContact(
+            individual = Some(
+              DisplaySubscriptionIndividual(
+                firstName = "Joe",
+                middleName = Some("Martyn"),
+                lastName = "Smith"
+              )
+            ),
+            email = "GroupRep@FATCACRS.com",
+            phone = Some("01232473744"),
+            mobile = Some("07232473744"),
+            organisation = None
+          )
+        )
+      )
+    )
+  )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -90,6 +130,30 @@ class SubscriptionServiceSpec extends SpecBase {
         )
         verify(mockConnector, never()).createSubscription(any[CreateSubscriptionRequest])(any(), any())
       }
+    }
+
+    "displaySubscription" - {
+      "should successfully display subscription with valid subscription id" in {
+        when(mockConnector.displaySubscription(any[String])(any(), any())).thenReturn(
+          EitherT.rightT[Future, ApiError](exampleSubscriptionDisplayResponse)
+        )
+
+        val result = testService.displaySubscription(exampleSubscriptionId).value.futureValue
+
+        result mustBe Right(exampleSubscriptionDisplayResponse)
+        verify(mockConnector).displaySubscription(any[String])(any(), any())
+      }
+
+      "should return error when connector fails" in {
+        when(mockConnector.displaySubscription(any[String])(any(), any())).thenReturn(
+          EitherT.leftT[Future, SubscriptionId](InternalServerError)
+        )
+
+        val result = testService.displaySubscription(exampleSubscriptionId).value.futureValue
+
+        result mustBe Left(InternalServerError)
+      }
+
     }
   }
 }

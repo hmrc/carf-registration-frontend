@@ -19,6 +19,7 @@ package controllers.changeContactDetails
 import controllers.actions.*
 import controllers.routes
 import models.UserAnswers
+import models.responses.DisplaySubscriptionResponse
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -41,8 +42,8 @@ class ChangeContactDetailsIndexController @Inject() (
     with Logging {
 
   def onPageLoad(): Action[AnyContent] = carfIdRetrieval().async { implicit request =>
-    subscriptionService.displaySubscription(request.subscriptionId) flatMap {
-      case Some(subscriptionDetails) =>
+    subscriptionService.displaySubscription(request.subscriptionId).value flatMap {
+      case Right(subscriptionDetails) =>
         subscriptionDetails.isIndividualRegistrationType match {
           case Some(true)  =>
             for {
@@ -81,7 +82,7 @@ class ChangeContactDetailsIndexController @Inject() (
             logger.warn(s"[ChangeContactDetailsIndexController] User answers could not be found for request.")
             Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
-      case None                      =>
+      case _                          =>
         logger.warn(s"[ChangeContactDetailsIndexController] User answers could not be found for request.")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

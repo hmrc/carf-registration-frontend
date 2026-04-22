@@ -17,6 +17,7 @@
 package controllers.actions
 
 import controllers.routes
+import models.responses.DisplaySubscriptionResponse
 import models.{DataRequestWithSubscriptionId, IdentifierRequestWithSubscriptionId}
 import play.api.Logging
 import play.api.mvc.Results.Redirect
@@ -45,8 +46,8 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
     sessionRepository.get(request.userId) flatMap {
       case Some(userAnswers) =>
         if (userAnswers.displaySubscriptionResponse.isEmpty) {
-          subscriptionService.displaySubscription(request.subscriptionId) flatMap {
-            case Some(value) =>
+          subscriptionService.displaySubscription(request.subscriptionId).value.flatMap {
+            case Right(value) =>
               Future.successful(
                 Right(
                   DataRequestWithSubscriptionId(
@@ -57,7 +58,7 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
                   )
                 )
               )
-            case None        =>
+            case _            =>
               logger.warn(s"[ChangeDetailsDataRequiredAction] Could not retrieve display subscription details.")
               throw new Exception("Could not retrieve subscription details")
           }

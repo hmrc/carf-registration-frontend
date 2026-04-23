@@ -26,7 +26,7 @@ import models.countries.*
 import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
@@ -1246,6 +1246,21 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsFirstContactNamePage navigation" - {
+      "must navigate from ChangeDetailsFirstContactNamePage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+
+        navigator.nextPage(
+          ChangeDetailsFirstContactNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
       }
     }
   }

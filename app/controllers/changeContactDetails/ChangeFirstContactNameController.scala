@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,51 +12,50 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
 
-package controllers.organisation
+package controllers.changeContactDetails
 
-import controllers.actions.*
+import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.FirstContactNameFormProvider
-import models.Mode
+import models.NormalMode
 import navigation.Navigator
-import pages.organisation.FirstContactNamePage
+import pages.changeContactDetails.ChangeDetailsFirstContactNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.organisation.FirstContactNameView
+import views.html.ChangeFirstContactNameView
+import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FirstContactNameController @Inject() (
+class ChangeFirstContactNameController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
+    carfIdRetrieval: CarfIdRetrievalAction,
+    changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     formProvider: FirstContactNameFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: FirstContactNameView
+    view: ChangeFirstContactNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
-
-      val preparedForm = request.userAnswers.get(FirstContactNamePage).fold(form)(form.fill)
+  def onPageLoad(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
+    implicit request =>
+      val preparedForm = request.userAnswers
+        .get(ChangeDetailsFirstContactNamePage)
+        .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
-    }
+  }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
       form
         .bindFromRequest()
@@ -64,9 +63,13 @@ class FirstContactNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(FirstContactNamePage, value))
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers.set(ChangeDetailsFirstContactNamePage, value)
+                                )
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(FirstContactNamePage, mode, updatedAnswers))
+            } yield Redirect(
+              navigator.nextPage(ChangeDetailsFirstContactNamePage, mode, updatedAnswers)
+            )
         )
   }
 }

@@ -20,7 +20,7 @@ import models.SubscriptionId
 import play.api.libs.json.{Json, Reads}
 
 case class CreateSubscriptionResponse(success: SubscriptionIdResponse) {
-  def subscriptionId: SubscriptionId = SubscriptionId(success.CARFReference)
+  def subscriptionId: SubscriptionId = SubscriptionId(success.carfReference)
 }
 
 object CreateSubscriptionResponse {

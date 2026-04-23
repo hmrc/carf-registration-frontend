@@ -107,7 +107,7 @@ class SubscriptionConnectorISpec
     )
   )
 
-  val validSubscriptionResponseJson: String = """{"success":{"CARFReference":"CARF123456"}}"""
+  val validSubscriptionResponseJson: String = """{"success":{"carfReference":"CARF123456"}}"""
 
   val testDisplaySubscriptionResponseJson: String =
     """

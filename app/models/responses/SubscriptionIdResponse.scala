@@ -18,7 +18,7 @@ package models.responses
 
 import play.api.libs.json.{Json, Reads}
 
-case class SubscriptionIdResponse(CARFReference: String)
+case class SubscriptionIdResponse(carfReference: String)
 
 object SubscriptionIdResponse {
   implicit lazy val reads: Reads[SubscriptionIdResponse] = Json.reads[SubscriptionIdResponse]

@@ -49,7 +49,7 @@ class RegistrationConfirmationController @Inject() (
     with Logging {
 
   def onPageLoad(): Action[AnyContent] =
-    (identify() andThen getData() andThen requireData).async { implicit request =>
+    (identify(redirect = false) andThen getData() andThen requireData).async { implicit request =>
 
       val resultOpt = for {
         subscriptionId <- request.userAnswers.subscriptionId

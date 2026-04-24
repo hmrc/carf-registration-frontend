@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,67 +14,69 @@
  * limitations under the License.
  */
 
-package controllers.organisation
+package controllers.changeContactDetails
 
-import controllers.actions.*
-import controllers.routes
+import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.FirstContactPhoneNumberFormProvider
-import models.Mode
+import models.NormalMode
 import navigation.Navigator
-import pages.organisation.{FirstContactNamePage, FirstContactPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsFirstContactPhoneNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.organisation.FirstContactPhoneNumberView
+import views.html.ChangeFirstContactPhoneNumberView
+import models.Mode
+import pages.organisation.FirstContactNamePage
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FirstContactPhoneNumberController @Inject() (
+class ChangeFirstContactPhoneNumberController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
+    carfIdRetrieval: CarfIdRetrievalAction,
+    changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     formProvider: FirstContactPhoneNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: FirstContactPhoneNumberView
+    view: ChangeFirstContactPhoneNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
+    implicit request =>
+      val preparedForm = request.userAnswers.get(ChangeDetailsFirstContactPhoneNumberPage).fold(form)(form.fill)
 
-      val preparedForm = request.userAnswers.get(FirstContactPhoneNumberPage).fold(form)(form.fill)
-
-      request.userAnswers.get(FirstContactNamePage) match {
+      request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
-        case None            => Redirect(routes.JourneyRecoveryController.onPageLoad())
+        case None            => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-    }
+  }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            request.userAnswers.get(FirstContactNamePage) match {
+            request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
               case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
-              case None            => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              case None            => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(FirstContactPhoneNumberPage, value))
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers.set(ChangeDetailsFirstContactPhoneNumberPage, value)
+                                )
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(FirstContactPhoneNumberPage, mode, updatedAnswers))
+            } yield Redirect(
+              navigator.nextPage(ChangeDetailsFirstContactPhoneNumberPage, mode, updatedAnswers)
+            )
         )
   }
 }

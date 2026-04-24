@@ -52,10 +52,11 @@ class ChangeFirstContactPhoneNumberController @Inject() (
     implicit request =>
       val preparedForm = request.userAnswers.get(ChangeDetailsFirstContactPhoneNumberPage).fold(form)(form.fill)
 
-      request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
-        case Some(usersName) => Ok(view(preparedForm, mode, usersName))
-        case None            => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
+      request.userAnswers
+        .get(ChangeDetailsFirstContactNamePage)
+        .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(name =>
+          Ok(view(preparedForm, mode, name))
+        )
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
@@ -64,10 +65,13 @@ class ChangeFirstContactPhoneNumberController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
-              case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
-              case None            => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            },
+            Future.successful(
+              request.userAnswers
+                .get(ChangeDetailsFirstContactNamePage)
+                .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(
+                  name => BadRequest(view(formWithErrors, mode, name))
+                )
+            ),
           value =>
             for {
               updatedAnswers <- Future.fromTry(

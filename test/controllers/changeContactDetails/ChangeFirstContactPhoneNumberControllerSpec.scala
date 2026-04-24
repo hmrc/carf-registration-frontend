@@ -30,7 +30,6 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.ChangeFirstContactPhoneNumberView
 
 import scala.concurrent.Future
@@ -50,9 +49,7 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
     "must return OK and the correct view for a GET" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(ChangeDetailsFirstContactNamePage, "John Smith")
-        .success
-        .value
+        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -69,12 +66,8 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(ChangeDetailsFirstContactPhoneNumberPage, validPhoneNumber)
-        .success
-        .value
-        .set(ChangeDetailsFirstContactNamePage, "John Smith")
-        .success
-        .value
+        .withPage(ChangeDetailsFirstContactPhoneNumberPage, validPhoneNumber)
+        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -91,13 +84,28 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
       }
     }
 
+    "must redirect to Some Information Is Missing Page when name cannot be found in the session for GET" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .withPage(ChangeDetailsFirstContactPhoneNumberPage, validPhoneNumber)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, changeFirstContactPhoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ContactDetailsMissingController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(ChangeDetailsFirstContactNamePage, "John Smith")
-        .success
-        .value
+        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -123,9 +131,7 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(ChangeDetailsFirstContactNamePage, "John Smith")
-        .success
-        .value
+        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -143,6 +149,28 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must redirect to Some Information Is Missing Page when name cannot be found in the session for POST when invalid data is submitted" in {
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeFirstContactPhoneNumberRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
+
+        val result    = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ContactDetailsMissingController
+          .onPageLoad()
+          .url
       }
     }
 

@@ -165,9 +165,9 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
           FakeRequest(POST, changeFirstContactPhoneNumberRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val result    = route(application, request).value
+        val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ContactDetailsMissingController
           .onPageLoad()
           .url

@@ -23,8 +23,7 @@ import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, Or
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
-import pages.changeContactDetails.{ChangeDetailsFirstContactEmailPage, ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}

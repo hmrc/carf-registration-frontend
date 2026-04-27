@@ -49,9 +49,10 @@ class ContactDetailsMissingController @Inject() (
               controllers.changeContactDetails.routes.ChangeIndividualEmailController.onPageLoad(ProvideMode).url
             Ok(view(continueUrl))
           case false =>
-            val continueUrl: String = controllers.routes.PlaceholderController
-              .onPageLoad("Redirect to /change-contact/organisation/email CARF-186")
-              .url
+            val continueUrl: String =
+              controllers.changeContactDetails.routes.ChangeDetailsFirstContactEmailController
+                .onPageLoad()
+                .url
             Ok(view(continueUrl))
         }
     }

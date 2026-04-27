@@ -23,7 +23,7 @@ import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, Or
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
@@ -154,6 +154,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
     case ChangeDetailsFirstContactNamePage =>
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+
+    case ChangeDetailsFirstContactEmailPage =>
       _ =>
         routes.PlaceholderController.onPageLoad(
           "Should redirect to change-contact/organisation/details page (CARF-141)"

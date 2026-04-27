@@ -161,7 +161,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         )
 
     case ChangeDetailsFirstContactEmailPage =>
-      _ => routes.PlaceholderController.onPageLoad("Replace with change-contact/organisation/details CARF-141")
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()

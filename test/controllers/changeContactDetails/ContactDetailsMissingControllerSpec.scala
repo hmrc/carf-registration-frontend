@@ -61,8 +61,8 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
         val application: Application =
           applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-        val expectedContinueUrl = controllers.routes.PlaceholderController
-          .onPageLoad("Redirect to /change-contact/organisation/email CARF-186")
+        val expectedContinueUrl = controllers.changeContactDetails.routes.ChangeOrganisationEmailController
+          .onPageLoad()
           .url
 
         lazy val pageRoute: String =

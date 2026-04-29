@@ -643,7 +643,5 @@ contactDetailsMissing.p1 = You must provide this information to change your cont
 
 changeFirstContactHavePhone.title = Can we contact your first contact by phone?
 changeFirstContactHavePhone.heading = Can we contact {0} by phone?
-changeFirstContactHavePhone.checkYourAnswersLabel = Can we contact the first contact by phone?
 changeFirstContactHavePhone.hint = We will call if we have any questions about your reports.
 changeFirstContactHavePhone.error.required = Select yes if the first contact can be contacted by phone
-changeFirstContactHavePhone.change.hidden = Change if we can contact the first contact by phone

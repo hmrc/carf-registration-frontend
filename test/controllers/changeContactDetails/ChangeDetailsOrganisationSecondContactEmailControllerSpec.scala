@@ -45,7 +45,9 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
   val exampleEmail: String = "prof.rowan@email.com"
 
   lazy val changeDetailsOrganisationSecondContactEmailRoute =
-    controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactEmailController.onPageLoad().url
+    controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactEmailController
+      .onPageLoad(NormalMode)
+      .url
 
   "ChangeDetailsOrganisationSecondContactEmail Controller" - {
 

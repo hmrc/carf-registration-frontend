@@ -1,5 +1,5 @@
 @*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  *@
 
-@import models.BusinessDetails
-@import models.responses.{AddressRegistrationResponse, renderHTML}
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -24,32 +22,28 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, business: BusinessDetails)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, name: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("isThisYourBusiness.title"))) {
+@layout(pageTitle = title(form, messages("changeFirstContactHavePhone.title"))) {
 
-    @formHelper(action = routes.IsThisYourBusinessController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeFirstContactHavePhoneController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-l">@messages("isThisYourBusiness.heading")</h1>
-
-        <p class="govuk-body govuk-!-margin-bottom-1">
-            @business.name
-        </p>
+        <h1 class="govuk-heading-l">@messages("changeFirstContactHavePhone.heading", name)</h1>
 
         <p class="govuk-body">
-            @Html(business.address.renderHTML)
+        @messages("changeFirstContactHavePhone.hint")
         </p>
-
 
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("isThisYourBusiness.heading")).withCssClass("govuk-visually-hidden")
-            ).copy(classes = "govuk-radios govuk-radios--stacked")
+                legend = LegendViewModel(messages("changeFirstContactHavePhone.heading"))
+                .withCssClass("govuk-visually-hidden govuk-!-display-block")
+            ).copy(classes = "")
         )
 
         @govukButton(

@@ -32,17 +32,11 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-l">@messages("changeDetailsIndividualHavePhone.heading")</h1>
-
-        <p class="govuk-body govuk-!-margin-bottom-4">
-        @messages("changeDetailsIndividualHavePhone.p1")
-        </p>
-
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel("changeDetailsIndividualHavePhone.heading").withCssClass("govuk-visually-hidden")
-            ).copy(classes = "govuk-radios govuk-radios--stacked")
+                legend = LegendViewModel("changeDetailsIndividualHavePhone.heading").asPageHeading()
+            ).copy(classes = "")
         )
 
         @govukButton(

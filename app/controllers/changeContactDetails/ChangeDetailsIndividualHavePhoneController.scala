@@ -17,8 +17,8 @@
 package controllers.changeContactDetails
 
 import controllers.actions.*
-import forms.ChangeDetailsIndividualHavePhoneFormProvider
-import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
+import forms.changeContactDetails.ChangeDetailsIndividualHavePhoneFormProvider
+import models.{DataRequestWithSubscriptionId, Mode}
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.data.Form

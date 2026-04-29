@@ -258,3 +258,6 @@ POST        /change-contact/organisation/contact-name                           
 
 GET         /change-contact/organisation/email                                  controllers.changeContactDetails.ChangeDetailsFirstContactEmailController.onPageLoad(mode: Mode = NormalMode)
 POST        /change-contact/organisation/email                                  controllers.changeContactDetails.ChangeDetailsFirstContactEmailController.onSubmit(mode: Mode = NormalMode)
+
+GET         /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactEmailController.onSubmit(mode: Mode = NormalMode)

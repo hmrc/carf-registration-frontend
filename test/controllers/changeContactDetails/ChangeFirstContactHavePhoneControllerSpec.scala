@@ -38,16 +38,19 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new ChangeFirstContactHavePhoneFormProvider()
+  val formProvider        = new ChangeFirstContactHavePhoneFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val changeFirstContactHavePhoneRoute: String = controllers.changeContactDetails.routes.ChangeFirstContactHavePhoneController.onPageLoad(NormalMode).url
+  lazy val changeFirstContactHavePhoneRoute: String =
+    controllers.changeContactDetails.routes.ChangeFirstContactHavePhoneController.onPageLoad(NormalMode).url
 
   "ChangeFirstContactHavePhone Controller" - {
 
     "must return OK and the correct view for a GET when name is provided" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.withPage(ChangeDetailsFirstContactNamePage, "Timmy"))).build()
+      val application = applicationBuilder(userAnswers =
+        Some(emptyUserAnswers.withPage(ChangeDetailsFirstContactNamePage, "Timmy"))
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, changeFirstContactHavePhoneRoute)
@@ -56,14 +59,16 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val view = application.injector.instanceOf[ChangeFirstContactHavePhoneView]
 
-        status(result) mustEqual OK
+        status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, "Timmy")(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).withPage(ChangeFirstContactHavePhonePage, true).withPage(ChangeDetailsFirstContactNamePage, "Timmy")
+      val userAnswers = UserAnswers(userAnswersId)
+        .withPage(ChangeFirstContactHavePhonePage, true)
+        .withPage(ChangeDetailsFirstContactNamePage, "Timmy")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -74,8 +79,11 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, "Timmy")(request, messages(application)).toString
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, "Timmy")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -97,7 +105,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -120,7 +128,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -143,7 +151,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
@@ -166,7 +174,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.PlaceholderController
           .onPageLoad("redirect to /change-contact/organisation/phone (CARF-188)")
           .url
@@ -178,9 +186,9 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
       running(application) {
         val request = FakeRequest(GET, changeFirstContactHavePhoneRoute)
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ContactDetailsMissingController
           .onPageLoad()
           .url
@@ -189,7 +197,9 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
     "must return a Bad Request and errors when invalid data is submitted and first contact name is provided" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.withPage(ChangeDetailsFirstContactNamePage, "Timmy"))).build()
+      val application = applicationBuilder(userAnswers =
+        Some(emptyUserAnswers.withPage(ChangeDetailsFirstContactNamePage, "Timmy"))
+      ).build()
 
       running(application) {
         val request =
@@ -202,7 +212,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        status(result)          mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode, "Timmy")(request, messages(application)).toString
       }
     }
@@ -217,7 +227,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ContactDetailsMissingController
           .onPageLoad()
           .url
@@ -233,7 +243,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -249,7 +259,7 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

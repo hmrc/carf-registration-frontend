@@ -24,23 +24,24 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object ChangeFirstContactHavePhoneSummary  {
+object ChangeFirstContactHavePhoneSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ChangeFirstContactHavePhonePage).map {
-      answer =>
+    answers.get(ChangeFirstContactHavePhonePage).map { answer =>
 
-        val value = if (answer) "site.yes" else "site.no"
+      val value = if (answer) "site.yes" else "site.no"
 
-        SummaryListRowViewModel(
-          key     = "changeFirstContactHavePhone.checkYourAnswersLabel",
-          value   = ValueViewModel(value),
-          actions = Seq(
-            ActionItemViewModel(
+      SummaryListRowViewModel(
+        key = "changeFirstContactHavePhone.checkYourAnswersLabel",
+        value = ValueViewModel(value),
+        actions = Seq(
+          ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeFirstContactHavePhoneController.onPageLoad(NormalMode).url)
-              .withVisuallyHiddenText(messages("changeFirstContactHavePhone.change.hidden"))
+            href =
+              controllers.changeContactDetails.routes.ChangeFirstContactHavePhoneController.onPageLoad(NormalMode).url
           )
+            .withVisuallyHiddenText(messages("changeFirstContactHavePhone.change.hidden"))
         )
+      )
     }
 }

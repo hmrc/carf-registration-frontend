@@ -1290,5 +1290,20 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         )
       }
     }
+
+    "ChangeDetailsOrganisationSecondContactNamePage navigation" - {
+      "must navigate from ChangeDetailsOrganisationSecondContactNamePage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrganisationSecondContactNamePage, "Prof. Birch")
+
+        navigator.nextPage(
+          ChangeDetailsOrganisationSecondContactNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+      }
+    }
   }
 }

@@ -18,16 +18,15 @@ package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.NormalMode
+import models.{DataRequestWithSubscriptionId, Mode, NormalMode}
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage}
+import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage, ChangeDetailsOrganisationSecondContactNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeDetailsOrganisationHaveSecondContactView
-import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,7 +54,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
 
       request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
         case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
-        case None                   => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case None                   => Redirect(controllers.routes.InformationMissingController.onPageLoad())
       }
   }
 
@@ -65,19 +64,50 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
-              case Some(firstContactName) => Future.successful(BadRequest(view(formWithErrors, mode, firstContactName)))
-              case None                   => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            },
+            request.userAnswers
+              .get(ChangeDetailsFirstContactNamePage)
+              .fold(
+                Future.successful(
+                  Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
+                )
+              )(name => Future.successful(BadRequest(view(formWithErrors, mode, name)))),
           value =>
-            for {
-              updatedAnswers <- Future.fromTry(
-                                  request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, value)
-                                )
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers)
-            )
+            val oldValue = request.userAnswers.get(ChangeDetailsOrganisationHaveSecondContactPage)
+            handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
         )
   }
+
+  private def handleRedirectionAndUpdateUserAnswers(
+      oldValue: Option[Boolean],
+      newValue: Boolean,
+      mode: Mode
+  )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
+    (oldValue, newValue) match {
+      case (Some(true), true) =>
+        for {
+          updatedAnswers <-
+            Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
+      case (_, true)          =>
+        for {
+          updatedAnswers <-
+            Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(
+          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad()
+        )
+      case _                  =>
+        for {
+          removedSecondContactName <-
+            Future.fromTry(request.userAnswers.remove(ChangeDetailsOrganisationSecondContactNamePage))
+          // TODO: Add these when tickets 191-193 are implemented:
+          // removedEmail <- Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrganisationSecondContactEmailPage)) (CARF-191)
+          // removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrganisationHaveSecondContactPhonePage)) (CARF-192)
+          // removedSecondContactPhone <- Future.fromTry(removedHavePhone.remove(ChangeDetailsOrganisationSecondContactPhoneNumberPage)) (CARF-193)
+          updatedAnswers           <-
+            Future.fromTry(removedSecondContactName.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+          _                        <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
+    }
 }

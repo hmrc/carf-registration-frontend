@@ -1345,9 +1345,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           ChangeDetailsOrganisationHaveSecondContactPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
+          .onPageLoad()
       }
 
       "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeOrganisationContactDetailsController when answer is No" in {

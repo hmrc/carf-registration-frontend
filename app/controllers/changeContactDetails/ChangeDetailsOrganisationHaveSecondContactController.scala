@@ -54,7 +54,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
 
       request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
         case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
-        case None                   => Redirect(controllers.routes.InformationMissingController.onPageLoad())
+        case None                   => Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
       }
   }
 

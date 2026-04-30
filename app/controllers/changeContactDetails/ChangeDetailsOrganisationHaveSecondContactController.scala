@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,70 +14,70 @@
  * limitations under the License.
  */
 
-package controllers.organisation
+package controllers.changeContactDetails
 
-import controllers.actions.*
-import controllers.routes
+import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.Mode
+import models.NormalMode
 import navigation.Navigator
-import pages.organisation.{FirstContactNamePage, OrganisationHaveSecondContactPage}
+import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.UserAnswersHelper
-import views.html.organisation.OrganisationHaveSecondContactView
+import views.html.ChangeDetailsOrganisationHaveSecondContactView
+import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class OrganisationHaveSecondContactController @Inject() (
+class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
+    carfIdRetrieval: CarfIdRetrievalAction,
+    changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     formProvider: OrganisationHaveSecondContactFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: OrganisationHaveSecondContactView
+    view: ChangeDetailsOrganisationHaveSecondContactView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with UserAnswersHelper {
+    with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
+    implicit request =>
+      val preparedForm = request.userAnswers
+        .get(ChangeDetailsOrganisationHaveSecondContactPage)
+        .fold(form)(form.fill)
 
-      val preparedForm = request.userAnswers.get(OrganisationHaveSecondContactPage).fold(form)(form.fill)
-
-      request.userAnswers.get(FirstContactNamePage) match {
+      request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
         case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
-        case None                   => Redirect(routes.JourneyRecoveryController.onPageLoad())
+        case None                   => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-    }
+  }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            request.userAnswers.get(FirstContactNamePage) match {
+            request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
               case Some(firstContactName) => Future.successful(BadRequest(view(formWithErrors, mode, firstContactName)))
-              case None                   => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              case None                   => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationHaveSecondContactPage, value))
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, value)
+                                )
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(OrganisationHaveSecondContactPage, mode, updatedAnswers))
+            } yield Redirect(
+              navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers)
+            )
         )
   }
-
 }

@@ -251,6 +251,9 @@ POST        /change-contact/individual/phone                                    
 GET         /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit(mode: Mode = ProvideMode)
 
+GET         /change-contact/organisation/phone                                  controllers.changeContactDetails.ChangeFirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/phone                                  controllers.changeContactDetails.ChangeFirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+
 GET         /problem/contact-details-are-missing                                controllers.changeContactDetails.ContactDetailsMissingController.onPageLoad()
 
 GET         /change-contact/organisation/contact-name                           controllers.changeContactDetails.ChangeFirstContactNameController.onPageLoad(mode: Mode = NormalMode)

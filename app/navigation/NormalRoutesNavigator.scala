@@ -153,6 +153,12 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case ChangeDetailsIndividualPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
+    case ChangeDetailsFirstContactPhoneNumberPage =>
+      _ =>
+        routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details (CARF-141)"
+        )
+
     case ChangeDetailsFirstContactNamePage =>
       _ =>
         routes.PlaceholderController.onPageLoad(

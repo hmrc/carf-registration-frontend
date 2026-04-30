@@ -1308,5 +1308,20 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         )
       }
     }
+
+    "ChangeDetailsOrganisationSecondContactEmailPage navigation" - {
+      "must navigate from ChangeDetailsOrganisationSecondContactEmailPage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrganisationSecondContactEmailPage, "prof.rowan@email.com")
+
+        navigator.nextPage(
+          ChangeDetailsOrganisationSecondContactEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+      }
+    }
   }
 }

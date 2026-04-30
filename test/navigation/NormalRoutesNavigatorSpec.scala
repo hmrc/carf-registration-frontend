@@ -1323,5 +1323,45 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
+
+    "ChangeDetailsOrganisationHaveSecondContactPage navigation" - {
+      "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeDetailsOrganisationSecondContactNameController when answer is Yes and previously was No" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrganisationHaveSecondContactPage, false)
+
+        navigator.nextPage(
+          ChangeDetailsOrganisationHaveSecondContactPage,
+          NormalMode,
+          userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, true).success.value
+        ) mustBe controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
+          .onPageLoad()
+      }
+
+      "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeOrganisationContactDetailsController when answer is Yes and was already Yes" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
+
+        navigator.nextPage(
+          ChangeDetailsOrganisationHaveSecondContactPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+      }
+
+      "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeOrganisationContactDetailsController when answer is No" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrganisationHaveSecondContactPage, false)
+
+        navigator.nextPage(
+          ChangeDetailsOrganisationHaveSecondContactPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+      }
+    }
   }
 }

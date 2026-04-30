@@ -172,10 +172,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
     case ChangeDetailsOrganisationHaveSecondContactPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+      userAnswers => navigateFromChangeDetailsOrganisationHaveSecondContact(userAnswers)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -352,6 +349,18 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         logger.warn(
           s"Already registered response has been returned for without id journeys. This should not be possible!"
         )
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeDetailsOrganisationHaveSecondContact(userAnswers: UserAnswers): Call =
+    userAnswers.get(ChangeDetailsOrganisationHaveSecondContactPage) match {
+      case Some(true)  =>
+        changeDetailsRoutes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad()
+      case Some(false) =>
+        routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+      case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 }

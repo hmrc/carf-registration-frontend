@@ -20,7 +20,7 @@ import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredActi
 import forms.organisation.OrganisationHaveSecondContactFormProvider
 import models.{DataRequestWithSubscriptionId, Mode, NormalMode}
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage, ChangeDetailsOrganisationSecondContactNamePage}
+import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage, ChangeDetailsOrganisationSecondContactEmailPage, ChangeDetailsOrganisationSecondContactNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -101,8 +101,9 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
         for {
           removedSecondContactName <-
             Future.fromTry(request.userAnswers.remove(ChangeDetailsOrganisationSecondContactNamePage))
-          // TODO: Add these when tickets 191-193 are implemented:
-          // removedEmail <- Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrganisationSecondContactEmailPage)) (CARF-191)
+          // TODO: Add these when tickets 192-193 are implemented:
+          removedEmail             <-
+            Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrganisationSecondContactEmailPage))
           // removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrganisationHaveSecondContactPhonePage)) (CARF-192)
           // removedSecondContactPhone <- Future.fromTry(removedHavePhone.remove(ChangeDetailsOrganisationSecondContactPhoneNumberPage)) (CARF-193)
           updatedAnswers           <-

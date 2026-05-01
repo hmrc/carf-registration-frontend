@@ -83,32 +83,23 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
       mode: Mode
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
     (oldValue, newValue) match {
-      case (Some(true), true) =>
+      case (_, true) =>
         for {
           updatedAnswers <-
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
-      case (_, true)          =>
-        for {
-          updatedAnswers <-
-            Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(
-          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
-            .onPageLoad(ProvideMode)
-        )
-      case _                  =>
+      case _         =>
         for {
           removedSecondContactName <-
             Future.fromTry(request.userAnswers.remove(ChangeDetailsOrganisationSecondContactNamePage))
-          // TODO: Add these when tickets 192-193 are implemented:
           removedEmail             <-
             Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrganisationSecondContactEmailPage))
+          // TODO: Add these when tickets 192-193 are implemented:
           // removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrganisationHaveSecondContactPhonePage)) (CARF-192)
           // removedSecondContactPhone <- Future.fromTry(removedHavePhone.remove(ChangeDetailsOrganisationSecondContactPhoneNumberPage)) (CARF-193)
           updatedAnswers           <-
-            Future.fromTry(removedSecondContactName.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+            Future.fromTry(removedEmail.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _                        <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
     }

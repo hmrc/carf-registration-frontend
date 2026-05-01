@@ -42,7 +42,9 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
   val form: Form[Boolean] = formProvider()
 
   lazy val changeDetailsOrganisationHaveSecondContactRoute: String =
-    controllers.changeContactDetails.routes.ChangeDetailsOrganisationHaveSecondContactController.onPageLoad().url
+    controllers.changeContactDetails.routes.ChangeDetailsOrganisationHaveSecondContactController
+      .onPageLoad()
+      .url
 
   "ChangeDetailsOrganisationHaveSecondContact Controller" - {
 

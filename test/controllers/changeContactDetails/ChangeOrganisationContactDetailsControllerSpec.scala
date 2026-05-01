@@ -82,6 +82,29 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
         verify(mockChangeDetailsHelper, times(1)).getSecondContactDetailsSectionMaybe(any())(any())
       }
 
+      "must return ok with the view when all information is present when have phone is false" in new Setup(
+        userAnswersNoPhone
+      ) {
+        when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
+          .thenReturn(Some(Seq(testRow)))
+
+        when(mockChangeDetailsHelper.getSecondContactDetailsSectionMaybe(any())(any()))
+          .thenReturn(Some(Seq(testRow)))
+
+        val request                = FakeRequest(GET, pageRoute)
+        private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
+        val result: Future[Result] = route(application, request).value
+
+        status(result)          mustBe OK
+        contentAsString(result) mustBe view(Seq(testRow), Seq(testRow), true, testBackToManageLink)(
+          request,
+          messages(application)
+        ).toString
+
+        verify(mockChangeDetailsHelper, times(1)).getFirstContactDetailsSectionMaybe(any())(any())
+        verify(mockChangeDetailsHelper, times(1)).getSecondContactDetailsSectionMaybe(any())(any())
+      }
+
       "must redirect to some details are missing page when summary list cannot be constructed" in new Setup(
         userAnswersNameMissing
       ) {

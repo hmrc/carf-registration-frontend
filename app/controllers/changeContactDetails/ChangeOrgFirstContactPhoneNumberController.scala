@@ -18,10 +18,9 @@ package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.FirstContactPhoneNumberFormProvider
-import models.{Mode, NormalMode}
+import models.Mode
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgFirstPhoneNumberPage}
-import pages.organisation.FirstContactNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

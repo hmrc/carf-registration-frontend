@@ -50,7 +50,7 @@ class ContactDetailsMissingController @Inject() (
             Ok(view(continueUrl))
           case false =>
             val continueUrl: String =
-              controllers.changeContactDetails.routes.ChangeDetailsFirstContactEmailController
+              controllers.changeContactDetails.routes.ChangeOrgFirstContactEmailController
                 .onPageLoad()
                 .url
             Ok(view(continueUrl))

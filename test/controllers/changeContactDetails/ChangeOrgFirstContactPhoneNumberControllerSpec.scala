@@ -24,17 +24,17 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsFirstContactPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgFirstPhoneNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ChangeFirstContactPhoneNumberView
+import views.html.ChangeOrgFirstContactPhoneNumberView
 
 import scala.concurrent.Future
 
-class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
+class ChangeOrgFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider: FirstContactPhoneNumberFormProvider = new FirstContactPhoneNumberFormProvider()
   val form: Form[String]                                = formProvider()
@@ -42,21 +42,21 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
   val validPhoneNumber: String                          = "07777777777"
 
   lazy val changeFirstContactPhoneNumberRoute: String =
-    changeContactDetails.routes.ChangeFirstContactPhoneNumberController.onPageLoad().url
+    changeContactDetails.routes.ChangeOrgFirstContactPhoneNumberController.onPageLoad().url
 
   "ChangeFirstContactPhoneNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+        .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, changeFirstContactPhoneNumberRoute)
         val result  = route(application, request).value
-        val view    = application.injector.instanceOf[ChangeFirstContactPhoneNumberView]
+        val view    = application.injector.instanceOf[ChangeOrgFirstContactPhoneNumberView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, "John Smith")(request, messages(application)).toString
@@ -66,14 +66,14 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsFirstContactPhoneNumberPage, validPhoneNumber)
-        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+        .withPage(ChangeDetailsOrgFirstPhoneNumberPage, validPhoneNumber)
+        .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, changeFirstContactPhoneNumberRoute)
-        val view    = application.injector.instanceOf[ChangeFirstContactPhoneNumberView]
+        val view    = application.injector.instanceOf[ChangeOrgFirstContactPhoneNumberView]
         val result  = route(application, request).value
 
         status(result)          mustEqual OK
@@ -86,7 +86,7 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
 
     "must redirect to Some Information Is Missing Page when name cannot be found in the session for GET" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsFirstContactPhoneNumberPage, validPhoneNumber)
+        .withPage(ChangeDetailsOrgFirstPhoneNumberPage, validPhoneNumber)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -105,7 +105,7 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+        .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -131,7 +131,7 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+        .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -141,7 +141,7 @@ class ChangeFirstContactPhoneNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
-        val view      = application.injector.instanceOf[ChangeFirstContactPhoneNumberView]
+        val view      = application.injector.instanceOf[ChangeOrgFirstContactPhoneNumberView]
         val result    = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST

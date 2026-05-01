@@ -153,35 +153,20 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case ChangeDetailsIndividualPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
-    case ChangeDetailsFirstContactPhoneNumberPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details (CARF-141)"
-        )
+    case ChangeDetailsOrgFirstPhoneNumberPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
-    case ChangeDetailsFirstContactNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+    case ChangeDetailsOrgFirstNamePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
-    case ChangeDetailsFirstContactEmailPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+    case ChangeDetailsOrgFirstEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
-    case ChangeDetailsOrganisationSecondContactNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+    case ChangeDetailsOrgSecondNamePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
-    case ChangeDetailsOrganisationSecondContactEmailPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+    case ChangeDetailsOrgSecondEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()

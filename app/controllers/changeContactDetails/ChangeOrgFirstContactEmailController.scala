@@ -16,48 +16,47 @@
 
 package controllers.changeContactDetails
 
-import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import forms.organisation.FirstContactPhoneNumberFormProvider
-import models.NormalMode
+import controllers.actions.*
+import forms.organisation.FirstContactEmailFormProvider
+import models.Mode
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsFirstContactPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstEmailPage, ChangeDetailsOrgFirstNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ChangeFirstContactPhoneNumberView
-import models.Mode
-import pages.organisation.FirstContactNamePage
+import views.html.ChangeOrgFirstContactEmailView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ChangeFirstContactPhoneNumberController @Inject() (
+class ChangeOrgFirstContactEmailController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
-    formProvider: FirstContactPhoneNumberFormProvider,
+    formProvider: FirstContactEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: ChangeFirstContactPhoneNumberView
+    view: ChangeOrgFirstContactEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
-    implicit request =>
-      val preparedForm = request.userAnswers.get(ChangeDetailsFirstContactPhoneNumberPage).fold(form)(form.fill)
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
+
+      val preparedForm = request.userAnswers.get(ChangeDetailsOrgFirstEmailPage).fold(form)(form.fill)
 
       request.userAnswers
-        .get(ChangeDetailsFirstContactNamePage)
+        .get(ChangeDetailsOrgFirstNamePage)
         .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(name =>
           Ok(view(preparedForm, mode, name))
         )
-  }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
@@ -67,20 +66,16 @@ class ChangeFirstContactPhoneNumberController @Inject() (
           formWithErrors =>
             Future.successful(
               request.userAnswers
-                .get(ChangeDetailsFirstContactNamePage)
+                .get(ChangeDetailsOrgFirstNamePage)
                 .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(
                   name => BadRequest(view(formWithErrors, mode, name))
                 )
             ),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(
-                                  request.userAnswers.set(ChangeDetailsFirstContactPhoneNumberPage, value)
-                                )
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsOrgFirstEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(ChangeDetailsFirstContactPhoneNumberPage, mode, updatedAnswers)
-            )
+            } yield Redirect(navigator.nextPage(ChangeDetailsOrgFirstEmailPage, mode, updatedAnswers))
         )
   }
 }

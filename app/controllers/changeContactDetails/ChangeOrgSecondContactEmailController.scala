@@ -19,38 +19,43 @@ package controllers.changeContactDetails
 import controllers.actions.*
 import models.Mode
 import navigation.Navigator
-import pages.changeContactDetails.ChangeDetailsOrganisationSecondContactNamePage
+import pages.changeContactDetails.{ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ChangeDetailsOrganisationSecondContactNameView
-import forms.organisation.OrganisationSecondContactNameFormProvider
+import views.html.ChangeOrgSecondContactEmailView
+import forms.organisation.OrganisationSecondContactEmailFormProvider
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ChangeDetailsOrganisationSecondContactNameController @Inject() (
+class ChangeOrgSecondContactEmailController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
-    formProvider: OrganisationSecondContactNameFormProvider,
+    formProvider: OrganisationSecondContactEmailFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: ChangeDetailsOrganisationSecondContactNameView
+    view: ChangeOrgSecondContactEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(ChangeDetailsOrganisationSecondContactNamePage).fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(ChangeDetailsOrgSecondEmailPage).fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      request.userAnswers
+        .get(ChangeDetailsOrgSecondNamePage)
+        .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(name =>
+          Ok(view(preparedForm, mode, name))
+        )
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
@@ -58,13 +63,20 @@ class ChangeDetailsOrganisationSecondContactNameController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            Future.successful(
+              request.userAnswers
+                .get(ChangeDetailsOrgSecondNamePage)
+                .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(
+                  name => BadRequest(view(formWithErrors, mode, name))
+                )
+            ),
           value =>
             for {
               updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationSecondContactNamePage, value))
+                Future.fromTry(request.userAnswers.set(ChangeDetailsOrgSecondEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationSecondContactNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(ChangeDetailsOrgSecondEmailPage, mode, updatedAnswers))
         )
   }
 }

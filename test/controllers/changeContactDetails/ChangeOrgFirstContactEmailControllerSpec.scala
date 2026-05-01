@@ -18,52 +18,48 @@ package controllers.changeContactDetails
 
 import base.SpecBase
 import controllers.routes
-import forms.organisation.OrganisationSecondContactEmailFormProvider
+import forms.organisation.FirstContactEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.{ChangeDetailsOrganisationSecondContactEmailPage, ChangeDetailsOrganisationSecondContactNamePage}
-import play.api.data.Form
+import pages.changeContactDetails.{ChangeDetailsOrgFirstEmailPage, ChangeDetailsOrgFirstNamePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ChangeDetailsOrganisationSecondContactEmailView
+import views.html.ChangeOrgFirstContactEmailView
 
 import scala.concurrent.Future
 
-class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase with MockitoSugar {
+class ChangeOrgFirstContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider: OrganisationSecondContactEmailFormProvider = new OrganisationSecondContactEmailFormProvider()
-  val form: Form[String]                                       = formProvider()
+  val formProvider = new FirstContactEmailFormProvider()
+  val form         = formProvider()
+  val contactName  = "Prof. Birch"
+  val exampleEmail = "prof.birch@email.com"
 
-  val contactName: String  = "Prof. Rowan"
-  val exampleEmail: String = "prof.rowan@email.com"
+  lazy val changeDetailsFirstContactEmailRoute =
+    controllers.changeContactDetails.routes.ChangeOrgFirstContactEmailController.onPageLoad().url
 
-  lazy val changeDetailsOrganisationSecondContactEmailRoute =
-    controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactEmailController
-      .onPageLoad(NormalMode)
-      .url
-
-  "ChangeDetailsOrganisationSecondContactEmail Controller" - {
+  "ChangeOrganisationEmail Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsOrganisationSecondContactNamePage, contactName)
+        .withPage(ChangeDetailsOrgFirstNamePage, contactName)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, changeDetailsOrganisationSecondContactEmailRoute)
+        val request = FakeRequest(GET, changeDetailsFirstContactEmailRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationSecondContactEmailView]
+        val view = application.injector.instanceOf[ChangeOrgFirstContactEmailView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, contactName)(request, messages(application)).toString
@@ -73,15 +69,15 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsOrganisationSecondContactNamePage, contactName)
-        .withPage(ChangeDetailsOrganisationSecondContactEmailPage, exampleEmail)
+        .withPage(ChangeDetailsOrgFirstNamePage, contactName)
+        .withPage(ChangeDetailsOrgFirstEmailPage, exampleEmail)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, changeDetailsOrganisationSecondContactEmailRoute)
+        val request = FakeRequest(GET, changeDetailsFirstContactEmailRoute)
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationSecondContactEmailView]
+        val view = application.injector.instanceOf[ChangeOrgFirstContactEmailView]
 
         val result = route(application, request).value
 
@@ -105,7 +101,7 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactEmailRoute)
+          FakeRequest(POST, changeDetailsFirstContactEmailRoute)
             .withFormUrlEncodedBody(("value", exampleEmail))
 
         val result = route(application, request).value
@@ -118,18 +114,18 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsOrganisationSecondContactNamePage, contactName)
+        .withPage(ChangeDetailsOrgFirstNamePage, contactName)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactEmailRoute)
+          FakeRequest(POST, changeDetailsFirstContactEmailRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationSecondContactEmailView]
+        val view = application.injector.instanceOf[ChangeOrgFirstContactEmailView]
 
         val result = route(application, request).value
 
@@ -146,7 +142,7 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, changeDetailsOrganisationSecondContactEmailRoute)
+        val request = FakeRequest(GET, changeDetailsFirstContactEmailRoute)
 
         val result = route(application, request).value
 
@@ -158,7 +154,7 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
     "must redirect to Contact Details Missing for a GET if no first contact name is found" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(ChangeDetailsOrganisationSecondContactEmailPage, "test@example.com")
+        .set(ChangeDetailsOrgFirstEmailPage, "test@example.com")
         .success
         .value
 
@@ -166,7 +162,7 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
 
       running(application) {
         val request =
-          FakeRequest(GET, changeDetailsOrganisationSecondContactEmailRoute)
+          FakeRequest(GET, changeDetailsFirstContactEmailRoute)
 
         val result = route(application, request).value
 
@@ -183,7 +179,7 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactEmailRoute)
+          FakeRequest(POST, changeDetailsFirstContactEmailRoute)
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
@@ -199,7 +195,7 @@ class ChangeDetailsOrganisationSecondContactEmailControllerSpec extends SpecBase
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactEmailRoute)
+          FakeRequest(POST, changeDetailsFirstContactEmailRoute)
             .withFormUrlEncodedBody(("value", "email.com"))
 
         val result = route(application, request).value

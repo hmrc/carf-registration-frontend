@@ -34,9 +34,7 @@ object ChangeDetailsOrgFirstEmailSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad("Must redirect to /change-contact/organisation/email page - CARF-186")
-              .url
+            href = controllers.changeContactDetails.routes.ChangeOrgFirstContactEmailController.onPageLoad().url
           ).withVisuallyHiddenText(messages("changeOrgDetails.firstContact.summaryList.email.key.hidden"))
         )
       )

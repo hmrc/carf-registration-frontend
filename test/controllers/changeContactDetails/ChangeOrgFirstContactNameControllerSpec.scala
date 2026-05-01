@@ -17,47 +17,45 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
-import forms.organisation.OrganisationSecondContactNameFormProvider
+import forms.organisation.FirstContactNameFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.ChangeDetailsOrganisationSecondContactNamePage
+import pages.changeContactDetails.ChangeDetailsOrgFirstNamePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.ChangeDetailsOrganisationSecondContactNameView
+import views.html.ChangeOrgFirstContactNameView
 
 import scala.concurrent.Future
 
-class ChangeDetailsOrganisationSecondContactNameControllerSpec extends SpecBase with MockitoSugar {
+class ChangeOrgFirstContactNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider: OrganisationSecondContactNameFormProvider = new OrganisationSecondContactNameFormProvider()
-  val form: Form[String]                                      = formProvider()
+  val formProvider: FirstContactNameFormProvider = new FirstContactNameFormProvider()
+  val form: Form[String]                         = formProvider()
 
-  lazy val changeDetailsOrganisationSecondContactNameRoute =
-    controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
-      .onPageLoad()
-      .url
+  lazy val changeFirstContactNameRoute: String =
+    controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onPageLoad().url
 
-  "ChangeDetailsOrganisationSecondContactName Controller" - {
+  "ChangeFirstContactName Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, changeDetailsOrganisationSecondContactNameRoute)
+        val request = FakeRequest(GET, changeFirstContactNameRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationSecondContactNameView]
+        val view = application.injector.instanceOf[ChangeOrgFirstContactNameView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -66,15 +64,13 @@ class ChangeDetailsOrganisationSecondContactNameControllerSpec extends SpecBase 
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers =
-        UserAnswers(userAnswersId).set(ChangeDetailsOrganisationSecondContactNamePage, "answer").success.value
-
+      val userAnswers = UserAnswers(userAnswersId).set(ChangeDetailsOrgFirstNamePage, "answer").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, changeDetailsOrganisationSecondContactNameRoute)
+        val request = FakeRequest(GET, changeFirstContactNameRoute)
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationSecondContactNameView]
+        val view = application.injector.instanceOf[ChangeOrgFirstContactNameView]
 
         val result = route(application, request).value
 
@@ -95,7 +91,7 @@ class ChangeDetailsOrganisationSecondContactNameControllerSpec extends SpecBase 
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactNameRoute)
+          FakeRequest(POST, changeFirstContactNameRoute)
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
@@ -111,12 +107,12 @@ class ChangeDetailsOrganisationSecondContactNameControllerSpec extends SpecBase 
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactNameRoute)
+          FakeRequest(POST, changeFirstContactNameRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationSecondContactNameView]
+        val view = application.injector.instanceOf[ChangeOrgFirstContactNameView]
 
         val result = route(application, request).value
 
@@ -130,7 +126,7 @@ class ChangeDetailsOrganisationSecondContactNameControllerSpec extends SpecBase 
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, changeDetailsOrganisationSecondContactNameRoute)
+        val request = FakeRequest(GET, changeFirstContactNameRoute)
 
         val result = route(application, request).value
 
@@ -145,7 +141,7 @@ class ChangeDetailsOrganisationSecondContactNameControllerSpec extends SpecBase 
 
       running(application) {
         val request =
-          FakeRequest(POST, changeDetailsOrganisationSecondContactNameRoute)
+          FakeRequest(POST, changeFirstContactNameRoute)
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value

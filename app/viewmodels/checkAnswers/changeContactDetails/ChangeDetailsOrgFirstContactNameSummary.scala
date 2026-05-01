@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.changeContactDetails
 
 import models.UserAnswers
-import pages.changeContactDetails.ChangeDetailsFirstContactNamePage
+import pages.changeContactDetails.ChangeDetailsOrgFirstNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -26,17 +26,17 @@ import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 import models.NormalMode
 
-object ChangeDetailsOrganisationFirstContactNameSummary {
+object ChangeDetailsOrgFirstContactNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ChangeDetailsFirstContactNamePage).map { answer =>
+    answers.get(ChangeDetailsOrgFirstNamePage).map { answer =>
       SummaryListRowViewModel(
         key = "changeDetails.summaryList.FirstContactName.key",
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeFirstContactNameController.onPageLoad().url
+            href = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onPageLoad().url
           ).withVisuallyHiddenText(messages("changeDetails.summaryList.FirstContactName.key.hidden"))
         )
       )

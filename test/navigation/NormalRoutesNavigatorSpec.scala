@@ -1249,78 +1249,68 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "ChangeDetailsFirstContactNamePage navigation" - {
-      "must navigate from ChangeDetailsFirstContactNamePage to ChangeOrganisationContactDetailsController" in {
+    "ChangeDetailsOrgFirstNamePage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstNamePage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+          .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
         navigator.nextPage(
-          ChangeDetailsFirstContactNamePage,
+          ChangeDetailsOrgFirstNamePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
 
-    "ChangeDetailsFirstContactEmailPage navigation" - {
-      "must navigate from ChangeDetailsFirstContactEmailPage to ChangeOrganisationContactDetailsController" in {
+    "ChangeDetailsOrgFirstEmailPage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstEmailPage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsFirstContactEmailPage, "prof.birch@email.com")
+          .withPage(ChangeDetailsOrgFirstEmailPage, "prof.birch@email.com")
 
         navigator.nextPage(
-          ChangeDetailsFirstContactEmailPage,
+          ChangeDetailsOrgFirstEmailPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
 
-    "ChangeDetailsOrganisationSecondContactNamePage navigation" - {
-      "must navigate from ChangeDetailsOrganisationSecondContactNamePage to ChangeOrganisationContactDetailsController" in {
+    "ChangeDetailsOrgSecondNamePage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondNamePage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsOrganisationSecondContactNamePage, "Prof. Birch")
+          .withPage(ChangeDetailsOrgSecondNamePage, "Prof. Birch")
 
         navigator.nextPage(
-          ChangeDetailsOrganisationSecondContactNamePage,
+          ChangeDetailsOrgSecondNamePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
 
-    "ChangeDetailsFirstContactPhoneNumberPage navigation" - {
-      "must navigate from ChangeDetailsFirstContactPhoneNumberPage to ChangeOrganisationContactDetailsController" in {
+    "ChangeDetailsOrgFirstPhoneNumberPage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstPhoneNumberPage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsFirstContactPhoneNumberPage, "07777777777")
+          .withPage(ChangeDetailsOrgFirstPhoneNumberPage, "07777777777")
 
         navigator.nextPage(
-          ChangeDetailsFirstContactPhoneNumberPage,
+          ChangeDetailsOrgFirstPhoneNumberPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
 
-    "ChangeDetailsOrganisationSecondContactEmailPage navigation" - {
-      "must navigate from ChangeDetailsOrganisationSecondContactEmailPage to ChangeOrganisationContactDetailsController" in {
+    "ChangeDetailsOrgSecondEmailPage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondEmailPage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsOrganisationSecondContactEmailPage, "prof.rowan@email.com")
+          .withPage(ChangeDetailsOrgSecondEmailPage, "prof.rowan@email.com")
 
         navigator.nextPage(
-          ChangeDetailsOrganisationSecondContactEmailPage,
+          ChangeDetailsOrgSecondEmailPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
   }

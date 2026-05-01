@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.{ProvideMode, UserAnswers}
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrganisationSecondContactEmailPage}
 import pages.individual.HaveNiNumberPage
 
 class ProvideRoutesNavigatorSpec extends SpecBase {
@@ -94,6 +94,23 @@ class ProvideRoutesNavigatorSpec extends SpecBase {
           ProvideMode,
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+      }
+    }
+
+    "when on ChangeDetailsOrganisationSecondContactEmailPage" - {
+      "must navigate to ChangeDetailsOrganisationSecondContactHavePhoneController in ProvideMode" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrganisationSecondContactEmailPage, "test@example.com")
+          .success
+          .value
+
+        navigator.nextPage(
+          ChangeDetailsOrganisationSecondContactEmailPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/second-contact-have-phone page (CARF-192)"
+        )
       }
     }
 

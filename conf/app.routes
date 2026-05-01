@@ -251,6 +251,9 @@ POST        /change-contact/individual/phone                                    
 GET         /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/individual/provide-phone                            controllers.changeContactDetails.ChangeIndividualPhoneNumberController.onSubmit(mode: Mode = ProvideMode)
 
+GET         /change-contact/organisation/phone                                  controllers.changeContactDetails.ChangeFirstContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/phone                                  controllers.changeContactDetails.ChangeFirstContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+
 GET         /problem/contact-details-are-missing                                controllers.changeContactDetails.ContactDetailsMissingController.onPageLoad()
 
 GET         /change-contact/organisation/contact-name                           controllers.changeContactDetails.ChangeFirstContactNameController.onPageLoad(mode: Mode = NormalMode)
@@ -266,3 +269,8 @@ POST        /change-contact/organisation/provide-have-phone                     
 
 GET         /change-contact/organisation/second-contact-name                    controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /change-contact/organisation/second-contact-name                    controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactNameController.onSubmit(mode: Mode = NormalMode)
+
+GET         /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/organisation/provide-second-contact-email           controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactEmailController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/organisation/provide-second-contact-email           controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactEmailController.onSubmit(mode: Mode = ProvideMode)

@@ -61,7 +61,7 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
         val application: Application =
           applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-        val expectedContinueUrl = controllers.changeContactDetails.routes.ChangeOrgFirstContactEmailController
+        val expectedContinueUrl = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController
           .onPageLoad()
           .url
 

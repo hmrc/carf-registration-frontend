@@ -156,6 +156,7 @@ trait SpecBase
   val testBusinessDetails =
     BusinessDetails(name = "TestName", address = testAddressRegistrationResponse, safeId = testSafeId)
 
+  val testName           = "Bob"
   val testEmail          = "hi@example.com"
   val testPhone          = "07123456789"
   val testDob: LocalDate = LocalDate.of(1990, 1, 31)
@@ -180,26 +181,54 @@ trait SpecBase
     )
   )
 
-  val testOrganisationDisplaySubscriptionResponse = DisplaySubscriptionResponse(success =
+  def testOrganisationContact = DisplaySubscriptionContact(
+    individual = None,
+    organisation = Some(DisplaySubscriptionOrganisation(name = "Bobby")),
+    email = testEmail,
+    phone = Some(testPhone),
+    mobile = None
+  )
+
+  lazy val testOrganisationDisplaySubscriptionResponse = DisplaySubscriptionResponse(success =
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
       carfSubscriptionDetails = DisplaySubscriptionDetails(
         carfReference = testSubscriptionId.value,
         tradingName = Some("testTradingName"),
         gbUser = true,
-        primaryContact = DisplaySubscriptionContact(
-          individual = None,
-          organisation = Some(DisplaySubscriptionOrganisation(name = "Timmy Ltd.")),
-          email = testEmail,
-          phone = Some(testPhone),
-          mobile = None
-        ),
+        primaryContact = testOrganisationContact,
         secondaryContact = None
       )
     )
   )
 
-  val testInvalidDisplaySubscriptionResponseBoth = DisplaySubscriptionResponse(success =
+  lazy val testOrganisationDisplaySubscriptionResponseWithNoPhone = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = testOrganisationContact.copy(phone = None),
+        secondaryContact = None
+      )
+    )
+  )
+
+  lazy val testOrgDisplaySubscriptionResponseWithSecondaryNoPhone = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = testOrganisationContact,
+        secondaryContact = Some(testOrganisationContact.copy(phone = None))
+      )
+    )
+  )
+
+  lazy val testInvalidDisplaySubscriptionResponseBoth = DisplaySubscriptionResponse(success =
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,
       carfSubscriptionDetails = DisplaySubscriptionDetails(

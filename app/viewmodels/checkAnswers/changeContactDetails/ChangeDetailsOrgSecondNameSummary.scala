@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,30 @@
 
 package viewmodels.checkAnswers.changeContactDetails
 
-import models.{NormalMode, UserAnswers}
-import pages.changeContactDetails.ChangeDetailsIndividualPhoneNumberPage
+import models.UserAnswers
+import pages.changeContactDetails.ChangeDetailsOrgSecondNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-import models.NormalMode
 
-object ChangeDetailsIndividualPhoneNumberSummary {
-
+object ChangeDetailsOrgSecondNameSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ChangeDetailsIndividualPhoneNumberPage).map { answer =>
+    answers.get(ChangeDetailsOrgSecondNamePage).map { answer =>
       SummaryListRowViewModel(
-        key = "changeDetails.summaryList.phoneNumber.key",
+        key = "changeOrgDetails.secondContact.summaryList.contactName.key",
         value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href =
-              controllers.changeContactDetails.routes.ChangeIndividualPhoneNumberController.onPageLoad(NormalMode).url
-          ).withVisuallyHiddenText(messages("individualPhoneNumber.change.hidden"))
+            href = controllers.routes.PlaceholderController
+              .onPageLoad(
+                "Must redirect to /change-contact/organisation/second-contact-contact-name page - CARF-190"
+              )
+              .url
+          ).withVisuallyHiddenText(messages("changeOrgDetails.secondContact.summaryList.contactName.key.hidden"))
         )
       )
     }

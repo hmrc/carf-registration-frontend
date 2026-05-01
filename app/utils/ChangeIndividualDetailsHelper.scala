@@ -24,7 +24,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkAnswers.changeContactDetails.*
 
-class ChangeDetailsHelper @Inject() extends Logging {
+class ChangeIndividualDetailsHelper @Inject() extends Logging {
 
   def getFirstContactDetailsSectionMaybe(
       userAnswers: UserAnswers

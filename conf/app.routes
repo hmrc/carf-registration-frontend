@@ -277,6 +277,10 @@ GET         /change-contact/organisation/have-phone                             
 POST        /change-contact/organisation/have-phone                             controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
 GET         /change-contact/organisation/provide-have-phone                     controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/organisation/provide-have-phone                     controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onSubmit(mode: Mode = ProvideMode)
+GET         /change-contact/organisation/second-contact-name                    controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/second-contact-name                    controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/organisation/provide-second-contact-name                    controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/organisation/provide-second-contact-name                    controllers.changeContactDetails.ChangeDetailsOrganisationSecondContactNameController.onSubmit(mode: Mode = ProvideMode)
 
 GET         /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeDetailsOrganisationHaveSecondContactController.onPageLoad(mode: Mode = NormalMode)
 POST        /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeDetailsOrganisationHaveSecondContactController.onSubmit(mode: Mode = NormalMode)

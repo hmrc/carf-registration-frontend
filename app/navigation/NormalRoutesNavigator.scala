@@ -21,7 +21,7 @@ import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{NormalMode, RegistrationType, UserAnswers}
+import models.{NormalMode, ProvideMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.changeContactDetails.*
 import pages.individual.*
@@ -355,7 +355,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
   private def navigateFromChangeDetailsOrganisationHaveSecondContact(userAnswers: UserAnswers): Call =
     userAnswers.get(ChangeDetailsOrganisationHaveSecondContactPage) match {
       case Some(true)  =>
-        changeDetailsRoutes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad()
+        changeDetailsRoutes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(ProvideMode)
       case Some(false) =>
         routes.PlaceholderController.onPageLoad(
           "Should redirect to change-contact/organisation/details page (CARF-141)"

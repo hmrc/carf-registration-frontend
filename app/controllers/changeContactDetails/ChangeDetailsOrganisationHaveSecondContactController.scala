@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{DataRequestWithSubscriptionId, Mode, NormalMode}
+import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage, ChangeDetailsOrganisationSecondContactEmailPage, ChangeDetailsOrganisationSecondContactNamePage}
 import play.api.data.Form
@@ -95,7 +95,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad()
+          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(ProvideMode)
         )
       case _                  =>
         for {

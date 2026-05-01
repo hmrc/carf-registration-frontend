@@ -92,8 +92,8 @@ class ChangeFirstContactHavePhoneController @Inject() (
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeFirstContactHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          controllers.routes.PlaceholderController
-            .onPageLoad("redirect to /change-contact/organisation/phone (CARF-188)")
+          // TODO: On CARF-497 add the mode to .onPageLoad here
+          controllers.changeContactDetails.routes.ChangeFirstContactPhoneNumberController.onPageLoad()
         )
       case _                  =>
         for {

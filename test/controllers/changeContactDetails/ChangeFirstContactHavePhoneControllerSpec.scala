@@ -174,9 +174,11 @@ class ChangeFirstContactHavePhoneControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
 
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /change-contact/organisation/phone (CARF-188)")
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(
+          result
+        ).value        mustEqual controllers.changeContactDetails.routes.ChangeFirstContactPhoneNumberController
+          .onPageLoad()
           .url
       }
     }

@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import base.SpecBase
 import controllers.routes
-import forms.ChangeDetailsIndividualHavePhoneFormProvider
+import forms.changeContactDetails.ChangeDetailsIndividualHavePhoneFormProvider
 import models.{NormalMode, ProvideMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}

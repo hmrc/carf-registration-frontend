@@ -1279,6 +1279,18 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "ChangeFirstContactHavePhonePage navigation" - {
+      "must navigate from ChangeFirstContactHavePhonePage to ChangeOrganisationContactDetailsController" in {
+        navigator.nextPage(
+          ChangeFirstContactHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.PlaceholderController.onPageLoad(
+          "Should redirect to change-contact/organisation/details page (CARF-141)"
+        )
+      }
+    }
+
     "ChangeDetailsOrganisationSecondContactNamePage navigation" - {
       "must navigate from ChangeDetailsOrganisationSecondContactNamePage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)

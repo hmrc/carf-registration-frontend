@@ -357,9 +357,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       case Some(true)  =>
         changeDetailsRoutes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(ProvideMode)
       case Some(false) =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        changeDetailsRoutes.ContactDetailsMissingController.onPageLoad()
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }

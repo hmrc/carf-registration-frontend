@@ -1334,7 +1334,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers
         ) mustBe controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
-          .onPageLoad()
+          .onPageLoad(ProvideMode)
       }
 
       "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeOrganisationContactDetailsController when answer is No" in {
@@ -1345,9 +1345,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           ChangeDetailsOrganisationHaveSecondContactPage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ContactDetailsMissingController.onPageLoad()
       }
 
       "must navigate to JourneyRecovery when answer is missing" in {

@@ -19,7 +19,7 @@ package controllers.changeContactDetails
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, ProvideMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -151,7 +151,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         redirectLocation(
           result
         ).value        mustEqual controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
-          .onPageLoad()
+          .onPageLoad(ProvideMode)
           .url
       }
     }

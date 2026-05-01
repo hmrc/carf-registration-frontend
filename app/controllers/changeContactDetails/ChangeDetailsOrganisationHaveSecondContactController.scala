@@ -95,7 +95,8 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController.onPageLoad(ProvideMode)
+          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
+            .onPageLoad(ProvideMode)
         )
       case _                  =>
         for {

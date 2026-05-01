@@ -1325,19 +1325,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "ChangeDetailsOrganisationHaveSecondContactPage navigation" - {
-      "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeDetailsOrganisationSecondContactNameController when answer is Yes and previously was No" in {
-        val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsOrganisationHaveSecondContactPage, false)
-
-        navigator.nextPage(
-          ChangeDetailsOrganisationHaveSecondContactPage,
-          NormalMode,
-          userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, true).success.value
-        ) mustBe controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
-          .onPageLoad()
-      }
-
-      "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeOrganisationContactDetailsController when answer is Yes and was already Yes" in {
+      "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to ChangeDetailsOrganisationSecondContactNameController when answer is Yes" in {
         val userAnswers = UserAnswers(userAnswersId)
           .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
 

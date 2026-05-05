@@ -83,13 +83,24 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
       mode: Mode
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
     (oldValue, newValue) match {
-      case (_, true) =>
+      case (Some(true), true) =>
         for {
           updatedAnswers <-
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
-      case _         =>
+
+      case (Some(false), true) =>
+        for {
+          updatedAnswers <-
+            Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(
+          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
+            .onPageLoad(ProvideMode)
+        )
+
+      case _ =>
         for {
           removedSecondContactName <-
             Future.fromTry(request.userAnswers.remove(ChangeDetailsOrganisationSecondContactNamePage))
@@ -103,4 +114,5 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
           _                        <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
     }
+
 }

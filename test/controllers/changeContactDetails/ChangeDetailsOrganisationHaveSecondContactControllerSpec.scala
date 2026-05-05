@@ -108,7 +108,9 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual routes.PlaceholderController
+          .onPageLoad("Should redirect to change-contact/organisation/details page (CARF-141)")
+          .url
       }
     }
 

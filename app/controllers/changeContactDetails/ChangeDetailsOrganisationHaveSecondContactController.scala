@@ -88,11 +88,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
           updatedAnswers <-
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(
-          controllers.routes.PlaceholderController.onPageLoad(
-            "Should redirect to change-contact/organisation/details page (CARF-141)"
-          )
-        )
+        } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
       case (_, true)          =>
         for {
           updatedAnswers <-

@@ -354,15 +354,11 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
   private def navigateFromChangeDetailsOrganisationHaveSecondContact(userAnswers: UserAnswers): Call =
     userAnswers.get(ChangeDetailsOrganisationHaveSecondContactPage) match {
-      case Some(true)  =>
+      case Some(_) =>
         routes.PlaceholderController.onPageLoad(
           "Should redirect to change-contact/organisation/details page (CARF-141)"
         )
-      case Some(false) =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
-      case None        =>
+      case None    =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 }

@@ -95,9 +95,6 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
       val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-          )
           .build()
 
       running(application) {

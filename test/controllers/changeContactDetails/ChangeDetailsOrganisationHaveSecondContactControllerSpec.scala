@@ -89,13 +89,12 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
       }
     }
 
-    "must redirect according to the navigator when the existing value is yes and the new value is yes" in {
+    "must redirect to placeholder when the existing value is yes and the new value is yes" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
       val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .build()
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request =
@@ -105,9 +104,10 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.PlaceholderController
-          .onPageLoad("Should redirect to change-contact/organisation/details page (CARF-141)")
-          .url
+        redirectLocation(result).value mustEqual
+          controllers.routes.PlaceholderController
+            .onPageLoad("Should redirect to change-contact/organisation/details page (CARF-141)")
+            .url
       }
     }
 

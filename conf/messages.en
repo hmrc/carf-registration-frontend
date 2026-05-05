@@ -653,7 +653,7 @@ changeOrgDetails.firstContact.summaryList.email.key = First contact email addres
 changeOrgDetails.firstContact.summaryList.email.key.hidden = Change email address
 changeOrgDetails.firstContact.summaryList.havePhone.key = Can we contact the first contact by phone?
 changeOrgDetails.firstContact.summaryList.havePhone.key.hidden = Change if we can contact first contact by phone
-changeOrgDetails.firstContact.summaryList.phoneNumber.key = First contact Phone number
+changeOrgDetails.firstContact.summaryList.phoneNumber.key = First contact phone number
 changeOrgDetails.firstContact.summaryList.phoneNumber.key.hidden = Change First contact phone number
 
 changeOrgDetails.secondContact.SummaryList.heading = Second contact
@@ -665,7 +665,7 @@ changeOrgDetails.secondContact.summaryList.email.key = Second contact email addr
 changeOrgDetails.secondContact.summaryList.email.key.hidden = Change email address
 changeOrgDetails.secondContact.summaryList.havePhone.key = Can we contact the second contact by phone?
 changeOrgDetails.secondContact.summaryList.havePhone.key.hidden = Change if we can contact second contact by phone
-changeOrgDetails.secondContact.summaryList.phoneNumber.key = Second contact Phone number
+changeOrgDetails.secondContact.summaryList.phoneNumber.key = Second contact phone number
 changeOrgDetails.secondContact.summaryList.phoneNumber.key.hidden = Change Second contact phone number
 
 changeOrgDetails.linkText = Back to manage your cryptoasset reports

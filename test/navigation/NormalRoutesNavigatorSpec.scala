@@ -904,7 +904,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "OrganisationSecondContactHavePhone navigation" - {
-      "must go to Organisation Second Contact Phone Number page when user answers 'Yes'" in {
+      "must go to Organisation Second Contact phone Number page when user answers 'Yes'" in {
         val userAnswers = emptyUserAnswers.set(OrganisationSecondContactHavePhonePage, true).success.value
         navigator.nextPage(
           OrganisationSecondContactHavePhonePage,

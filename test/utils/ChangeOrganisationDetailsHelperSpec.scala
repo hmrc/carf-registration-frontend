@@ -54,7 +54,7 @@ class ChangeOrganisationDetailsHelperSpec extends ChangeDetailsTestData {
           "First contact name",
           "First contact email address",
           "Can we contact the first contact by phone?",
-          "First contact Phone number"
+          "First contact phone number"
         )
         compareRowsToExpected(expectedKeys, rows)
       }
@@ -113,7 +113,7 @@ class ChangeOrganisationDetailsHelperSpec extends ChangeDetailsTestData {
           "Second contact name",
           "Second contact email address",
           "Can we contact the second contact by phone?",
-          "Second contact Phone number"
+          "Second contact phone number"
         )
         compareRowsToExpected(expectedKeys, rows)
       }

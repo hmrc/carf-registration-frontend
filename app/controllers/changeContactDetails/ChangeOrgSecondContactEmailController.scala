@@ -17,6 +17,7 @@
 package controllers.changeContactDetails
 
 import controllers.actions.*
+import forms.organisation.OrganisationSecondContactEmailFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
@@ -26,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeOrgSecondContactEmailView
-import forms.organisation.OrganisationSecondContactEmailFormProvider
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

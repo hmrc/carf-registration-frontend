@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.changeContactDetails
 
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.{ChangeDetailsIndividualHavePhonePage, ChangeDetailsOrgFirstHavePhonePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -36,8 +36,8 @@ object ChangeDetailsOrgFirstHavePhoneSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad("Must redirect to /change-contact/organisation/have-phone page - CARF-187")
+            href = controllers.changeContactDetails.routes.ChangeOrgFirstContactHavePhoneController
+              .onPageLoad(NormalMode)
               .url
           ).withVisuallyHiddenText(messages("changeOrgDetails.firstContact.summaryList.havePhone.key.hidden"))
         )

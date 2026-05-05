@@ -16,13 +16,13 @@
 
 package controllers.changeContactDetails
 
-import controllers.routes
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import controllers.routes
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.ChangeDetailsUpdatedView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.ChangeDetailsUpdatedView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

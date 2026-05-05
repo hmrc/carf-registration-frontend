@@ -168,6 +168,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case ChangeDetailsOrgSecondEmailPage =>
       _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
+    case ChangeDetailsOrgFirstHavePhonePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }

@@ -1288,6 +1288,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "ChangeDetailsOrgFirstHavePhonePage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstHavePhonePage to ChangeOrganisationContactDetailsController" in {
+        navigator.nextPage(
+          ChangeDetailsOrgFirstHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
     "ChangeDetailsOrgFirstPhoneNumberPage navigation" - {
       "must navigate from ChangeDetailsOrgFirstPhoneNumberPage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)

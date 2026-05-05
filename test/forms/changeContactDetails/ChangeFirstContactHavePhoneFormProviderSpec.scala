@@ -19,12 +19,12 @@ package forms.changeContactDetails
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class ChangeDetailsIndividualHavePhoneFormProviderSpec extends BooleanFieldBehaviours {
+class ChangeFirstContactHavePhoneFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "changeDetailsIndividualHavePhone.error.required"
+  val requiredKey = "changeFirstContactHavePhone.error.required"
   val invalidKey  = "error.boolean"
 
-  val form = new ChangeDetailsIndividualHavePhoneFormProvider()()
+  val form = new ChangeFirstContactHavePhoneFormProvider()()
 
   ".value" - {
 

@@ -669,3 +669,8 @@ changeOrgDetails.secondContact.summaryList.phoneNumber.key = Second contact phon
 changeOrgDetails.secondContact.summaryList.phoneNumber.key.hidden = Change second contact phone number
 
 changeOrgDetails.linkText = Back to manage your cryptoasset reports
+
+changeFirstContactHavePhone.title = Can we contact your first contact by phone?
+changeFirstContactHavePhone.heading = Can we contact {0} by phone?
+changeFirstContactHavePhone.hint = We will call if we have any questions about your reports.
+changeFirstContactHavePhone.error.required = Select yes if the first contact can be contacted by phone

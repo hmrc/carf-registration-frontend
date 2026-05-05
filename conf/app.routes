@@ -273,3 +273,7 @@ POST        /change-contact/organisation/second-contact-email                   
 GET         /change-contact/organisation/provide-second-contact-email           controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/organisation/provide-second-contact-email           controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onSubmit(mode: Mode = ProvideMode)
 
+GET         /change-contact/organisation/have-phone                             controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/have-phone                             controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/organisation/provide-have-phone                     controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/organisation/provide-have-phone                     controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onSubmit(mode: Mode = ProvideMode)

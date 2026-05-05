@@ -83,7 +83,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
       mode: Mode
   )(implicit request: DataRequestWithSubscriptionId[AnyContent]): Future[Result] =
     (oldValue, newValue) match {
-      case (Some(true), true)  =>
+      case (Some(true), true) =>
         for {
           updatedAnswers <-
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
@@ -93,7 +93,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
             "Should redirect to change-contact/organisation/details page (CARF-141)"
           )
         )
-      case (Some(false), true) =>
+      case (_, true)          =>
         for {
           updatedAnswers <-
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))

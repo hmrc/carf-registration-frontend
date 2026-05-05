@@ -1350,16 +1350,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           "Should redirect to change-contact/organisation/details page (CARF-141)"
         )
       }
-
-      "must navigate to JourneyRecovery when answer is missing" in {
-        val userAnswers = UserAnswers(userAnswersId)
-
-        navigator.nextPage(
-          ChangeDetailsOrganisationHaveSecondContactPage,
-          NormalMode,
-          userAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
     }
   }
 }

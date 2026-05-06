@@ -652,7 +652,7 @@ changeOrgDetails.firstContact.summaryList.contactName.key.hidden = Change first 
 changeOrgDetails.firstContact.summaryList.email.key = First contact email address
 changeOrgDetails.firstContact.summaryList.email.key.hidden = Change first contact email address
 changeOrgDetails.firstContact.summaryList.havePhone.key = Can we contact the first contact by phone?
-changeOrgDetails.firstContact.summaryList.havePhone.key.hidden = Change if we can contact first contact by phone
+changeOrgDetails.firstContact.summaryList.havePhone.key.hidden = Change if we can contact the first contact by phone
 changeOrgDetails.firstContact.summaryList.phoneNumber.key = First contact phone number
 changeOrgDetails.firstContact.summaryList.phoneNumber.key.hidden = Change first contact phone number
 

@@ -28,7 +28,7 @@ class Navigator @Inject() () extends NormalRoutesNavigator with ChangeRoutesNavi
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode  =>
       normalRoutes(page)(userAnswers)
-    case CheckMode   =>
+    case ChangeMode  =>
       checkRouteMap(page)(userAnswers)
     case ProvideMode =>
       provideRoutes(page)(userAnswers)

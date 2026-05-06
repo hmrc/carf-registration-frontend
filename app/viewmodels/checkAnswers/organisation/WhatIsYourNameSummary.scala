@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.organisation
 
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.organisation.WhatIsYourNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -38,7 +38,7 @@ object WhatIsYourNameSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.organisation.routes.WhatIsYourNameController.onPageLoad(CheckMode).url
+            href = controllers.organisation.routes.WhatIsYourNameController.onPageLoad(ChangeMode).url
           )
             .withVisuallyHiddenText(messages("whatIsYourName.change.hidden"))
         )

@@ -20,7 +20,7 @@ import base.SpecBase
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.error.{ApiError, DataError}
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
-import models.{CheckMode, IsThisYourBusinessPageDetails, JourneyType, SafeId, SubscriptionId, UserAnswers}
+import models.{ChangeMode, IsThisYourBusinessPageDetails, JourneyType, SafeId, SubscriptionId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
@@ -73,7 +73,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       actions = Seq(
         ActionItemViewModel(
           Text("TEST Action"),
-          controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(CheckMode).url
+          controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(ChangeMode).url
         )
           .withVisuallyHiddenText("TEST HIDDEN TEXT")
       )

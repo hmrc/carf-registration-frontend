@@ -28,6 +28,7 @@ import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLiveP
 import play.api.Logging
 import play.api.i18n.Messages
 import types.ResultT
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
@@ -38,9 +39,11 @@ import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUk
 
 class CheckYourAnswersHelper @Inject() extends Logging {
 
-  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers, affinityGroup: AffinityGroup)(implicit
+      messages: Messages
+  ): Option[Section] =
     IsThisYourBusinessSummary
-      .row(userAnswers)
+      .row(userAnswers, affinityGroup)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
 
   def getOrgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {

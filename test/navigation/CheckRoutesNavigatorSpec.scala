@@ -18,7 +18,7 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.Page
 
 class CheckRoutesNavigatorSpec extends SpecBase {
@@ -30,7 +30,8 @@ class CheckRoutesNavigatorSpec extends SpecBase {
     "must go from a page that doesn't exist in the route map to Journey Recovery" in {
 
       case object UnknownPage extends Page
-      navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.JourneyRecoveryController.onPageLoad()
+      navigator.nextPage(UnknownPage, ChangeMode, UserAnswers("id")) mustBe routes.JourneyRecoveryController
+        .onPageLoad()
     }
 
   }

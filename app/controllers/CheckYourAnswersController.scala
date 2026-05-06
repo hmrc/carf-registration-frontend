@@ -20,19 +20,19 @@ import cats.implicits.*
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.{ApiError, DataError}
 import models.error.ApiError.AlreadyRegisteredError
+import models.error.{ApiError, DataError}
 import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
-import pages.orgWithoutId.OrganisationBusinessAddressPage
-import pages.{NavigatorOnlyCheckYourAnswersErrors, WhereDoYouLivePage}
+import pages.NavigatorOnlyCheckYourAnswersErrors
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.{EnrolmentService, RegistrationService, SubscriptionService}
 import types.ResultT
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
@@ -60,8 +60,10 @@ class CheckYourAnswersController @Inject() (
     with Logging
     with I18nSupport {
 
-  private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
-    helper.getBusinessDetailsSectionMaybe(userAnswers)
+  private def businessDetailsSectionMaybe(userAnswers: UserAnswers, affinityGroup: AffinityGroup)(implicit
+      messages: Messages
+  ): Option[Section] =
+    helper.getBusinessDetailsSectionMaybe(userAnswers, affinityGroup)
 
   private def orgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getOrgWithoutIdDetailsMaybe(userAnswers)
@@ -89,7 +91,7 @@ class CheckYourAnswersController @Inject() (
       val sectionsMaybe = journeyType match {
         case Some(OrgWithUtr)   =>
           for {
-            section1 <- businessDetailsSectionMaybe(userAnswers)
+            section1 <- businessDetailsSectionMaybe(userAnswers, request.affinityGroup)
             section2 <- firstContactDetailsSectionMaybe(userAnswers)
             section3 <- secondContactDetailsSectionMaybe(userAnswers)
           } yield Seq(section1, section2, section3)
@@ -100,7 +102,7 @@ class CheckYourAnswersController @Inject() (
           } yield Seq(section1, section2)
         case Some(IndWithUtr)   =>
           for {
-            section1 <- businessDetailsSectionMaybe(userAnswers)
+            section1 <- businessDetailsSectionMaybe(userAnswers, request.affinityGroup)
             section2 <- indContactDetails(userAnswers)
           } yield Seq(section1, section2)
         case Some(OrgWithoutId) =>
@@ -118,8 +120,14 @@ class CheckYourAnswersController @Inject() (
           logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
           None
       }
-      sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())) { sections =>
-        Ok(view(sections))
+
+      if (request.userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(journeyType)) {
+        sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())) { sections =>
+          Ok(view(sections))
+        }
+      } else {
+        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user")
+        Redirect(controllers.routes.InformationMissingController.onPageLoad())
       }
   }
 

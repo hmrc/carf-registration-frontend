@@ -200,7 +200,11 @@ class IsThisYourBusinessController @Inject() (
 
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
+          _              <- sessionRepository.set(
+                              updatedAnswers
+                                .copy(safeId = Some(safeId))
+                                .copy(hasValidMatch = true)
+                            )
         } yield {
           val existingAnswer =
             request.userAnswers

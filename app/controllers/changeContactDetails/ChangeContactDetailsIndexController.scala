@@ -51,7 +51,8 @@ class ChangeContactDetailsIndexController @Inject() (
               a                 <- Future.fromTry(
                                      UserAnswers(
                                        id = request.userId,
-                                       changeIsIndividualRegType = Some(true)
+                                       changeIsIndividualRegType = Some(true),
+                                       affinityGroup = request.affinityGroup
                                      ).set(ChangeDetailsIndividualEmailPage, individualDetails.email)
                                    )
               b                 <- Future.fromTry(a.set(ChangeDetailsIndividualHavePhonePage, individualDetails.phone.nonEmpty))
@@ -70,7 +71,8 @@ class ChangeContactDetailsIndexController @Inject() (
                 sessionRepository.set(
                   UserAnswers(
                     id = request.userId,
-                    changeIsIndividualRegType = Some(false)
+                    changeIsIndividualRegType = Some(false),
+                    affinityGroup = request.affinityGroup
                   )
                 )
             } yield Redirect(

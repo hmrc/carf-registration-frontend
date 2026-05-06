@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -38,7 +38,7 @@ object IndWithoutNinoNameSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(CheckMode).url
+            href = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("indWithoutNinoName.change.hidden"))
         )
       )

@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.routes
-import models.{CheckMode, RegistrationType, UserAnswers}
+import models.{ChangeMode, RegistrationType, UserAnswers}
 import pages.organisation.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -44,7 +44,7 @@ object IndividualRegistrationTypeSummary {
             actions = Seq(
               ActionItemViewModel(
                 content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-                href = controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(CheckMode).url
+                href = controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(ChangeMode).url
               ).withVisuallyHiddenText(messages("individualRegistrationType.change.hidden"))
             )
           )

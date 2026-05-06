@@ -25,6 +25,7 @@ import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.affinityGroup
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -69,17 +70,19 @@ class CarfIdRetrievalActionExtractor @Inject() (
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(Retrievals.internalId and Retrievals.allEnrolments) {
-      case Some(internalId) ~ enrolments =>
+    authorised().retrieve(Retrievals.internalId and Retrievals.allEnrolments and affinityGroup) {
+      case Some(internalId) ~ enrolments ~ Some(affinityGroup) =>
         getCarfId(enrolments) match {
           case Some(subscriptionId) =>
-            block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
+            block(
+              IdentifierRequestWithSubscriptionId(request, internalId, affinityGroup, SubscriptionId(subscriptionId))
+            )
           case None                 =>
             logger.info("User has no CARF enrolment. Taking user to the start of the registration journey.")
             Future.successful(Redirect(controllers.routes.IndexController.onPageLoad()))
         }
-      case _                             =>
-        val msg = "Unable to retrieve internal id"
+      case _                                                   =>
+        val msg = "Unable to retrieve internal id or affinity group"
         logger.warn(msg)
         throw AuthorisationException.fromString(msg)
     } recover {

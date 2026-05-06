@@ -20,9 +20,8 @@ import base.SpecBase
 import controllers.routes
 import play.api.Application
 import play.api.mvc.Result
-import play.api.test.Helpers.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{route, GET}
+import play.api.test.Helpers.*
 import views.html.ChangeDetailsUpdatedView
 
 import scala.concurrent.Future

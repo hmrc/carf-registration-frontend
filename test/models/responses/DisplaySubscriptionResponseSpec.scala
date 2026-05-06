@@ -46,35 +46,143 @@ class DisplaySubscriptionResponseSpec extends SpecBase {
   }
 
   "DisplaySubscriptionResponse extension method hasIndividualChangedData" - {
-    "must return true if email changed" - {
+    "must return true if email changed" in {
       val result = testIndividualDisplaySubscriptionResponse(true)
         .hasIndividualChangedData(email = "DIFF EMAIL", phone = Some(testPhone))
 
       result mustBe true
     }
-    "must return true if phone changed" - {
+    "must return true if phone changed" in {
       val result = testIndividualDisplaySubscriptionResponse(true)
         .hasIndividualChangedData(email = testEmail, phone = Some("DIFF PHONE"))
 
       result mustBe true
     }
-    "must return true if phone is None" - {
+    "must return true if phone is None" in {
       val result =
         testIndividualDisplaySubscriptionResponse(true).hasIndividualChangedData(email = testEmail, phone = None)
 
       result mustBe true
     }
-    "must return true if email and phone changed" - {
+    "must return true if email and phone changed" in {
       val result = testIndividualDisplaySubscriptionResponse(true)
         .hasIndividualChangedData(email = "DIFF EMAIL", phone = Some("DIFF PHONE"))
 
       result mustBe true
     }
-    "must return false if nothing changed" - {
+    "must return false if nothing changed" in {
       val result = testIndividualDisplaySubscriptionResponse(true)
         .hasIndividualChangedData(email = testEmail, phone = Some(testPhone))
 
       result mustBe false
+    }
+  }
+
+  "DisplaySubscriptionResponse extension method hasOrganisationChangedData" - {
+    "must return true if email changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = "DIFF Email",
+          firstContactName = "Bobby",
+          firstContactPhone = Some(testPhone),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some(testEmail),
+          secondContactPhone = Some(testPhone)
+        )
+
+      result mustBe true
+    }
+    "must return true if phone changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = testEmail,
+          firstContactName = "Bobby",
+          firstContactPhone = Some("DIFF PHONE"),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some(testEmail),
+          secondContactPhone = Some(testPhone)
+        )
+
+      result mustBe true
+    }
+    "must return true if phone is None" in {
+      val result =
+        testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+          .hasOrganisationChangedData(
+            firstContactEmail = testEmail,
+            firstContactName = "Bobby",
+            firstContactPhone = None,
+            secondContactName = Some("Bobby"),
+            secondContactEmail = Some(testEmail),
+            secondContactPhone = None
+          )
+
+      result mustBe true
+    }
+    "must return true if email and phone changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = "DIFF EMAIL",
+          firstContactName = "Bobby",
+          firstContactPhone = Some("DIFF PHONE"),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some(testEmail),
+          secondContactPhone = None
+        )
+
+      result mustBe true
+    }
+    "must return false if nothing changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = testEmail,
+          firstContactName = "Bobby",
+          firstContactPhone = Some(testPhone),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some(testEmail),
+          secondContactPhone = None
+        )
+
+      result mustBe false
+    }
+    "must return true if secondary email changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = testEmail,
+          firstContactName = "Bobby",
+          firstContactPhone = Some(testPhone),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some("DIFF Email"),
+          secondContactPhone = Some(testPhone)
+        )
+
+      result mustBe true
+    }
+    "must return true if secondary phone changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = testEmail,
+          firstContactName = "Bobby",
+          firstContactPhone = Some(testPhone),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some(testEmail),
+          secondContactPhone = Some(testPhone)
+        )
+
+      result mustBe true
+    }
+    "must return true if secondary email and phone changed" in {
+      val result = testOrgDisplaySubscriptionResponseWithSecondaryNoPhone
+        .hasOrganisationChangedData(
+          firstContactEmail = testEmail,
+          firstContactName = "Bobby",
+          firstContactPhone = Some("DIFF PHONE"),
+          secondContactName = Some("Bobby"),
+          secondContactEmail = Some("DIFF EMAIL"),
+          secondContactPhone = Some(testPhone)
+        )
+
+      result mustBe true
     }
   }
 

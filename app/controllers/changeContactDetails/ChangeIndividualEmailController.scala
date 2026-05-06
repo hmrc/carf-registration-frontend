@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.individual.IndividualEmailFormProvider
-import models.NormalMode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.changeContactDetails.ChangeDetailsIndividualEmailPage
 import play.api.data.Form
@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeIndividualEmailView
-import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

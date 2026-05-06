@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.individual.IndividualPhoneNumberFormProvider
-import models.NormalMode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.changeContactDetails.ChangeDetailsIndividualPhoneNumberPage
 import play.api.data.Form
@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeIndividualPhoneNumberView
-import models.Mode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

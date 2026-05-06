@@ -23,7 +23,7 @@ import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, Or
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{NormalMode, ProvideMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrganisationSecondContactEmailPage}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgSecondEmailPage}
 import pages.organisation.{HaveUTRPage, NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
 import play.api.Logging
 import play.api.mvc.Call
@@ -44,7 +44,7 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
     case ChangeDetailsIndividualPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
-    case ChangeDetailsOrganisationSecondContactEmailPage =>
+    case ChangeDetailsOrgSecondEmailPage =>
       _ =>
         routes.PlaceholderController.onPageLoad(
           "Should redirect to change-contact/organisation/second-contact-have-phone page (CARF-192)"

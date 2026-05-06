@@ -641,6 +641,35 @@ contactDetailsMissing.header = Some information is missing
 contactDetailsMissing.title = Some information is missing
 contactDetailsMissing.p1 = You must provide this information to change your contact details.
 
+changeOrgDetails.title.normal = Change your contact details for your organisation
+changeOrgDetails.heading.normal = Change your contact details for your organisation
+changeOrgDetails.title.dynamic = Check your contact details for your organisation
+changeOrgDetails.heading.dynamic = Check your contact details for your organisation
+
+changeOrgDetails.firstContact.SummaryList.heading = First contact
+changeOrgDetails.firstContact.summaryList.contactName.key = First contact name
+changeOrgDetails.firstContact.summaryList.contactName.key.hidden = Change first contact name
+changeOrgDetails.firstContact.summaryList.email.key = First contact email address
+changeOrgDetails.firstContact.summaryList.email.key.hidden = Change first contact email address
+changeOrgDetails.firstContact.summaryList.havePhone.key = Can we contact the first contact by phone?
+changeOrgDetails.firstContact.summaryList.havePhone.key.hidden = Change if we can contact first contact by phone
+changeOrgDetails.firstContact.summaryList.phoneNumber.key = First contact phone number
+changeOrgDetails.firstContact.summaryList.phoneNumber.key.hidden = Change first contact phone number
+
+changeOrgDetails.secondContact.SummaryList.heading = Second contact
+changeOrgDetails.secondContact.summaryList.haveContact.key = Do you have a second contact?
+changeOrgDetails.secondContact.summaryList.haveContact.key.hidden = Change if you have a second contact
+changeOrgDetails.secondContact.summaryList.contactName.key = Second contact name
+changeOrgDetails.secondContact.summaryList.contactName.key.hidden = Change second contact name
+changeOrgDetails.secondContact.summaryList.email.key = Second contact email address
+changeOrgDetails.secondContact.summaryList.email.key.hidden = Change second contact email address
+changeOrgDetails.secondContact.summaryList.havePhone.key = Can we contact the second contact by phone?
+changeOrgDetails.secondContact.summaryList.havePhone.key.hidden = Change if we can contact the second contact by phone
+changeOrgDetails.secondContact.summaryList.phoneNumber.key = Second contact phone number
+changeOrgDetails.secondContact.summaryList.phoneNumber.key.hidden = Change second contact phone number
+
+changeOrgDetails.linkText = Back to manage your cryptoasset reports
+
 changeFirstContactHavePhone.title = Can we contact your first contact by phone?
 changeFirstContactHavePhone.heading = Can we contact {0} by phone?
 changeFirstContactHavePhone.hint = We will call if we have any questions about your reports.

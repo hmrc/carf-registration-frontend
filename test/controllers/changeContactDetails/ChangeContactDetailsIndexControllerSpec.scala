@@ -24,7 +24,7 @@ import models.responses.DisplaySubscriptionResponse
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgSecondPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
 import pages.individual.HaveNiNumberPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Application
@@ -146,7 +146,9 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
         verify(mockSessionRepository)
           .set(
-            argThat(_.changeIsIndividualRegType.get == false)
+            argThat { ua =>
+              !ua.changeIsIndividualRegType.get && ua.get(ChangeDetailsOrgFirstNamePage).isDefined
+            }
           )
       }
 

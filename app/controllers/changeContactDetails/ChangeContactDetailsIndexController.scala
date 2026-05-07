@@ -112,16 +112,14 @@ class ChangeContactDetailsIndexController @Inject() (
 
     val setUserAnswer: (Option[String], QuestionPage[String], UserAnswers) => Future[UserAnswers] =
       (maybeContactValue, page, ua) =>
-        maybeContactValue.fold(Future.successful(userAnswers))(contactValue =>
-          Future.fromTry(ua.set(page, contactValue))
-        )
+        maybeContactValue.fold(Future.successful(ua))(contactValue => Future.fromTry(ua.set(page, contactValue)))
 
     for {
       a                  <- setUserAnswer(organisationName, ChangeDetailsOrgFirstNamePage, userAnswers)
       b                  <- setUserAnswer(organisationPhone, ChangeDetailsOrgFirstPhoneNumberPage, a)
       c                  <- setUserAnswer(organisationSecondaryName, ChangeDetailsOrgSecondNamePage, b)
       d                  <- setUserAnswer(organisationSecondaryEmail, ChangeDetailsOrgSecondEmailPage, c)
-      e                  <- organisationSecondaryHavePhone.fold(Future.successful(userAnswers))(havePhone =>
+      e                  <- organisationSecondaryHavePhone.fold(Future.successful(d))(havePhone =>
                               Future.fromTry(d.set(ChangeDetailsOrgSecondHavePhonePage, havePhone))
                             )
       updatedUserAnswers <- setUserAnswer(organisationSecondaryPhone, ChangeDetailsOrgSecondPhoneNumberPage, e)

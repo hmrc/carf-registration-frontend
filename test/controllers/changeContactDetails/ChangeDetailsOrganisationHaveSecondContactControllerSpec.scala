@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage, ChangeDetailsOrganisationSecondContactEmailPage, ChangeDetailsOrganisationSecondContactNamePage}
+import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrgSecondContactNamePage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -152,7 +152,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         status(result) mustEqual SEE_OTHER
         redirectLocation(
           result
-        ).value        mustEqual controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
+        ).value        mustEqual controllers.changeContactDetails.routes.ChangeOrgSecondContactNameController
           .onPageLoad(ProvideMode)
           .url
       }
@@ -163,7 +163,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
 
       val userAnswers = emptyUserAnswers
         .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
-        .withPage(ChangeDetailsOrganisationSecondContactNamePage, "Prof. Birch")
+        .withPage(ChangeDetailsOrgSecondContactNamePage, "Prof. Birch")
       // TODO: Update this test when CARF-192 / CARF-193 are implemented, to also remove the second contact email / phone related pages.
 
       val application =
@@ -184,8 +184,8 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         redirectLocation(result).value mustEqual onwardRoute.url
 
         verify(mockSessionRepository).set(argThat { ua =>
-          ua.get(ChangeDetailsOrganisationSecondContactNamePage).isEmpty &&
-          ua.get(ChangeDetailsOrganisationSecondContactEmailPage).isEmpty &&
+          ua.get(ChangeDetailsOrgSecondContactNamePage).isEmpty &&
+          ua.get(ChangeDetailsOrgSecondEmailPage).isEmpty &&
           ua.get(ChangeDetailsOrganisationHaveSecondContactPage).contains(false)
         })
       }

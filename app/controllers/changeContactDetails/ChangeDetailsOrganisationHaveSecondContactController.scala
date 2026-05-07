@@ -20,7 +20,7 @@ import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredActi
 import forms.organisation.OrganisationHaveSecondContactFormProvider
 import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrganisationHaveSecondContactPage, ChangeDetailsOrganisationSecondContactEmailPage, ChangeDetailsOrganisationSecondContactNamePage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -52,7 +52,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
         .get(ChangeDetailsOrganisationHaveSecondContactPage)
         .fold(form)(form.fill)
 
-      request.userAnswers.get(ChangeDetailsFirstContactNamePage) match {
+      request.userAnswers.get(ChangeDetailsOrgFirstNamePage) match {
         case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
         case None                   => Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
       }
@@ -65,7 +65,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
         .fold(
           formWithErrors =>
             request.userAnswers
-              .get(ChangeDetailsFirstContactNamePage)
+              .get(ChangeDetailsOrgFirstNamePage)
               .fold(
                 Future.successful(
                   Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
@@ -95,16 +95,16 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
             Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          controllers.changeContactDetails.routes.ChangeDetailsOrganisationSecondContactNameController
+          controllers.changeContactDetails.routes.ChangeOrgSecondContactNameController
             .onPageLoad(ProvideMode)
         )
 
       case _ =>
         for {
           removedSecondContactName <-
-            Future.fromTry(request.userAnswers.remove(ChangeDetailsOrganisationSecondContactNamePage))
+            Future.fromTry(request.userAnswers.remove(ChangeDetailsOrgHaveSecondContactPage))
           removedEmail             <-
-            Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrganisationSecondContactEmailPage))
+            Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrgSecondEmailPage))
           // TODO: Add these when tickets 192-193 are implemented:
           // removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrganisationHaveSecondContactPhonePage)) (CARF-192)
           // removedSecondContactPhone <- Future.fromTry(removedHavePhone.remove(ChangeDetailsOrganisationSecondContactPhoneNumberPage)) (CARF-193)

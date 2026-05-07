@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsOrgSecondContactNamePage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrganisationHaveSecondContactPage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage, ChangeDetailsOrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -51,7 +51,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
     "must return OK and the correct view for a GET when name is provided" in {
 
       val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.withPage(ChangeDetailsFirstContactNamePage, "John Smith"))
+        Some(emptyUserAnswers.withPage(ChangeDetailsOrgFirstNamePage, "John Smith"))
       ).build()
 
       running(application) {
@@ -70,7 +70,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
 
       val userAnswers = UserAnswers(userAnswersId)
         .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
-        .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+        .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -163,7 +163,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
 
       val userAnswers = emptyUserAnswers
         .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
-        .withPage(ChangeDetailsOrgSecondContactNamePage, "Prof. Birch")
+        .withPage(ChangeDetailsOrgSecondNamePage, "Prof. Birch")
       // TODO: Update this test when CARF-192 / CARF-193 are implemented, to also remove the second contact email / phone related pages.
 
       val application =
@@ -184,7 +184,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         redirectLocation(result).value mustEqual onwardRoute.url
 
         verify(mockSessionRepository).set(argThat { ua =>
-          ua.get(ChangeDetailsOrgSecondContactNamePage).isEmpty &&
+          ua.get(ChangeDetailsOrgSecondNamePage).isEmpty &&
           ua.get(ChangeDetailsOrgSecondEmailPage).isEmpty &&
           ua.get(ChangeDetailsOrganisationHaveSecondContactPage).contains(false)
         })
@@ -194,7 +194,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
     "must return a Bad Request and errors when invalid data is submitted and first contact name is provided" in {
 
       val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.withPage(ChangeDetailsFirstContactNamePage, "John Smith"))
+        Some(emptyUserAnswers.withPage(ChangeDetailsOrgFirstNamePage, "John Smith"))
       ).build()
 
       running(application) {

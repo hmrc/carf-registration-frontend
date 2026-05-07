@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage, ChangeDetailsOrganisationHaveSecondContactPage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -69,7 +69,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
+        .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
         .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -92,7 +92,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
     "must redirect according to the navigator when the existing value is yes and the new value is yes" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
+      val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrgHaveSecondContactPage, true)
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
@@ -115,7 +115,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
     "must redirect according to the navigator when the existing value is no and the new value is no" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrganisationHaveSecondContactPage, false)
+      val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrgHaveSecondContactPage, false)
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
@@ -138,7 +138,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
     "must redirect to second contact name page when the existing value is no and the new value is yes" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrganisationHaveSecondContactPage, false)
+      val userAnswers = emptyUserAnswers.withPage(ChangeDetailsOrgHaveSecondContactPage, false)
       val application =
         applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -162,7 +162,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = emptyUserAnswers
-        .withPage(ChangeDetailsOrganisationHaveSecondContactPage, true)
+        .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
         .withPage(ChangeDetailsOrgSecondNamePage, "Prof. Birch")
       // TODO: Update this test when CARF-192 / CARF-193 are implemented, to also remove the second contact email / phone related pages.
 
@@ -186,7 +186,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
         verify(mockSessionRepository).set(argThat { ua =>
           ua.get(ChangeDetailsOrgSecondNamePage).isEmpty &&
           ua.get(ChangeDetailsOrgSecondEmailPage).isEmpty &&
-          ua.get(ChangeDetailsOrganisationHaveSecondContactPage).contains(false)
+          ua.get(ChangeDetailsOrgHaveSecondContactPage).contains(false)
         })
       }
     }

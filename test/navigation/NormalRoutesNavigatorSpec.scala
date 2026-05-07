@@ -1324,11 +1324,11 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "ChangeDetailsOrganisationHaveSecondContactPage navigation" - {
-      "ChangeDetailsOrganisationHaveSecondContactPage navigation" - {
-        "must navigate from ChangeDetailsOrganisationHaveSecondContactPage to Organisation Change Details page" in {
+    "ChangeDetailsOrgHaveSecondContactPage navigation" - {
+      "ChangeDetailsOrgHaveSecondContactPage navigation" - {
+        "must navigate from ChangeDetailsOrgHaveSecondContactPage to Organisation Change Details page" in {
           navigator.nextPage(
-            ChangeDetailsOrganisationHaveSecondContactPage,
+            ChangeDetailsOrgHaveSecondContactPage,
             NormalMode,
             emptyUserAnswers
           ) mustBe routes.PlaceholderController.onPageLoad(

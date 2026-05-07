@@ -20,7 +20,7 @@ import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredActi
 import forms.organisation.OrganisationHaveSecondContactFormProvider
 import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrganisationHaveSecondContactPage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -49,7 +49,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
     implicit request =>
       val preparedForm = request.userAnswers
-        .get(ChangeDetailsOrganisationHaveSecondContactPage)
+        .get(ChangeDetailsOrgHaveSecondContactPage)
         .fold(form)(form.fill)
 
       request.userAnswers.get(ChangeDetailsOrgFirstNamePage) match {
@@ -72,7 +72,7 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
                 )
               )(name => Future.successful(BadRequest(view(formWithErrors, mode, name)))),
           value =>
-            val oldValue = request.userAnswers.get(ChangeDetailsOrganisationHaveSecondContactPage)
+            val oldValue = request.userAnswers.get(ChangeDetailsOrgHaveSecondContactPage)
             handleRedirectionAndUpdateUserAnswers(oldValue, value, mode)
         )
   }
@@ -86,13 +86,13 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
       case (Some(true), true) =>
         for {
           updatedAnswers <-
-            Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+            Future.fromTry(request.userAnswers.set(ChangeDetailsOrgHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
+        } yield Redirect(navigator.nextPage(ChangeDetailsOrgHaveSecondContactPage, mode, updatedAnswers))
       case (_, true)          =>
         for {
           updatedAnswers <-
-            Future.fromTry(request.userAnswers.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+            Future.fromTry(request.userAnswers.set(ChangeDetailsOrgHaveSecondContactPage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
           controllers.changeContactDetails.routes.ChangeOrgSecondContactNameController
@@ -102,16 +102,16 @@ class ChangeDetailsOrganisationHaveSecondContactController @Inject() (
       case _ =>
         for {
           removedSecondContactName <-
-            Future.fromTry(request.userAnswers.remove(ChangeDetailsOrgHaveSecondContactPage))
+            Future.fromTry(request.userAnswers.remove(ChangeDetailsOrgSecondNamePage))
           removedEmail             <-
             Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrgSecondEmailPage))
           // TODO: Add these when tickets 192-193 are implemented:
           // removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrganisationHaveSecondContactPhonePage)) (CARF-192)
           // removedSecondContactPhone <- Future.fromTry(removedHavePhone.remove(ChangeDetailsOrganisationSecondContactPhoneNumberPage)) (CARF-193)
           updatedAnswers           <-
-            Future.fromTry(removedEmail.set(ChangeDetailsOrganisationHaveSecondContactPage, newValue))
+            Future.fromTry(removedEmail.set(ChangeDetailsOrgHaveSecondContactPage, newValue))
           _                        <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(navigator.nextPage(ChangeDetailsOrganisationHaveSecondContactPage, mode, updatedAnswers))
+        } yield Redirect(navigator.nextPage(ChangeDetailsOrgHaveSecondContactPage, mode, updatedAnswers))
     }
 
 }

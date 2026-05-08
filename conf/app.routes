@@ -277,3 +277,15 @@ GET         /change-contact/organisation/have-phone                             
 POST        /change-contact/organisation/have-phone                             controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onSubmit(mode: Mode = NormalMode)
 GET         /change-contact/organisation/provide-have-phone                     controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/organisation/provide-have-phone                     controllers.changeContactDetails.ChangeOrgFirstContactHavePhoneController.onSubmit(mode: Mode = ProvideMode)
+GET         /change-contact/organisation/second-contact-name                    controllers.changeContactDetails.ChangeOrgSecondContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/second-contact-name                    controllers.changeContactDetails.ChangeOrgSecondContactNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/organisation/provide-second-contact-name                    controllers.changeContactDetails.ChangeOrgSecondContactNameController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/organisation/provide-second-contact-name                    controllers.changeContactDetails.ChangeOrgSecondContactNameController.onSubmit(mode: Mode = ProvideMode)
+
+GET         /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeOrgHaveSecondContactController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeOrgHaveSecondContactController.onSubmit(mode: Mode = NormalMode)
+
+GET         /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/organisation/provide-second-contact-email           controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onPageLoad(mode: Mode = ProvideMode)
+POST        /change-contact/organisation/provide-second-contact-email           controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onSubmit(mode: Mode = ProvideMode)

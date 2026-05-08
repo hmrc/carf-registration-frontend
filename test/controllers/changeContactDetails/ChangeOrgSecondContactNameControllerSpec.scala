@@ -29,6 +29,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.ChangeOrgSecondContactNameView
 
 import scala.concurrent.Future
@@ -42,7 +43,7 @@ class ChangeOrgSecondContactNameControllerSpec extends SpecBase with MockitoSuga
 
   lazy val changeDetailsOrganisationSecondContactNameRoute =
     controllers.changeContactDetails.routes.ChangeOrgSecondContactNameController
-      .onPageLoad()
+      .onPageLoad(NormalMode)
       .url
 
   "ChangeDetailsOrganisationSecondContactName Controller" - {

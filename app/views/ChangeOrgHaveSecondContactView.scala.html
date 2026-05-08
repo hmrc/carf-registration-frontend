@@ -1,5 +1,5 @@
 @*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,34 @@
  * limitations under the License.
  *@
 
-@import viewmodels.InputWidth._
-
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
-        govukInput: GovukInput,
+        govukRadios: GovukRadios,
         govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, firstContactName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("organisationSecondContactName.title"))) {
+@layout(pageTitle = title(form, messages("organisationHaveSecondContact.title"))) {
 
-    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrgSecondContactNameController.onSubmit(mode)) {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrgHaveSecondContactController.onSubmit(), Symbol("autoComplete") -> "off") {
+
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @govukInput(
-            InputViewModel(
+        <h1 class="govuk-heading-l long-word">@messages("organisationHaveSecondContact.heading", firstContactName)</h1>
+
+        <p class="govuk-body">@messages("organisationHaveSecondContact.hint")</p>
+
+        @govukRadios(
+            RadiosViewModel.yesNo(
                 field = form("value"),
-                label = LabelViewModel(messages("organisationSecondContactName.heading")).asPageHeading()
+                legend = LegendViewModel(messages("organisationHaveSecondContact.heading", firstContactName)).withCssClass("govuk-visually-hidden govuk-!-display-block")
             )
-            .withHint(HintViewModel(HtmlContent(messages("organisationSecondContactName.hint"))))
-            .withWidth(ThreeQuarters)
-            .withAutocomplete("name")
+            .copy(classes = "")
         )
 
         @govukButton(
@@ -48,3 +49,4 @@
         )
     }
 }
+

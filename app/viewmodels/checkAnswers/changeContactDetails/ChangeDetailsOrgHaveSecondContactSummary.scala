@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.changeContactDetails
 
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.ChangeDetailsOrgHaveSecondContactPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -36,11 +36,7 @@ object ChangeDetailsOrgHaveSecondContactSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad(
-                "Must redirect to /change-contact/organisation/have-second-contact page - CARF-189"
-              )
-              .url
+            href = controllers.changeContactDetails.routes.ChangeOrgHaveSecondContactController.onPageLoad().url
           ).withVisuallyHiddenText(messages("changeOrgDetails.secondContact.summaryList.haveContact.key.hidden"))
         )
       )

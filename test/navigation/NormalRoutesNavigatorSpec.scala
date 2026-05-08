@@ -1323,5 +1323,17 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
+
+    "ChangeDetailsOrgHaveSecondContactPage navigation" - {
+      "ChangeDetailsOrgHaveSecondContactPage navigation" - {
+        "must navigate from ChangeDetailsOrgHaveSecondContactPage to Organisation Change Details page" in {
+          navigator.nextPage(
+            ChangeDetailsOrgHaveSecondContactPage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+        }
+      }
+    }
   }
 }

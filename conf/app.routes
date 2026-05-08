@@ -282,8 +282,8 @@ POST        /change-contact/organisation/second-contact-name                    
 GET         /change-contact/organisation/provide-second-contact-name                    controllers.changeContactDetails.ChangeOrgSecondContactNameController.onPageLoad(mode: Mode = ProvideMode)
 POST        /change-contact/organisation/provide-second-contact-name                    controllers.changeContactDetails.ChangeOrgSecondContactNameController.onSubmit(mode: Mode = ProvideMode)
 
-GET         /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeDetailsOrganisationHaveSecondContactController.onPageLoad(mode: Mode = NormalMode)
-POST        /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeDetailsOrganisationHaveSecondContactController.onSubmit(mode: Mode = NormalMode)
+GET         /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeOrgHaveSecondContactController.onPageLoad(mode: Mode = NormalMode)
+POST        /change-contact/organisation/have-second-contact                   controllers.changeContactDetails.ChangeOrgHaveSecondContactController.onSubmit(mode: Mode = NormalMode)
 
 GET         /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onPageLoad(mode: Mode = NormalMode)
 POST        /change-contact/organisation/second-contact-email                   controllers.changeContactDetails.ChangeOrgSecondContactEmailController.onSubmit(mode: Mode = NormalMode)

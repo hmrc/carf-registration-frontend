@@ -34,7 +34,7 @@ import views.html.ChangeDetailsOrganisationHaveSecondContactView
 
 import scala.concurrent.Future
 
-class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoSugar {
+class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -42,7 +42,7 @@ class ChangeDetailsOrganisationHaveSecondContactControllerSpec extends SpecBase 
   val form: Form[Boolean] = formProvider()
 
   lazy val changeDetailsOrganisationHaveSecondContactRoute: String =
-    controllers.changeContactDetails.routes.ChangeDetailsOrganisationHaveSecondContactController
+    controllers.changeContactDetails.routes.ChangeOrgHaveSecondContactController
       .onPageLoad()
       .url
 

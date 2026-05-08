@@ -20,7 +20,7 @@ import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredActi
 import forms.organisation.OrganisationHaveSecondContactFormProvider
 import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondHavePhonePage, ChangeDetailsOrgSecondNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -101,16 +101,16 @@ class ChangeOrgHaveSecondContactController @Inject() (
 
       case _ =>
         for {
-          removedSecondContactName <-
+          removedSecondContactName      <-
             Future.fromTry(request.userAnswers.remove(ChangeDetailsOrgSecondNamePage))
-          removedEmail             <-
+          removedEmail                  <-
             Future.fromTry(removedSecondContactName.remove(ChangeDetailsOrgSecondEmailPage))
-          // TODO: Add these when tickets 192-193 are implemented:
-          // removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrganisationHaveSecondContactPhonePage)) (CARF-192)
-          // removedSecondContactPhone <- Future.fromTry(removedHavePhone.remove(ChangeDetailsOrganisationSecondContactPhoneNumberPage)) (CARF-193)
-          updatedAnswers           <-
-            Future.fromTry(removedEmail.set(ChangeDetailsOrgHaveSecondContactPage, newValue))
-          _                        <- sessionRepository.set(updatedAnswers)
+          removedSecondContactHavePhone <- Future.fromTry(removedEmail.remove(ChangeDetailsOrgSecondHavePhonePage))
+          removedSecondContactPhone     <-
+            Future.fromTry(removedSecondContactHavePhone.remove(ChangeDetailsOrgSecondPhoneNumberPage))
+          updatedAnswers                <-
+            Future.fromTry(removedSecondContactPhone.set(ChangeDetailsOrgHaveSecondContactPage, newValue))
+          _                             <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ChangeDetailsOrgHaveSecondContactPage, mode, updatedAnswers))
     }
 

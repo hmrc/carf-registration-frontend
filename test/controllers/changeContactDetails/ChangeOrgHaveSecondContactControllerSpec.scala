@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
+import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondHavePhonePage, ChangeDetailsOrgSecondNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -164,7 +164,9 @@ class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSuga
       val userAnswers = emptyUserAnswers
         .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
         .withPage(ChangeDetailsOrgSecondNamePage, "Prof. Birch")
-      // TODO: Update this test when CARF-192 / CARF-193 are implemented, to also remove the second contact email / phone related pages.
+        .withPage(ChangeDetailsOrgSecondEmailPage, "prof.birch@email.com")
+        .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
+        .withPage(ChangeDetailsOrgSecondPhoneNumberPage, "07777777777")
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -186,6 +188,8 @@ class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSuga
         verify(mockSessionRepository).set(argThat { ua =>
           ua.get(ChangeDetailsOrgSecondNamePage).isEmpty &&
           ua.get(ChangeDetailsOrgSecondEmailPage).isEmpty &&
+          ua.get(ChangeDetailsOrgSecondHavePhonePage).isEmpty &&
+          ua.get(ChangeDetailsOrgSecondPhoneNumberPage).isEmpty &&
           ua.get(ChangeDetailsOrgHaveSecondContactPage).contains(false)
         })
       }

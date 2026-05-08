@@ -30,7 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ChangeDetailsOrganisationHaveSecondContactView
+import views.html.ChangeOrgHaveSecondContactView
 
 import scala.concurrent.Future
 
@@ -59,7 +59,7 @@ class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSuga
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationHaveSecondContactView]
+        val view = application.injector.instanceOf[ChangeOrgHaveSecondContactView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, "John Smith")(request, messages(application)).toString
@@ -77,7 +77,7 @@ class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSuga
       running(application) {
         val request = FakeRequest(GET, changeDetailsOrganisationHaveSecondContactRoute)
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationHaveSecondContactView]
+        val view = application.injector.instanceOf[ChangeOrgHaveSecondContactView]
 
         val result = route(application, request).value
 
@@ -204,7 +204,7 @@ class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSuga
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[ChangeDetailsOrganisationHaveSecondContactView]
+        val view = application.injector.instanceOf[ChangeOrgHaveSecondContactView]
 
         val result = route(application, request).value
 

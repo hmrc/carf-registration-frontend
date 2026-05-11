@@ -1335,5 +1335,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         }
       }
     }
+
+    "ChangeDetailsOrgSecondHavePhonePage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrganisationContactDetailsController" in {
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
   }
 }

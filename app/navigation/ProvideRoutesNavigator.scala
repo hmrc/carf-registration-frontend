@@ -46,7 +46,7 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
 
     case ChangeDetailsOrgSecondEmailPage =>
       _ => changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
-      
+
     case ChangeDetailsOrgSecondNamePage =>
       _ => changeDetailsRoutes.ChangeOrgSecondContactEmailController.onPageLoad(ProvideMode)
 

@@ -22,7 +22,7 @@ import connectors.SubscriptionConnector
 import models.*
 import models.error.ApiError
 import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
-import models.requests.CreateSubscriptionRequest
+import models.requests.SubscriptionRequest
 import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
@@ -102,18 +102,18 @@ class SubscriptionServiceSpec extends SpecBase {
   "SubscriptionService" - {
     "subscribe" - {
       "should successfully create subscription with valid user answers" in {
-        when(mockConnector.createSubscription(any[CreateSubscriptionRequest])(any(), any())).thenReturn(
+        when(mockConnector.createSubscription(any[SubscriptionRequest])(any(), any())).thenReturn(
           EitherT.rightT[Future, ApiError](exampleSubscriptionId)
         )
 
         val result = testService.subscribe(userAnswers).value.futureValue
 
         result mustBe Right(exampleSubscriptionId)
-        verify(mockConnector).createSubscription(any[CreateSubscriptionRequest])(any(), any())
+        verify(mockConnector).createSubscription(any[SubscriptionRequest])(any(), any())
       }
 
       "should return error when connector fails" in {
-        when(mockConnector.createSubscription(any[CreateSubscriptionRequest])(any(), any())).thenReturn(
+        when(mockConnector.createSubscription(any[SubscriptionRequest])(any(), any())).thenReturn(
           EitherT.leftT[Future, SubscriptionId](InternalServerError)
         )
 
@@ -128,7 +128,7 @@ class SubscriptionServiceSpec extends SpecBase {
         result mustBe Left(
           MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")
         )
-        verify(mockConnector, never()).createSubscription(any[CreateSubscriptionRequest])(any(), any())
+        verify(mockConnector, never()).createSubscription(any[SubscriptionRequest])(any(), any())
       }
     }
 

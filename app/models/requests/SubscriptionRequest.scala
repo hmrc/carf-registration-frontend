@@ -18,7 +18,7 @@ package models.requests
 
 import play.api.libs.json.{Json, OFormat, Reads, Writes}
 
-case class CreateSubscriptionRequest(
+case class SubscriptionRequest(
     gbUser: Boolean,
     idNumber: String,
     idType: String,
@@ -27,7 +27,7 @@ case class CreateSubscriptionRequest(
     secondaryContact: Option[SubscriptionContactDetails]
 )
 
-object CreateSubscriptionRequest {
+object SubscriptionRequest {
 
-  implicit val format: OFormat[CreateSubscriptionRequest] = Json.format[CreateSubscriptionRequest]
+  implicit val format: OFormat[SubscriptionRequest] = Json.format[SubscriptionRequest]
 }

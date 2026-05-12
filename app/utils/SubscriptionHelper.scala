@@ -27,14 +27,14 @@ import pages.organisation.*
 
 class SubscriptionHelper {
 
-  def buildSubscriptionRequest(userAnswers: UserAnswers): Option[CreateSubscriptionRequest] =
+  def buildSubscriptionRequest(userAnswers: UserAnswers): Option[SubscriptionRequest] =
     for {
       safeId          <- userAnswers.safeId
       primaryContact  <- buildPrimaryContact(userAnswers)
       tradingName      = getTradingName(userAnswers)
       gbUser           = isGBUser(userAnswers)
       secondaryContact = buildSecondaryContact(userAnswers)
-    } yield CreateSubscriptionRequest(
+    } yield SubscriptionRequest(
       idType = IdentifierType.SAFE,
       idNumber = safeId.value,
       tradingName = tradingName,

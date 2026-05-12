@@ -20,7 +20,7 @@ import base.SpecBase
 import models.*
 import models.JourneyType.*
 import models.countries.CountryUk
-import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
+import models.requests.{SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact, SubscriptionRequest}
 import pages.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
@@ -121,7 +121,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result                          mustBe defined
           result.get.primaryContact.phone mustBe None
@@ -138,7 +138,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -154,7 +154,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -181,7 +181,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -216,7 +216,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result            mustBe defined
           result.get.gbUser mustBe true
@@ -239,7 +239,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result            mustBe defined
           result.get.gbUser mustBe true
@@ -253,7 +253,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -280,7 +280,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -309,7 +309,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -341,7 +341,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -377,7 +377,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -433,7 +433,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -500,7 +500,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -519,7 +519,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -553,7 +553,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result                      mustBe defined
           result.get.secondaryContact mustBe None
@@ -588,7 +588,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result                      mustBe defined
           result.get.secondaryContact mustBe None
@@ -625,7 +625,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -675,7 +675,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
@@ -697,7 +697,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }
@@ -725,7 +725,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result                 mustBe defined
           result.get.tradingName mustBe Some(testBusinessName)
@@ -779,7 +779,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
 
-          val result: Option[CreateSubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
           result mustBe None
         }

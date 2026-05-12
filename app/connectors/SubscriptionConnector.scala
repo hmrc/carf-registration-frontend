@@ -20,9 +20,9 @@ import cats.data.EitherT
 import config.FrontendAppConfig
 import models.SubscriptionId
 import models.error.ApiError
-import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, UnableToCreateSubscriptionError}
-import models.requests.CreateSubscriptionRequest
-import models.responses.{CreateSubscriptionResponse, DisplaySubscriptionResponse}
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, UnableToProcessSubscriptionError}
+import models.requests.SubscriptionRequest
+import models.responses.{DisplaySubscriptionResponse, SubscriptionResponse}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
+import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -40,26 +41,51 @@ import scala.util.{Failure, Success, Try}
 class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) extends Logging {
 
   def createSubscription(
-      createSubscriptionRequest: CreateSubscriptionRequest
+      createSubscriptionRequest: SubscriptionRequest
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[SubscriptionId] = {
 
     val submissionUrl = url"${config.carfRegistrationBaseUrl}/subscription/subscribe"
 
+    processSubscriptionRequest(createSubscriptionRequest, submissionUrl, false)
+  }
+
+  def updateSubscription(
+      updateSubscriptionRequest: SubscriptionRequest
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[SubscriptionId] = {
+
+    val submissionUrl = url"${config.carfRegistrationBaseUrl}/subscription/amend"
+
+    processSubscriptionRequest(updateSubscriptionRequest, submissionUrl, true)
+  }
+
+  private def processSubscriptionRequest(request: SubscriptionRequest, submissionUrl: URL, isUpdate: Boolean)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext
+  ): ResultT[SubscriptionId] = {
+
+    val action = if isUpdate then "Updating" else "Creating"
+
+    val requestBuilder =
+      if (isUpdate) {
+        http.put(submissionUrl)
+      } else {
+        http.post(submissionUrl)
+      }
+
     logger.debug(
-      s"[SubscriptionConnector] Creating subscription with request:\n ${Json.prettyPrint(Json.toJson(createSubscriptionRequest))}"
+      s"[SubscriptionConnector] $action subscription with request:\n ${Json.prettyPrint(Json.toJson(request))}"
     )
 
     ResultT.fromFuture(
-      http
-        .post(submissionUrl)
-        .withBody(Json.toJson(createSubscriptionRequest))
+      requestBuilder
+        .withBody(Json.toJson(request))
         .execute[HttpResponse]
         .map {
           case response if response.status == OK =>
-            Try(response.json.as[CreateSubscriptionResponse]) match {
+            Try(response.json.as[SubscriptionResponse]) match {
               case Success(data)      => Right(data.subscriptionId)
               case Failure(exception) =>
-                logger.warn(s"Error parsing CreateSubscriptionResponse with endpoint: $submissionUrl")
+                logger.warn(s"Error parsing SubscriptionResponse with endpoint: $submissionUrl")
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
@@ -117,7 +143,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
 
       case _ =>
         logger.warn(s"Received error response from backend: ${response.status}")
-        UnableToCreateSubscriptionError
+        UnableToProcessSubscriptionError
     }
   }
 

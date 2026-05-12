@@ -18,7 +18,7 @@ package utils
 
 import com.google.inject.Inject
 import models.JourneyType.*
-import models.error.{ApiError, DataError}
+import models.error.DataError
 import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
@@ -39,11 +39,11 @@ import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUk
 
 class CheckYourAnswersHelper @Inject() extends Logging {
 
-  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers, affinityGroup: AffinityGroup)(implicit
+  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit
       messages: Messages
   ): Option[Section] =
     IsThisYourBusinessSummary
-      .row(userAnswers, affinityGroup)
+      .row(userAnswers)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))
 
   def getOrgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] = {

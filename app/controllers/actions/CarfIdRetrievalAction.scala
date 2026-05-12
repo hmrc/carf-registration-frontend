@@ -19,7 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
-import models.{IdentifierRequestWithSubscriptionId, IdentifierType, SubscriptionId}
+import models.{IdentifierRequestWithSubscriptionId, IdentifierType, NormalMode, SubscriptionId}
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*
@@ -70,18 +70,18 @@ class CarfIdRetrievalActionExtractor @Inject() (
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(Retrievals.internalId and Retrievals.allEnrolments and affinityGroup) {
-      case Some(internalId) ~ enrolments ~ Some(affinityGroup) =>
+    authorised().retrieve(Retrievals.internalId and Retrievals.allEnrolments) {
+      case Some(internalId) ~ enrolments =>
         getCarfId(enrolments) match {
           case Some(subscriptionId) =>
             block(
-              IdentifierRequestWithSubscriptionId(request, internalId, affinityGroup, SubscriptionId(subscriptionId))
+              IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId))
             )
           case None                 =>
             logger.info("User has no CARF enrolment. Taking user to the start of the registration journey.")
-            Future.successful(Redirect(controllers.routes.IndexController.onPageLoad()))
+            Future.successful(Redirect(controllers.routes.IndexController.onPageLoad(NormalMode)))
         }
-      case _                                                   =>
+      case _                             =>
         val msg = "Unable to retrieve internal id or affinity group"
         logger.warn(msg)
         throw AuthorisationException.fromString(msg)

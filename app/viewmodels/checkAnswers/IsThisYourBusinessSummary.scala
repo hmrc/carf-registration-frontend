@@ -20,7 +20,6 @@ import models.responses.renderHTML
 import models.{ChangeMode, UserAnswers}
 import pages.IsThisYourBusinessPage
 import play.api.i18n.Messages
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -28,7 +27,7 @@ import viewmodels.implicits.*
 
 object IsThisYourBusinessSummary {
 
-  def row(answers: UserAnswers, affinityGroup: AffinityGroup)(implicit messages: Messages): Option[SummaryListRow] =
+  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(IsThisYourBusinessPage).map { answer =>
 
       val value = HtmlContent(
@@ -39,13 +38,7 @@ object IsThisYourBusinessSummary {
         if (answers.isCtAutoMatched) {
           controllers.organisation.routes.UnableToChangeBusinessController.onPageLoad().url
         } else {
-          affinityGroup match {
-            case AffinityGroup.Individual   =>
-              controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(ChangeMode).url
-            case AffinityGroup.Organisation =>
-              controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(ChangeMode).url
-            case _                          => throw new RuntimeException("Error! Agents not allowed in the service")
-          }
+          controllers.routes.IndexController.onPageLoad(ChangeMode).url
         }
 
       SummaryListRowViewModel(

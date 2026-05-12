@@ -23,6 +23,5 @@ import models.responses.DisplaySubscriptionResponse
 case class IdentifierRequestWithSubscriptionId[A](
     request: Request[A],
     userId: String,
-    affinityGroup: AffinityGroup,
     subscriptionId: SubscriptionId
 ) extends WrappedRequest[A](request)

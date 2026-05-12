@@ -16,14 +16,13 @@
 
 package pages.organisation
 
-import models.RegistrationType.{writes, SoleTrader}
+import models.RegistrationType.SoleTrader
 import models.{IndWithoutIdAddressNonUk, RegistrationType, UserAnswers}
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.{Page, QuestionPage, RegisteredAddressInUkPage}
 import play.api.libs.json.JsPath
-import uk.gov.hmrc.auth.core.AffinityGroup
 
 import scala.util.Try
 
@@ -87,19 +86,10 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
   ): Try[UserAnswers] = {
     val currentValue = userAnswers.get(RegistrationTypePage)
     if (hasChanged) {
-      userAnswers.affinityGroup match {
-        case AffinityGroup.Organisation =>
-          if (currentValue.contains(SoleTrader)) {
-            userAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages)
-          } else {
-            userAnswers.copy(hasValidMatch = false).remove(soleTraderPages)
-          }
-        case _                          =>
-          if (currentValue.contains(SoleTrader)) {
-            userAnswers.remove(nonIndNotConnectedToABusinessPages)
-          } else {
-            super.cleanup(value, userAnswers, hasChanged)
-          }
+      if (currentValue.contains(SoleTrader)) {
+        userAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages ++ nonIndNotConnectedToABusinessPages)
+      } else {
+        userAnswers.copy(hasValidMatch = false).remove(soleTraderPages)
       }
     } else {
       super.cleanup(value, userAnswers, hasChanged)

@@ -32,7 +32,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.{EnrolmentService, RegistrationService, SubscriptionService}
 import types.ResultT
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
@@ -60,10 +59,8 @@ class CheckYourAnswersController @Inject() (
     with Logging
     with I18nSupport {
 
-  private def businessDetailsSectionMaybe(userAnswers: UserAnswers, affinityGroup: AffinityGroup)(implicit
-      messages: Messages
-  ): Option[Section] =
-    helper.getBusinessDetailsSectionMaybe(userAnswers, affinityGroup)
+  private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
+    helper.getBusinessDetailsSectionMaybe(userAnswers)
 
   private def orgWithoutIdDetailsMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getOrgWithoutIdDetailsMaybe(userAnswers)
@@ -91,7 +88,7 @@ class CheckYourAnswersController @Inject() (
       val sectionsMaybe = journeyType match {
         case Some(OrgWithUtr)   =>
           for {
-            section1 <- businessDetailsSectionMaybe(userAnswers, request.affinityGroup)
+            section1 <- businessDetailsSectionMaybe(userAnswers)
             section2 <- firstContactDetailsSectionMaybe(userAnswers)
             section3 <- secondContactDetailsSectionMaybe(userAnswers)
           } yield Seq(section1, section2, section3)
@@ -102,7 +99,7 @@ class CheckYourAnswersController @Inject() (
           } yield Seq(section1, section2)
         case Some(IndWithUtr)   =>
           for {
-            section1 <- businessDetailsSectionMaybe(userAnswers, request.affinityGroup)
+            section1 <- businessDetailsSectionMaybe(userAnswers)
             section2 <- indContactDetails(userAnswers)
           } yield Seq(section1, section2)
         case Some(OrgWithoutId) =>

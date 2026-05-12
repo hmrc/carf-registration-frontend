@@ -20,7 +20,6 @@ import models.responses.DisplaySubscriptionResponse
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
-import uk.gov.hmrc.auth.core.AffinityGroup
 
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
@@ -31,7 +30,6 @@ final case class UserAnswers(
     changeIsIndividualRegType: Option[Boolean] = None,
     isCtAutoMatched: Boolean = false,
     safeId: Option[SafeId] = None,
-    affinityGroup: AffinityGroup,
     hasValidMatch: Boolean = false,
     subscriptionId: Option[SubscriptionId] = None,
     displaySubscriptionResponse: Option[DisplaySubscriptionResponse] = None,
@@ -95,7 +93,6 @@ object UserAnswers {
         (__ \ "changeIsIndividualRegType").readNullable[Boolean] and
         (__ \ "isCtAutoMatched").read[Boolean] and
         (__ \ "safeId").readNullable[SafeId] and
-        (__ \ "affinityGroup").read[AffinityGroup] and
         (__ \ "hasValidMatch").read[Boolean] and
         (__ \ "subscriptionId").readNullable[SubscriptionId] and
         (__ \ "displaySubscriptionResponse").readNullable[DisplaySubscriptionResponse] and
@@ -115,7 +112,6 @@ object UserAnswers {
         (__ \ "isCtAutoMatched").write[Boolean] and
         (__ \ "safeId").writeNullable[SafeId] and
         (__ \ "hasValidMatch").write[Boolean] and
-        (__ \ "affinityGroup").write[AffinityGroup] and
         (__ \ "subscriptionId").writeNullable[SubscriptionId] and
         (__ \ "displaySubscriptionResponse").writeNullable[DisplaySubscriptionResponse] and
         (__ \ "data").write[JsObject] and
@@ -128,7 +124,6 @@ object UserAnswers {
         ua.isCtAutoMatched,
         ua.safeId,
         ua.hasValidMatch,
-        ua.affinityGroup,
         ua.subscriptionId,
         ua.displaySubscriptionResponse,
         ua.data,

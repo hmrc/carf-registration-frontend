@@ -19,7 +19,7 @@ package controllers.organisation
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
-import models.OrganisationRegistrationType
+import models.{NormalMode, OrganisationRegistrationType}
 import models.RegistrationType.SoleTrader
 import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
 import play.api.Logging
@@ -47,7 +47,7 @@ class BusinessNotIdentifiedController @Inject() (
     implicit request =>
 
       val companiesHouseSearchUrl: String = appConfig.companiesHouseSearchUrl
-      val registrationStartUrl: String    = controllers.routes.IndexController.onPageLoad().url
+      val registrationStartUrl: String    = controllers.routes.IndexController.onPageLoad(NormalMode).url
       val findUTRUrl: String              = appConfig.findUTRUrl
       val aeoiEmailAddress: String        = appConfig.aeoiEmailAddress
 

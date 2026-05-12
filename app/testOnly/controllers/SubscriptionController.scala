@@ -35,50 +35,52 @@ class SubscriptionController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def updateOrgSubscription(name: String): Action[AnyContent] = Action.async { implicit request =>
+  def updateOrgSubscription(name: String, provideOptional: String): Action[AnyContent] = Action.async {
+    implicit request =>
 
-    val organisation = SubscriptionOrganisationContact(name)
+      val organisation = SubscriptionOrganisationContact(name)
 
-    val contact = SubscriptionContactDetails(
-      individual = None,
-      organisation = Some(organisation),
-      email = "test@email.com",
-      phone = Some("07123456789")
-    )
+      val contact = SubscriptionContactDetails(
+        individual = None,
+        organisation = Some(organisation),
+        email = "test@email.com",
+        phone = if provideOptional == "true" then Some("07123456789") else None
+      )
 
-    val subscriptionRequest = SubscriptionRequest(
-      gbUser = true,
-      idNumber = "XM000123456799",
-      idType = "SAFE",
-      primaryContact = contact,
-      secondaryContact = Some(contact),
-      tradingName = None
-    )
+      val subscriptionRequest = SubscriptionRequest(
+        gbUser = true,
+        idNumber = "XM000123456799",
+        idType = "SAFE",
+        primaryContact = contact,
+        secondaryContact = if provideOptional == "true" then Some(contact) else None,
+        tradingName = if provideOptional == "true" then Some("tradingName") else None
+      )
 
-    connector.updateSubscription(subscriptionRequest).processResponse
+      connector.updateSubscription(subscriptionRequest).processResponse
 
   }
 
-  def updateIndvSubscription(email: String): Action[AnyContent] = Action.async { implicit request =>
+  def updateIndvSubscription(email: String, provideOptional: String): Action[AnyContent] = Action.async {
+    implicit request =>
 
-    val individual = SubscriptionIndividualContact("John", "Doe")
-    val contact    = SubscriptionContactDetails(
-      individual = Some(individual),
-      organisation = None,
-      email = email,
-      phone = Some("07123456789")
-    )
+      val individual = SubscriptionIndividualContact("John", "Doe")
+      val contact    = SubscriptionContactDetails(
+        individual = Some(individual),
+        organisation = None,
+        email = email,
+        phone = if provideOptional == "true" then Some("07123456789") else None
+      )
 
-    val subscriptionRequest = SubscriptionRequest(
-      gbUser = true,
-      idNumber = "XM000123456799",
-      idType = "SAFE",
-      primaryContact = contact,
-      secondaryContact = None,
-      tradingName = None
-    )
+      val subscriptionRequest = SubscriptionRequest(
+        gbUser = true,
+        idNumber = "XM000123456799",
+        idType = "SAFE",
+        primaryContact = contact,
+        secondaryContact = None,
+        tradingName = if provideOptional == "true" then Some("tradingName") else None
+      )
 
-    connector.updateSubscription(subscriptionRequest).processResponse
+      connector.updateSubscription(subscriptionRequest).processResponse
   }
 
   extension (result: ResultT[SubscriptionId]) {

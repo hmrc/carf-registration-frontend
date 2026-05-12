@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.SubscriptionConnector
 import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
 import models.error.{ApiError, CarfError}
-import models.requests.CreateSubscriptionRequest
+import models.requests.SubscriptionRequest
 import models.responses.*
 import models.{SubscriptionId, UserAnswers}
 import play.api.Logging

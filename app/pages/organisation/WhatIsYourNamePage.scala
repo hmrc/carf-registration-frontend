@@ -16,13 +16,26 @@
 
 package pages.organisation
 
-import models.Name
+import models.{Name, UserAnswers}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object WhatIsYourNamePage extends QuestionPage[Name] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "whatIsYourName"
+
+  override def cleanup(
+      value: Option[Name],
+      userAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (hasChanged) {
+      Success(userAnswers.copy(hasValidMatch = false))
+    } else {
+      super.cleanup(value, userAnswers, hasChanged)
+    }
 }

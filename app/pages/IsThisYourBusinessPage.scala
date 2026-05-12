@@ -16,12 +16,25 @@
 
 package pages
 
-import models.IsThisYourBusinessPageDetails
+import models.{IsThisYourBusinessPageDetails, UserAnswers}
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object IsThisYourBusinessPage extends QuestionPage[IsThisYourBusinessPageDetails] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "isThisYourBusiness"
+
+  override def cleanup(
+      value: Option[IsThisYourBusinessPageDetails],
+      userAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (value.contains(false)) {
+      Success(userAnswers.copy(hasValidMatch = false))
+    } else {
+      super.cleanup(value, userAnswers, hasChanged)
+    }
 }

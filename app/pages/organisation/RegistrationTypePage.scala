@@ -105,19 +105,6 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
       super.cleanup(value, userAnswers, hasChanged)
     }
   }
-
-  //    if (value.contains(false)) {
-//      userAnswers.remove(
-//        List(
-//          DeclareSpiritsTotalPage,
-//          SpiritTypePage,
-//          OtherSpiritsProducedPage,
-//          WhiskyPage
-//        )
-//      )
-//    } else {
-//      super.cleanup(value, userAnswers)
-//    }
 }
 
 case object NavigatorOnlyIndividualRegistrationTypePage extends Page

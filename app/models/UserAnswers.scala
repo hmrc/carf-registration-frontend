@@ -73,7 +73,7 @@ final case class UserAnswers(
 
     updatedData.flatMap { d =>
       val updatedAnswers = copy(data = d)
-      page.cleanup(None, updatedAnswers, hasChanged = true)
+      Success(updatedAnswers)
     }
   }
 

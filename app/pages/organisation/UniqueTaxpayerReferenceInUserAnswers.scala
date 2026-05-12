@@ -16,15 +16,28 @@
 
 package pages.organisation
 
-import models.UniqueTaxpayerReference
+import models.{UniqueTaxpayerReference, UserAnswers}
 import pages.{Page, QuestionPage}
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object UniqueTaxpayerReferenceInUserAnswers extends QuestionPage[UniqueTaxpayerReference] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "utr"
+
+  override def cleanup(
+      value: Option[UniqueTaxpayerReference],
+      userAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (hasChanged) {
+      Success(userAnswers.copy(hasValidMatch = false))
+    } else {
+      super.cleanup(value, userAnswers, hasChanged)
+    }
 }
 
 case object YourUtrPageForNavigatorOnly extends Page

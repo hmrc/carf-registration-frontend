@@ -121,6 +121,7 @@ class CheckYourAnswersController @Inject() (
           None
       }
 
+      // TODO: Make valid match optional?
       if (request.userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(journeyType)) {
         sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())) { sections =>
           Ok(view(sections))

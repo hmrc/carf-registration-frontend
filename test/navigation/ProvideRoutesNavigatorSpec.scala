@@ -108,9 +108,7 @@ class ProvideRoutesNavigatorSpec extends SpecBase {
           ChangeDetailsOrgSecondEmailPage,
           ProvideMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/second-contact-have-phone page (CARF-192)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
       }
     }
 

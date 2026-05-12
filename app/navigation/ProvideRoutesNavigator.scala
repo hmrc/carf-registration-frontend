@@ -45,10 +45,7 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
     case ChangeDetailsOrgSecondEmailPage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/second-contact-have-phone page (CARF-192)"
-        )
+      _ => changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
 
     case ChangeDetailsOrgSecondNamePage =>
       _ => changeDetailsRoutes.ChangeOrgSecondContactEmailController.onPageLoad(ProvideMode)

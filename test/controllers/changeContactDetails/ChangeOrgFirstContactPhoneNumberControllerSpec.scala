@@ -42,7 +42,7 @@ class ChangeOrgFirstContactPhoneNumberControllerSpec extends SpecBase with Mocki
   val validPhoneNumber: String                          = "07777777777"
 
   lazy val changeFirstContactPhoneNumberRoute: String =
-    changeContactDetails.routes.ChangeOrgFirstContactPhoneNumberController.onPageLoad().url
+    changeContactDetails.routes.ChangeOrgFirstContactPhoneNumberController.onPageLoad(NormalMode).url
 
   "ChangeFirstContactPhoneNumber Controller" - {
 

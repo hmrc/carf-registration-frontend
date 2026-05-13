@@ -42,7 +42,7 @@ class ChangeOrgFirstContactNameControllerSpec extends SpecBase with MockitoSugar
   val form: Form[String]                         = formProvider()
 
   lazy val changeFirstContactNameRoute: String =
-    controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onPageLoad().url
+    controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onPageLoad(NormalMode).url
 
   "ChangeFirstContactName Controller" - {
 

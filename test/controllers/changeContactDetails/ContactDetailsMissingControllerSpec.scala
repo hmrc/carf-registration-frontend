@@ -62,7 +62,7 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
           applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         val expectedContinueUrl = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController
-          .onPageLoad()
+          .onPageLoad(ProvideMode)
           .url
 
         lazy val pageRoute: String =

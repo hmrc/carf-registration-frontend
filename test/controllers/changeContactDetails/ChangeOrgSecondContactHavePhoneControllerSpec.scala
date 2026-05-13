@@ -43,7 +43,7 @@ class ChangeOrgSecondContactHavePhoneControllerSpec extends SpecBase with Mockit
 
   lazy val changeDetailsOrgSecondContactHavePhoneRoute: String =
     controllers.changeContactDetails.routes.ChangeOrgSecondContactHavePhoneController
-      .onPageLoad()
+      .onPageLoad(NormalMode)
       .url
 
   "ChangeOrgSecondContactHavePhoneController" - {

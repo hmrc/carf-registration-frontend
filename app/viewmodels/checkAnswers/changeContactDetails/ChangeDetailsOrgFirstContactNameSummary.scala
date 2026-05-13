@@ -35,7 +35,8 @@ object ChangeDetailsOrgFirstContactNameSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onPageLoad().url
+            href =
+              controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onPageLoad(NormalMode).url
           ).withVisuallyHiddenText(messages("changeDetails.summaryList.FirstContactName.key.hidden"))
         )
       )

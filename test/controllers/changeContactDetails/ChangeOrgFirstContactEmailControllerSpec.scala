@@ -43,7 +43,7 @@ class ChangeOrgFirstContactEmailControllerSpec extends SpecBase with MockitoSuga
   val exampleEmail = "prof.birch@email.com"
 
   lazy val changeDetailsFirstContactEmailRoute =
-    controllers.changeContactDetails.routes.ChangeOrgFirstContactEmailController.onPageLoad().url
+    controllers.changeContactDetails.routes.ChangeOrgFirstContactEmailController.onPageLoad(NormalMode).url
 
   "ChangeOrganisationEmail Controller" - {
 

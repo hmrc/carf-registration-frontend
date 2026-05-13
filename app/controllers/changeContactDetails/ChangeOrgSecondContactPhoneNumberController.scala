@@ -20,6 +20,7 @@ import controllers.actions.*
 import forms.organisation.OrganisationSecondContactPhoneNumberFormProvider
 import models.Mode
 import navigation.Navigator
+import pages.changeContactDetails.*
 import pages.organisation.OrganisationSecondContactPhoneNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,41 +31,59 @@ import views.html.ChangeOrgSecondContactPhoneNumberView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ChangeOrgSecondContactPhoneNumberController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        submissionLock: SubmissionLockAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: OrganisationSecondContactPhoneNumberFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: ChangeOrgSecondContactPhoneNumberView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class ChangeOrgSecondContactPhoneNumberController @Inject() (
+    override val messagesApi: MessagesApi,
+    sessionRepository: SessionRepository,
+    navigator: Navigator,
+    carfIdRetrieval: CarfIdRetrievalAction,
+    changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    submissionLock: SubmissionLockAction,
+    requireData: DataRequiredAction,
+    formProvider: OrganisationSecondContactPhoneNumberFormProvider,
+    val controllerComponents: MessagesControllerComponents,
+    view: ChangeOrgSecondContactPhoneNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
+
+      val preparedForm = request.userAnswers.get(ChangeDetailsOrgSecondPhoneNumberPage).fold(form)(form.fill)
+
+      request.userAnswers
+        .get(ChangeDetailsOrgSecondNamePage)
+        .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(name =>
+          Ok(view(preparedForm, mode, name))
+        )
+    }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
-
-      val preparedForm = request.userAnswers.get(OrganisationSecondContactPhoneNumberPage).fold(form)(form.fill)
-
-      Ok(view(preparedForm, mode))
-  }
-
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(OrganisationSecondContactPhoneNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(OrganisationSecondContactPhoneNumberPage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              request.userAnswers
+                .get(ChangeDetailsOrgSecondNamePage)
+                .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(
+                  name => BadRequest(view(formWithErrors, mode, name))
+                )
+            ),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers.set(ChangeDetailsOrgSecondPhoneNumberPage, value)
+                                )
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(
+              navigator.nextPage(ChangeDetailsOrgSecondPhoneNumberPage, mode, updatedAnswers)
+            )
+        )
   }
 }

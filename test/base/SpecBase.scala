@@ -22,7 +22,7 @@ import generators.Generators
 import models.countries.{Country, CountryUk}
 import models.requests.{AddressDetails, ContactDetails}
 import models.responses.*
-import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, OrganisationBusinessAddress, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, OrganisationBusinessAddress, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -116,6 +116,8 @@ trait SpecBase
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
 
   lazy val testPostcode: String = validPostcodes.sample.value
+
+  lazy val testIsThisYourBusinessPageDetails = IsThisYourBusinessPageDetails(testBusinessDetails, Some(true))
 
   def oneAddressResponse: AddressResponse =
     AddressResponse(

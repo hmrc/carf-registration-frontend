@@ -39,6 +39,7 @@ import viewmodels.Section
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -118,29 +119,33 @@ class CheckYourAnswersController @Inject() (
           None
       }
 
-      // TODO: Make valid match optional?
       if (request.userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(journeyType)) {
         sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())) { sections =>
           Ok(view(sections))
         }
       } else {
-        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user")
+        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onPageLoad")
         Redirect(controllers.routes.InformationMissingController.onPageLoad())
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
     .async { implicit request =>
-      subscribeAndEnrol().value.map {
-        case Right(result)                => result
-        case Left(AlreadyRegisteredError) =>
-          Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
-        case Left(DataError)              =>
-          logger.error(s"[CheckYourAnswersController] Had missing data on submission")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case error                        =>
-          logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      if (request.userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(request.userAnswers.journeyType)) {
+        subscribeAndEnrol().value.map {
+          case Right(result)                => result
+          case Left(AlreadyRegisteredError) =>
+            Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+          case Left(DataError)              =>
+            logger.error(s"[CheckYourAnswersController] Had missing data on submission")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case error                        =>
+            logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
+      } else {
+        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
+        Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
       }
     }
 

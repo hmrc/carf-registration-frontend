@@ -16,20 +16,14 @@
 
 package navigation
 
-import config.Constants.noneOfTheseValue
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
-import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.RegistrationType.{Individual, SoleTrader}
-import models.{NormalMode, ProvideMode, RegistrationType, UserAnswers}
-import pages.*
+import models.{ProvideMode, UserAnswers}
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
-import pages.organisation.{HaveUTRPage, NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
+import pages.*
 import play.api.Logging
 import play.api.mvc.Call
 import utils.UserAnswersHelper
-
-import java.time.LocalDate
 
 trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
 

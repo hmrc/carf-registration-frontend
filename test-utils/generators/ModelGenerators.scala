@@ -67,14 +67,6 @@ trait ModelGenerators {
       } yield Name(firstName, lastName)
     }
 
-  implicit lazy val arbitraryWhatIsYourNameIndividual: Arbitrary[Name] =
-    Arbitrary {
-      for {
-        firstName <- arbitrary[String]
-        lastName  <- arbitrary[String]
-      } yield Name(firstName, lastName)
-    }
-
   implicit lazy val arbitraryOrganisationRegistrationType: Arbitrary[OrganisationRegistrationType] =
     Arbitrary {
       Gen.oneOf(OrganisationRegistrationType.values.toSeq)
@@ -91,5 +83,32 @@ trait ModelGenerators {
         postcode             <- arbitrary[String]
         propertyNameOrNumber <- arbitrary[String]
       } yield IndFindAddress(postcode, Some(propertyNameOrNumber))
+    }
+
+  implicit lazy val arbitraryCountryUk: Arbitrary[CountryUk] =
+    Arbitrary {
+      for {
+        code <- arbitrary[String]
+        name <- arbitrary[String]
+      } yield CountryUk(code, name)
+    }
+
+  implicit lazy val arbitraryAddressUk: Arbitrary[AddressUk] =
+    Arbitrary {
+      for {
+        addressLine1 <- addressStringGen
+        addressLine2 <- Gen.option(addressStringGen)
+        addressLine3 <- Gen.option(addressStringGen)
+        townOrCity   <- arbitrary[String]
+        postcode     <- postcodeStringGen
+        countryUk    <- arbitrary[CountryUk]
+      } yield AddressUk(
+        addressLine1 = addressLine1,
+        addressLine2 = addressLine2,
+        addressLine3 = addressLine3,
+        townOrCity = townOrCity,
+        postCode = postcode,
+        countryUk = countryUk
+      )
     }
 }

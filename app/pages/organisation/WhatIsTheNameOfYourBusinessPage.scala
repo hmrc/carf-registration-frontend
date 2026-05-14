@@ -29,7 +29,7 @@ case object WhatIsTheNameOfYourBusinessPage extends QuestionPage[String] {
   override def toString: String = "whatIsTheNameOfYourBusiness"
 
   override def cleanup(
-      value: Option[String],
+      value: String,
       userAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =

@@ -29,7 +29,7 @@ case object WhatIsYourNamePage extends QuestionPage[Name] {
   override def toString: String = "whatIsYourName"
 
   override def cleanup(
-      value: Option[Name],
+      value: Name,
       userAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =

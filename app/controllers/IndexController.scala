@@ -49,10 +49,7 @@ class IndexController @Inject() (
         request.affinityGroup match {
           case AffinityGroup.Individual =>
             for {
-              _ <-
-                sessionRepository.set(
-                  request.userAnswers.getOrElse(UserAnswers(id = request.userId))
-                )
+              _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
             } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(mode))
 
           case _ =>
@@ -63,11 +60,7 @@ class IndexController @Inject() (
                     Future.fromTry(
                       request.userAnswers
                         .getOrElse(
-                          UserAnswers(
-                            id = request.userId,
-                            isCtAutoMatched = true,
-                            journeyType = Some(OrgWithUtr)
-                          )
+                          UserAnswers(id = request.userId, isCtAutoMatched = true, journeyType = Some(OrgWithUtr))
                         )
                         .set(UniqueTaxpayerReferenceInUserAnswers, utr)
                     )
@@ -75,11 +68,7 @@ class IndexController @Inject() (
                 } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
               case None      =>
                 for {
-                  _ <- sessionRepository.set(
-                         request.userAnswers.getOrElse(
-                           UserAnswers(id = request.userId)
-                         )
-                       )
+                  _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
                 } yield Redirect(
                   controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(mode)
                 )

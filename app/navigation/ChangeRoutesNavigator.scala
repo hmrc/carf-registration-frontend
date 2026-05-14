@@ -23,7 +23,7 @@ import models.{ChangeMode, NormalMode, RegistrationType, UserAnswers}
 import pages.individual.IndividualEmailPage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.*
-import pages.{IsThisYourBusinessPage, Page, QuestionPage, RegisteredAddressInUkPage}
+import pages.*
 import play.api.libs.json.Reads
 import play.api.mvc.Call
 import utils.UserAnswersHelper

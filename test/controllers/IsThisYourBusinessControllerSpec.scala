@@ -171,7 +171,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
         }
       }
 
-      "must return Redirect to Journey recovery when country name is not returned" in {
+      "must Redirect to Journey recovery when country name is not returned" in {
 
         when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(None)
 
@@ -215,7 +215,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .value
           .set(
             IsThisYourBusinessPage,
-            IsThisYourBusinessPageDetails(testBusinessDetails, Some(true))
+            testIsThisYourBusinessPageDetails
           )
           .success
           .value
@@ -429,7 +429,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           .value
           .set(
             IsThisYourBusinessPage,
-            IsThisYourBusinessPageDetails(testBusinessDetails, Some(true))
+            testIsThisYourBusinessPageDetails
           )
           .success
           .value
@@ -625,7 +625,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
     }
 
     "onSubmit" - {
-      "must redirect to the next page when valid data is submitted" in {
+      "must redirect to the next page and set the match flag to true when valid data is submitted" in {
         val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
@@ -636,7 +636,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
           val result  = route(application, request).value
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
-          verify(mockSessionRepository).set(any)
+          verify(mockSessionRepository).set(argThat(ua => ua.hasValidMatch))
         }
       }
 

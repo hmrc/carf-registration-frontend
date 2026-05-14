@@ -25,7 +25,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers}
+import pages.RegistrationTypePage
+import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest

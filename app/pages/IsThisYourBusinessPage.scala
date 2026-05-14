@@ -28,11 +28,11 @@ case object IsThisYourBusinessPage extends QuestionPage[IsThisYourBusinessPageDe
   override def toString: String = "isThisYourBusiness"
 
   override def cleanup(
-      value: Option[IsThisYourBusinessPageDetails],
+      value: IsThisYourBusinessPageDetails,
       userAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =
-    if (value.contains(false)) {
+    if (value.pageAnswer.contains(false)) {
       Success(userAnswers.copy(hasValidMatch = false))
     } else {
       super.cleanup(value, userAnswers, hasChanged)

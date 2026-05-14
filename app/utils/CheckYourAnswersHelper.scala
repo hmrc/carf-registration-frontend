@@ -24,11 +24,10 @@ import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
 import pages.orgWithoutId.{HaveTradingNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import types.ResultT
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.Section
 import viewmodels.checkAnswers.individual.*
@@ -39,9 +38,7 @@ import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUk
 
 class CheckYourAnswersHelper @Inject() extends Logging {
 
-  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit
-      messages: Messages
-  ): Option[Section] =
+  def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     IsThisYourBusinessSummary
       .row(userAnswers)
       .map(row => Section(messages("checkYourAnswers.summaryListTitle.businessDetails"), Seq(row)))

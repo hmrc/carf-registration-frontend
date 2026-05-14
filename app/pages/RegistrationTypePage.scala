@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package pages.organisation
+package pages
 
-import models.RegistrationType.SoleTrader
+import models.RegistrationType.{Individual, SoleTrader}
 import models.{IndWithoutIdAddressNonUk, RegistrationType, UserAnswers}
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
+import pages.organisation.*
 import pages.{Page, QuestionPage, RegisteredAddressInUkPage}
 import play.api.libs.json.JsPath
 
@@ -80,14 +81,16 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
   )
 
   override def cleanup(
-      value: Option[RegistrationType],
+      value: RegistrationType,
       userAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] = {
     val currentValue = userAnswers.get(RegistrationTypePage)
     if (hasChanged) {
       if (currentValue.contains(SoleTrader)) {
-        userAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages ++ nonIndNotConnectedToABusinessPages)
+        userAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages)
+      } else if (currentValue.contains(Individual)) {
+        userAnswers.copy(hasValidMatch = false).remove(nonIndNotConnectedToABusinessPages)
       } else {
         userAnswers.copy(hasValidMatch = false).remove(soleTraderPages)
       }

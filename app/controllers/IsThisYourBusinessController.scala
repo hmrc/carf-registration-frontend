@@ -104,7 +104,12 @@ class IsThisYourBusinessController @Inject() (
               value => {
                 val updatedPageDetails = existingPageDetails.copy(pageAnswer = Some(value))
                 for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, updatedPageDetails))
+                  updatedAnswers <-
+                    if (value) {
+                      Future.fromTry(
+                        request.userAnswers.copy(hasValidMatch = true).set(IsThisYourBusinessPage, updatedPageDetails)
+                      )
+                    } else { Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, updatedPageDetails)) }
                   _              <- sessionRepository.set(updatedAnswers)
                 } yield {
                   logger.info(s"User answered '$value' for IsThisYourBusiness with business")
@@ -200,11 +205,7 @@ class IsThisYourBusinessController @Inject() (
 
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(
-                              updatedAnswers
-                                .copy(safeId = Some(safeId))
-                                .copy(hasValidMatch = true)
-                            )
+          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
         } yield {
           val existingAnswer =
             request.userAnswers

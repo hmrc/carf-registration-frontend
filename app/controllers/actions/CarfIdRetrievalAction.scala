@@ -74,15 +74,13 @@ class CarfIdRetrievalActionExtractor @Inject() (
       case Some(internalId) ~ enrolments =>
         getCarfId(enrolments) match {
           case Some(subscriptionId) =>
-            block(
-              IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId))
-            )
+            block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
           case None                 =>
             logger.info("User has no CARF enrolment. Taking user to the start of the registration journey.")
             Future.successful(Redirect(controllers.routes.IndexController.onPageLoad(NormalMode)))
         }
       case _                             =>
-        val msg = "Unable to retrieve internal id or affinity group"
+        val msg = "Unable to retrieve internal id"
         logger.warn(msg)
         throw AuthorisationException.fromString(msg)
     } recover {

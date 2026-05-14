@@ -20,7 +20,7 @@ import base.SpecBase
 import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.RegistrationType.*
 import models.UserAnswers
-import pages.organisation.RegistrationTypePage
+import pages.RegistrationTypePage
 
 class UserAnswersHelperSpec extends SpecBase {
 

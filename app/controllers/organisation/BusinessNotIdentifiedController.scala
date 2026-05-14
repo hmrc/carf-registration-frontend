@@ -21,7 +21,8 @@ import controllers.actions.*
 import controllers.routes
 import models.{NormalMode, OrganisationRegistrationType}
 import models.RegistrationType.SoleTrader
-import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
+import pages.RegistrationTypePage
+import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

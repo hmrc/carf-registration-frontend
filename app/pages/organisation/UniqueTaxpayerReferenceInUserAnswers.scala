@@ -29,7 +29,7 @@ case object UniqueTaxpayerReferenceInUserAnswers extends QuestionPage[UniqueTaxp
   override def toString: String = "utr"
 
   override def cleanup(
-      value: Option[UniqueTaxpayerReference],
+      value: UniqueTaxpayerReference,
       userAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =

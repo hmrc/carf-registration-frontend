@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
 import models.{ChangeMode, UserAnswers}
-import pages.organisation.RegistrationTypePage
+import pages.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent

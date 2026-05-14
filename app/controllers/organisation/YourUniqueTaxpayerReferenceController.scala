@@ -21,7 +21,8 @@ import forms.organisation.YourUniqueTaxpayerReferenceFormProvider
 import models.RegistrationType.*
 import models.{Mode, RegistrationType, UniqueTaxpayerReference}
 import navigation.Navigator
-import pages.organisation.{RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, YourUtrPageForNavigatorOnly}
+import pages.RegistrationTypePage
+import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, YourUtrPageForNavigatorOnly}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

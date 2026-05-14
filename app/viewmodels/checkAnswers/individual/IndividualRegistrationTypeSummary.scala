@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.individual
 
 import controllers.routes
 import models.{ChangeMode, RegistrationType, UserAnswers}
-import pages.organisation.RegistrationTypePage
+import pages.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent

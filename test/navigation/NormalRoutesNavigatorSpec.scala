@@ -1346,7 +1346,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-
     "ChangeDetailsOrgSecondPhoneNumberPage navigation" - {
       "ChangeDetailsOrgSecondPhoneNumberPage navigation" - {
         "must navigate from ChangeDetailsOrgSecondPhoneNumberPage to Organisation Change Details page" in {

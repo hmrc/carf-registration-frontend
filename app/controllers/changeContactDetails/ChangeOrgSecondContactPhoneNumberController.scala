@@ -43,7 +43,7 @@ class ChangeOrgSecondContactPhoneNumberController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  private val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>

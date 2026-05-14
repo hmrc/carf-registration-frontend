@@ -21,7 +21,6 @@ import forms.organisation.OrganisationSecondContactPhoneNumberFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.changeContactDetails.*
-import pages.organisation.OrganisationSecondContactPhoneNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -37,10 +36,6 @@ class ChangeOrgSecondContactPhoneNumberController @Inject() (
     navigator: Navigator,
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
     formProvider: OrganisationSecondContactPhoneNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
     view: ChangeOrgSecondContactPhoneNumberView

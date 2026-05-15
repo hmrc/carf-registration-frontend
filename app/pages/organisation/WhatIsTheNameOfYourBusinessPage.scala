@@ -29,13 +29,13 @@ case object WhatIsTheNameOfYourBusinessPage extends QuestionPage[String] {
   override def toString: String = "whatIsTheNameOfYourBusiness"
 
   override def cleanup(
-      value: String,
-      userAnswers: UserAnswers,
+      newValue: String,
+      updatedUserAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      Success(userAnswers.copy(hasValidMatch = false))
+      Success(updatedUserAnswers.copy(hasValidMatch = false))
     } else {
-      super.cleanup(value, userAnswers, hasChanged)
+      Success(updatedUserAnswers)
     }
 }

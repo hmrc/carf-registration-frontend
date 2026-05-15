@@ -29,14 +29,14 @@ case object UniqueTaxpayerReferenceInUserAnswers extends QuestionPage[UniqueTaxp
   override def toString: String = "utr"
 
   override def cleanup(
-      value: UniqueTaxpayerReference,
-      userAnswers: UserAnswers,
+      newValue: UniqueTaxpayerReference,
+      updatedUserAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      Success(userAnswers.copy(hasValidMatch = false))
+      Success(updatedUserAnswers.copy(hasValidMatch = false))
     } else {
-      super.cleanup(value, userAnswers, hasChanged)
+      Success(updatedUserAnswers)
     }
 }
 

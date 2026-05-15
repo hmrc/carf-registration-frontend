@@ -29,13 +29,13 @@ case object WhatIsYourNamePage extends QuestionPage[Name] {
   override def toString: String = "whatIsYourName"
 
   override def cleanup(
-      value: Name,
-      userAnswers: UserAnswers,
+      newValue: Name,
+      updatedUserAnswers: UserAnswers,
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      Success(userAnswers.copy(hasValidMatch = false))
+      Success(updatedUserAnswers.copy(hasValidMatch = false))
     } else {
-      super.cleanup(value, userAnswers, hasChanged)
+      Success(updatedUserAnswers)
     }
 }

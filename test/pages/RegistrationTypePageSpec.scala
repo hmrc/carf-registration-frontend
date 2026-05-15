@@ -61,7 +61,10 @@ class RegistrationTypePageSpec extends SpecBase {
         "when the new answer is different to the previous one and is sole trader" in {
           val ua     = generateUserAnswers(SoleTrader).withPage(RegistrationTypePage, SoleTrader)
           val result =
-            RegistrationTypePage.cleanup(value = SoleTrader, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.get(WhatIsTheNameOfYourBusinessPage)          mustBe empty
           result.get(FirstContactNamePage)                     mustBe empty
@@ -82,7 +85,10 @@ class RegistrationTypePageSpec extends SpecBase {
         "when the new answer is different to the previous one and is individual not connected to a business" in {
           val ua     = generateUserAnswers(Individual).withPage(RegistrationTypePage, Individual)
           val result =
-            RegistrationTypePage.cleanup(value = Individual, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = Individual, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.get(RegisteredAddressInUkPage)            mustBe empty
           result.get(HaveUTRPage)                          mustBe empty
@@ -94,7 +100,7 @@ class RegistrationTypePageSpec extends SpecBase {
         "when the new answer is different to the previous one and is Limited Company (non sole trader)" in {
           val ua     = generateUserAnswers(LimitedCompany).withPage(RegistrationTypePage, LimitedCompany)
           val result = RegistrationTypePage
-            .cleanup(value = LimitedCompany, userAnswers = ua, hasChanged = true)
+            .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = true)
             .success
             .value
 
@@ -120,7 +126,7 @@ class RegistrationTypePageSpec extends SpecBase {
         "when answer has not changed, do nothing" in {
           val ua     = emptyUserAnswers
           val result = RegistrationTypePage
-            .cleanup(value = LimitedCompany, userAnswers = ua, hasChanged = false)
+            .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = false)
             .success
             .value
 
@@ -135,7 +141,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = true)
 
           val result =
-            RegistrationTypePage.cleanup(value = SoleTrader, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }
@@ -146,7 +155,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = false)
 
           val result =
-            RegistrationTypePage.cleanup(value = SoleTrader, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }
@@ -157,7 +169,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = true)
 
           val result =
-            RegistrationTypePage.cleanup(value = Individual, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = Individual, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }
@@ -168,7 +183,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = false)
 
           val result =
-            RegistrationTypePage.cleanup(value = SoleTrader, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }
@@ -179,7 +197,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = true)
 
           val result =
-            RegistrationTypePage.cleanup(value = LimitedCompany, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }
@@ -190,7 +211,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = false)
 
           val result =
-            RegistrationTypePage.cleanup(value = LimitedCompany, userAnswers = ua, hasChanged = true).success.value
+            RegistrationTypePage
+              .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = true)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }
@@ -201,7 +225,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = true)
 
           val result =
-            RegistrationTypePage.cleanup(value = LimitedCompany, userAnswers = ua, hasChanged = false).success.value
+            RegistrationTypePage
+              .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = false)
+              .success
+              .value
 
           result.hasValidMatch mustBe true
         }
@@ -212,7 +239,10 @@ class RegistrationTypePageSpec extends SpecBase {
             .copy(hasValidMatch = false)
 
           val result =
-            RegistrationTypePage.cleanup(value = LimitedCompany, userAnswers = ua, hasChanged = false).success.value
+            RegistrationTypePage
+              .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = false)
+              .success
+              .value
 
           result.hasValidMatch mustBe false
         }

@@ -83,51 +83,59 @@ class CheckYourAnswersController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
-      val userAnswers                      = request.userAnswers
-      val journeyType: Option[JourneyType] = userAnswers.journeyType
+      val userAnswers = request.userAnswers
 
-      val sectionsMaybe = journeyType match {
-        case Some(OrgWithUtr)   =>
-          for {
-            section1 <- businessDetailsSectionMaybe(userAnswers)
-            section2 <- firstContactDetailsSectionMaybe(userAnswers)
-            section3 <- secondContactDetailsSectionMaybe(userAnswers)
-          } yield Seq(section1, section2, section3)
-        case Some(IndWithNino)  =>
-          for {
-            section1 <- indWithNinoYourDetails(userAnswers)
-            section2 <- indContactDetails(userAnswers)
-          } yield Seq(section1, section2)
-        case Some(IndWithUtr)   =>
-          for {
-            section1 <- businessDetailsSectionMaybe(userAnswers)
-            section2 <- indContactDetails(userAnswers)
-          } yield Seq(section1, section2)
-        case Some(OrgWithoutId) =>
-          for {
-            section1 <- orgWithoutIdDetailsMaybe(userAnswers)
-            section2 <- firstContactDetailsSectionMaybe(userAnswers)
-            section3 <- secondContactDetailsSectionMaybe(userAnswers)
-          } yield Seq(section1, section2, section3)
-        case Some(IndWithoutId) =>
-          for {
-            section1 <- indWithoutIdYourDetails(userAnswers)
-            section2 <- indContactDetails(userAnswers)
-          } yield Seq(section1, section2)
-        case _                  =>
-          logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
-          None
-      }
+      val sectionsMaybe = for {
+        journeyType <- userAnswers.journeyType
+        sections    <- getSectionsMaybe(userAnswers, journeyType)
+      } yield sections
 
-      if (request.userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(journeyType)) {
-        sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())) { sections =>
-          Ok(view(sections))
-        }
-      } else {
-        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onPageLoad")
-        Redirect(controllers.routes.InformationMissingController.onPageLoad())
+      (sectionsMaybe, isMatchValidOrNotNeeded(userAnswers)) match {
+        case (Some(sections), true)                   => Ok(view(sections))
+        case (sectionsMaybe, matchIsValidOrNotNeeded) =>
+          logger.warn(
+            s"[CheckYourAnswersController] Error! Could not load page. " +
+              s"< journeyType = ${userAnswers.journeyType} > " +
+              s"< matchIsValidOrNotNeeded = $matchIsValidOrNotNeeded > " +
+              s"< is sectionsMaybe empty = ${sectionsMaybe.isEmpty} >"
+          )
+          Redirect(controllers.routes.InformationMissingController.onPageLoad())
       }
   }
+
+  private def isMatchValidOrNotNeeded(userAnswers: UserAnswers): Boolean =
+    userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(userAnswers.journeyType)
+
+  private def getSectionsMaybe(userAnswers: UserAnswers, journeyType: JourneyType)(implicit messages: Messages) =
+    journeyType match {
+      case OrgWithUtr   =>
+        for {
+          section1 <- businessDetailsSectionMaybe(userAnswers)
+          section2 <- firstContactDetailsSectionMaybe(userAnswers)
+          section3 <- secondContactDetailsSectionMaybe(userAnswers)
+        } yield Seq(section1, section2, section3)
+      case IndWithNino  =>
+        for {
+          section1 <- indWithNinoYourDetails(userAnswers)
+          section2 <- indContactDetails(userAnswers)
+        } yield Seq(section1, section2)
+      case IndWithUtr   =>
+        for {
+          section1 <- businessDetailsSectionMaybe(userAnswers)
+          section2 <- indContactDetails(userAnswers)
+        } yield Seq(section1, section2)
+      case OrgWithoutId =>
+        for {
+          section1 <- orgWithoutIdDetailsMaybe(userAnswers)
+          section2 <- firstContactDetailsSectionMaybe(userAnswers)
+          section3 <- secondContactDetailsSectionMaybe(userAnswers)
+        } yield Seq(section1, section2, section3)
+      case IndWithoutId =>
+        for {
+          section1 <- indWithoutIdYourDetails(userAnswers)
+          section2 <- indContactDetails(userAnswers)
+        } yield Seq(section1, section2)
+    }
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
     .async { implicit request =>

@@ -126,10 +126,10 @@ trait ModelGenerators {
         addressLine1 <- addressStringGen
         addressLine2 <- Gen.option(addressStringGen)
         addressLine3 <- Gen.option(addressStringGen)
-        addressLine4   <- Gen.option(addressStringGen)
-        postalCode     <- Gen.option(postcodeStringGen)
-        countryCode     <- arbitrary[String]
-        countryName     <- Gen.option(arbitrary[String])
+        addressLine4 <- Gen.option(addressStringGen)
+        postalCode   <- Gen.option(postcodeStringGen)
+        countryCode  <- arbitrary[String]
+        countryName  <- Gen.option(arbitrary[String])
       } yield AddressRegistrationResponse(
         addressLine1 = addressLine1,
         addressLine2 = addressLine2,
@@ -140,21 +140,21 @@ trait ModelGenerators {
         countryName = countryName
       )
     }
-    
+
   implicit lazy val arbitraryBusinessDetails: Arbitrary[BusinessDetails] =
     Arbitrary {
       for {
-        name <- arbitrary[String]
+        name    <- arbitrary[String]
         address <- arbitrary[AddressRegistrationResponse]
-        safeId <- arbitrary[String]
+        safeId  <- arbitrary[String]
       } yield BusinessDetails(name, address, safeId)
     }
-    
+
   implicit lazy val arbitraryIsThisYourBusinessPageDetails: Arbitrary[IsThisYourBusinessPageDetails] =
     Arbitrary {
       for {
         businessDetails <- arbitrary[BusinessDetails]
-        pageAnswer <- Gen.option(arbitrary[Boolean])
+        pageAnswer      <- Gen.option(arbitrary[Boolean])
       } yield IsThisYourBusinessPageDetails(businessDetails, pageAnswer)
     }
 }

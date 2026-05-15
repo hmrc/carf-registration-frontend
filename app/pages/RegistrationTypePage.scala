@@ -24,7 +24,7 @@ import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, Or
 import pages.organisation.*
 import play.api.libs.json.JsPath
 
-import scala.util.Try
+import scala.util.{Success, Try}
 
 case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
@@ -49,30 +49,24 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
     OrganisationBusinessAddressPage
   )
 
-  private val soleTraderPages = List(
-    // Ind with utr page
-    WhatIsYourNamePage,
-    // General ind page
-    HaveNiNumberPage,
-    // Ind with NINO pages
-    NiNumberPage,
-    WhatIsYourNameIndividualPage,
-    RegisterDateOfBirthPage,
-    // Ind without id pages
-    IndFindAddressAdditionalCallUa,
-    IndFindAddressPage,
-    IndWithoutNinoNamePage,
-    IndWithoutIdAddressNonUkPage,
-    IndWithoutIdAddressPagePrePop,
-    IndWithoutIdChooseAddressPage,
-    IndWithoutIdDateOfBirthPage,
-    IndWithoutIdSelectedChooseAddressPage,
-    IndWithoutIdUkAddressInUserAnswers,
-    // Ind contact details pages
-    IndividualEmailPage,
-    IndividualHavePhonePage,
-    IndividualPhoneNumberPage
-  )
+  private val soleTraderPages = {
+    val indWithUtrPage         = List(WhatIsYourNamePage)
+    val indGeneralPage         = List(HaveNiNumberPage)
+    val indWithNinoPages       = List(NiNumberPage, WhatIsYourNameIndividualPage, RegisterDateOfBirthPage)
+    val indWithoutIdPages      = List(
+      IndFindAddressAdditionalCallUa,
+      IndFindAddressPage,
+      IndWithoutNinoNamePage,
+      IndWithoutIdAddressNonUkPage,
+      IndWithoutIdAddressPagePrePop,
+      IndWithoutIdChooseAddressPage,
+      IndWithoutIdDateOfBirthPage,
+      IndWithoutIdSelectedChooseAddressPage,
+      IndWithoutIdUkAddressInUserAnswers
+    )
+    val indContactDetailsPages = List(IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage)
+    indWithUtrPage ++ indGeneralPage ++ indWithNinoPages ++ indWithoutIdPages ++ indContactDetailsPages
+  }
 
   private val nonIndNotConnectedToABusinessPages = List(
     RegisteredAddressInUkPage,
@@ -83,23 +77,21 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
   )
 
   override def cleanup(
-      value: RegistrationType,
-      userAnswers: UserAnswers,
+      newValue: RegistrationType,
+      updatedUserAnswers: UserAnswers,
       hasChanged: Boolean
-  ): Try[UserAnswers] = {
-    val currentValue = userAnswers.get(RegistrationTypePage)
+  ): Try[UserAnswers] =
     if (hasChanged) {
-      if (currentValue.contains(SoleTrader)) {
-        userAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages)
-      } else if (currentValue.contains(Individual)) {
-        userAnswers.copy(hasValidMatch = false).remove(nonIndNotConnectedToABusinessPages)
+      if (newValue == SoleTrader) {
+        updatedUserAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages)
+      } else if (newValue == Individual) {
+        updatedUserAnswers.copy(hasValidMatch = false).remove(nonIndNotConnectedToABusinessPages)
       } else {
-        userAnswers.copy(hasValidMatch = false).remove(soleTraderPages)
+        updatedUserAnswers.copy(hasValidMatch = false).remove(soleTraderPages)
       }
     } else {
-      super.cleanup(value, userAnswers, hasChanged)
+      Success(updatedUserAnswers)
     }
-  }
 }
 
 case object NavigatorOnlyIndividualRegistrationTypePage extends Page

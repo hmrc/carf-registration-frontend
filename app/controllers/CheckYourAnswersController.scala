@@ -139,7 +139,7 @@ class CheckYourAnswersController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
     .async { implicit request =>
-      if (request.userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(request.userAnswers.journeyType)) {
+      if (isMatchValidOrNotNeeded(request.userAnswers)) {
         subscribeAndEnrol().value.map {
           case Right(result)                => result
           case Left(AlreadyRegisteredError) =>

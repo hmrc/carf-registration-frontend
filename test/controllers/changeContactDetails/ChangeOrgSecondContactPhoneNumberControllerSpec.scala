@@ -106,7 +106,7 @@ class ChangeOrgSecondContactPhoneNumberControllerSpec extends SpecBase with Mock
     "must redirect to Some Information Is Missing Page when name cannot be found in the session for POST when invalid data is submitted" in {
       val userAnswers = UserAnswers(userAnswersId)
         .withPage(ChangeDetailsOrgSecondPhoneNumberPage, validPhoneNumber)
-      
+
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {

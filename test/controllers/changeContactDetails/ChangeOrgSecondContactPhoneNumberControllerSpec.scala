@@ -103,6 +103,27 @@ class ChangeOrgSecondContactPhoneNumberControllerSpec extends SpecBase with Mock
       }
     }
 
+    "must redirect to Some Information Is Missing Page when name cannot be found in the session for POST when invalid data is submitted" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .withPage(ChangeDetailsOrgSecondPhoneNumberPage, validPhoneNumber)
+
+      userAnswers.get(ChangeDetailsOrgSecondNamePage) mustBe None
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeOrgSecondContactPhoneNumberRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
+        val result  = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ContactDetailsMissingController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 

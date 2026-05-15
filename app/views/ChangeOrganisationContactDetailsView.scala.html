@@ -1,0 +1,87 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.Section
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+
+@this(
+        layout: templates.Layout,
+        govukSummaryList: GovukSummaryList,
+        govukButton: GovukButton,
+        formHelper: FormWithCSRF,
+        link: components.Link
+)
+
+@(firstContactSummaryListRows: Seq[SummaryListRow], secondContactSummaryListRows: Seq[SummaryListRow],
+        hasChanged: Boolean, backToManageLink: String)(implicit request: Request[_], messages: Messages)
+
+@getTitle = @{
+    if(hasChanged) {
+        messages("changeOrgDetails.title.dynamic")
+    } else {
+        messages("changeOrgDetails.title.normal")
+    }
+}
+
+@getHeading = @{
+    if(hasChanged) {
+        messages("changeOrgDetails.heading.dynamic")
+    } else {
+        messages("changeOrgDetails.heading.normal")
+    }
+}
+
+@layout(pageTitle = titleNoForm(getTitle)) {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrganisationContactDetailsController.onSubmit(), Symbol("autoComplete") -> "on") {
+
+        <h1 class="govuk-heading-l">@getHeading</h1>
+
+        <h2 class="govuk-heading-m">@messages("changeOrgDetails.firstContact.SummaryList.heading")</h2>
+
+        @govukSummaryList(SummaryList(
+            rows = firstContactSummaryListRows,
+            classes = "govuk-!-margin-bottom-9"
+        ))
+
+        <h2 class="govuk-heading-m">@messages("changeOrgDetails.secondContact.SummaryList.heading")</h2>
+
+        @govukSummaryList(SummaryList(
+            rows = secondContactSummaryListRows,
+            classes = "govuk-!-margin-bottom-0"
+        ))
+
+        <br>
+        <br>
+
+        @if(hasChanged) {
+            <br>
+            <h2 class="govuk-heading-m">@messages("changeDetails.subtitle.dynamic")</h2>
+
+            <p class="govuk-body">@messages("changeDetails.p1.dynamic")</p>
+
+            @govukButton(
+                ButtonViewModel(messages("site.confirmAndSend")).withAttribute("id" -> "submit").preventingDoubleClick()
+            )
+        }
+
+        <br>
+        <br>
+
+        <p class="govuk-body">@link(s"$backToManageLink", "changeDetails.linkText")</p>
+
+
+    }
+}

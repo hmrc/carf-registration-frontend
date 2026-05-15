@@ -19,8 +19,8 @@ package navigation
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.{ProvideMode, UserAnswers}
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import pages.*
+import pages.changeContactDetails.*
 import play.api.Logging
 import play.api.mvc.Call
 import utils.UserAnswersHelper
@@ -37,6 +37,12 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
 
     case ChangeDetailsIndividualPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgSecondEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
+
+    case ChangeDetailsOrgSecondNamePage =>
+      _ => changeDetailsRoutes.ChangeOrgSecondContactEmailController.onPageLoad(ProvideMode)
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()

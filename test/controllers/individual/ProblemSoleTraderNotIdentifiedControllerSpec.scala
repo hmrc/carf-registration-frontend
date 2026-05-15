@@ -26,7 +26,7 @@ import views.html.individual.ProblemSoleTraderNotIdentifiedView
 
 class ProblemSoleTraderNotIdentifiedControllerSpec extends SpecBase {
 
-  val testName = "Timmy Turnips"
+  override val testName = "Timmy Turnips"
 
   val testIndexPageUrl: String     = controllers.routes.IndexController.onPageLoad(NormalMode).url
   val guidancePageUrl: String      = "https://www.gov.uk/find-utr-number"

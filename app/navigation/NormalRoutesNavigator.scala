@@ -21,9 +21,9 @@ import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{NormalMode, RegistrationType, UserAnswers}
+import models.{NormalMode, ProvideMode, RegistrationType, UserAnswers}
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
@@ -153,11 +153,29 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case ChangeDetailsIndividualPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
-    case ChangeDetailsFirstContactNamePage =>
-      _ =>
-        routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+    case ChangeDetailsOrgFirstPhoneNumberPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgFirstNamePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgFirstEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgSecondNamePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgSecondEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgFirstHavePhonePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgHaveSecondContactPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+
+    case ChangeDetailsOrgSecondHavePhonePage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()

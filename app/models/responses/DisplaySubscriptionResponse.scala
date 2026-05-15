@@ -35,13 +35,38 @@ object DisplaySubscriptionResponse {
 }
 
 extension (displaySubscriptionResponse: DisplaySubscriptionResponse) {
-  def hasIndividualChangedData(email: String, phone: Option[String]): Boolean =
+  def hasIndividualChangedData(email: String, phone: Option[String]): Boolean = {
     val primaryContact                 = displaySubscriptionResponse.success.carfSubscriptionDetails.primaryContact
     val hasEmailChanged: Boolean       = !(primaryContact.email == email)
     val hasPhoneNumberChanged: Boolean = !(primaryContact.phone == phone)
 
     hasEmailChanged | hasPhoneNumberChanged
+  }
 
+  def hasOrganisationChangedData(
+      firstContactEmail: String,
+      firstContactName: String,
+      firstContactPhone: Option[String],
+      secondContactName: Option[String],
+      secondContactEmail: Option[String],
+      secondContactPhone: Option[String]
+  ): Boolean = {
+    val primaryContact = displaySubscriptionResponse.success.carfSubscriptionDetails.primaryContact
+
+    val hasPrimaryNameChanged: Boolean        = !primaryContact.organisation.map(_.name).contains(firstContactName)
+    val hasPrimaryEmailChanged: Boolean       = !(primaryContact.email == firstContactEmail)
+    val hasPrimaryPhoneNumberChanged: Boolean = !(primaryContact.phone == firstContactPhone)
+
+    val secondaryContact = displaySubscriptionResponse.success.carfSubscriptionDetails.secondaryContact
+
+    val hasSecondaryNameChanged: Boolean        =
+      !(secondaryContact.flatMap(_.organisation.map(_.name)) == secondContactName)
+    val hasSecondaryEmailChanged: Boolean       = !(secondaryContact.map(_.email) == secondContactEmail)
+    val hasSecondaryPhoneNumberChanged: Boolean = !(secondaryContact.flatMap(_.phone) == secondContactPhone)
+
+    hasPrimaryNameChanged | hasPrimaryEmailChanged | hasPrimaryPhoneNumberChanged | hasSecondaryNameChanged |
+      hasSecondaryEmailChanged | hasSecondaryPhoneNumberChanged
+  }
 }
 
 case class DisplaySubscriptionSuccess(processingDate: String, carfSubscriptionDetails: DisplaySubscriptionDetails)

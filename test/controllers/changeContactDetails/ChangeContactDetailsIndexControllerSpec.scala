@@ -24,7 +24,7 @@ import models.responses.DisplaySubscriptionResponse
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
 import pages.individual.HaveNiNumberPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Application
@@ -44,6 +44,7 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
     testExistingUserAnswers.set(UniqueTaxpayerReferenceInUserAnswers, testUtr).success.value
 
   "Change Contact Details Index Controller" - {
+
     "when the service call to the get the display subscription details returns none" - {
       "must redirect to the journey recovery page" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
@@ -56,33 +57,6 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         status(result)        mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.JourneyRecoveryController.onPageLoad().url)
         verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
-      }
-    }
-
-    "when display subscription response is organisation" - {
-      "must redirect user to the placeholder controller" in new Setup {
-        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
-          .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponse))
-
-        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-
-        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
-
-        val result: Future[Result] = route(application, request).value
-
-        status(result)        mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(
-          controllers.routes.PlaceholderController
-            .onPageLoad(
-              "Should redirect to /change-contact/organisation/details (CARF-141)"
-            )
-            .url
-        )
-        verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
-        verify(mockSessionRepository)
-          .set(
-            argThat(_.changeIsIndividualRegType.get == false)
-          )
       }
     }
 
@@ -150,6 +124,73 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         verify(mockSessionRepository)
           .set(
             argThat(_.changeIsIndividualRegType.get == true)
+          )
+      }
+    }
+
+    "when display subscription response is organisation" - {
+      "must set user answers with all page info and redirect successfully when phone is none" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponseWithNoPhone))
+
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          routes.ChangeOrganisationContactDetailsController.onPageLoad().url
+        )
+        verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
+        verify(mockSessionRepository)
+          .set(
+            argThat { ua =>
+              !ua.changeIsIndividualRegType.get && ua.get(ChangeDetailsOrgFirstNamePage).isDefined
+            }
+          )
+      }
+
+      "must set user answers with all page info and redirect successfully when phone is returned from the service" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponse))
+
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          routes.ChangeOrganisationContactDetailsController.onPageLoad().url
+        )
+        verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.changeIsIndividualRegType.get == false)
+          )
+      }
+
+      "must set user answers with all page info and redirect successfully when secondary phone is none" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testOrgDisplaySubscriptionResponseWithSecondaryNoPhone).copy())
+
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          routes.ChangeOrganisationContactDetailsController.onPageLoad().url
+        )
+        verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.get(ChangeDetailsOrgSecondPhoneNumberPage).isDefined == false)
           )
       }
     }

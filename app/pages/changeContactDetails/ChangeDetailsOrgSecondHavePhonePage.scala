@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages.changeContactDetails
 
-import play.api.libs.json.{Json, OFormat, Reads, Writes}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class CreateSubscriptionRequest(
-    gbUser: Boolean,
-    idNumber: String,
-    idType: String,
-    tradingName: Option[String],
-    primaryContact: SubscriptionContactDetails,
-    secondaryContact: Option[SubscriptionContactDetails]
-)
+case object ChangeDetailsOrgSecondHavePhonePage extends QuestionPage[Boolean] {
 
-object CreateSubscriptionRequest {
+  override def path: JsPath = JsPath \ toString
 
-  implicit val format: OFormat[CreateSubscriptionRequest] = Json.format[CreateSubscriptionRequest]
+  override def toString: String = "changeDetailsOrgSecondHavePhonePage"
 }

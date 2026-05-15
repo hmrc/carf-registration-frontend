@@ -25,9 +25,9 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
-class ChangeDetailsHelperSpec extends SpecBase {
+class ChangeIndividualDetailsHelperSpec extends SpecBase {
 
-  val testHelper                  = new ChangeDetailsHelper()
+  val testHelper                  = new ChangeIndividualDetailsHelper()
   implicit val messages: Messages = messages(app)
 
   def compareRowsToExpected(
@@ -51,8 +51,8 @@ class ChangeDetailsHelperSpec extends SpecBase {
   }
 
   "ChangeDetailsHelper" - {
-    "getFirstContactDetailsSectionMaybe" - {
-      "must return a section when all questions have been answered correctly" in new TestData {
+    "getFirstContactDetailsSectionMaybe" - new TestData {
+      "must return a section when all questions have been answered correctly" in {
         val rows: Seq[SummaryListRow] = testHelper.getFirstContactDetailsSectionMaybe(fullUserAnswers).get
         val expectedKeys: Seq[String] = Seq(
           "Email address",
@@ -61,7 +61,7 @@ class ChangeDetailsHelperSpec extends SpecBase {
         )
         compareRowsToExpected(expectedKeys, rows)
       }
-      "must return a section when all questions have been answered correctly but have phone was false" in new TestData {
+      "must return a section when all questions have been answered correctly but have phone was false" in {
         val rows: Seq[SummaryListRow] = testHelper.getFirstContactDetailsSectionMaybe(fullUserAnswersNoPhone).get
         val expectedKeys: Seq[String] = Seq(
           "Email address",
@@ -69,18 +69,18 @@ class ChangeDetailsHelperSpec extends SpecBase {
         )
         compareRowsToExpected(expectedKeys, rows)
       }
-      "must return None if user answers does not contain email address" in new TestData {
+      "must return None if user answers does not contain email address" in {
         val rows: Option[Seq[SummaryListRow]] = testHelper.getFirstContactDetailsSectionMaybe(emptyUserAnswers)
 
         rows mustBe None
       }
-      "must return None if user answers does not contain have phone" in new TestData {
+      "must return None if user answers does not contain have phone" in {
         val rows: Option[Seq[SummaryListRow]] =
           testHelper.getFirstContactDetailsSectionMaybe(userAnswersWithoutHavePhone)
 
         rows mustBe None
       }
-      "must return None if user answers does not contain phone but have phone is true" in new TestData {
+      "must return None if user answers does not contain phone but have phone is true" in {
         val rows: Option[Seq[SummaryListRow]] = testHelper.getFirstContactDetailsSectionMaybe(userAnswersWithoutPhone)
 
         rows mustBe None

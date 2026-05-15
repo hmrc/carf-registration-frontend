@@ -52,10 +52,7 @@ class FirstContactPhoneNumberController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(FirstContactPhoneNumberPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = request.userAnswers.get(FirstContactPhoneNumberPage).fold(form)(form.fill)
 
       request.userAnswers.get(FirstContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))

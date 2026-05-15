@@ -26,7 +26,7 @@ import models.countries.*
 import models.responses.AddressRegistrationResponse
 import org.scalactic.Prettifier.default
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsFirstContactNamePage, ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
@@ -904,7 +904,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "OrganisationSecondContactHavePhone navigation" - {
-      "must go to Organisation Second Contact Phone Number page when user answers 'Yes'" in {
+      "must go to Organisation Second Contact phone Number page when user answers 'Yes'" in {
         val userAnswers = emptyUserAnswers.set(OrganisationSecondContactHavePhonePage, true).success.value
         navigator.nextPage(
           OrganisationSecondContactHavePhonePage,
@@ -1249,19 +1249,102 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "ChangeDetailsFirstContactNamePage navigation" - {
-      "must navigate from ChangeDetailsFirstContactNamePage to ChangeOrganisationContactDetailsController" in {
+    "ChangeDetailsOrgFirstNamePage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstNamePage to ChangeOrganisationContactDetailsController" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .withPage(ChangeDetailsFirstContactNamePage, "John Smith")
+          .withPage(ChangeDetailsOrgFirstNamePage, "John Smith")
 
         navigator.nextPage(
-          ChangeDetailsFirstContactNamePage,
+          ChangeDetailsOrgFirstNamePage,
           NormalMode,
           userAnswers
-        ) mustBe routes.PlaceholderController.onPageLoad(
-          "Should redirect to change-contact/organisation/details page (CARF-141)"
-        )
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
+
+    "ChangeDetailsOrgFirstEmailPage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstEmailPage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrgFirstEmailPage, "prof.birch@email.com")
+
+        navigator.nextPage(
+          ChangeDetailsOrgFirstEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsOrgSecondNamePage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondNamePage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrgSecondNamePage, "Prof. Birch")
+
+        navigator.nextPage(
+          ChangeDetailsOrgSecondNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsOrgFirstHavePhonePage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstHavePhonePage to ChangeOrganisationContactDetailsController" in {
+        navigator.nextPage(
+          ChangeDetailsOrgFirstHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsOrgFirstPhoneNumberPage navigation" - {
+      "must navigate from ChangeDetailsOrgFirstPhoneNumberPage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrgFirstPhoneNumberPage, "07777777777")
+
+        navigator.nextPage(
+          ChangeDetailsOrgFirstPhoneNumberPage,
+          NormalMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsOrgSecondEmailPage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondEmailPage to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .withPage(ChangeDetailsOrgSecondEmailPage, "prof.rowan@email.com")
+
+        navigator.nextPage(
+          ChangeDetailsOrgSecondEmailPage,
+          NormalMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
+    "ChangeDetailsOrgHaveSecondContactPage navigation" - {
+      "ChangeDetailsOrgHaveSecondContactPage navigation" - {
+        "must navigate from ChangeDetailsOrgHaveSecondContactPage to Organisation Change Details page" in {
+          navigator.nextPage(
+            ChangeDetailsOrgHaveSecondContactPage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+        }
+      }
+    }
+
+    "ChangeDetailsOrgSecondHavePhonePage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrganisationContactDetailsController" in {
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
   }
 }

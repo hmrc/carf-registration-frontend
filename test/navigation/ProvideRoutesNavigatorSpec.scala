@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.{ProvideMode, UserAnswers}
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
 import pages.individual.HaveNiNumberPage
 
 class ProvideRoutesNavigatorSpec extends SpecBase {
@@ -94,6 +94,36 @@ class ProvideRoutesNavigatorSpec extends SpecBase {
           ProvideMode,
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
+      }
+    }
+
+    "when on ChangeDetailsOrgSecondEmailPage" - {
+      "must navigate to ChangeDetailsOrganisationSecondContactHavePhoneController in ProvideMode" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondEmailPage, "test@example.com")
+          .success
+          .value
+
+        navigator.nextPage(
+          ChangeDetailsOrgSecondEmailPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
+      }
+    }
+
+    "when on ChangeDetailsOrgSecondNamePage" - {
+      "must navigate to ChangeOrgSecondContactEmailController in ProvideMode" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondNamePage, "Sandy Barnes")
+          .success
+          .value
+
+        navigator.nextPage(
+          ChangeDetailsOrgSecondNamePage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactEmailController.onPageLoad(ProvideMode)
       }
     }
 

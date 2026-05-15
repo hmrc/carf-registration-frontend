@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.SubscriptionConnector
 import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
 import models.error.{ApiError, CarfError}
-import models.requests.CreateSubscriptionRequest
+import models.requests.SubscriptionRequest
 import models.responses.*
 import models.{SubscriptionId, UserAnswers}
 import play.api.Logging
@@ -73,10 +73,14 @@ class SubscriptionService @Inject() (
         error
       }
 
-  def updateSubscription(subscriptionId: SubscriptionId)(implicit hc: HeaderCarrier): Future[Either[CarfError, Unit]] =
-    if (subscriptionId.value.take(3) == "199") {
+  def updateSubscription(
+      subscriptionId: SubscriptionId
+  )(implicit hc: HeaderCarrier): Future[Either[CarfError, Unit]] = {
+    val firstThreeChars = subscriptionId.value.take(3).toUpperCase
+    if (Set("199", "R99").contains(firstThreeChars)) {
       Future.successful(Left(InternalServerError))
     } else {
       Future.successful(Right((): Unit))
     }
+  }
 }

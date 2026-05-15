@@ -20,8 +20,8 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import itutil.ApplicationWithWiremock
 import models.SubscriptionId
-import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, JsonValidationError, NotFoundError, UnableToCreateSubscriptionError}
-import models.requests.{CreateSubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
+import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, JsonValidationError, NotFoundError, UnableToProcessSubscriptionError}
+import models.requests.{SubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
 import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
 import org.scalactic.Prettifier.default
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -52,7 +52,7 @@ class SubscriptionConnectorISpec
     phone = Some("07123456789")
   )
 
-  val validSubscriptionRequest: CreateSubscriptionRequest = CreateSubscriptionRequest(
+  val validSubscriptionRequest: SubscriptionRequest = SubscriptionRequest(
     gbUser = true,
     idNumber = "SAFE123456",
     idType = "SAFE",
@@ -221,7 +221,7 @@ class SubscriptionConnectorISpec
       result shouldBe Left(AlreadyRegisteredError)
     }
 
-    "return UnableToCreateSubscriptionError when backend returns 400 status" in {
+    "return UnableToProcessSubscriptionError when backend returns 400 status" in {
       val errorResponse = Json.obj(
         "status"  -> "Bad request",
         "message" -> "Invalid request"
@@ -237,10 +237,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
-    "return UnableToCreateSubscriptionError when backend returns 500" in {
+    "return UnableToProcessSubscriptionError when backend returns 500" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -251,10 +251,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
-    "return UnableToCreateSubscriptionError when backend returns 503" in {
+    "return UnableToProcessSubscriptionError when backend returns 503" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -265,10 +265,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
-    "return UnableToCreateSubscriptionError when response body is not valid JSON" in {
+    "return UnableToProcessSubscriptionError when response body is not valid JSON" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -279,10 +279,10 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
-    "return UnableToCreateSubscriptionError when response body is empty JSON" in {
+    "return UnableToProcessSubscriptionError when response body is empty JSON" in {
       stubFor(
         post(urlPathMatching("/carf-registration/subscription/subscribe"))
           .willReturn(
@@ -293,7 +293,7 @@ class SubscriptionConnectorISpec
       )
 
       val result = connector.createSubscription(validSubscriptionRequest).value.futureValue
-      result shouldBe Left(UnableToCreateSubscriptionError)
+      result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
     "handle subscription request with no secondary contact" in {
@@ -312,6 +312,127 @@ class SubscriptionConnectorISpec
       result shouldBe Right(SubscriptionId("CARF123456"))
     }
 
+  }
+  
+  "updateSubscription" should {
+    "successfully update a subscription and return a subscription ID" in {
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validSubscriptionResponseJson)
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Right(SubscriptionId("CARF123456"))
+    }
+
+    "return JsonValidationError when response JSON is invalid" in {
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson("invalid response").toString)
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Left(JsonValidationError)
+    }
+
+    "return JsonValidationError when response JSON structure is incorrect" in {
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("""{"incorrect": "structure"}""")
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Left(JsonValidationError)
+    }
+
+    "return UnableToProcessSubscriptionError when backend returns 400 status" in {
+      val testApiErrorDetailResponseJson: String = generateErrorResponseJson("400")
+
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/subscribe"))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody(testApiErrorDetailResponseJson)
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Left(UnableToProcessSubscriptionError)
+    }
+
+    "return UnableToProcessSubscriptionError when backend returns 500" in {
+
+      val testApiErrorDetailResponseJson: String = generateErrorResponseJson("500")
+
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody(testApiErrorDetailResponseJson)
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Left(UnableToProcessSubscriptionError)
+    }
+
+    "return UnableToProcessSubscriptionError when response body is not valid JSON" in {
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody("Not a JSON response")
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Left(UnableToProcessSubscriptionError)
+    }
+
+    "return UnableToProcessSubscriptionError when response body is empty JSON" in {
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody("{}")
+          )
+      )
+
+      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      result shouldBe Left(UnableToProcessSubscriptionError)
+    }
+
+    "handle subscription request with no secondary contact" in {
+      val validRequestWithoutSecondaryContact = validSubscriptionRequest.copy(secondaryContact = None)
+
+      stubFor(
+        put(urlPathMatching("/carf-registration/subscription/amend"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validSubscriptionResponseJson)
+          )
+      )
+
+      val result = connector.updateSubscription(validRequestWithoutSecondaryContact).value.futureValue
+      result shouldBe Right(SubscriptionId("CARF123456"))
+    }
   }
 
   "displaySubscription" should {
@@ -446,4 +567,20 @@ class SubscriptionConnectorISpec
     }
 
   }
+
+  def generateErrorResponseJson(errorCode: String): String =
+    s"""{
+      |  "errorDetail": {
+      |    "errorCode": "$errorCode",
+      |    "errorMessage": "Test Error Message",
+      |    "source": "Test",
+      |    "sourceFaultDetail": {
+      |      "detail": [
+      |        "Test Error Detail"
+      |      ]
+      |    },
+      |    "timestamp": "2020-09-25T21:54:12.015Z",
+      |    "correlationId": "1ae81b45-41b4-4642-ae1c-db1126900001"
+      |  }
+      |}""".stripMargin
 }

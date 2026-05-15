@@ -16,7 +16,6 @@
 
 package forms.changeContactDetails
 
-import forms.ChangeDetailsIndividualHavePhoneFormProvider
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 

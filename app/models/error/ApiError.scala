@@ -58,7 +58,7 @@ object ApiError {
 
   case object DuplicateSubmissionError extends ApiError
 
-  case object UnableToCreateSubscriptionError extends ApiError
+  case object UnableToProcessSubscriptionError extends ApiError
 
   case object UnableToCreateEnrolmentError extends ApiError
 

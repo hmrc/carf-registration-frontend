@@ -18,14 +18,12 @@ package viewmodels.checkAnswers.changeContactDetails
 
 import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.ChangeDetailsIndividualPhoneNumberPage
-import pages.individual.IndividualPhoneNumberPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-import models.NormalMode
 
 object ChangeDetailsIndividualPhoneNumberSummary {
 

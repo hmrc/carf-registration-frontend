@@ -640,6 +640,21 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
         }
       }
 
+      "must redirect to the next page and not set the match flag to true when valid data is submitted" in {
+        val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, postRoute).withFormUrlEncodedBody(("value", "false"))
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository).set(argThat(ua => !ua.hasValidMatch))
+        }
+      }
+
       "must return a Bad Request when invalid data is submitted" in {
         val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()

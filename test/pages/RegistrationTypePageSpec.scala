@@ -39,7 +39,21 @@ class RegistrationTypePageSpec extends SpecBase {
     findAddress     <- arbitrary[IndFindAddress]
     addressNonUk    <- arbitrary[IndWithoutIdAddressNonUk]
     addressUk       <- arbitrary[AddressUk]
-  } yield (stringField, booleanField, postcode, dob, businessAddress, name, findAddress, addressNonUk, addressUk)
+    utr             <- arbitrary[UniqueTaxpayerReference]
+    itybpd          <- arbitrary[IsThisYourBusinessPageDetails]
+  } yield (
+    stringField,
+    booleanField,
+    postcode,
+    dob,
+    businessAddress,
+    name,
+    findAddress,
+    addressNonUk,
+    addressUk,
+    utr,
+    itybpd
+  )
 
   "RegistrationTypePage" - {
     "cleanup" - {
@@ -66,12 +80,15 @@ class RegistrationTypePageSpec extends SpecBase {
         }
 
         "when the new answer is different to the previous one and is individual not connected to a business" in {
-          val ua     = generateUserAnswers(SoleTrader).withPage(RegistrationTypePage, Individual)
+          val ua     = generateUserAnswers(Individual).withPage(RegistrationTypePage, Individual)
           val result =
             RegistrationTypePage.cleanup(value = Individual, userAnswers = ua, hasChanged = true).success.value
 
-          result.get(RegisteredAddressInUkPage) mustBe empty
-          result.get(HaveUTRPage)               mustBe empty
+          result.get(RegisteredAddressInUkPage)            mustBe empty
+          result.get(HaveUTRPage)                          mustBe empty
+          result.get(UniqueTaxpayerReferenceInUserAnswers) mustBe empty
+          result.get(WhatIsYourNamePage)                   mustBe empty
+          result.get(IsThisYourBusinessPage)               mustBe empty
         }
 
         "when the new answer is different to the previous one and is Limited Company (non sole trader)" in {
@@ -217,7 +234,19 @@ class RegistrationTypePageSpec extends SpecBase {
 
   def createUserAnswersForNonSoleTraderCleanup: Gen[UserAnswers] =
     for {
-      (stringField, booleanField, postcode, dob, businessAddress, name, findAddress, addressNonUk, addressUk) <-
+      (
+        stringField,
+        booleanField,
+        postcode,
+        dob,
+        businessAddress,
+        name,
+        findAddress,
+        addressNonUk,
+        addressUk,
+        utr,
+        itybpd
+      ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
       .withPage(WhatIsTheNameOfYourBusinessPage, stringField)
@@ -237,7 +266,19 @@ class RegistrationTypePageSpec extends SpecBase {
 
   def createUserAnswersForSoleTraderCleanup: Gen[UserAnswers] =
     for {
-      (stringField, booleanField, postcode, dob, businessAddress, name, findAddress, addressNonUk, addressUk) <-
+      (
+        stringField,
+        booleanField,
+        postcode,
+        dob,
+        businessAddress,
+        name,
+        findAddress,
+        addressNonUk,
+        addressUk,
+        utr,
+        itybpd
+      ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
       .withPage(WhatIsYourNamePage, name)
@@ -260,10 +301,25 @@ class RegistrationTypePageSpec extends SpecBase {
 
   def createUserAnswersForIndividualCleanup: Gen[UserAnswers] =
     for {
-      (stringField, booleanField, postcode, dob, businessAddress, name, findAddress, addressNonUk, addressUk) <-
+      (
+        stringField,
+        booleanField,
+        postcode,
+        dob,
+        businessAddress,
+        name,
+        findAddress,
+        addressNonUk,
+        addressUk,
+        utr,
+        itybpd
+      ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
       .withPage(RegisteredAddressInUkPage, booleanField)
       .withPage(HaveUTRPage, booleanField)
+      .withPage(UniqueTaxpayerReferenceInUserAnswers, utr)
+      .withPage(WhatIsYourNamePage, name)
+      .withPage(IsThisYourBusinessPage, itybpd)
 
 }

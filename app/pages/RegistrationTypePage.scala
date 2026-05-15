@@ -22,7 +22,6 @@ import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
-import pages.{Page, QuestionPage, RegisteredAddressInUkPage}
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -77,7 +76,10 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
   private val nonIndNotConnectedToABusinessPages = List(
     RegisteredAddressInUkPage,
-    HaveUTRPage
+    HaveUTRPage,
+    UniqueTaxpayerReferenceInUserAnswers,
+    WhatIsYourNamePage,
+    IsThisYourBusinessPage
   )
 
   override def cleanup(

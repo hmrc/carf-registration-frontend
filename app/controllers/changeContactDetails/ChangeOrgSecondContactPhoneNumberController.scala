@@ -18,11 +18,11 @@ package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.organisation.OrganisationSecondContactPhoneNumberFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.changeContactDetails.*
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ChangeOrgSecondContactPhoneNumberView
@@ -50,11 +50,7 @@ class ChangeOrgSecondContactPhoneNumberController @Inject() (
 
       val preparedForm = request.userAnswers.get(ChangeDetailsOrgSecondPhoneNumberPage).fold(form)(form.fill)
 
-      request.userAnswers
-        .get(ChangeDetailsOrgSecondNamePage)
-        .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(name =>
-          Ok(view(preparedForm, mode, name))
-        )
+      resultWithSecondContactName(request.userAnswers)(name => Ok(view(preparedForm, mode, name)))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
@@ -64,11 +60,9 @@ class ChangeOrgSecondContactPhoneNumberController @Inject() (
         .fold(
           formWithErrors =>
             Future.successful(
-              request.userAnswers
-                .get(ChangeDetailsOrgSecondNamePage)
-                .fold(Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()))(
-                  name => BadRequest(view(formWithErrors, mode, name))
-                )
+              resultWithSecondContactName(request.userAnswers)(name =>
+                BadRequest(view(formWithErrors, mode, name))
+              )
             ),
           value =>
             for {
@@ -81,4 +75,11 @@ class ChangeOrgSecondContactPhoneNumberController @Inject() (
             )
         )
   }
+
+  private def resultWithSecondContactName(userAnswers: UserAnswers)(whenNamePresent: String => Result): Result =
+    userAnswers
+      .get(ChangeDetailsOrgSecondNamePage)
+      .fold(
+        Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
+      )(whenNamePresent)
 }

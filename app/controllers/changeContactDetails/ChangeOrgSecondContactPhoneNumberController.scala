@@ -60,9 +60,7 @@ class ChangeOrgSecondContactPhoneNumberController @Inject() (
         .fold(
           formWithErrors =>
             Future.successful(
-              resultWithSecondContactName(request.userAnswers)(name =>
-                BadRequest(view(formWithErrors, mode, name))
-              )
+              resultWithSecondContactName(request.userAnswers)(name => BadRequest(view(formWithErrors, mode, name)))
             ),
           value =>
             for {

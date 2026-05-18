@@ -175,7 +175,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
     case ChangeDetailsOrgSecondHavePhonePage =>
-      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      userAnswers => navigateFromChangeDetailsSecondContactHavePhonePage(userAnswers)
 
     case ChangeDetailsOrgSecondPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
@@ -331,6 +331,16 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
       case Some(false) =>
         routes.CheckYourAnswersController.onPageLoad()
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeDetailsSecondContactHavePhonePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(ChangeDetailsOrgSecondHavePhonePage) match {
+      case Some(true)  =>
+        changeDetailsRoutes.ChangeOrgSecondContactPhoneNumberController.onPageLoad()
+      case Some(false) =>
+        changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }

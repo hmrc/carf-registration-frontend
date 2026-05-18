@@ -1337,11 +1337,29 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "ChangeDetailsOrgSecondHavePhonePage navigation" - {
-      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrganisationContactDetailsController" in {
+      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrgSecondContactPhoneNumberController when answer is true" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondHavePhonePage, true)
+          .success
+          .value
+
         navigator.nextPage(
           ChangeDetailsOrgSecondHavePhonePage,
           NormalMode,
-          emptyUserAnswers
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactPhoneNumberController.onPageLoad()
+      }
+
+      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrganisationContactDetailsController when answer is false" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondHavePhonePage, false)
+          .success
+          .value
+
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          NormalMode,
+          userAnswers
         ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }

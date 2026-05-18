@@ -94,7 +94,7 @@ class ChangeOrgSecondContactHavePhoneController @Inject() (
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsOrgSecondHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          navigator.nextPage(ChangeDetailsOrgSecondHavePhonePage, mode, updatedAnswers)
+          controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onPageLoad()
         )
 
       case _ =>

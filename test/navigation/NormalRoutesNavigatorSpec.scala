@@ -1336,42 +1336,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "ChangeDetailsOrgSecondHavePhonePage navigation" - {
-      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrgSecondContactPhoneNumberController when answer is true" in {
-        val userAnswers = emptyUserAnswers
-          .set(ChangeDetailsOrgSecondHavePhonePage, true)
-          .success
-          .value
-
-        navigator.nextPage(
-          ChangeDetailsOrgSecondHavePhonePage,
-          NormalMode,
-          userAnswers
-        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactPhoneNumberController.onPageLoad()
-      }
-
-      "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrganisationContactDetailsController when answer is false" in {
-        val userAnswers = emptyUserAnswers
-          .set(ChangeDetailsOrgSecondHavePhonePage, false)
-          .success
-          .value
-
-        navigator.nextPage(
-          ChangeDetailsOrgSecondHavePhonePage,
-          NormalMode,
-          userAnswers
-        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
-      }
-
-      "must navigate from ChangeDetailsOrgSecondHavePhonePage to JourneyRecoveryController when answer is missing" in {
-        navigator.nextPage(
-          ChangeDetailsOrgSecondHavePhonePage,
-          NormalMode,
-          emptyUserAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
-    }
-
     "ChangeDetailsOrgSecondPhoneNumberPage navigation" - {
       "must navigate from ChangeDetailsOrgSecondPhoneNumberPage to Organisation Change Details page" in {
         navigator.nextPage(

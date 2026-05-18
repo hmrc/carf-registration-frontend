@@ -189,6 +189,30 @@ class ChangeOrgSecondContactHavePhoneControllerSpec extends SpecBase with Mockit
       }
     }
 
+    "must redirect to second contact phone page when existing value is missing and new value is yes" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers
+        .withPage(ChangeDetailsOrgSecondNamePage, "Prof. Birch")
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, changeDetailsOrgSecondContactHavePhoneRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(
+          result
+        ).value        mustEqual controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted and second contact name is provided" in {
 
       val application = applicationBuilder(userAnswers =

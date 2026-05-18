@@ -648,8 +648,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
 
         running(application) {
           val request = FakeRequest(POST, postRoute).withFormUrlEncodedBody(("value", "false"))
-          val result = route(application, request).value
-          status(result) mustEqual SEE_OTHER
+          val result  = route(application, request).value
+          status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
           verify(mockSessionRepository).set(argThat(ua => !ua.hasValidMatch))
         }

@@ -1362,6 +1362,14 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
+
+      "must navigate from ChangeDetailsOrgSecondHavePhonePage to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "ChangeDetailsOrgSecondPhoneNumberPage navigation" - {

@@ -266,8 +266,8 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
 
       "must navigate to ProblemSoleTraderNotIdentifiedController when answer is no and user is sole trader" in {
         val userAnswers = emptyUserAnswers
-          .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails.copy(pageAnswer = Some(false)))
           .withPage(RegistrationTypePage, SoleTrader)
+          .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails.copy(pageAnswer = Some(false)))
 
         navigator.nextPage(
           IsThisYourBusinessPage,
@@ -278,8 +278,8 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
 
       "must navigate to BusinessNotIdentifiedController when answer is no and user is not sole trader and not ct automatched" in {
         val userAnswers = emptyUserAnswers
-          .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails.copy(pageAnswer = Some(false)))
           .withPage(RegistrationTypePage, LimitedCompany)
+          .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails.copy(pageAnswer = Some(false)))
 
         navigator.nextPage(
           IsThisYourBusinessPage,

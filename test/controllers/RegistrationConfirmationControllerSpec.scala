@@ -22,8 +22,8 @@ import models.{Name, RegistrationType, SubscriptionId, UniqueTaxpayerReference, 
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.SubmissionSucceededPage
-import pages.individual.{IndividualEmailPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.{RegistrationTypePage, SubmissionSucceededPage}
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, NiNumberPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.organisation.*
 import play.api.inject.bind
@@ -165,10 +165,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
         val userAnswers =
           emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
-            .withPage(FirstContactNamePage, "John Doe")
-            .withPage(FirstContactEmailPage, "org@test.com")
-            .withPage(OrganisationHaveSecondContactPage, false)
+            .copy(journeyType = Some(IndWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(WhatIsYourNamePage, Name("John", "Doe"))
+            .withPage(IndividualEmailPage, "timmy@example.com")
             .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
             .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
             .copy(isCtAutoMatched = false)
@@ -182,15 +181,15 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           status(result)          mustEqual OK
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
-            emailAddresses = List("org@test.com"),
+            emailAddresses = List("timmy@example.com"),
             addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
+              .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
               .url
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
             any[List[ContactEmailInfo]],
-            eqTo(Some(subscriptionId.value)),
+            eqTo(None),
             eqTo(false)
           )(any[HeaderCarrier])
         }

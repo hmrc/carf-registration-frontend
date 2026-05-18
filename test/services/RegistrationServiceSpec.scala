@@ -28,11 +28,11 @@ import models.{BusinessDetails, IndividualDetails, Name, RegistrationType, SafeI
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.WhereDoYouLivePage
+import pages.{RegistrationTypePage, WhereDoYouLivePage}
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
-import pages.organisation.{FirstContactEmailPage, FirstContactPhoneNumberPage, FirstContactPhonePage, RegistrationTypePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
+import pages.organisation.{FirstContactEmailPage, FirstContactPhoneNumberPage, FirstContactPhonePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 
 import java.time.LocalDate
 import scala.concurrent.Future

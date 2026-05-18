@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.organisation.OrganisationHaveSecondContactPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -38,7 +38,7 @@ object OrganisationHaveSecondContactSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.OrganisationHaveSecondContactController.onPageLoad(CheckMode).url
+            href = routes.OrganisationHaveSecondContactController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("organisationHaveSecondContact.change.hidden"))
         )
       )

@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import models.NormalMode
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -97,7 +98,7 @@ class CarfIdRetrievalSpec extends SpecBase {
       val result: Future[Result] = testCarfIdRetrievalActionExtractor.invokeBlock(FakeRequest(), testAction)
 
       status(result)           mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(controllers.routes.IndexController.onPageLoad().url)
+      redirectLocation(result) mustBe Some(controllers.routes.IndexController.onPageLoad(NormalMode).url)
     }
 
     "redirect to unauthorised controller if internal id cannot be retrieved" in {

@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.organisation.OrganisationSecondContactEmailPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -36,7 +36,7 @@ object OrganisationSecondContactEmailSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.OrganisationSecondContactEmailController.onPageLoad(CheckMode).url
+            href = routes.OrganisationSecondContactEmailController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("organisationSecondContactEmail.change.hidden"))
         )
       )

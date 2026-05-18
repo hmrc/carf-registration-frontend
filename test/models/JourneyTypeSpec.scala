@@ -22,6 +22,38 @@ import play.api.libs.json.*
 
 class JourneyTypeSpec extends SpecBase {
 
+  "JourneyType isWithoutIdJourney" - {
+    "must return true if given OrgWithoutId" in {
+      val result = JourneyType.isWithoutIdJourney(Some(OrgWithoutId))
+
+      result mustBe true
+    }
+    "must return true if given IndWithoutId" in {
+      val result = JourneyType.isWithoutIdJourney(Some(IndWithoutId))
+
+      result mustBe true
+    }
+    "must return false if given OrgWithUtr" in {
+      val result = JourneyType.isWithoutIdJourney(Some(OrgWithUtr))
+
+      result mustBe false
+    }
+    "must return false if given IndWithNino" in {
+      val result = JourneyType.isWithoutIdJourney(Some(IndWithNino))
+
+      result mustBe false
+    }
+    "must return false if given IndWithUtr" in {
+      val result = JourneyType.isWithoutIdJourney(Some(IndWithUtr))
+
+      result mustBe false
+    }
+    "must return false if given None" in {
+      val result = JourneyType.isWithoutIdJourney(None)
+
+      result mustBe false
+    }
+  }
   "JourneyType Reads" - {
 
     "read OrgWithUtr from JSON" in {

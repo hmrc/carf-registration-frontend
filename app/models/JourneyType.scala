@@ -27,6 +27,9 @@ enum JourneyType:
 
 object JourneyType {
 
+  def isWithoutIdJourney(journeyType: Option[JourneyType]): Boolean =
+    journeyType.fold(false)(jt => jt == OrgWithoutId | jt == IndWithoutId)
+
   implicit val reads: Reads[JourneyType] = Reads {
     case JsString(value) =>
       JourneyType.values

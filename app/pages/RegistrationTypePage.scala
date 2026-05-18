@@ -34,6 +34,7 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
   private val nonSoleTraderPages = List(
     WhatIsTheNameOfYourBusinessPage,
+    IsThisYourBusinessPage,
     FirstContactNamePage,
     FirstContactEmailPage,
     FirstContactPhonePage,
@@ -50,7 +51,7 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
   )
 
   private val soleTraderPages = {
-    val indWithUtrPage         = List(WhatIsYourNamePage)
+    val indWithUtrPage         = List(WhatIsYourNamePage, IsThisYourBusinessPage)
     val indGeneralPage         = List(HaveNiNumberPage)
     val indWithNinoPages       = List(NiNumberPage, WhatIsYourNameIndividualPage, RegisterDateOfBirthPage)
     val indWithoutIdPages      = List(

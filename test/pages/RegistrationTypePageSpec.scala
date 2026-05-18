@@ -33,7 +33,7 @@ class RegistrationTypePageSpec extends SpecBase {
     stringField     <- Gen.alphaStr.suchThat(_.nonEmpty)
     booleanField    <- Gen.oneOf(true, false)
     postcode        <- Gen.alphaNumStr.suchThat(_.nonEmpty)
-    dob             <- Gen.choose(LocalDate.of(1900, 1, 1), LocalDate.now)
+    dob             <- Gen.choose(LocalDate.of(1901, 1, 1), LocalDate.now)
     businessAddress <- arbitrary[OrganisationBusinessAddress]
     name            <- arbitrary[Name]
     findAddress     <- arbitrary[IndFindAddress]
@@ -280,6 +280,7 @@ class RegistrationTypePageSpec extends SpecBase {
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
       .withPage(WhatIsTheNameOfYourBusinessPage, stringField)
+      .withPage(IsThisYourBusinessPage, itybpd)
       .withPage(FirstContactNamePage, stringField)
       .withPage(FirstContactEmailPage, stringField)
       .withPage(FirstContactPhonePage, booleanField)
@@ -312,6 +313,7 @@ class RegistrationTypePageSpec extends SpecBase {
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
       .withPage(WhatIsYourNamePage, name)
+      .withPage(IsThisYourBusinessPage, itybpd)
       .withPage(HaveNiNumberPage, booleanField)
       .withPage(NiNumberPage, stringField)
       .withPage(WhatIsYourNameIndividualPage, name)

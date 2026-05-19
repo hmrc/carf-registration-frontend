@@ -43,7 +43,7 @@ class ChangeOrgSecondContactPhoneNumberControllerSpec extends SpecBase with Mock
   def onwardRoute                                                    = Call("GET", "/register-for-cryptoasset-reporting/problem/contact-details-are-missing")
 
   lazy val changeOrgSecondContactPhoneNumberRoute =
-    changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onPageLoad().url
+    changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onPageLoad(NormalMode).url
 
   "ChangeOrgSecondContactPhoneNumber Controller" - {
 

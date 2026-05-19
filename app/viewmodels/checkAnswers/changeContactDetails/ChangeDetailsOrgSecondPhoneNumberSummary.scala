@@ -35,9 +35,7 @@ object ChangeDetailsOrgSecondPhoneNumberSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.routes.PlaceholderController
-              .onPageLoad("Must redirect to /change-contact/organisation/second-contact-phone page - CARF-193")
-              .url
+            href = controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onPageLoad().url
           ).withVisuallyHiddenText(messages("changeOrgDetails.secondContact.summaryList.phoneNumber.key.hidden"))
         )
       )

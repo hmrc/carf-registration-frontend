@@ -17,7 +17,6 @@
 package controllers.changeContactDetails
 
 import controllers.actions.*
-import controllers.routes
 import models.{DataRequestWithSubscriptionId, Mode}
 import navigation.Navigator
 import pages.changeContactDetails.{ChangeDetailsOrgSecondHavePhonePage, ChangeDetailsOrgSecondNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
@@ -95,9 +94,7 @@ class ChangeOrgSecondContactHavePhoneController @Inject() (
           updatedAnswers <- Future.fromTry(request.userAnswers.set(ChangeDetailsOrgSecondHavePhonePage, newValue))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(
-          routes.PlaceholderController.onPageLoad(
-            "Must redirect to change-contact/organisation/second-contact-phone (CARF-193)"
-          )
+          controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onPageLoad()
         )
 
       case _ =>

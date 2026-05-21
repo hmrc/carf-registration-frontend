@@ -36,7 +36,8 @@ object ChangeDetailsOrgHaveSecondContactSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeOrgHaveSecondContactController.onPageLoad().url
+            href =
+              controllers.changeContactDetails.routes.ChangeOrgHaveSecondContactController.onPageLoad(NormalMode).url
           ).withVisuallyHiddenText(messages("changeOrgDetails.secondContact.summaryList.haveContact.key.hidden"))
         )
       )

@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.changeContactDetails
 
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.ChangeDetailsOrgSecondPhoneNumberPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -35,7 +35,9 @@ object ChangeDetailsOrgSecondPhoneNumberSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onPageLoad().url
+            href = controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController
+              .onPageLoad(NormalMode)
+              .url
           ).withVisuallyHiddenText(messages("changeOrgDetails.secondContact.summaryList.phoneNumber.key.hidden"))
         )
       )

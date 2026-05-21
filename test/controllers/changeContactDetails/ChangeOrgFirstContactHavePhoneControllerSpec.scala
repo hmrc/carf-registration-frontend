@@ -178,7 +178,7 @@ class ChangeOrgFirstContactHavePhoneControllerSpec extends SpecBase with Mockito
         redirectLocation(
           result
         ).value        mustEqual controllers.changeContactDetails.routes.ChangeOrgFirstContactPhoneNumberController
-          .onPageLoad()
+          .onPageLoad(NormalMode)
           .url
       }
     }

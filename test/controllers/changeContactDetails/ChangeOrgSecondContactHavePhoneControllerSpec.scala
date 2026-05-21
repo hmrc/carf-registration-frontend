@@ -43,7 +43,7 @@ class ChangeOrgSecondContactHavePhoneControllerSpec extends SpecBase with Mockit
 
   lazy val changeDetailsOrgSecondContactHavePhoneRoute: String =
     controllers.changeContactDetails.routes.ChangeOrgSecondContactHavePhoneController
-      .onPageLoad()
+      .onPageLoad(NormalMode)
       .url
 
   "ChangeOrgSecondContactHavePhoneController" - {
@@ -183,7 +183,7 @@ class ChangeOrgSecondContactHavePhoneControllerSpec extends SpecBase with Mockit
         redirectLocation(
           result
         ).value        mustEqual controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController
-          .onPageLoad()
+          .onPageLoad(NormalMode)
           .url
 
       }
@@ -208,7 +208,7 @@ class ChangeOrgSecondContactHavePhoneControllerSpec extends SpecBase with Mockit
         redirectLocation(
           result
         ).value        mustEqual controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController
-          .onPageLoad()
+          .onPageLoad(NormalMode)
           .url
       }
     }

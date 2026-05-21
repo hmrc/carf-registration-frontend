@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.{ProvideMode, UserAnswers}
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
+import pages.changeContactDetails.*
 import pages.individual.HaveNiNumberPage
 
 class ProvideRoutesNavigatorSpec extends SpecBase {
@@ -97,18 +97,113 @@ class ProvideRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "when on ChangeDetailsOrgSecondEmailPage" - {
-      "must navigate to ChangeDetailsOrganisationSecondContactHavePhoneController in ProvideMode" in {
+    "when on ChangeDetailsOrgFirstNamePage" - {
+      "must navigate to ChangeOrgFirstContactEmailController in ProvideMode" in {
         val userAnswers = emptyUserAnswers
-          .set(ChangeDetailsOrgSecondEmailPage, "test@example.com")
+          .set(ChangeDetailsOrgFirstNamePage, "Tax Team")
           .success
           .value
-
         navigator.nextPage(
-          ChangeDetailsOrgSecondEmailPage,
+          ChangeDetailsOrgFirstNamePage,
           ProvideMode,
           userAnswers
-        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
+        ) mustBe changeDetailsRoutes.ChangeOrgFirstContactEmailController.onPageLoad(ProvideMode)
+      }
+    }
+
+    "when on ChangeDetailsOrgFirstEmailPage" - {
+      "must navigate to ChangeOrgFirstContactHavePhoneController in ProvideMode" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgFirstEmailPage, "tax@example.com")
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgFirstEmailPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgFirstContactHavePhoneController.onPageLoad(ProvideMode)
+      }
+    }
+
+    "when on ChangeDetailsOrgFirstHavePhonePage" - {
+      "must navigate to ChangeOrgFirstContactPhoneNumberController in ProvideMode when answer is Yes" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgFirstHavePhonePage, true)
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgFirstHavePhonePage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgFirstContactPhoneNumberController.onPageLoad(ProvideMode)
+      }
+
+      "must navigate to ChangeOrgHaveSecondContactController in ProvideMode when answer is No" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgFirstHavePhonePage, false)
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgFirstHavePhonePage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgHaveSecondContactController.onPageLoad(ProvideMode)
+      }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          ChangeDetailsOrgFirstHavePhonePage,
+          ProvideMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on ChangeDetailsOrgFirstPhoneNumberPage" - {
+      "must navigate to ChangeOrgHaveSecondContactController in ProvideMode" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgFirstPhoneNumberPage, "07111111111")
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgFirstPhoneNumberPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgHaveSecondContactController.onPageLoad(ProvideMode)
+      }
+    }
+
+    "when on ChangeDetailsOrgHaveSecondContactPage" - {
+      "must navigate to ChangeOrgSecondContactNameController in ProvideMode when answer is Yes" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgHaveSecondContactPage, true)
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgHaveSecondContactPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactNameController.onPageLoad(ProvideMode)
+      }
+
+      "must navigate to ChangeOrganisationContactDetailsController when answer is No" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgHaveSecondContactPage, false)
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgHaveSecondContactPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          ChangeDetailsOrgHaveSecondContactPage,
+          ProvideMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
@@ -118,12 +213,73 @@ class ProvideRoutesNavigatorSpec extends SpecBase {
           .set(ChangeDetailsOrgSecondNamePage, "Sandy Barnes")
           .success
           .value
-
         navigator.nextPage(
           ChangeDetailsOrgSecondNamePage,
           ProvideMode,
           userAnswers
         ) mustBe changeDetailsRoutes.ChangeOrgSecondContactEmailController.onPageLoad(ProvideMode)
+      }
+    }
+
+    "when on ChangeDetailsOrgSecondEmailPage" - {
+      "must navigate to ChangeOrgSecondContactHavePhoneController in ProvideMode" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondEmailPage, "test@example.com")
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgSecondEmailPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad(ProvideMode)
+      }
+    }
+
+    "when on ChangeDetailsOrgSecondHavePhonePage" - {
+      "must navigate to ChangeOrgSecondContactPhoneNumberController in ProvideMode when answer is Yes" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondHavePhonePage, true)
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrgSecondContactPhoneNumberController.onPageLoad(ProvideMode)
+      }
+
+      "must navigate to ChangeOrganisationContactDetailsController when answer is No" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondHavePhonePage, false)
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          ChangeDetailsOrgSecondHavePhonePage,
+          ProvideMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on ChangeDetailsOrgSecondPhoneNumberPage" - {
+      "must navigate to ChangeOrganisationContactDetailsController" in {
+        val userAnswers = emptyUserAnswers
+          .set(ChangeDetailsOrgSecondPhoneNumberPage, "07222222222")
+          .success
+          .value
+        navigator.nextPage(
+          ChangeDetailsOrgSecondPhoneNumberPage,
+          ProvideMode,
+          userAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
 

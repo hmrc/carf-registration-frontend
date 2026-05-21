@@ -1318,6 +1318,16 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "ChangeDetailsOrgSecondPhoneNumberPage navigation" - {
+      "must navigate from ChangeDetailsOrgSecondPhoneNumberPage to Organisation Change Details page" in {
+        navigator.nextPage(
+          ChangeDetailsOrgSecondPhoneNumberPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      }
+    }
+
     "ChangeDetailsOrgSecondHavePhonePage navigation" - {
       "must navigate from ChangeDetailsOrgSecondHavePhonePage to ChangeOrganisationContactDetailsController" in {
         navigator.nextPage(
@@ -1327,6 +1337,5 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
       }
     }
-
   }
 }

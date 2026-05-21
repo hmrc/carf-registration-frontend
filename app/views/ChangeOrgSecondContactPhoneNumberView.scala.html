@@ -1,5 +1,5 @@
 @*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,21 @@
  * limitations under the License.
  *@
 
-@import viewmodels.InputWidth._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import viewmodels.InputWidth.*
 
 @this(
-        layout: templates.Layout,
-        formHelper: FormWithCSRF,
-        govukErrorSummary: GovukErrorSummary,
-        govukInput: GovukInput,
-        govukButton: GovukButton
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, userName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("firstContactName.title"))) {
+@layout(pageTitle = title(form, messages("organisationSecondContactPhoneNumber.title"))) {
 
-    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onSubmit(mode)) {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrgSecondContactPhoneNumberController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -38,11 +37,12 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("firstContactName.heading")).asPageHeading()
+                label = LabelViewModel(messages("organisationSecondContactPhoneNumber.heading", userName)).asPageHeading()
             )
-            .withHint(HintViewModel(HtmlContent(messages("firstContactName.hint"))))
-            .withWidth(ThreeQuarters)
-            .withAutocomplete("name")
+            .withHint(HintViewModel(HtmlContent(messages("organisationSecondContactPhoneNumber.hint"))))
+            .withWidth(Fixed20)
+            .withInputType("tel")
+            .withAutocomplete("tel")
         )
 
         @govukButton(

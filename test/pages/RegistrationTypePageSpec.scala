@@ -135,10 +135,10 @@ class RegistrationTypePageSpec extends SpecBase {
       }
 
       "match flag must be" - {
-        "switched to false when the new answer is different to the previous one and is sole trader" in {
+        "switched to false and safe id cleared when the new answer is different to the previous one and is sole trader" in {
           val ua = generateUserAnswers(SoleTrader)
             .withPage(RegistrationTypePage, SoleTrader)
-            .copy(hasValidMatch = true)
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
 
           val result =
             RegistrationTypePage
@@ -147,12 +147,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
 
-        "remain false when the new answer is different to the previous one and is sole trader" in {
+        "remain false and keep safe id clear when the new answer is different to the previous one and is sole trader" in {
           val ua = generateUserAnswers(SoleTrader)
             .withPage(RegistrationTypePage, SoleTrader)
-            .copy(hasValidMatch = false)
+            .copy(hasValidMatch = false, safeId = None)
 
           val result =
             RegistrationTypePage
@@ -161,12 +162,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
 
-        "switched to false when the new answer is different to the previous one and is individual not connected to a business" in {
+        "switched to false and safe id cleared when the new answer is different to the previous one and is individual not connected to a business" in {
           val ua = generateUserAnswers(Individual)
             .withPage(RegistrationTypePage, Individual)
-            .copy(hasValidMatch = true)
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
 
           val result =
             RegistrationTypePage
@@ -175,12 +177,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
 
-        "remain false when the new answer is different to the previous one and is individual not connected to a business" in {
+        "remain false and keep safe id clear when the new answer is different to the previous one and is individual not connected to a business" in {
           val ua = generateUserAnswers(SoleTrader)
             .withPage(RegistrationTypePage, SoleTrader)
-            .copy(hasValidMatch = false)
+            .copy(hasValidMatch = false, safeId = None)
 
           val result =
             RegistrationTypePage
@@ -189,12 +192,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
 
-        "switched to false when the new answer is different to the previous one and is Limited Company (non sole trader)" in {
+        "switched to false and safe id cleared when the new answer is different to the previous one and is Limited Company (non sole trader)" in {
           val ua = generateUserAnswers(LimitedCompany)
             .withPage(RegistrationTypePage, LimitedCompany)
-            .copy(hasValidMatch = true)
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
 
           val result =
             RegistrationTypePage
@@ -203,12 +207,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
 
-        "remain false when the new answer is different to the previous one and is not Limited Company (non sole trader)" in {
+        "remain false and keep safe id clear when the new answer is different to the previous one and is not Limited Company (non sole trader)" in {
           val ua = generateUserAnswers(LimitedCompany)
             .withPage(RegistrationTypePage, LimitedCompany)
-            .copy(hasValidMatch = false)
+            .copy(hasValidMatch = false, safeId = None)
 
           val result =
             RegistrationTypePage
@@ -217,12 +222,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
 
-        "not changed when answer has not changed, and hasValidMatch is true" in {
+        "not changed and safe id kept when answer has not changed, and hasValidMatch is true" in {
           val ua = generateUserAnswers(LimitedCompany)
             .withPage(RegistrationTypePage, LimitedCompany)
-            .copy(hasValidMatch = true)
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
 
           val result =
             RegistrationTypePage
@@ -231,12 +237,13 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe true
+          result.safeId        mustBe Some(SafeId(testSafeId))
         }
 
-        "not changed when answer has not changed, and hasValidMatch is false" in {
+        "not changed and safe id kept when answer has not changed, and hasValidMatch is false" in {
           val ua = generateUserAnswers(LimitedCompany)
             .withPage(RegistrationTypePage, LimitedCompany)
-            .copy(hasValidMatch = false)
+            .copy(hasValidMatch = false, safeId = None)
 
           val result =
             RegistrationTypePage
@@ -245,6 +252,7 @@ class RegistrationTypePageSpec extends SpecBase {
               .value
 
           result.hasValidMatch mustBe false
+          result.safeId        mustBe None
         }
       }
     }

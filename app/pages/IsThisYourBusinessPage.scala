@@ -33,7 +33,7 @@ case object IsThisYourBusinessPage extends QuestionPage[IsThisYourBusinessPageDe
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (newValue.pageAnswer.contains(false)) {
-      Success(updatedUserAnswers.copy(hasValidMatch = false))
+      Success(updatedUserAnswers.clearMatchFlagAndSafeId)
     } else {
       Success(updatedUserAnswers)
     }

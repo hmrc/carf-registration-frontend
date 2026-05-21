@@ -34,7 +34,7 @@ case object UniqueTaxpayerReferenceInUserAnswers extends QuestionPage[UniqueTaxp
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      Success(updatedUserAnswers.copy(hasValidMatch = false))
+      Success(updatedUserAnswers.clearMatchFlagAndSafeId)
     } else {
       Success(updatedUserAnswers)
     }

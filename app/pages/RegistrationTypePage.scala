@@ -84,11 +84,11 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
   ): Try[UserAnswers] =
     if (hasChanged) {
       if (newValue == SoleTrader) {
-        updatedUserAnswers.copy(hasValidMatch = false).remove(nonSoleTraderPages)
+        updatedUserAnswers.clearMatchFlagAndSafeId.remove(nonSoleTraderPages)
       } else if (newValue == Individual) {
-        updatedUserAnswers.copy(hasValidMatch = false).remove(nonIndNotConnectedToABusinessPages)
+        updatedUserAnswers.clearMatchFlagAndSafeId.remove(nonIndNotConnectedToABusinessPages)
       } else {
-        updatedUserAnswers.copy(hasValidMatch = false).remove(soleTraderPages)
+        updatedUserAnswers.clearMatchFlagAndSafeId.remove(soleTraderPages)
       }
     } else {
       Success(updatedUserAnswers)

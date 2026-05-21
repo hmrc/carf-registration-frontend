@@ -79,6 +79,9 @@ final case class UserAnswers(
     pages.foldLeft(Try(this)) { (oldAnswerList, page) =>
       oldAnswerList.flatMap(_.remove(page))
     }
+
+  def clearMatchFlagAndSafeId: UserAnswers =
+    this.copy(safeId = None, hasValidMatch = false)
 }
 
 object UserAnswers {

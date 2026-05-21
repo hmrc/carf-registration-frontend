@@ -21,14 +21,12 @@ import models.*
 import models.JourneyType.*
 import models.countries.CountryUk
 import models.requests.{SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact, SubscriptionRequest}
+import models.responses.AddressRegistrationResponse
 import pages.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
-import pages.orgWithoutId.TradingNamePage
-import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
-import pages.orgWithoutId.HaveTradingNamePage
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.*
-import models.responses.AddressRegistrationResponse
 
 class SubscriptionHelperSpec extends SpecBase {
 
@@ -70,21 +68,11 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
             .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNameIndividualPage, testIndividualName)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndividualHavePhonePage, true)
-            .success
-            .value
-            .set(IndividualPhoneNumberPage, testIndividualPhone)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
-            .success
-            .value
+            .withPage(WhatIsYourNameIndividualPage, testIndividualName)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndividualHavePhonePage, true)
+            .withPage(IndividualPhoneNumberPage, testIndividualPhone)
+            .withPage(NiNumberPage, testNino)
 
           val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -108,18 +96,10 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
             .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNameIndividualPage, testIndividualName)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndividualHavePhonePage, false)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
-            .success
-            .value
+            .withPage(WhatIsYourNameIndividualPage, testIndividualName)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndividualHavePhonePage, false)
+            .withPage(NiNumberPage, testNino)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -131,12 +111,8 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
             .copy(safeId = Some(exampleSafeId))
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
-            .success
-            .value
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(NiNumberPage, testNino)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -147,12 +123,8 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithNino))
             .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNameIndividualPage, testIndividualName)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
-            .success
-            .value
+            .withPage(WhatIsYourNameIndividualPage, testIndividualName)
+            .withPage(NiNumberPage, testNino)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -165,21 +137,11 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(IndWithoutNinoNamePage, testIndividualName)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndividualHavePhonePage, true)
-            .success
-            .value
-            .set(IndividualPhoneNumberPage, testIndividualPhone)
-            .success
-            .value
-            .set(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddress)
-            .success
-            .value
+            .withPage(IndWithoutNinoNamePage, testIndividualName)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndividualHavePhonePage, true)
+            .withPage(IndividualPhoneNumberPage, testIndividualPhone)
+            .withPage(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddress)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -203,18 +165,10 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(IndWithoutNinoNamePage, testIndividualName)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndividualHavePhonePage, false)
-            .success
-            .value
-            .set(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddressGb)
-            .success
-            .value
+            .withPage(IndWithoutNinoNamePage, testIndividualName)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndividualHavePhonePage, false)
+            .withPage(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddressGb)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -226,18 +180,10 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(IndWithoutNinoNamePage, testIndividualName)
-            .success
-            .value
-            .set(IndividualHavePhonePage, false)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndFindAddressPage, testIndFindAddress)
-            .success
-            .value
+            .withPage(IndWithoutNinoNamePage, testIndividualName)
+            .withPage(IndividualHavePhonePage, false)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndFindAddressPage, testIndFindAddress)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -249,9 +195,7 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
+            .withPage(IndividualEmailPage, testIndividualEmail)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -262,23 +206,13 @@ class SubscriptionHelperSpec extends SpecBase {
       "for Individual with UTR journey" - {
         "should build subscription request successfully" in {
           val userAnswers = emptyUserAnswers
+            .withPage(WhatIsYourNamePage, testIndividualName)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndividualHavePhonePage, true)
+            .withPage(IndividualPhoneNumberPage, testIndividualPhone)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .copy(journeyType = Some(IndWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNamePage, testIndividualName)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndividualHavePhonePage, true)
-            .success
-            .value
-            .set(IndividualPhoneNumberPage, testIndividualPhone)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -302,12 +236,8 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(IndWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -316,9 +246,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should populate the tradingName field correctly" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithUtr))
-            .copy(safeId = Some(exampleSafeId))
-            .set(
+            .withPage(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
                 businessDetails = BusinessDetails(
@@ -329,17 +257,11 @@ class SubscriptionHelperSpec extends SpecBase {
                 Some(false)
               )
             )
-            .success
-            .value
-            .set(WhatIsYourNamePage, testIndividualName)
-            .success
-            .value
-            .set(IndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndividualHavePhonePage, false)
-            .success
-            .value
+            .withPage(WhatIsYourNamePage, testIndividualName)
+            .withPage(IndividualEmailPage, testIndividualEmail)
+            .withPage(IndividualHavePhonePage, false)
+            .copy(journeyType = Some(IndWithUtr))
+            .copy(safeId = Some(exampleSafeId))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -353,29 +275,15 @@ class SubscriptionHelperSpec extends SpecBase {
       "for Organisation with UTR journey" - {
         "should build subscription request with primary contact only" in {
           val userAnswers = emptyUserAnswers
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
+            .withPage(OrganisationHaveSecondContactPage, false)
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, true)
-            .success
-            .value
-            .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, false)
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -397,41 +305,19 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build subscription request with primary and secondary contact" in {
           val userAnswers = emptyUserAnswers
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
+            .withPage(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
+            .withPage(OrganisationSecondContactHavePhonePage, true)
+            .withPage(OrganisationSecondContactPhoneNumberPage, testOrganisationSecondPhone)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, true)
-            .success
-            .value
-            .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
-            .success
-            .value
-            .set(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
-            .success
-            .value
-            .set(OrganisationSecondContactHavePhonePage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactPhoneNumberPage, testOrganisationSecondPhone)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -459,26 +345,14 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should not include secondary contact when hasSecondContact is false" in {
           val userAnswers: UserAnswers = emptyUserAnswers
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, false)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, false)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -490,15 +364,9 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -509,15 +377,9 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -526,32 +388,16 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should return None when secondary contact is required but name is missing" in {
           val userAnswers = emptyUserAnswers
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationSecondContactHavePhonePage, true)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, false)
-            .success
-            .value
-            .set(OrganisationSecondContactHavePhonePage, true)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -561,32 +407,16 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should not include secondary contact when secondary contact email is missing" in {
           val userAnswers = emptyUserAnswers
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactHavePhonePage, false)
+            .withPage(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .copy(journeyType = Some(OrgWithUtr))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, false)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactHavePhonePage, false)
-            .success
-            .value
-            .set(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -600,30 +430,14 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, true)
-            .success
-            .value
-            .set(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
-            .success
-            .value
-            .set(HaveTradingNamePage, true)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, false)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testOrganisationFirstPhone)
+            .withPage(HaveTradingNamePage, true)
+            .withPage(TradingNamePage, testTradingName)
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(RegisteredAddressInUkPage, true)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -647,33 +461,15 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, false)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, true)
-            .success
-            .value
-            .set(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
-            .success
-            .value
-            .set(OrganisationSecondContactHavePhonePage, false)
-            .success
-            .value
-            .set(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testOrganisationSecondContactName)
+            .withPage(OrganisationSecondContactHavePhonePage, false)
+            .withPage(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
+            .withPage(TradingNamePage, testTradingName)
+            .withPage(RegisteredAddressInUkPage, true)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -690,12 +486,8 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(TradingNamePage, testTradingName)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -706,24 +498,12 @@ class SubscriptionHelperSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, false)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, false)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
-            .set(OrgWithoutIdBusinessNamePage, testBusinessName)
-            .success
-            .value
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(RegisteredAddressInUkPage, true)
+            .withPage(OrgWithoutIdBusinessNamePage, testBusinessName)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -733,32 +513,16 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should use tradingName over businessName when both are set" in {
           val userAnswers = emptyUserAnswers
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(RegisteredAddressInUkPage, true)
+            .withPage(WhatIsTheNameOfYourBusinessPage, testBusinessName)
+            .withPage(HaveTradingNamePage, true)
+            .withPage(TradingNamePage, testTradingName)
             .copy(journeyType = Some(OrgWithoutId))
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(FirstContactPhonePage, false)
-            .success
-            .value
-            .set(OrganisationHaveSecondContactPage, false)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(HaveTradingNamePage, true)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
 
           val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -772,12 +536,8 @@ class SubscriptionHelperSpec extends SpecBase {
         "should return None" in {
           val userAnswers = emptyUserAnswers
             .copy(safeId = Some(exampleSafeId))
-            .set(FirstContactNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(FirstContactEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -789,10 +549,7 @@ class SubscriptionHelperSpec extends SpecBase {
         val testUtr = UniqueTaxpayerReference("1234567890")
 
         val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(safeId = Some(exampleSafeId))
-          .copy(isCtAutoMatched = true)
-          .set(
+          .withPage(
             IsThisYourBusinessPage,
             IsThisYourBusinessPageDetails(
               businessDetails = BusinessDetails(
@@ -803,23 +560,14 @@ class SubscriptionHelperSpec extends SpecBase {
               Some(false)
             )
           )
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(FirstContactNamePage, testOrganisationFirstContactName)
-          .success
-          .value
-          .set(FirstContactEmailPage, testOrganisationFirstEmail)
-          .success
-          .value
-          .set(FirstContactPhonePage, false)
-          .success
-          .value
-          .set(OrganisationHaveSecondContactPage, false)
-          .success
-          .value
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+          .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+          .withPage(FirstContactPhonePage, false)
+          .withPage(OrganisationHaveSecondContactPage, false)
+          .copy(journeyType = Some(OrgWithUtr))
+          .copy(safeId = Some(exampleSafeId))
+          .copy(isCtAutoMatched = true)
 
         val result = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 

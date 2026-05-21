@@ -18,35 +18,38 @@ package pages.organisation
 
 import base.SpecBase
 import models.*
-import pages.organisation.*
 
 class WhatIsTheNameOfYourBusinessPageSpec extends SpecBase {
 
   "WhatIsTheNameOfYourBusinessPage" - {
     "cleanup" - {
-      "must set the match flag to false when the answer has changed" in {
-        val ua     = emptyUserAnswers.copy(hasValidMatch = true)
+      "must set the match flag to false and the clear safe id when the answer has changed" in {
+        val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
         val result = WhatIsTheNameOfYourBusinessPage.cleanup("Timmy", ua, hasChanged = true).success.value
 
         result.hasValidMatch mustBe false
+        result.safeId        mustBe None
       }
-      "must keep the match as false when the answer has changed" in {
-        val ua     = emptyUserAnswers.copy(hasValidMatch = false)
+      "must keep the match as false and safe id as none when the answer has changed" in {
+        val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
         val result = WhatIsTheNameOfYourBusinessPage.cleanup("Timmy", ua, hasChanged = true).success.value
 
         result.hasValidMatch mustBe false
+        result.safeId        mustBe None
       }
-      "must keep the match as false when the answer has not changed" in {
-        val ua     = emptyUserAnswers.copy(hasValidMatch = false)
+      "must keep the match as false and safe id as none when the answer has not changed" in {
+        val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
         val result = WhatIsTheNameOfYourBusinessPage.cleanup("Timmy", ua, hasChanged = false).success.value
 
         result.hasValidMatch mustBe false
+        result.safeId        mustBe None
       }
-      "must keep the match as true when the answer has not changed" in {
-        val ua     = emptyUserAnswers.copy(hasValidMatch = true)
+      "must keep the match as true and safe id as present when the answer has not changed" in {
+        val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
         val result = WhatIsTheNameOfYourBusinessPage.cleanup("Timmy", ua, hasChanged = false).success.value
 
         result.hasValidMatch mustBe true
+        result.safeId        mustBe Some(SafeId(testSafeId))
       }
     }
   }

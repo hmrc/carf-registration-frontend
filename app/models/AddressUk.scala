@@ -16,7 +16,7 @@
 
 package models
 
-import models.countries.{Country, CountryUk, UnitedKingdom}
+import models.countries.{CountryUk, UnitedKingdom}
 import models.requests.AddressDetails
 import play.api.libs.json.{Json, OFormat}
 

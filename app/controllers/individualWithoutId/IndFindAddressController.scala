@@ -19,15 +19,11 @@ package controllers.individualWithoutId
 import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.countries.CountryUk
-import models.{AddressUk, IndFindAddress, Mode}
-import models.error.ApiError
 import models.requests.DataRequest
-import models.responses.AddressResponse
-import models.{AddressUk, IndFindAddress, Mode}
+import models.{AddressUk, AddressesAndUPRN, IndFindAddress, Mode}
 import navigation.Navigator
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import pages.individualWithoutId.*
+import pages.{AddressLookupPage, AddressUPRNUserAnswers}
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -81,39 +77,50 @@ class IndFindAddressController @Inject() (
             addressLookupService
               .postcodeSearch(value.postcode, value.propertyNameOrNumber)
               .flatMap {
-                case Left(error)                            =>
+                case Left(error)                                    =>
                   logger.error(s"Address lookup service failed: $error")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-                case Right((Nil, _))                        =>
+                case Right((Nil, _))                                =>
                   val formError =
                     formReturned.withError(FormError("postcode", List("indFindAddress.error.postcode.notFound")))
                   Future.successful(BadRequest(view(formError, mode)))
-                case Right((addresses, additionalCallMade)) =>
+                case Right((addressesAndUPRNs, additionalCallMade)) =>
                   for {
-                    updatedAnswersWithFlag <- save(value, addresses, additionalCallMade)
+                    updatedAnswersWithFlag <- save(value, addressesAndUPRNs, additionalCallMade)
                   } yield Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswersWithFlag))
               }
         )
-
   }
 
-  private def save(indFindAddress: IndFindAddress, addresses: Seq[AddressUk], additionalCallMade: Boolean)(implicit
+  private def save(
+      indFindAddress: IndFindAddress,
+      addressesAndUPRNs: Seq[AddressesAndUPRN],
+      additionalCallMade: Boolean
+  )(implicit
       request: DataRequest[AnyContent]
   ) =
     for {
       updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, indFindAddress))
-      filledAddress              =
-        addresses.headOption.fold(AddressUk("", None, None, "", indFindAddress.postcode, CountryUk("", "")))(identity)
-      updatedAnswersWithPrePop  <-
+      (filledAddress, maybeUPRN) =
+        addressesAndUPRNs.headOption.fold(
+          (AddressUk("", None, None, "", indFindAddress.postcode, CountryUk("", "")), Option.empty[Int])
+        )(addressAndUPRN => (addressAndUPRN.address, Some(addressAndUPRN.UPRN)))
+
+      updatedAnswersWithPrePop <-
         Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
+
       updatedAnswersWithAddress <- Future.fromTry(
                                      updatedAnswersWithPrePop.set(
                                        AddressLookupPage,
-                                       addresses
+                                       addressesAndUPRNs.map(_.address)
                                      )
                                    )
-      updatedAnswersWithFlag    <-
-        Future.fromTry(updatedAnswersWithAddress.set(IndFindAddressAdditionalCallUa, additionalCallMade))
-      _                         <- sessionRepository.set(updatedAnswersWithFlag)
-    } yield updatedAnswersWithFlag
+      updatedAnswersWithFlag    <- Future.fromTry(
+                                     updatedAnswersWithAddress.set(IndFindAddressAdditionalCallUa, additionalCallMade)
+                                   )
+      resultingUserAnswer       <- maybeUPRN.fold(Future.successful(updatedAnswersWithFlag)) { uprn =>
+                                     Future.fromTry(updatedAnswersWithFlag.set(AddressUPRNUserAnswers, uprn))
+                                   }
+      _                         <- sessionRepository.set(resultingUserAnswer)
+    } yield resultingUserAnswer
 }

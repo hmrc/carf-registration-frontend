@@ -23,6 +23,8 @@ import models.{ChangeMode, NormalMode, ProvideMode}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.individual.IndividualEmailPage
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.*
 
 class ChangeRoutesNavigatorSpec extends SpecBase {
@@ -297,6 +299,40 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           ChangeMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on HaveTradingNamePage" - {
+      "must navigate to TradingNameController when answer is yes and trading name has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(HaveTradingNamePage, true)
+
+        navigator.nextPage(
+          HaveTradingNamePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.orgWithoutId.routes.TradingNameController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is yes and trading name has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(HaveTradingNamePage, true)
+          .withPage(TradingNamePage, "Test Trading Name")
+
+        navigator.nextPage(
+          HaveTradingNamePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to CheckYourAnswersController when answer is no" in {
+        val userAnswers = emptyUserAnswers.withPage(HaveTradingNamePage, false)
+
+        navigator.nextPage(
+          HaveTradingNamePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
     }
 

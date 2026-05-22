@@ -43,9 +43,8 @@ object OrganisationRegistrationTypeSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.OrganisationRegistrationTypeController.onPageLoad(ChangeMode).url
-          )
-            .withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
+            href = controllers.routes.IndexController.onPageLoad(ChangeMode).url
+          ).withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
         )
       )
     }

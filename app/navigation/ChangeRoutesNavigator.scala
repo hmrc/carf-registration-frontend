@@ -20,8 +20,8 @@ import controllers.routes
 import controllers.routes.CheckYourAnswersController
 import models.RegistrationType.SoleTrader
 import models.{ChangeMode, NormalMode, RegistrationType, UserAnswers}
-import pages.individual.IndividualEmailPage
-import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, NiNumberPage, WhatIsYourNameIndividualPage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import pages.*
 import play.api.libs.json.Reads
@@ -54,8 +54,70 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
 
     case IsThisYourBusinessPage => userAnswers => navigateFromIsThisYourBusiness(userAnswers)
 
+    case OrgWithoutIdBusinessNamePage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case HaveTradingNamePage =>
+      userAnswers => navigateFromHaveTradingName(userAnswers)
+
+    case TradingNamePage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationBusinessAddressPage =>
+      userAnswers => navigateFromOrganisationBusinessAddress(userAnswers)
+
+    case HaveNiNumberPage =>
+      userAnswers => navigateFromHaveNiNumber(userAnswers)
+
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromHaveTradingName(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveTradingNamePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = TradingNamePage,
+          callWhenNotAnswered = controllers.orgWithoutId.routes.TradingNameController.onPageLoad(ChangeMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromOrganisationBusinessAddress(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationBusinessAddressPage) match {
+      case Some(_) =>
+        if (userAnswers.get(FirstContactNamePage).isDefined) {
+          CheckYourAnswersController.onPageLoad()
+        } else {
+          controllers.organisation.routes.FirstContactNameController.onPageLoad(ChangeMode)
+        }
+      case None    =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveNiNumberPage) match {
+      case Some(true) =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = NiNumberPage,
+          callWhenNotAnswered = controllers.individual.routes.NiNumberController.onPageLoad(NormalMode)
+        )
+
+      case Some(false) =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = WhatIsYourNameIndividualPage,
+          callWhenNotAnswered =
+            controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
+        )
+
+      case None =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def checkNextPageForValueThenRoute[A](
       userAnswers: UserAnswers,

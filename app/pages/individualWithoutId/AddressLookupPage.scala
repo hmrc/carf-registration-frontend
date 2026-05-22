@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.individualWithoutId
 
 import models.AddressUk
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object AddressLookupPage extends QuestionPage[Seq[AddressUk]] {

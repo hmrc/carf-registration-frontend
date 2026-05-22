@@ -17,8 +17,13 @@
 package pages.organisation
 
 import base.SpecBase
+import models.ChangeMode
+import navigation.Navigator
+import controllers.routes
 
 class OrganisationHaveSecondContactPageSpec extends SpecBase {
+
+  val navigator = new Navigator()
 
   "OrganisationHaveSecondContactPage" - {
     "cleanup" - {
@@ -65,6 +70,14 @@ class OrganisationHaveSecondContactPageSpec extends SpecBase {
         result.get(OrganisationSecondContactEmailPage)       mustBe Some(testEmail)
         result.get(OrganisationSecondContactHavePhonePage)   mustBe Some(true)
         result.get(OrganisationSecondContactPhoneNumberPage) mustBe Some(testPhone)
+      }
+
+      "must navigate to journey recovery when answer is missing" in {
+        navigator.nextPage(
+          OrganisationHaveSecondContactPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

@@ -17,8 +17,8 @@
 package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
-import models.{CheckMode, UserAnswers}
-import pages.organisation.RegistrationTypePage
+import models.{ChangeMode, UserAnswers}
+import pages.RegistrationTypePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -43,9 +43,8 @@ object OrganisationRegistrationTypeSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.OrganisationRegistrationTypeController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
+            href = controllers.routes.IndexController.onPageLoad(ChangeMode).url
+          ).withVisuallyHiddenText(messages("organisationRegistrationType.change.hidden"))
         )
       )
     }

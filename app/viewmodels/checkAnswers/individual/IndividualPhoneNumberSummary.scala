@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.individual.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individual.IndividualPhoneNumberPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -36,7 +36,7 @@ object IndividualPhoneNumberSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.IndividualPhoneNumberController.onPageLoad(CheckMode).url
+            href = routes.IndividualPhoneNumberController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("individualPhoneNumber.change.hidden"))
         )
       )

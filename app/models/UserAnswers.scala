@@ -30,6 +30,7 @@ final case class UserAnswers(
     changeIsIndividualRegType: Option[Boolean] = None,
     isCtAutoMatched: Boolean = false,
     safeId: Option[SafeId] = None,
+    hasValidMatch: Boolean = false,
     subscriptionId: Option[SubscriptionId] = None,
     displaySubscriptionResponse: Option[DisplaySubscriptionResponse] = None,
     data: JsObject = Json.obj(),
@@ -39,9 +40,14 @@ final case class UserAnswers(
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
-  def set[A](page: Settable[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
+  def set[A](page: Settable[A] & Gettable[A], newValue: A)(implicit
+      writes: Writes[A],
+      rds: Reads[A]
+  ): Try[UserAnswers] = {
 
-    val updatedData = data.setObject(page.path, Json.toJson(value)) match {
+    lazy val hasValueChanged = !get(page).contains(newValue)
+
+    val updatedData = data.setObject(page.path, Json.toJson(newValue)) match {
       case JsSuccess(jsValue, _) =>
         Success(jsValue)
       case JsError(errors)       =>
@@ -50,7 +56,7 @@ final case class UserAnswers(
 
     updatedData.flatMap { d =>
       val updatedAnswers = copy(data = d)
-      page.cleanup(Some(value), updatedAnswers)
+      page.cleanup(newValue, updatedAnswers, hasValueChanged)
     }
   }
 
@@ -65,9 +71,17 @@ final case class UserAnswers(
 
     updatedData.flatMap { d =>
       val updatedAnswers = copy(data = d)
-      page.cleanup(None, updatedAnswers)
+      Success(updatedAnswers)
     }
   }
+
+  def remove(pages: List[Settable[_]]): Try[UserAnswers] =
+    pages.foldLeft(Try(this)) { (oldAnswerList, page) =>
+      oldAnswerList.flatMap(_.remove(page))
+    }
+
+  def clearMatchFlagAndSafeId: UserAnswers =
+    this.copy(safeId = None, hasValidMatch = false)
 }
 
 object UserAnswers {
@@ -82,6 +96,7 @@ object UserAnswers {
         (__ \ "changeIsIndividualRegType").readNullable[Boolean] and
         (__ \ "isCtAutoMatched").read[Boolean] and
         (__ \ "safeId").readNullable[SafeId] and
+        (__ \ "hasValidMatch").read[Boolean] and
         (__ \ "subscriptionId").readNullable[SubscriptionId] and
         (__ \ "displaySubscriptionResponse").readNullable[DisplaySubscriptionResponse] and
         (__ \ "data").read[JsObject] and
@@ -99,6 +114,7 @@ object UserAnswers {
         (__ \ "changeIsIndividualRegType").writeNullable[Boolean] and
         (__ \ "isCtAutoMatched").write[Boolean] and
         (__ \ "safeId").writeNullable[SafeId] and
+        (__ \ "hasValidMatch").write[Boolean] and
         (__ \ "subscriptionId").writeNullable[SubscriptionId] and
         (__ \ "displaySubscriptionResponse").writeNullable[DisplaySubscriptionResponse] and
         (__ \ "data").write[JsObject] and
@@ -110,6 +126,7 @@ object UserAnswers {
         ua.changeIsIndividualRegType,
         ua.isCtAutoMatched,
         ua.safeId,
+        ua.hasValidMatch,
         ua.subscriptionId,
         ua.displaySubscriptionResponse,
         ua.data,

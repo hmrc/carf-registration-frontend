@@ -91,7 +91,9 @@ class RegisterDateOfBirthController @Inject() (
           .getIndividualByNino(nino, name, dob)
           .flatMap {
             case Right(individualDetails) =>
-              val answersWithSafeId = updatedAnswers.copy(safeId = Some(SafeId(individualDetails.safeId)))
+              val answersWithSafeId = updatedAnswers
+                .copy(safeId = Some(SafeId(individualDetails.safeId)))
+                .copy(hasValidMatch = true)
               for {
                 _ <- sessionRepository.set(answersWithSafeId)
               } yield Redirect(navigator.nextPage(RegisterDateOfBirthPage, mode, answersWithSafeId))

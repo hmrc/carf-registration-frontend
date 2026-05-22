@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.individual.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individual.IndividualHavePhonePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -38,7 +38,7 @@ object IndividualHavePhoneSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.IndividualHavePhoneController.onPageLoad(CheckMode).url
+            href = routes.IndividualHavePhoneController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("individualHavePhone.change.hidden"))
         )
       )

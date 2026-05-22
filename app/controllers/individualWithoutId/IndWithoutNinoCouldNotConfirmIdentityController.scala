@@ -18,6 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
+import models.NormalMode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -38,7 +39,7 @@ class IndWithoutNinoCouldNotConfirmIdentityController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
-      val tryAgainLink: String = routes.IndexController.onPageLoad().url
+      val tryAgainLink: String = routes.IndexController.onPageLoad(NormalMode).url
 
       Ok(view(tryAgainLink))
   }

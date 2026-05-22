@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individual.RegisterDateOfBirthPage
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -39,7 +39,7 @@ object RegisterDateOfBirthSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.changeDetails")}</span>"""),
-            href = controllers.individual.routes.NiNumberController.onPageLoad(CheckMode).url
+            href = controllers.individual.routes.NiNumberController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("registerDateOfBirth.change.hidden"))
         )
       )

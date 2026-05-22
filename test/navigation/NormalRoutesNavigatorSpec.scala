@@ -314,7 +314,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to individual email page for organisation sole traders" in {
           val userAnswers = UserAnswers("id")
-            .set(
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+            .withPage(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
                 businessDetails = BusinessDetails(
@@ -325,11 +326,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(true)
               )
             )
-            .success
-            .value
-            .set(RegistrationTypePage, RegistrationType.SoleTrader)
-            .success
-            .value
+
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,
@@ -339,7 +336,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to individual email page for individual sole traders" in {
           val userAnswers = UserAnswers("id")
-            .set(
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+            .withPage(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
                 businessDetails = BusinessDetails(
@@ -350,11 +348,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(true)
               )
             )
-            .success
-            .value
-            .set(RegistrationTypePage, RegistrationType.SoleTrader)
-            .success
-            .value
+
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,
@@ -364,7 +358,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to contact details page for non-sole traders" in {
           val userAnswers = UserAnswers("id")
-            .set(
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+            .withPage(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
                 businessDetails = BusinessDetails(
@@ -375,11 +370,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(true)
               )
             )
-            .success
-            .value
-            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-            .success
-            .value
 
           navigator.nextPage(
             IsThisYourBusinessPage,
@@ -446,7 +436,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to sole trader not identified page when not CT auto-matched and is sole trader" in {
           val userAnswers = UserAnswers("id")
-            .set(
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+            .withPage(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
                 businessDetails = BusinessDetails(
@@ -457,11 +448,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(false)
               )
             )
-            .success
-            .value
-            .set(RegistrationTypePage, RegistrationType.SoleTrader)
-            .success
-            .value
 
           navigator.nextPage(
             IsThisYourBusinessPage,
@@ -472,7 +458,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
         "must navigate to business not identified page when not CT auto-matched and not sole trader" in {
           val userAnswers = UserAnswers("id")
-            .set(
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+            .withPage(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
                 businessDetails = BusinessDetails(
@@ -483,11 +470,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(false)
               )
             )
-            .success
-            .value
-            .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-            .success
-            .value
 
           navigator.nextPage(
             IsThisYourBusinessPage,

@@ -2,7 +2,7 @@ package viewmodels.checkAnswers
 
 import config.CurrencyFormatter.currencyFormat
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.$className$Page
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -22,7 +22,7 @@ object $className$Summary  {
             ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>\${messages("site.change")}</span>"""),
             href = 
-routes.$className$Controller.onPageLoad(CheckMode).url)
+routes.$className$Controller.onPageLoad(ChangeMode).url)
               .withVisuallyHiddenText(messages("$className;format="decap"$.change.hidden"))
           )
         )

@@ -20,13 +20,12 @@ import cats.implicits.*
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.{ApiError, DataError}
 import models.error.ApiError.AlreadyRegisteredError
+import models.error.{ApiError, DataError}
 import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
-import pages.orgWithoutId.OrganisationBusinessAddressPage
-import pages.{NavigatorOnlyCheckYourAnswersErrors, WhereDoYouLivePage}
+import pages.NavigatorOnlyCheckYourAnswersErrors
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -40,6 +39,7 @@ import viewmodels.Section
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -83,58 +83,77 @@ class CheckYourAnswersController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
-      val userAnswers                      = request.userAnswers
-      val journeyType: Option[JourneyType] = userAnswers.journeyType
+      val userAnswers = request.userAnswers
 
-      val sectionsMaybe = journeyType match {
-        case Some(OrgWithUtr)   =>
-          for {
-            section1 <- businessDetailsSectionMaybe(userAnswers)
-            section2 <- firstContactDetailsSectionMaybe(userAnswers)
-            section3 <- secondContactDetailsSectionMaybe(userAnswers)
-          } yield Seq(section1, section2, section3)
-        case Some(IndWithNino)  =>
-          for {
-            section1 <- indWithNinoYourDetails(userAnswers)
-            section2 <- indContactDetails(userAnswers)
-          } yield Seq(section1, section2)
-        case Some(IndWithUtr)   =>
-          for {
-            section1 <- businessDetailsSectionMaybe(userAnswers)
-            section2 <- indContactDetails(userAnswers)
-          } yield Seq(section1, section2)
-        case Some(OrgWithoutId) =>
-          for {
-            section1 <- orgWithoutIdDetailsMaybe(userAnswers)
-            section2 <- firstContactDetailsSectionMaybe(userAnswers)
-            section3 <- secondContactDetailsSectionMaybe(userAnswers)
-          } yield Seq(section1, section2, section3)
-        case Some(IndWithoutId) =>
-          for {
-            section1 <- indWithoutIdYourDetails(userAnswers)
-            section2 <- indContactDetails(userAnswers)
-          } yield Seq(section1, section2)
-        case _                  =>
-          logger.warn(s"[CheckYourAnswersController] Error! Journey Type was missing from user answers")
-          None
-      }
-      sectionsMaybe.fold(Redirect(controllers.routes.InformationMissingController.onPageLoad())) { sections =>
-        Ok(view(sections))
+      val sectionsMaybe = for {
+        journeyType <- userAnswers.journeyType
+        sections    <- getSectionsMaybe(userAnswers, journeyType)
+      } yield sections
+
+      (sectionsMaybe, isMatchValidOrNotNeeded(userAnswers)) match {
+        case (Some(sections), true)                   => Ok(view(sections))
+        case (sectionsMaybe, matchIsValidOrNotNeeded) =>
+          logger.warn(
+            s"[CheckYourAnswersController] Error! Could not load page. " +
+              s"< journeyType = ${userAnswers.journeyType} > " +
+              s"< matchIsValidOrNotNeeded = $matchIsValidOrNotNeeded > " +
+              s"< is sectionsMaybe empty = ${sectionsMaybe.isEmpty} >"
+          )
+          Redirect(controllers.routes.InformationMissingController.onPageLoad())
       }
   }
 
+  private def isMatchValidOrNotNeeded(userAnswers: UserAnswers): Boolean =
+    userAnswers.hasValidMatch || JourneyType.isWithoutIdJourney(userAnswers.journeyType)
+
+  private def getSectionsMaybe(userAnswers: UserAnswers, journeyType: JourneyType)(implicit messages: Messages) =
+    journeyType match {
+      case OrgWithUtr   =>
+        for {
+          section1 <- businessDetailsSectionMaybe(userAnswers)
+          section2 <- firstContactDetailsSectionMaybe(userAnswers)
+          section3 <- secondContactDetailsSectionMaybe(userAnswers)
+        } yield Seq(section1, section2, section3)
+      case IndWithNino  =>
+        for {
+          section1 <- indWithNinoYourDetails(userAnswers)
+          section2 <- indContactDetails(userAnswers)
+        } yield Seq(section1, section2)
+      case IndWithUtr   =>
+        for {
+          section1 <- businessDetailsSectionMaybe(userAnswers)
+          section2 <- indContactDetails(userAnswers)
+        } yield Seq(section1, section2)
+      case OrgWithoutId =>
+        for {
+          section1 <- orgWithoutIdDetailsMaybe(userAnswers)
+          section2 <- firstContactDetailsSectionMaybe(userAnswers)
+          section3 <- secondContactDetailsSectionMaybe(userAnswers)
+        } yield Seq(section1, section2, section3)
+      case IndWithoutId =>
+        for {
+          section1 <- indWithoutIdYourDetails(userAnswers)
+          section2 <- indContactDetails(userAnswers)
+        } yield Seq(section1, section2)
+    }
+
   def onSubmit(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData)
     .async { implicit request =>
-      subscribeAndEnrol().value.map {
-        case Right(result)                => result
-        case Left(AlreadyRegisteredError) =>
-          Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
-        case Left(DataError)              =>
-          logger.error(s"[CheckYourAnswersController] Had missing data on submission")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case error                        =>
-          logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      if (isMatchValidOrNotNeeded(request.userAnswers)) {
+        subscribeAndEnrol().value.map {
+          case Right(result)                => result
+          case Left(AlreadyRegisteredError) =>
+            Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
+          case Left(DataError)              =>
+            logger.error(s"[CheckYourAnswersController] Had missing data on submission")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case error                        =>
+            logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
+      } else {
+        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
+        Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
       }
     }
 

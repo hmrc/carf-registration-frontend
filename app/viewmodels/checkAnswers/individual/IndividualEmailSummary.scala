@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.individual.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individual.IndividualEmailPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -36,7 +36,7 @@ object IndividualEmailSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.IndividualEmailController.onPageLoad(CheckMode).url
+            href = routes.IndividualEmailController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("individualEmail.change.hidden"))
         )
       )

@@ -24,8 +24,8 @@ import models.error.ApiError.NotFoundError
 import models.responses.AddressRegistrationResponse
 import models.{IndividualDetails, Name, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
 import play.api.i18n.Messages
@@ -132,7 +132,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted and the service returns valid IndividualDetails" in {
+    "must redirect to the next page and set the match flag to true when valid data is submitted and the service returns valid IndividualDetails" in {
       val mockRegistrationService = mock[RegistrationService]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockRegistrationService.getIndividualByNino(any[String], any[Name], any[LocalDate])(any[HeaderCarrier]))
@@ -150,6 +150,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, buildPostRequest()).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(argThat(ua => ua.hasValidMatch))
       }
     }
 

@@ -16,9 +16,8 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
-import models.UserAnswers
-import models.responses.{renderHTML, AddressRegistrationResponse}
+import models.responses.renderHTML
+import models.{ChangeMode, UserAnswers}
 import pages.IsThisYourBusinessPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
@@ -39,7 +38,7 @@ object IsThisYourBusinessSummary {
         if (answers.isCtAutoMatched) {
           controllers.organisation.routes.UnableToChangeBusinessController.onPageLoad().url
         } else {
-          routes.IndexController.onPageLoad().url
+          controllers.routes.IndexController.onPageLoad(ChangeMode).url
         }
 
       SummaryListRowViewModel(

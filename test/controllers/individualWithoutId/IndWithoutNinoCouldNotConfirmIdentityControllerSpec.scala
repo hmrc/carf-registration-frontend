@@ -18,13 +18,14 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import controllers.routes
+import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.individualWithoutId.IndWithoutNinoCouldNotConfirmIdentityView
 
 class IndWithoutNinoCouldNotConfirmIdentityControllerSpec extends SpecBase {
 
-  val tryAgainUrl: String = routes.IndexController.onPageLoad().url
+  val tryAgainUrl: String = routes.IndexController.onPageLoad(NormalMode).url
 
   "IndWithoutNinoCouldNotConfirmIdentity Controller" - {
 

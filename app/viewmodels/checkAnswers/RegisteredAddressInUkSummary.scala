@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.RegisteredAddressInUkPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -38,7 +38,7 @@ object RegisteredAddressInUkSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.RegisteredAddressInUkController.onPageLoad(CheckMode).url
+            href = routes.RegisteredAddressInUkController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("registeredAddressInUk.change.hidden"))
         )
       )

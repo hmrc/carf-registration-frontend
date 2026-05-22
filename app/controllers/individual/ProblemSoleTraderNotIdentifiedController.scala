@@ -19,6 +19,7 @@ package controllers.individual
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
+import models.NormalMode
 import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsYourNamePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -43,7 +44,7 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
-      val indexPageUrl             = controllers.routes.IndexController.onPageLoad().url
+      val indexPageUrl             = controllers.routes.IndexController.onPageLoad(NormalMode).url
       val guidancePageUrl          = appConfig.utrGuidanceUrl
       val aeoiEmailAddress: String = appConfig.aeoiEmailAddress
 

@@ -18,7 +18,7 @@ package controllers
 
 import models.JourneyType.OrgWithUtr
 import controllers.actions.{CheckEnrolledToServiceAction, CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
-import models.{NormalMode, UserAnswers}
+import models.{Mode, NormalMode, UserAnswers}
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -43,14 +43,14 @@ class IndexController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] =
+  def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen checkEnrolment andThen retrieveCtUTR() andThen getData() andThen submissionLock).async {
       implicit request =>
         request.affinityGroup match {
           case AffinityGroup.Individual =>
             for {
               _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
-            } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(NormalMode))
+            } yield Redirect(controllers.individual.routes.IndividualRegistrationTypeController.onPageLoad(mode))
 
           case _ =>
             request.utr match {
@@ -70,7 +70,7 @@ class IndexController @Inject() (
                 for {
                   _ <- sessionRepository.set(request.userAnswers.getOrElse(UserAnswers(id = request.userId)))
                 } yield Redirect(
-                  controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(NormalMode)
+                  controllers.organisation.routes.OrganisationRegistrationTypeController.onPageLoad(mode)
                 )
 
             }

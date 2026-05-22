@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individualWithoutId
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutIdDateOfBirthPage
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
@@ -39,7 +39,7 @@ object IndWithoutIdDateOfBirthSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(CheckMode).url
+            href = controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("indWithoutIdDateOfBirth.change.hidden"))
         )
       )

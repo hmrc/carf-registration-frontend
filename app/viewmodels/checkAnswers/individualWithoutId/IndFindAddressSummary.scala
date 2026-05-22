@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individualWithoutId.IndFindAddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -40,7 +40,7 @@ object IndFindAddressSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(CheckMode).url
+            href = controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("indFindAddress.change.hidden"))
         )
       )

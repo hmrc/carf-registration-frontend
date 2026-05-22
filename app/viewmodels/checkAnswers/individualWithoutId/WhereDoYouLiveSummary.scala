@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individualWithoutId
 
 import controllers.individualWithoutId.routes
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{ChangeMode, NormalMode, UserAnswers}
 import pages.WhereDoYouLivePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
@@ -38,7 +38,7 @@ object WhereDoYouLiveSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.WhereDoYouLiveController.onPageLoad(CheckMode).url
+            href = routes.WhereDoYouLiveController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("whereDoYouLive.change.hidden"))
         )
       )

@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.organisation.OrganisationSecondContactHavePhonePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -39,7 +39,7 @@ object OrganisationSecondContactHavePhoneSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.OrganisationSecondContactHavePhoneController.onPageLoad(CheckMode).url
+            href = routes.OrganisationSecondContactHavePhoneController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("organisationSecondContactHavePhone.change.hidden"))
         )
       )

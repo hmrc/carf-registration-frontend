@@ -18,7 +18,7 @@ package controllers.individual
 
 import base.SpecBase
 import controllers.routes
-import models.{Name, UniqueTaxpayerReference, UserAnswers}
+import models.{Name, NormalMode, UniqueTaxpayerReference, UserAnswers}
 import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsYourNamePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -28,7 +28,7 @@ class ProblemSoleTraderNotIdentifiedControllerSpec extends SpecBase {
 
   override val testName = "Timmy Turnips"
 
-  val testIndexPageUrl: String     = controllers.routes.IndexController.onPageLoad().url
+  val testIndexPageUrl: String     = controllers.routes.IndexController.onPageLoad(NormalMode).url
   val guidancePageUrl: String      = "https://www.gov.uk/find-utr-number"
   val testAeoiEmailAddress: String = "aeoi.enquiries@hmrc.gov.uk"
 

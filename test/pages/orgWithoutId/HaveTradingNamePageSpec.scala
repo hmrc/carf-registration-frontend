@@ -17,8 +17,13 @@
 package pages.orgWithoutId
 
 import base.SpecBase
+import models.ChangeMode
+import navigation.Navigator
+import controllers.routes
 
 class HaveTradingNamePageSpec extends SpecBase {
+
+  val navigator = new Navigator()
 
   "HaveTradingNamePage" - {
     "cleanup" - {
@@ -44,6 +49,14 @@ class HaveTradingNamePageSpec extends SpecBase {
         val result = HaveTradingNamePage.cleanup(false, ua, hasChanged = false).success.value
 
         result.get(TradingNamePage) mustBe Some("Trading Name")
+      }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          HaveTradingNamePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

@@ -19,8 +19,13 @@ package pages.individual
 import base.SpecBase
 import models.*
 import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import models.ChangeMode
+import navigation.Navigator
+import controllers.routes
 
 class HaveNiNumberPageSpec extends SpecBase {
+
+  val navigator = new Navigator()
 
   "HaveNiNumberPage" - {
     "cleanup" - {
@@ -49,6 +54,14 @@ class HaveNiNumberPageSpec extends SpecBase {
         result.get(NiNumberPage)                 mustBe None
         result.get(WhatIsYourNameIndividualPage) mustBe None
         result.get(RegisterDateOfBirthPage)      mustBe None
+      }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          HaveNiNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

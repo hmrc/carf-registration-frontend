@@ -23,8 +23,7 @@ import models.countries.CountryUk
 import models.requests.DataRequest
 import models.{format, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage, IndWithoutIdUkAddressInUserAnswers}
+import pages.individualWithoutId.{AddressLookupPage, IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage, IndWithoutIdUkAddressInUserAnswers}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}

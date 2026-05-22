@@ -16,6 +16,7 @@
 
 package pages
 
+import config.Constants.{indGeneralPage, indWithNinoPages, indWithoutIdPages}
 import models.RegistrationType.{Individual, SoleTrader}
 import models.{IndWithoutIdAddressNonUk, RegistrationType, UserAnswers}
 import pages.individual.*
@@ -52,19 +53,6 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
   private val soleTraderPages = {
     val indWithUtrPage         = List(WhatIsYourNamePage, IsThisYourBusinessPage)
-    val indGeneralPage         = List(HaveNiNumberPage)
-    val indWithNinoPages       = List(NiNumberPage, WhatIsYourNameIndividualPage, RegisterDateOfBirthPage)
-    val indWithoutIdPages      = List(
-      IndFindAddressAdditionalCallUa,
-      IndFindAddressPage,
-      IndWithoutNinoNamePage,
-      IndWithoutIdAddressNonUkPage,
-      IndWithoutIdAddressPagePrePop,
-      IndWithoutIdChooseAddressPage,
-      IndWithoutIdDateOfBirthPage,
-      IndWithoutIdSelectedChooseAddressPage,
-      IndWithoutIdUkAddressInUserAnswers
-    )
     val indContactDetailsPages = List(IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage)
     indWithUtrPage ++ indGeneralPage ++ indWithNinoPages ++ indWithoutIdPages ++ indContactDetailsPages
   }

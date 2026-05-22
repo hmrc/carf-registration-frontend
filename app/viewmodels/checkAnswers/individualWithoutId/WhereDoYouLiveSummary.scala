@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.individualWithoutId
 
 import controllers.individualWithoutId.routes
 import models.{ChangeMode, NormalMode, UserAnswers}
-import pages.WhereDoYouLivePage
+import pages.individualWithoutId.WhereDoYouLivePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow

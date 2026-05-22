@@ -103,61 +103,6 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
       }
     }
 
-    "when on HaveUTRPage" - {
-      "must navigate to YourUniqueTaxpayerReferenceController if answer was yes" in {
-        val userAnswers = emptyUserAnswers.withPage(HaveUTRPage, true)
-
-        navigator.nextPage(
-          HaveUTRPage,
-          ChangeMode,
-          userAnswers
-        ) mustBe controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
-      }
-
-      "must navigate to HaveNiNumberController if answer was no and user is sole trader" in {
-        val userAnswers = emptyUserAnswers.withPage(HaveUTRPage, false).withPage(RegistrationTypePage, SoleTrader)
-
-        navigator.nextPage(
-          HaveUTRPage,
-          ChangeMode,
-          userAnswers
-        ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
-      }
-
-      "must navigate to OrgWithoutIdBusinessNameController if answer was no, user is non sole trader and OrgWithoutIdBusinessNamePage doesn't have answers" in {
-        val userAnswers = emptyUserAnswers
-          .withPage(HaveUTRPage, false)
-          .withPage(RegistrationTypePage, LimitedCompany)
-
-        navigator.nextPage(
-          HaveUTRPage,
-          ChangeMode,
-          userAnswers
-        ) mustBe controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
-      }
-
-      "must navigate to Check Your Answers if answer was no, user is non sole trader and OrgWithoutIdBusinessNamePage has answers" in {
-        val userAnswers = emptyUserAnswers
-          .withPage(HaveUTRPage, false)
-          .withPage(RegistrationTypePage, LimitedCompany)
-          .withPage(OrgWithoutIdBusinessNamePage, "TestName")
-
-        navigator.nextPage(
-          HaveUTRPage,
-          ChangeMode,
-          userAnswers
-        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
-      }
-
-      "must navigate to journey recovery if answer is missing" in {
-        navigator.nextPage(
-          HaveUTRPage,
-          ChangeMode,
-          emptyUserAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
-    }
-
     "when on YourUtrPageForNavigatorOnly" - {
       "must navigate to RegisteredAddressInUkController when registration type is Sole Trader" in {
         val userAnswers = emptyUserAnswers

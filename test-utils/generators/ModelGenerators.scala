@@ -157,4 +157,11 @@ trait ModelGenerators {
         pageAnswer      <- Gen.option(arbitrary[Boolean])
       } yield IsThisYourBusinessPageDetails(businessDetails, pageAnswer)
     }
+
+  implicit lazy val arbitraryAddressUkSeq: Arbitrary[Seq[AddressUk]] =
+    Arbitrary {
+      for {
+        addressUk <- arbitrary[AddressUk]
+      } yield Seq(addressUk, addressUk, addressUk)
+    }
 }

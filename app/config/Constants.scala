@@ -95,8 +95,8 @@ object Constants {
     List(
       UniqueTaxpayerReferenceInUserAnswers,
       WhatIsYourNamePage,
-      IsThisYourBusinessPage,
-      WhatIsTheNameOfYourBusinessPage
+      WhatIsTheNameOfYourBusinessPage,
+      IsThisYourBusinessPage
     )
 
 }

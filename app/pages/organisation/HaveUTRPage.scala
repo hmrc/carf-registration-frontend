@@ -16,11 +16,9 @@
 
 package pages.organisation
 
-import config.Constants.{indGeneralPage, indWithNinoPages, indWithoutIdPages, orgWithoutIdPages, withUtrPages}
+import config.Constants.*
 import models.UserAnswers
 import pages.QuestionPage
-import pages.individual.*
-import pages.orgWithoutId.*
 import play.api.libs.json.JsPath
 
 import scala.util.{Success, Try}

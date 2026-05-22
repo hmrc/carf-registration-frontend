@@ -16,6 +16,7 @@
 
 package forms.mappings
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat
 import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil, Phonenumber}
 import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
@@ -251,33 +252,40 @@ trait Formatters extends Transforms with Logging {
   ): Formatter[String] =
     new Formatter[String] {
 
-      private val phoneUtil = PhoneNumberUtil.getInstance()
-
       override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue = {
         lazy val formErrorInvalidKey = Left(Seq(FormError(key, invalidKey, args)))
 
         data.get(key).map(_.trim) match {
-          case None                         => Left(Seq(FormError(key, requiredKey, args)))
-          case Some(value) if value.isEmpty => Left(Seq(FormError(key, requiredKey, args)))
-          case Some(value)                  =>
-            if (value.length > maxPhoneLength) {
-              Left(Seq(FormError(key, lengthKey, args)))
-            } else {
-              Try {
-                val number = phoneUtil.parse(value, "GB")
-                (phoneUtil.isPossibleNumber(number), phoneUtil.isValidNumber(number)) match {
-                  case (true, true)  => validateNot0808Number(phoneUtil, key, value, notRealPhoneNumberKey, number, args)
-                  case (true, false) => Left(Seq(FormError(key, notRealPhoneNumberKey, args)))
-                  case (false, _)    => formErrorInvalidKey
-                }
-              } match {
-                case Success(value)                   => value
-                case Failure(_: NumberParseException) => formErrorInvalidKey
-                case Failure(exception)               =>
-                  logger.error(s"Unexpected phone number form error occurred with message: ${exception.getMessage}")
-                  formErrorInvalidKey
-              }
-            }
+          case None                                         => Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.isEmpty                 => Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.length > maxPhoneLength => Left(Seq(FormError(key, lengthKey, args)))
+          case Some(value)                                  =>
+            validateWithPhoneUtil(key, formErrorInvalidKey, value)
+        }
+
+      }
+
+      private def validateWithPhoneUtil(
+          key: String,
+          formErrorInvalidKey: => Left[Seq[FormError], Nothing],
+          value: String
+      ) = {
+        val phoneUtil = PhoneNumberUtil.getInstance()
+
+        Try {
+          val number = phoneUtil.parse(value, "GB")
+          (phoneUtil.isPossibleNumber(number), phoneUtil.isValidNumber(number)) match {
+            case (true, true)  =>
+              validateNot0808NumberAndFormat(phoneUtil, key, value, notRealPhoneNumberKey, number, args)
+            case (true, false) => Left(Seq(FormError(key, notRealPhoneNumberKey, args)))
+            case (false, _)    => formErrorInvalidKey
+          }
+        } match {
+          case Success(value)                   => value
+          case Failure(_: NumberParseException) => formErrorInvalidKey
+          case Failure(exception)               =>
+            logger.error(s"Unexpected phone number form error occurred with message: ${exception.getMessage}")
+            formErrorInvalidKey
         }
       }
 
@@ -292,7 +300,7 @@ trait Formatters extends Transforms with Logging {
     * 960 001 & 07700 900 982 as not Real numbers.
     */
 
-  protected def validateNot0808Number(
+  protected def validateNot0808NumberAndFormat(
       phoneUtil: PhoneNumberUtil,
       key: String,
       value: String,
@@ -305,7 +313,17 @@ trait Formatters extends Transforms with Logging {
     if (formattedNumber == Constants.notReal0808PhoneNumber) {
       Left(Seq(FormError(key, notRealErrorKey, args)))
     } else {
-      Right(value)
+      val isUK = phoneUtil.getRegionCodeForNumber(number) == "GB"
+
+      // Strip everything except digits and + to check intent
+      val stripped             = value.replaceAll("[^0-9+]", "")
+      val enteredInternational = stripped.startsWith("+")
+
+      val formatterWithIntent = (isUK, enteredInternational) match {
+        case (true, false) => PhoneNumberFormat.NATIONAL
+        case _             => PhoneNumberFormat.E164
+      }
+      Right(phoneUtil.format(number, formatterWithIntent))
     }
   }
 

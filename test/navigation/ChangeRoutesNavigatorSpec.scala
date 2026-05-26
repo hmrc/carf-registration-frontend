@@ -21,7 +21,7 @@ import controllers.routes
 import models.RegistrationType.*
 import models.{ChangeMode, NormalMode, ProvideMode}
 import pages.*
-import pages.individual.IndividualEmailPage
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.*
 
@@ -242,6 +242,222 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           ChangeMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on FirstContactNamePage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          FirstContactNamePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on FirstContactEmailPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          FirstContactEmailPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on FirstContactPhonePage" - {
+      "must navigate to FirstContactPhoneNumberController when answer is yes and phone number has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(FirstContactPhonePage, true)
+
+        navigator.nextPage(
+          FirstContactPhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is yes and phone number has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(FirstContactPhonePage, true)
+          .withPage(FirstContactPhoneNumberPage, testPhone)
+
+        navigator.nextPage(
+          FirstContactPhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to CheckYourAnswersController when answer is no" in {
+        val userAnswers = emptyUserAnswers.withPage(FirstContactPhonePage, false)
+
+        navigator.nextPage(
+          FirstContactPhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on FirstContactPhoneNumberPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          FirstContactPhoneNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on OrganisationHaveSecondContactPage" - {
+      "must navigate to OrganisationSecondContactNameController when answer is yes and second contact name has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(OrganisationHaveSecondContactPage, true)
+
+        navigator.nextPage(
+          OrganisationHaveSecondContactPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is yes and second contact name has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(OrganisationHaveSecondContactPage, true)
+          .withPage(OrganisationSecondContactNamePage, "Timmy")
+
+        navigator.nextPage(
+          OrganisationHaveSecondContactPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to CheckYourAnswersController when answer is no" in {
+        val userAnswers = emptyUserAnswers.withPage(OrganisationHaveSecondContactPage, false)
+
+        navigator.nextPage(
+          OrganisationHaveSecondContactPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on OrganisationSecondContactNamePage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          OrganisationSecondContactNamePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on OrganisationSecondContactEmailPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          OrganisationSecondContactEmailPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on OrganisationSecondContactHavePhonePage" - {
+      "must navigate to OrganisationSecondContactPhoneNumberController when answer is yes and phone number has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(OrganisationSecondContactHavePhonePage, true)
+
+        navigator.nextPage(
+          OrganisationSecondContactHavePhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is yes and phone number has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(OrganisationSecondContactHavePhonePage, true)
+          .withPage(OrganisationSecondContactPhoneNumberPage, testPhone)
+
+        navigator.nextPage(
+          OrganisationSecondContactHavePhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to CheckYourAnswersController when answer is no" in {
+        val userAnswers = emptyUserAnswers.withPage(OrganisationSecondContactHavePhonePage, false)
+
+        navigator.nextPage(
+          OrganisationSecondContactHavePhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on OrganisationSecondContactPhoneNumberPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          OrganisationSecondContactPhoneNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on IndividualEmailPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          IndividualEmailPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on IndividualHavePhonePage" - {
+      "must navigate to IndividualPhoneNumberController when answer is yes and phone number has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(IndividualHavePhonePage, true)
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is yes and phone number has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualHavePhonePage, true)
+          .withPage(IndividualPhoneNumberPage, testPhone)
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to CheckYourAnswersController when answer is no" in {
+        val userAnswers = emptyUserAnswers.withPage(IndividualHavePhonePage, false)
+
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on IndividualPhoneNumberPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          IndividualPhoneNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
     }
 

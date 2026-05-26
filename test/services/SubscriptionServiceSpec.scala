@@ -26,6 +26,7 @@ import models.requests.SubscriptionRequest
 import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
+import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
 import utils.SubscriptionHelper
 
@@ -52,6 +53,22 @@ class SubscriptionServiceSpec extends SpecBase {
     .success
     .value
     .set(IndividualPhoneNumberPage, "01234567890")
+    .success
+    .value
+
+  val updatedUserAnswers: UserAnswers = emptyUserAnswers
+    .copy(journeyType = Some(JourneyType.IndWithNino))
+    .copy(safeId = Some(exampleSafeId))
+    .set(WhatIsYourNameIndividualPage, Name("John", "Doe"))
+    .success
+    .value
+    .set(ChangeDetailsIndividualEmailPage, "john.doe@example.com")
+    .success
+    .value
+    .set(ChangeDetailsIndividualHavePhonePage, true)
+    .success
+    .value
+    .set(ChangeDetailsIndividualPhoneNumberPage, "01234567890")
     .success
     .value
 
@@ -129,6 +146,38 @@ class SubscriptionServiceSpec extends SpecBase {
           MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")
         )
         verify(mockConnector, never()).createSubscription(any[SubscriptionRequest])(any(), any())
+      }
+    }
+
+    "updateSubscription" - {
+      "should successfully update subscription with valid user answers" in {
+        when(mockConnector.updateSubscription(any[SubscriptionRequest])(any(), any())).thenReturn(
+          EitherT.rightT[Future, ApiError](exampleSubscriptionId)
+        )
+
+        val result = testService.updateSubscription(updatedUserAnswers).value.futureValue
+
+        result mustBe Right(exampleSubscriptionId)
+        verify(mockConnector).updateSubscription(any[SubscriptionRequest])(any(), any())
+      }
+
+      "should return error when connector fails" in {
+        when(mockConnector.updateSubscription(any[SubscriptionRequest])(any(), any())).thenReturn(
+          EitherT.leftT[Future, SubscriptionId](InternalServerError)
+        )
+
+        val result = testService.updateSubscription(updatedUserAnswers).value.futureValue
+
+        result mustBe Left(InternalServerError)
+      }
+
+      "should return BadRequestError when there is a problem with userAnswers" in {
+        val result = testService.updateSubscription(emptyUserAnswers).value.futureValue
+
+        result mustBe Left(
+          MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")
+        )
+        verify(mockConnector, never()).updateSubscription(any[SubscriptionRequest])(any(), any())
       }
     }
 

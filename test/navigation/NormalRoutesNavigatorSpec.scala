@@ -674,8 +674,33 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
     "OrganisationBusinessAddressPage navigation" - {
 
-      "must navigate from OrganisationBusinessAddressPage to the next page in the journey" in {
+      "must navigate to CheckYourAnswersController when FirstContactName has been answered" in {
+        val userAnswers = emptyUserAnswers
+          .set(
+            OrganisationBusinessAddressPage,
+            OrganisationBusinessAddress(
+              "Address Line 1",
+              Some("Address Line 2"),
+              "City",
+              Some("Region"),
+              Some("Postcode"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+          .set(FirstContactNamePage, "John Doe")
+          .success
+          .value
 
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to FirstContactNameController when FirstContactName has not been answered" in {
         val userAnswers = emptyUserAnswers
           .set(
             OrganisationBusinessAddressPage,
@@ -695,9 +720,10 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationBusinessAddressPage,
           NormalMode,
           userAnswers
-        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+        ) mustBe controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode)
       }
     }
+
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =

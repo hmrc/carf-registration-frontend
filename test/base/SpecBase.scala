@@ -22,7 +22,7 @@ import generators.Generators
 import models.countries.{Country, CountryUk}
 import models.requests.{AddressDetails, ContactDetails}
 import models.responses.*
-import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, OrganisationBusinessAddress, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, OrganisationBusinessAddress, RichJsObject, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -35,6 +35,7 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.*
 import play.api.libs.json.{Reads, Writes}
 import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
@@ -42,9 +43,11 @@ import queries.{Gettable, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.{Clock, Instant, LocalDate, ZoneId}
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success, Try}
 
 trait SpecBase
     extends AnyFreeSpec
@@ -105,8 +108,18 @@ trait SpecBase
 
   implicit class UserAnswersExtension(userAnswers: UserAnswers) {
 
-    def withPage[T](page: Settable[T] & Gettable[T], value: T)(implicit writes: Writes[T], rds: Reads[T]): UserAnswers =
-      userAnswers.set(page, value).success.value
+    def withPage[T](page: Settable[T] & Gettable[T], value: T)(implicit
+        writes: Writes[T],
+        rds: Reads[T]
+    ): UserAnswers = {
+      val updatedData = userAnswers.data.setObject(page.path, Json.toJson(value)) match {
+        case JsSuccess(jsValue, _) =>
+          Success(jsValue)
+        case JsError(errors)       =>
+          Failure(JsResultException(errors))
+      }
+      userAnswers.copy(data = updatedData.success.value)
+    }
 
     def withoutPage[T](page: Settable[T])(implicit writes: Writes[T]): UserAnswers =
       userAnswers.remove(page).success.value

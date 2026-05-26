@@ -28,9 +28,9 @@ import models.{BusinessDetails, IndividualDetails, Name, RegistrationType, SafeI
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalactic.Prettifier.default
-import pages.{RegistrationTypePage, WhereDoYouLivePage}
+import pages.RegistrationTypePage
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage, WhereDoYouLivePage}
 import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.{FirstContactEmailPage, FirstContactPhoneNumberPage, FirstContactPhonePage, UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage, WhatIsYourNamePage}
 

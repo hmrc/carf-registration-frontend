@@ -125,15 +125,10 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     }
 
   private def navigateFromOrganisationBusinessAddress(userAnswers: UserAnswers): Call =
-    userAnswers.get(OrganisationBusinessAddressPage) match {
-      case Some(_) =>
-        if (userAnswers.get(FirstContactNamePage).isDefined) {
-          CheckYourAnswersController.onPageLoad()
-        } else {
-          controllers.organisation.routes.FirstContactNameController.onPageLoad(ChangeMode)
-        }
-      case None    =>
-        routes.JourneyRecoveryController.onPageLoad()
+    if (userAnswers.get(FirstContactNamePage).isDefined) {
+      CheckYourAnswersController.onPageLoad()
+    } else {
+      controllers.organisation.routes.FirstContactNameController.onPageLoad(ChangeMode)
     }
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =

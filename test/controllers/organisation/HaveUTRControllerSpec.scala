@@ -19,18 +19,20 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.HaveUTRFormProvider
-import models.{NormalMode, UserAnswers}
+import models.RegistrationType.{LimitedCompany, SoleTrader}
+import models.{ChangeMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import pages.RegistrationTypePage
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.HaveUTRPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.organisation.HaveUTRView
 
 import scala.concurrent.Future
@@ -42,7 +44,8 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
   val formProvider: HaveUTRFormProvider = new HaveUTRFormProvider()
   val form: Form[Boolean]               = formProvider()
 
-  lazy val haveUTRRoute: String = controllers.organisation.routes.HaveUTRController.onPageLoad(NormalMode).url
+  lazy val haveUTRRoute: String       = controllers.organisation.routes.HaveUTRController.onPageLoad(NormalMode).url
+  lazy val haveUTRChangeRoute: String = controllers.organisation.routes.HaveUTRController.onPageLoad(ChangeMode).url
 
   "HaveUTR Controller" - {
 
@@ -100,6 +103,139 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "when in change mode" - {
+      "must redirect to enter your utr page change mode when answer is true" in {
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val expectedUrl =
+          controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode).url
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "true"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual expectedUrl
+        }
+      }
+      "must redirect to have ni number page normal mode" - {
+        "when answer is false, user is sole trader and the answer is different than before" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val ua = emptyUserAnswers
+            .withPage(RegistrationTypePage, SoleTrader)
+            .withPage(HaveUTRPage, true)
+
+          val expectedUrl = controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode).url
+
+          val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+          running(application) {
+            val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual expectedUrl
+          }
+        }
+      }
+      "must redirect to org without id business name page normal mode" - {
+        "when answer is false, user is NOT sole trader and the answer is different than before" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val ua = emptyUserAnswers
+            .withPage(RegistrationTypePage, LimitedCompany)
+            .withPage(HaveUTRPage, true)
+
+          val expectedUrl =
+            controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode).url
+
+          val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+          running(application) {
+            val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual expectedUrl
+          }
+        }
+      }
+      "must redirect to have ni number page change mode" - {
+        "when answer is false, user is sole trader and the answer is the same as before" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val ua = emptyUserAnswers
+            .withPage(RegistrationTypePage, SoleTrader)
+            .withPage(HaveUTRPage, false)
+
+          val expectedUrl = controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode).url
+
+          val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+          running(application) {
+            val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual expectedUrl
+          }
+        }
+      }
+      "must redirect to check your answers page" - {
+        "when answer is false, user is NOT sole trader and the answer is the same as before and org without id business name has been answered" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val ua = emptyUserAnswers
+            .withPage(RegistrationTypePage, LimitedCompany)
+            .withPage(HaveUTRPage, false)
+            .withPage(OrgWithoutIdBusinessNamePage, "Timmy Ltd")
+
+          val expectedUrl = controllers.routes.CheckYourAnswersController.onPageLoad().url
+
+          val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+          running(application) {
+            val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual expectedUrl
+          }
+        }
+      }
+      "must redirect to org without id business name page normal mode" - {
+        "when answer is false, user is NOT sole trader and the answer is the same as before and org without id business name has NOT been answered" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val ua = emptyUserAnswers
+            .withPage(RegistrationTypePage, LimitedCompany)
+            .withPage(HaveUTRPage, false)
+
+          val expectedUrl =
+            controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode).url
+
+          val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+          running(application) {
+            val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual expectedUrl
+          }
+        }
       }
     }
 

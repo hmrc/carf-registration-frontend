@@ -91,7 +91,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           registeredUkAddress = Some(true),
           hasUtr = Some(true),
           hasNINO = None,
-          withUtrJourney = Some(
+          soleTraderWithUTRJourney = Some(
             UtrJourneyAuditEvent(
               utr,
               name.firstName,
@@ -209,7 +209,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           registeredUkAddress = Some(true),
           hasUtr = Some(true),
           hasNINO = None,
-          withUtrJourney = None,
+          soleTraderWithUTRJourney = None,
           organisationWithIdJourney = Some(OrganisationWithIdJourney(utr, name, true)),
           organisationWithoutIdJourney = None,
           withNinoJourney = None,
@@ -260,7 +260,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           registeredUkAddress = Some(true),
           hasUtr = Some(false),
           hasNINO = None,
-          withUtrJourney = None,
+          soleTraderWithUTRJourney = None,
           organisationWithIdJourney = None,
           organisationWithoutIdJourney = Some(
             OrganisationWithoutIdJourney(
@@ -315,7 +315,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           registeredUkAddress = None,
           hasUtr = None,
           hasNINO = Some(true),
-          withUtrJourney = None,
+          soleTraderWithUTRJourney = None,
           organisationWithIdJourney = None,
           organisationWithoutIdJourney = None,
           withNinoJourney = Some(
@@ -370,7 +370,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           registeredUkAddress = Some(true),
           hasUtr = None,
           hasNINO = Some(false),
-          withUtrJourney = None,
+          soleTraderWithUTRJourney = None,
           organisationWithIdJourney = None,
           organisationWithoutIdJourney = None,
           withNinoJourney = None,
@@ -380,7 +380,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
               name.lastName,
               "2026-05-19",
               true,
-              false,
+              None,
               None,
               None,
               Some(uprn.toString),
@@ -435,7 +435,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           registeredUkAddress = Some(false),
           hasUtr = None,
           hasNINO = Some(false),
-          withUtrJourney = None,
+          soleTraderWithUTRJourney = None,
           organisationWithIdJourney = None,
           organisationWithoutIdJourney = None,
           withNinoJourney = None,
@@ -445,7 +445,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
               name.lastName,
               "2026-05-19",
               false,
-              false,
+              None,
               None,
               None,
               Some(uprn.toString),

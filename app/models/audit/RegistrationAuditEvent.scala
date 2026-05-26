@@ -24,13 +24,9 @@ case class RegistrationAuditEvent(
     affinityGroup: AffinityGroup,
     registeredAs: RegistrationType,
     registeredUkAddress: Option[Boolean],
-    hasUtr: Option[
-      Boolean
-    ],
-    hasNINO: Option[
-      Boolean
-    ],
-    withUtrJourney: Option[UtrJourneyAuditEvent],
+    hasUtr: Option[Boolean],
+    hasNINO: Option[Boolean],
+    soleTraderWithUTRJourney: Option[UtrJourneyAuditEvent],
     organisationWithIdJourney: Option[OrganisationWithIdJourney],
     organisationWithoutIdJourney: Option[OrganisationWithoutIdJourney],
     withNinoJourney: Option[WithNinoJourney],
@@ -100,19 +96,13 @@ case class IndividualWithoutIdJourney(
     lastName: String,
     dateOfBirth: String,
     residentOfUkOrCrownDependency: Boolean,
-    findYourAddress: Boolean,
-    propertyNameOrNumber: Option[
-      String
-    ],
-    chooseYourAddress: Option[
-      String
-    ],
+    findYourAddress: Option[String],
+    propertyNameOrNumber: Option[String],
+    chooseYourAddress: Option[String],
     UPRN: Option[String],
     addressLineOne: String,
     addressLineTwo: Option[String],
-    addressLineThree: Option[
-      String
-    ],
+    addressLineThree: Option[String],
     town: String,
     region: Option[String],
     postalCode: Option[String],

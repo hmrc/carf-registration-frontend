@@ -30,7 +30,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.{EnrolmentService, RegistrationService, SubscriptionService}
+import services.{AuditService, EnrolmentService, RegistrationService, SubscriptionService}
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -38,8 +38,7 @@ import utils.CheckYourAnswersHelper
 import viewmodels.Section
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject() (
     override val messagesApi: MessagesApi,
@@ -52,6 +51,7 @@ class CheckYourAnswersController @Inject() (
     submissionLock: SubmissionLockAction,
     registrationService: RegistrationService,
     subscriptionService: SubscriptionService,
+    auditService: AuditService,
     enrolmentService: EnrolmentService,
     view: CheckYourAnswersView,
     sessionRepository: SessionRepository
@@ -164,6 +164,13 @@ class CheckYourAnswersController @Inject() (
       subscriptionId        <- subscriptionService.subscribe(userAnswersWithSafeId)
       journeyTypeMaybe       = request.userAnswers.journeyType
       _                     <- enrolmentCall(answers, subscriptionId)
+      _                     <-
+        journeyTypeMaybe.fold(ResultT.fromValue(())) { journeyType =>
+          auditService.auditRegistration(userAnswersWithSafeId, journeyType, request.affinityGroup).recover { case e =>
+            logger.debug(s"Auditing Registration failed due to $e")
+            ResultT.fromValue(())
+          }
+        }
       result                <- ResultT.fromFuture {
                                  val updatedUserAnswers = userAnswersWithSafeId.copy(subscriptionId = Some(subscriptionId))
                                  sessionRepository.set(updatedUserAnswers).map { _ =>

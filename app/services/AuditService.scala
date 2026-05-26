@@ -18,6 +18,7 @@ package services
 
 import cats.syntax.all.*
 import models.audit.*
+import models.JourneyType.*
 import models.error.ApiError.InternalServerError
 import models.error.{CarfError, DataError}
 import models.{JourneyType, RegistrationType, UserAnswers}
@@ -56,14 +57,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       userAnswers: UserAnswers,
       journeyType: JourneyType,
       affinityGroup: AffinityGroup
-  ): ResultT[Unit] = {
-
-    val hasUtr = userAnswers
-      .get(HaveUTRPage)
-      .fold {
-        userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).flatMap(_ => Some(true))
-      }(Some(_))
-
+  ): ResultT[Unit] =
     for {
       registrationEvent <- userAnswers
                              .get(RegistrationTypePage)
@@ -77,15 +71,32 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                                    registeredUkAddress = userAnswers
                                      .get(RegisteredAddressInUkPage)
                                      .fold(userAnswers.get(WhereDoYouLivePage))(Some(_)),
-                                   hasUtr = hasUtr,
+                                   hasUtr = userAnswers.get(HaveUTRPage),
                                    hasNINO = userAnswers.get(HaveNiNumberPage).fold(None)(Some(_)),
-                                   withUtrJourney = getUtrJourneyType(userAnswers),
-                                   organisationWithIdJourney = getOrganisationWithIdJourney(userAnswers),
-                                   organisationWithoutIdJourney = getOrganisationWithoutIdJourney(userAnswers),
-                                   withNinoJourney = getWithNinoJourney(userAnswers),
-                                   individualWithoutIdJourney = getIndividualWithoutIdJourney(userAnswers),
-                                   individualContactDetails = getIndividualContactDetails(userAnswers),
-                                   organisationContactDetails = getOrganisationContactDetails(userAnswers)
+                                   soleTraderWithUTRJourney = if (journeyType == IndWithUtr) {
+                                     getUtrJourneyType(userAnswers)
+                                   } else None,
+                                   organisationWithIdJourney = if (journeyType == OrgWithUtr) {
+                                     getOrganisationWithIdJourney(userAnswers)
+                                   } else None,
+                                   organisationWithoutIdJourney = if (journeyType == OrgWithoutId) {
+                                     getOrganisationWithoutIdJourney(userAnswers)
+                                   } else None,
+                                   withNinoJourney = if (journeyType == IndWithNino) {
+                                     getWithNinoJourney(userAnswers)
+                                   } else None,
+                                   individualWithoutIdJourney = if (journeyType == IndWithoutId) {
+                                     getIndividualWithoutIdJourney(userAnswers)
+                                   } else None,
+                                   individualContactDetails = journeyType match {
+                                     case IndWithNino | IndWithoutId             => getIndividualContactDetails(userAnswers)
+                                     case OrgWithUtr | OrgWithoutId | IndWithUtr => None
+                                   },
+                                   organisationContactDetails = journeyType match {
+                                     case OrgWithUtr | OrgWithoutId | IndWithUtr =>
+                                       getOrganisationContactDetails(userAnswers)
+                                     case IndWithNino | IndWithoutId             => None
+                                   }
                                  )
                                )
                              }
@@ -108,7 +119,6 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                              }
                            )
     } yield ()
-  }
 
   private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) =
     ExtendedDataEvent(
@@ -210,7 +220,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
         lastName = name.lastName,
         dateOfBirth = dob.format(dateFormatter),
         residentOfUkOrCrownDependency = ukResident,
-        findYourAddress = userAnswers.get(IndFindAddressPage).isDefined,
+        findYourAddress = userAnswers.get(IndFindAddressPage).map(_.postcode),
         propertyNameOrNumber = userAnswers.get(IndFindAddressPage).flatMap(_.propertyNameOrNumber),
         chooseYourAddress = userAnswers.get(IndWithoutIdChooseAddressPage),
         UPRN = userAnswers.get(AddressUPRNUserAnswers).map(_.toString),

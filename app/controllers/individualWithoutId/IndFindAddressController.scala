@@ -112,7 +112,7 @@ class IndFindAddressController @Inject() (
       updatedAnswersWithAddress <- Future.fromTry(
                                      updatedAnswersWithPrePop.set(
                                        AddressLookupPage,
-                                       addressesAndUPRNs.map(_.address)
+                                       addressesAndUPRNs
                                      )
                                    )
       updatedAnswersWithFlag    <- Future.fromTry(

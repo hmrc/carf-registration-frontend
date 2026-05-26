@@ -20,7 +20,7 @@ import controllers.routes
 import controllers.routes.CheckYourAnswersController
 import models.RegistrationType.SoleTrader
 import models.{ChangeMode, NormalMode, RegistrationType, UserAnswers}
-import pages.individual.IndividualEmailPage
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.*
 import pages.*
@@ -54,8 +54,102 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
 
     case IsThisYourBusinessPage => userAnswers => navigateFromIsThisYourBusiness(userAnswers)
 
+    case FirstContactNamePage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case FirstContactEmailPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case FirstContactPhonePage =>
+      userAnswers => navigateFromChangeFirstContactHavePhone(userAnswers)
+
+    case FirstContactPhoneNumberPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationHaveSecondContactPage =>
+      userAnswers => navigateFromChangeHaveSecondContact(userAnswers)
+
+    case OrganisationSecondContactNamePage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationSecondContactEmailPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationSecondContactHavePhonePage =>
+      userAnswers => navigateFromChangeSecondContactHavePhone(userAnswers)
+
+    case OrganisationSecondContactPhoneNumberPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case IndividualEmailPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case IndividualHavePhonePage =>
+      userAnswers => navigateFromChangeIndividualHavePhone(userAnswers)
+
+    case IndividualPhoneNumberPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromChangeFirstContactHavePhone(userAnswers: UserAnswers): Call =
+    userAnswers.get(FirstContactPhonePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = FirstContactPhoneNumberPage,
+          callWhenNotAnswered = controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(ChangeMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeHaveSecondContact(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationHaveSecondContactPage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = OrganisationSecondContactNamePage,
+          callWhenNotAnswered =
+            controllers.organisation.routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeSecondContactHavePhone(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationSecondContactHavePhonePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = OrganisationSecondContactPhoneNumberPage,
+          callWhenNotAnswered =
+            controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeIndividualHavePhone(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualHavePhonePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = IndividualPhoneNumberPage,
+          callWhenNotAnswered = controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def checkNextPageForValueThenRoute[A](
       userAnswers: UserAnswers,

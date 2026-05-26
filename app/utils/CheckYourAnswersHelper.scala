@@ -21,10 +21,10 @@ import models.JourneyType.*
 import models.error.DataError
 import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
+import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers, WhereDoYouLivePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import types.ResultT

@@ -25,8 +25,7 @@ import models.requests.DataRequest
 import models.responses.AddressResponse
 import models.{AddressUk, IndFindAddress, Mode}
 import navigation.Navigator
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{AddressLookupPage, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import pages.individualWithoutId.*
 import play.api.Logging
 import play.api.data.{Form, FormError}

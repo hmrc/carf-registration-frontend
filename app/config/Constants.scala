@@ -17,6 +17,12 @@
 package config
 
 import models.countries.*
+import pages.IsThisYourBusinessPage
+import pages.individual.*
+import pages.individualWithoutId.*
+import pages.orgWithoutId.*
+import pages.organisation.*
+import queries.Settable
 
 import scala.util.matching.Regex
 
@@ -66,5 +72,31 @@ object Constants {
 
   val CARFID                                        = "CARFID"
   val registrationSuccessfulEmailTemplateId: String = "carf_registration_successful"
+
+  val indGeneralPage: List[Settable[_]]    = List(HaveNiNumberPage)
+  val indWithNinoPages: List[Settable[_]]  = List(NiNumberPage, WhatIsYourNameIndividualPage, RegisterDateOfBirthPage)
+  val indWithoutIdPages: List[Settable[_]] = List(
+    IndFindAddressAdditionalCallUa,
+    IndFindAddressPage,
+    WhereDoYouLivePage,
+    AddressLookupPage,
+    IndWithoutNinoNamePage,
+    IndWithoutIdAddressNonUkPage,
+    IndWithoutIdAddressPagePrePop,
+    IndWithoutIdChooseAddressPage,
+    IndWithoutIdDateOfBirthPage,
+    IndWithoutIdSelectedChooseAddressPage,
+    IndWithoutIdUkAddressInUserAnswers
+  )
+  val orgWithoutIdPages: List[Settable[_]] =
+    List(HaveTradingNamePage, OrganisationBusinessAddressPage, OrgWithoutIdBusinessNamePage, TradingNamePage)
+
+  val withUtrPages: List[Settable[_]] =
+    List(
+      UniqueTaxpayerReferenceInUserAnswers,
+      WhatIsYourNamePage,
+      WhatIsTheNameOfYourBusinessPage,
+      IsThisYourBusinessPage
+    )
 
 }

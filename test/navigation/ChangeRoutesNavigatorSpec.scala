@@ -22,7 +22,7 @@ import models.RegistrationType.*
 import models.{ChangeMode, NormalMode, ProvideMode}
 import pages.*
 import pages.individual.IndividualEmailPage
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
 class ChangeRoutesNavigatorSpec extends SpecBase {
@@ -331,6 +331,29 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           ChangeMode,
           userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on OrganisationBusinessAddressPage" - {
+      "must navigate to CheckYourAnswersController when FirstContactName has been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(FirstContactNamePage, "John Doe")
+
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to FirstContactNameController when FirstContactName has not been answered" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.organisation.routes.FirstContactNameController.onPageLoad(ChangeMode)
       }
     }
 

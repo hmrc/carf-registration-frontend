@@ -30,6 +30,7 @@ import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.*
+import pages.RegistrationTypePage
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
@@ -71,6 +72,8 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(utr))
           .withPage(RegisteredAddressInUkPage, true)
           .withPage(WhatIsYourNamePage, name)
+          .withPage(RegistrationTypePage, regType)
+          .withPage(HaveUTRPage, true)
           .withPage(
             IsThisYourBusinessPage,
             IsThisYourBusinessPageDetails(
@@ -82,8 +85,6 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
               Some(true)
             )
           )
-          .withPage(RegistrationTypePage, regType)
-          .withPage(HaveUTRPage, true)
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = indAffinityGroup,
@@ -113,6 +114,9 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
         val result = service.auditRegistration(userAnswers, IndWithUtr, indAffinityGroup).value.futureValue
 
         result mustBe Right(())
+
+        println("Json.toJson(expectedExtendedAudit)")
+        println(Json.toJson(expectedExtendedAudit))
 
         verify(mockAuditConnector, times(1)).sendExtendedEvent(
           argThat(event =>
@@ -185,6 +189,12 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
           .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(utr))
           .withPage(RegisteredAddressInUkPage, true)
           .withPage(WhatIsTheNameOfYourBusinessPage, name)
+          .withPage(RegistrationTypePage, regType)
+          .withPage(HaveUTRPage, true)
+          .withPage(FirstContactNamePage, name)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, false)
+          .withPage(OrganisationHaveSecondContactPage, false)
           .withPage(
             IsThisYourBusinessPage,
             IsThisYourBusinessPageDetails(
@@ -196,12 +206,6 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
               Some(true)
             )
           )
-          .withPage(RegistrationTypePage, regType)
-          .withPage(HaveUTRPage, true)
-          .withPage(FirstContactNamePage, name)
-          .withPage(FirstContactEmailPage, testEmail)
-          .withPage(FirstContactPhonePage, false)
-          .withPage(OrganisationHaveSecondContactPage, false)
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = orgAffinityGroup,

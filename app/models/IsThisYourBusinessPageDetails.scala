@@ -16,7 +16,6 @@
 
 package models
 
-import models.responses.AddressRegistrationResponse
 import play.api.libs.json.*
 
 case class IsThisYourBusinessPageDetails(

@@ -546,7 +546,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           )
             .thenReturn(ResultT.fromValue(()))
 
-          when(mockAuditService.auditRegistration(orgWithUtrUserAnswers, OrgWithUtr, AffinityGroup.Organisation))
+          when(mockAuditService.auditRegistration(orgWithUtrUserAnswers(), OrgWithUtr, AffinityGroup.Organisation))
             .thenReturn(ResultT.fromValue(()))
 
           val request                = FakeRequest(POST, cyaRoute)
@@ -693,13 +693,12 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       "when the audit service call is unsuccessful the request should still be successful" in new Setup(
         AffinityGroup.Organisation,
-        orgWithUtrUserAnswers
+        orgWithUtrUserAnswers()
       ) {
-
         val subscriptionId = SubscriptionId("XCARF1234567890")
 
         when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
-          .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers))
+          .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers()))
 
         when(mockSessionRepository.set(any[UserAnswers]))
           .thenReturn(Future.successful(true))
@@ -722,7 +721,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         )
           .thenReturn(ResultT.fromValue(()))
 
-        when(mockAuditService.auditRegistration(orgWithUtrUserAnswers, OrgWithUtr, AffinityGroup.Organisation))
+        when(mockAuditService.auditRegistration(orgWithUtrUserAnswers(), OrgWithUtr, AffinityGroup.Organisation))
           .thenReturn(ResultT.fromError(InternalServerError))
 
         val request                = FakeRequest(POST, cyaRoute)
@@ -734,7 +733,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           .url
 
         verify(mockCYAHelper).getUserPostcode(
-          ArgumentMatchers.eq(orgWithUtrUserAnswers)
+          ArgumentMatchers.eq(orgWithUtrUserAnswers())
         )
       }
     }

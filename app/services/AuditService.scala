@@ -26,7 +26,7 @@ import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.*
 import pages.organisation.*
-import pages.{AddressUPRNUserAnswers, IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.*
 import play.api.Logging
 import play.api.libs.json.JsValue
 import types.ResultT
@@ -72,7 +72,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                                      .get(RegisteredAddressInUkPage)
                                      .fold(userAnswers.get(WhereDoYouLivePage))(Some(_)),
                                    hasUtr = userAnswers.get(HaveUTRPage),
-                                   hasNINO = userAnswers.get(HaveNiNumberPage).fold(None)(Some(_)),
+                                   hasNINO = userAnswers.get(HaveNiNumberPage),
                                    soleTraderWithUTRJourney = if (journeyType == IndWithUtr) {
                                      getUtrJourneyType(userAnswers)
                                    } else None,
@@ -133,7 +133,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       userAnswers.get(WhatIsYourNamePage),
       userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer)
     ).mapN { (utr, name, isThisYourBusiness) =>
-      UtrJourneyAuditEvent(utr.uniqueTaxPayerReference, name.firstName, name.lastName, isThisYourBusiness)
+      UtrJourneyAuditEvent(utr.uniqueTaxPayerReference, name.firstName, name.lastName, true)
     }
 
   private def getOrganisationWithIdJourney(userAnswers: UserAnswers): Option[OrganisationWithIdJourney] =

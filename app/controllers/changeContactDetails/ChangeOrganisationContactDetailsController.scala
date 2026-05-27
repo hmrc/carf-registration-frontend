@@ -117,10 +117,10 @@ class ChangeOrganisationContactDetailsController @Inject() (
       updateSub().value.map {
         case Right(success: Result) => success
         case Left(DataError)        =>
-          logger.error(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
+          logger.error(s"[ChangeOrganisationContactDetailsController] Had missing data on submission")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case error                  =>
-          logger.error(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+          logger.error(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
   }

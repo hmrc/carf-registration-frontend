@@ -56,22 +56,6 @@ class SubscriptionServiceSpec extends SpecBase {
     .success
     .value
 
-  val updatedUserAnswers: UserAnswers = emptyUserAnswers
-    .copy(journeyType = Some(JourneyType.IndWithNino))
-    .copy(safeId = Some(exampleSafeId))
-    .set(WhatIsYourNameIndividualPage, Name("John", "Doe"))
-    .success
-    .value
-    .set(ChangeDetailsIndividualEmailPage, "john.doe@example.com")
-    .success
-    .value
-    .set(ChangeDetailsIndividualHavePhonePage, true)
-    .success
-    .value
-    .set(ChangeDetailsIndividualPhoneNumberPage, "01234567890")
-    .success
-    .value
-
   val exampleSubscriptionDisplayResponse = DisplaySubscriptionResponse(
     success = DisplaySubscriptionSuccess(
       processingDate = "2024-01-25T09:26:17Z",
@@ -110,6 +94,23 @@ class SubscriptionServiceSpec extends SpecBase {
       )
     )
   )
+
+  val updatedUserAnswers: UserAnswers = emptyUserAnswers
+    .copy(journeyType = Some(JourneyType.IndWithNino))
+    .copy(safeId = Some(exampleSafeId))
+    .copy(displaySubscriptionResponse = Some(exampleSubscriptionDisplayResponse))
+    .set(WhatIsYourNameIndividualPage, Name("John", "Doe"))
+    .success
+    .value
+    .set(ChangeDetailsIndividualEmailPage, "john.doe@example.com")
+    .success
+    .value
+    .set(ChangeDetailsIndividualHavePhonePage, true)
+    .success
+    .value
+    .set(ChangeDetailsIndividualPhoneNumberPage, "01234567890")
+    .success
+    .value
 
   override def beforeEach(): Unit = {
     super.beforeEach()

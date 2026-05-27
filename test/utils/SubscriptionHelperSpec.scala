@@ -28,7 +28,7 @@ import pages.orgWithoutId.TradingNamePage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.orgWithoutId.HaveTradingNamePage
 import pages.organisation.*
-import models.responses.AddressRegistrationResponse
+import models.responses.{AddressRegistrationResponse, DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionOrganisation, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
 import pages.changeContactDetails.*
 
 class SubscriptionHelperSpec extends SpecBase {
@@ -61,6 +61,66 @@ class SubscriptionHelperSpec extends SpecBase {
 
   val testIndWithoutIdAddressGb: AddressUk = testIndWithoutIdAddress.copy(countryUk = CountryUk("GB", "United Kingdom"))
   val testIndFindAddress: IndFindAddress   = IndFindAddress("SW1A 1AA", Some("10"))
+
+  val testIndividualSubscriptionDisplayResponse = DisplaySubscriptionResponse(
+    success = DisplaySubscriptionSuccess(
+      processingDate = "2024-01-25T09:26:17Z",
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = exampleSafeId.value,
+        tradingName = Some(testTradingName),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = Some(
+            DisplaySubscriptionIndividual(
+              firstName = "John",
+              middleName = None,
+              lastName = "Doe"
+            )
+          ),
+          email = testIndividualEmail,
+          phone = Some(testIndividualPhone),
+          mobile = Some("07123412345"),
+          organisation = None
+        ),
+        secondaryContact = None
+      )
+    )
+  )
+
+  val testOrganisationSubscriptionDisplayResponse = DisplaySubscriptionResponse(
+    success = DisplaySubscriptionSuccess(
+      processingDate = "2024-01-25T09:26:17Z",
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = exampleSafeId.value,
+        tradingName = Some(testBusinessName),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = None,
+          email = testOrganisationFirstEmail,
+          phone = Some(testOrganisationFirstPhone),
+          mobile = Some("07123412345"),
+          organisation = Some(
+            DisplaySubscriptionOrganisation(
+              name = testOrganisationFirstContactName
+            )
+          )
+        ),
+        secondaryContact = Some(
+          DisplaySubscriptionContact(
+            individual = None,
+            email = testOrganisationSecondEmail,
+            phone = Some(testOrganisationSecondPhone),
+            mobile = Some("07123412345"),
+            organisation = Some(
+              DisplaySubscriptionOrganisation(
+                name = testOrganisationSecondContactName
+              )
+            )
+          )
+        )
+      )
+    )
+  )
 
   "SubscriptionHelper" - {
 
@@ -832,14 +892,10 @@ class SubscriptionHelperSpec extends SpecBase {
 
     "buildUpdatedSubscriptionRequest" - {
 
-      "for Individual with NINO journey" - {
+      "for Individual updating details" - {
         "should build updated subscription request successfully with all required fields" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithNino))
-            .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNameIndividualPage, testIndividualName)
-            .success
-            .value
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
             .success
             .value
@@ -847,9 +903,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(ChangeDetailsIndividualPhoneNumberPage, testIndividualPhone)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
             .success
             .value
 
@@ -860,7 +913,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
           request.idType                      mustBe "SAFE"
           request.idNumber                    mustBe exampleSafeId.value
-          request.tradingName                 mustBe None
+          request.tradingName                 mustBe Some(testTradingName)
           request.gbUser                      mustBe true
           request.primaryContact.individual   mustBe Some(
             SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
@@ -873,18 +926,11 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build updated subscription request without optional phone number" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithNino))
-            .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNameIndividualPage, testIndividualName)
-            .success
-            .value
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
             .success
             .value
             .set(ChangeDetailsIndividualHavePhonePage, false)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
             .success
             .value
 
@@ -896,232 +942,48 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithNino))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe None
-        }
-
-        "should return None when email is missing" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithNino))
-            .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNameIndividualPage, testIndividualName)
-            .success
-            .value
-            .set(NiNumberPage, testNino)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe None
-        }
-      }
-
-      "for Individual without ID journey" - {
-        "should build updated subscription request successfully" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(IndWithoutNinoNamePage, testIndividualName)
-            .success
-            .value
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(ChangeDetailsIndividualHavePhonePage, true)
-            .success
-            .value
-            .set(ChangeDetailsIndividualPhoneNumberPage, testIndividualPhone)
-            .success
-            .value
-            .set(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddress)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe defined
-          val request = result.get
-
-          request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe exampleSafeId.value
-          request.tradingName                 mustBe None
-          request.gbUser                      mustBe false
-          request.primaryContact.individual   mustBe Some(
-            SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
-          )
-          request.primaryContact.organisation mustBe None
-          request.primaryContact.email        mustBe testIndividualEmail
-          request.primaryContact.phone        mustBe Some(testIndividualPhone)
-          request.secondaryContact            mustBe None
-        }
-
-        "should identify GB user when address is GB" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(IndWithoutNinoNamePage, testIndividualName)
-            .success
-            .value
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(ChangeDetailsIndividualHavePhonePage, false)
-            .success
-            .value
-            .set(IndWithoutIdAddressPagePrePop, testIndWithoutIdAddressGb)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result            mustBe defined
-          result.get.gbUser mustBe true
-        }
-
-        "should identify GB user when address lookup is present" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(IndWithoutNinoNamePage, testIndividualName)
-            .success
-            .value
-            .set(ChangeDetailsIndividualHavePhonePage, false)
-            .success
-            .value
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(IndFindAddressPage, testIndFindAddress)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result            mustBe defined
-          result.get.gbUser mustBe true
-        }
-
-        "should return None when name is missing" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe None
-        }
-      }
-
-      "for Individual with UTR journey" - {
-        "should build updated subscription request successfully" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithUtr))
-            .copy(safeId = Some(exampleSafeId))
-            .set(WhatIsYourNamePage, testIndividualName)
-            .success
-            .value
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(ChangeDetailsIndividualHavePhonePage, true)
-            .success
-            .value
-            .set(ChangeDetailsIndividualPhoneNumberPage, testIndividualPhone)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe defined
-          val request = result.get
-
-          request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe exampleSafeId.value
-          request.tradingName                 mustBe None
-          request.gbUser                      mustBe true
-          request.primaryContact.individual   mustBe Some(
-            SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
-          )
-          request.primaryContact.organisation mustBe None
-          request.primaryContact.email        mustBe testIndividualEmail
-          request.primaryContact.phone        mustBe Some(testIndividualPhone)
-          request.secondaryContact            mustBe None
-        }
-
-        "should return None when name is missing" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithUtr))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe None
-        }
-
-        "should populate the tradingName field correctly" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(IndWithUtr))
-            .copy(safeId = Some(exampleSafeId))
-            .set(
-              IsThisYourBusinessPage,
-              IsThisYourBusinessPageDetails(
-                businessDetails = BusinessDetails(
-                  testTradingName,
-                  AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB", None),
-                  safeId = testSafeId
-                ),
-                Some(false)
+            .copy(displaySubscriptionResponse =
+              Some(
+                testIndividualSubscriptionDisplayResponse.copy(
+                  success = DisplaySubscriptionSuccess(
+                    processingDate = "2024-01-25T09:26:17Z",
+                    carfSubscriptionDetails = DisplaySubscriptionDetails(
+                      carfReference = exampleSafeId.value,
+                      tradingName = Some(testTradingName),
+                      gbUser = true,
+                      primaryContact = DisplaySubscriptionContact(
+                        individual = Some(
+                          DisplaySubscriptionIndividual(
+                            firstName = "",
+                            middleName = None,
+                            lastName = ""
+                          )
+                        ),
+                        email = testIndividualEmail,
+                        phone = Some(testIndividualPhone),
+                        mobile = Some("07123412345"),
+                        organisation = None
+                      ),
+                      secondaryContact = None
+                    )
+                  )
+                )
               )
             )
-            .success
-            .value
-            .set(WhatIsYourNamePage, testIndividualName)
-            .success
-            .value
             .set(ChangeDetailsIndividualEmailPage, testIndividualEmail)
-            .success
-            .value
-            .set(ChangeDetailsIndividualHavePhonePage, false)
             .success
             .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
-          result mustBe defined
-          val request = result.get
-
-          request.tradingName mustBe Some(testTradingName)
+          result mustBe None
         }
       }
 
-      "for Organisation with UTR journey" - {
+      "for Organisation updating details" - {
         "should build updated subscription request with primary contact only" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -1132,12 +994,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .success
             .value
             .set(OrganisationHaveSecondContactPage, false)
@@ -1164,8 +1020,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build updated subscription request with primary and secondary contact" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -1193,12 +1048,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(ChangeDetailsOrgSecondPhoneNumberPage, testOrganisationSecondPhone)
             .success
             .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
@@ -1224,46 +1073,10 @@ class SubscriptionHelperSpec extends SpecBase {
           request.secondaryContact.get.phone        mustBe Some(testOrganisationSecondPhone)
         }
 
-        "should not include secondary contact when hasSecondContact is false" in {
-          val userAnswers: UserAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstHavePhonePage, false)
-            .success
-            .value
-            .set(ChangeDetailsOrgHaveSecondContactPage, false)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
-
-          val result = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result                      mustBe defined
-          result.get.secondaryContact mustBe None
-        }
-
         "should return None when primary contact name is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .success
             .value
 
@@ -1274,15 +1087,8 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should return None when primary contact email is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .success
             .value
 
@@ -1293,8 +1099,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should return None when secondary contact is required but name is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -1311,12 +1116,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .success
             .value
             .set(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
             .success
             .value
 
@@ -1328,8 +1127,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should not include secondary contact when secondary contact email is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithUtr))
-            .copy(safeId = Some(exampleSafeId))
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .success
             .value
@@ -1348,12 +1146,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .set(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
             .success
             .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference(testUtrValue))
-            .success
-            .value
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
@@ -1362,238 +1154,6 @@ class SubscriptionHelperSpec extends SpecBase {
         }
       }
 
-      "for Organisation without ID journey" - {
-        "should build updated subscription request with trading name" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstHavePhonePage, true)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
-            .success
-            .value
-            .set(HaveTradingNamePage, true)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
-            .set(ChangeDetailsOrgHaveSecondContactPage, false)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe defined
-          val request = result.get
-
-          request.idType                      mustBe "SAFE"
-          request.idNumber                    mustBe exampleSafeId.value
-          request.tradingName                 mustBe Some(testTradingName)
-          request.gbUser                      mustBe true
-          request.primaryContact.individual   mustBe None
-          request.primaryContact.organisation mustBe Some(
-            SubscriptionOrganisationContact(testOrganisationFirstContactName)
-          )
-          request.primaryContact.email        mustBe testOrganisationFirstEmail
-          request.primaryContact.phone        mustBe Some(testOrganisationFirstPhone)
-          request.secondaryContact            mustBe None
-        }
-
-        "should build updated subscription request with secondary contact" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstHavePhonePage, false)
-            .success
-            .value
-            .set(ChangeDetailsOrgHaveSecondContactPage, true)
-            .success
-            .value
-            .set(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgSecondHavePhonePage, false)
-            .success
-            .value
-            .set(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe defined
-          val request = result.get
-          request.secondaryContact                  mustBe defined
-          request.secondaryContact.get.organisation mustBe Some(
-            SubscriptionOrganisationContact(testOrganisationSecondContactName)
-          )
-          request.secondaryContact.get.email        mustBe testOrganisationSecondEmail
-        }
-
-        "should return None when primary contact name is missing" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe None
-        }
-
-        "should fall back to business name when trading name is not set" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstHavePhonePage, false)
-            .success
-            .value
-            .set(ChangeDetailsOrgHaveSecondContactPage, false)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
-            .set(OrgWithoutIdBusinessNamePage, testBusinessName)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result                 mustBe defined
-          result.get.tradingName mustBe Some(testBusinessName)
-        }
-
-        "should use tradingName over businessName when both are set" in {
-          val userAnswers = emptyUserAnswers
-            .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstHavePhonePage, false)
-            .success
-            .value
-            .set(ChangeDetailsOrgHaveSecondContactPage, false)
-            .success
-            .value
-            .set(RegisteredAddressInUkPage, true)
-            .success
-            .value
-            .set(WhatIsTheNameOfYourBusinessPage, testBusinessName)
-            .success
-            .value
-            .set(HaveTradingNamePage, true)
-            .success
-            .value
-            .set(TradingNamePage, testTradingName)
-            .success
-            .value
-
-          val result = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result                 mustBe defined
-          result.get.tradingName mustBe Some(testTradingName)
-        }
-
-      }
-
-      "for unknown or missing journey type" - {
-        "should return None" in {
-          val userAnswers = emptyUserAnswers
-            .copy(safeId = Some(exampleSafeId))
-            .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-            .success
-            .value
-            .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-            .success
-            .value
-
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-          result mustBe None
-        }
-      }
-
-      "should populate the tradingName field correctly from an auto-matched business" in {
-        val testUtr = UniqueTaxpayerReference("1234567890")
-
-        val userAnswers = emptyUserAnswers
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(safeId = Some(exampleSafeId))
-          .copy(isCtAutoMatched = true)
-          .set(
-            IsThisYourBusinessPage,
-            IsThisYourBusinessPageDetails(
-              businessDetails = BusinessDetails(
-                testTradingName,
-                AddressRegistrationResponse("Test Line 1", None, None, None, None, "GB", None),
-                safeId = testSafeId
-              ),
-              Some(false)
-            )
-          )
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
-          .success
-          .value
-          .set(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
-          .success
-          .value
-          .set(ChangeDetailsOrgFirstHavePhonePage, false)
-          .success
-          .value
-          .set(OrganisationHaveSecondContactPage, false)
-          .success
-          .value
-
-        val result = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
-
-        result                 mustBe defined
-        result.get.tradingName mustBe Some(testTradingName)
-        result.get.idNumber    mustBe exampleSafeId.value
-      }
     }
 
   }

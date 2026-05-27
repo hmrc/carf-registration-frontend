@@ -16,12 +16,31 @@
 
 package pages.individual
 
+import config.Constants.{indWithNinoPages, indWithoutIdPages}
+import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object HaveNiNumberPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "haveNiNumber"
+
+  override def cleanup(
+      value: Boolean,
+      userAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (hasChanged) {
+      if (value) {
+        userAnswers.remove(indWithoutIdPages)
+      } else {
+        userAnswers.clearMatchFlagAndSafeId.remove(indWithNinoPages)
+      }
+    } else {
+      Success(userAnswers)
+    }
 }

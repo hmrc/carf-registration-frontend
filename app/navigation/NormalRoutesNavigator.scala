@@ -81,7 +81,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       _ => controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
 
     case OrganisationBusinessAddressPage =>
-      _ => controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+      userAnswers => navigateFromOrganisationBusinessAddress(userAnswers)
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -183,6 +183,13 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromOrganisationBusinessAddress(userAnswers: UserAnswers): Call =
+    if (userAnswers.get(FirstContactNamePage).isDefined) {
+      controllers.routes.CheckYourAnswersController.onPageLoad()
+    } else {
+      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+    }
 
   private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =
     userAnswers

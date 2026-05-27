@@ -23,8 +23,6 @@ import controllers.routes
 
 class HaveTradingNamePageSpec extends SpecBase {
 
-  val navigator = new Navigator()
-
   "HaveTradingNamePage" - {
     "cleanup" - {
       "must remove trading name when answer changes to no" in {

@@ -26,8 +26,6 @@ import models.countries.CountryUk
 
 class HaveNiNumberPageSpec extends SpecBase {
 
-  val navigator = new Navigator()
-
   val address = AddressUk(
     "1 Test Street",
     Some("Line 2"),

@@ -18,7 +18,7 @@ package pages.individual
 
 import base.SpecBase
 import models.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage}
+import pages.individualWithoutId.*
 import models.ChangeMode
 import navigation.Navigator
 import controllers.routes
@@ -31,13 +31,31 @@ class HaveNiNumberPageSpec extends SpecBase {
     "cleanup" - {
       "must remove no-route answers when answer changes to yes" in {
         val ua = emptyUserAnswers
+          .withPage(IndFindAddressAdditionalCallUa, true)
+          .withPage(IndFindAddressPage, testIndFindAddress)
+          .withPage(WhereDoYouLivePage, true)
+          .withPage(AddressLookupPage, Seq(testAddressUk))
           .withPage(IndWithoutNinoNamePage, Name("Timmy", "Turner"))
+          .withPage(IndWithoutIdAddressNonUkPage, testIndWithoutIdAddressNonUk)
+          .withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
+          .withPage(IndWithoutIdChooseAddressPage, "test")
           .withPage(IndWithoutIdDateOfBirthPage, testDob)
+          .withPage(IndWithoutIdSelectedChooseAddressPage, testAddressUk)
+          .withPage(IndWithoutIdUkAddressInUserAnswers, testAddressUk)
 
         val result = HaveNiNumberPage.cleanup(true, ua, hasChanged = true).success.value
 
-        result.get(IndWithoutNinoNamePage)      mustBe None
-        result.get(IndWithoutIdDateOfBirthPage) mustBe None
+        result.get(IndFindAddressAdditionalCallUa)        mustBe None
+        result.get(IndFindAddressPage)                    mustBe None
+        result.get(WhereDoYouLivePage)                    mustBe None
+        result.get(AddressLookupPage)                     mustBe None
+        result.get(IndWithoutNinoNamePage)                mustBe None
+        result.get(IndWithoutIdAddressNonUkPage)          mustBe None
+        result.get(IndWithoutIdAddressPagePrePop)         mustBe None
+        result.get(IndWithoutIdChooseAddressPage)         mustBe None
+        result.get(IndWithoutIdDateOfBirthPage)           mustBe None
+        result.get(IndWithoutIdSelectedChooseAddressPage) mustBe None
+        result.get(IndWithoutIdUkAddressInUserAnswers)    mustBe None
       }
 
       "must remove yes-route answers and clear match flag when answer changes to no" in {
@@ -56,12 +74,17 @@ class HaveNiNumberPageSpec extends SpecBase {
         result.get(RegisterDateOfBirthPage)      mustBe None
       }
 
-      "must navigate to JourneyRecoveryController when answer is missing" in {
-        navigator.nextPage(
-          HaveNiNumberPage,
-          ChangeMode,
-          emptyUserAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      "must keep all answers when answer has not changed" in {
+        val ua = emptyUserAnswers
+          .withPage(NiNumberPage, "AA123456A")
+          .withPage(WhatIsYourNameIndividualPage, Name("Timmy", "McFly"))
+          .withPage(RegisterDateOfBirthPage, testDob)
+
+        val result = HaveNiNumberPage.cleanup(true, ua, hasChanged = false).success.value
+
+        result.get(NiNumberPage)                 mustBe Some("AA123456A")
+        result.get(WhatIsYourNameIndividualPage) mustBe Some(Name("Timmy", "McFly"))
+        result.get(RegisterDateOfBirthPage)      mustBe Some(testDob)
       }
     }
   }

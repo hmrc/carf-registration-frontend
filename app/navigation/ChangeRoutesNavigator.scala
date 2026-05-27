@@ -128,7 +128,7 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     if (userAnswers.get(FirstContactNamePage).isDefined) {
       CheckYourAnswersController.onPageLoad()
     } else {
-      controllers.organisation.routes.FirstContactNameController.onPageLoad(ChangeMode)
+      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
     }
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =

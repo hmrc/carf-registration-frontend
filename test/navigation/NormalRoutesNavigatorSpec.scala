@@ -29,7 +29,7 @@ import pages.*
 import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
 import java.time.LocalDate
@@ -576,6 +576,36 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "when on OrgWithoutIdBusinessNamePage" - {
+      "must navigate to HaveTradingNameController" in {
+        val userAnswers = emptyUserAnswers
+          .set(OrgWithoutIdBusinessNamePage, "TestName")
+          .success
+          .value
+
+        navigator.nextPage(
+          OrgWithoutIdBusinessNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode)
+      }
+    }
+
+    "when on TradingNamePage" - {
+      "must navigate to OrganisationBusinessAddressController" in {
+        val userAnswers = emptyUserAnswers
+          .set(TradingNamePage, "Test Trading Name")
+          .success
+          .value
+
+        navigator.nextPage(
+          TradingNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+      }
+    }
+
     "must navigate from WhatIsYourName to IsThisYourBusiness page for matched Individual SoleTrader" in {
 
       val updatedAnswers =
@@ -700,7 +730,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "must navigate to FirstContactNameController when FirstContactName has not been answered" in {
+      "must navigate to OrgYourContactDetailsController when FirstContactName has not been answered" in {
         val userAnswers = emptyUserAnswers
           .set(
             OrganisationBusinessAddressPage,
@@ -720,7 +750,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           OrganisationBusinessAddressPage,
           NormalMode,
           userAnswers
-        ) mustBe controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode)
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
       }
     }
 

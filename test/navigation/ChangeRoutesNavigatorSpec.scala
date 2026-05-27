@@ -19,11 +19,12 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.RegistrationType.*
-import models.{ChangeMode, NormalMode, ProvideMode}
+import models.{ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.individual.IndividualEmailPage
+import pages.individual.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
@@ -334,6 +335,40 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          HaveTradingNamePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on OrgWithoutIdBusinessNamePage" - {
+      "must navigate to CheckYourAnswersController" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(OrgWithoutIdBusinessNamePage, "TestName")
+
+        navigator.nextPage(
+          OrgWithoutIdBusinessNamePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on TradingNamePage" - {
+      "must navigate to CheckYourAnswersController" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(TradingNamePage, "Test Trading Name")
+
+        navigator.nextPage(
+          TradingNamePage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
     }
 
     "when on FirstContactNamePage" - {
@@ -564,14 +599,68 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "must navigate to FirstContactNameController when FirstContactName has not been answered" in {
+      "must navigate to OrgYourContactDetailsController when FirstContactName has not been answered" in {
         val userAnswers = emptyUserAnswers
 
         navigator.nextPage(
           OrganisationBusinessAddressPage,
           ChangeMode,
           userAnswers
-        ) mustBe controllers.organisation.routes.FirstContactNameController.onPageLoad(ChangeMode)
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+      }
+    }
+
+    "when on HaveNiNumberPage" - {
+      "must navigate to NiNumberController when answer is yes and NiNumber has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(HaveNiNumberPage, true)
+
+        navigator.nextPage(
+          HaveNiNumberPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.NiNumberController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is yes and NiNumber has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(HaveNiNumberPage, true)
+          .withPage(NiNumberPage, "AA123456A")
+
+        navigator.nextPage(
+          HaveNiNumberPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to IndWithoutNinoNameController when answer is no and WhatIsYourNameIndividualPage has not been answered" in {
+        val userAnswers = emptyUserAnswers.withPage(HaveNiNumberPage, false)
+
+        navigator.nextPage(
+          HaveNiNumberPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to CheckYourAnswersController when answer is no and WhatIsYourNameIndividualPage has already been answered" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(HaveNiNumberPage, false)
+          .withPage(WhatIsYourNameIndividualPage, Name("Timmy", "McFly"))
+
+        navigator.nextPage(
+          HaveNiNumberPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to JourneyRecoveryController when answer is missing" in {
+        navigator.nextPage(
+          HaveNiNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 

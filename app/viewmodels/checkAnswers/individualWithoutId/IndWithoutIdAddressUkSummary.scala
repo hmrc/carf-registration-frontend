@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import models.{renderHTML, CheckMode, UserAnswers}
+import models.{renderHTML, ChangeMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutIdUkAddressInUserAnswers
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -36,7 +36,7 @@ object IndWithoutIdAddressUkSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(CheckMode).url
+            href = controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("indWithoutIdAddressUk.change.hidden"))
         )
       )

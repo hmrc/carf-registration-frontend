@@ -18,13 +18,13 @@ package utils
 
 import com.google.inject.Inject
 import models.JourneyType.*
-import models.error.{ApiError, DataError}
+import models.error.DataError
 import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.individual.{HaveNiNumberPage, IndividualHavePhonePage}
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAddressInUserAnswers}
 import pages.orgWithoutId.{HaveTradingNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage, WhereDoYouLivePage}
 import play.api.Logging
 import play.api.i18n.Messages
 import types.ResultT

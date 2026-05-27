@@ -17,14 +17,230 @@
 package navigation
 
 import controllers.routes
-import models.UserAnswers
-import pages.Page
+import controllers.routes.CheckYourAnswersController
+import models.RegistrationType.SoleTrader
+import models.{ChangeMode, NormalMode, RegistrationType, UserAnswers}
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.organisation.*
+import pages.*
+import play.api.libs.json.Reads
 import play.api.mvc.Call
+import utils.UserAnswersHelper
 
-trait ChangeRoutesNavigator {
+trait ChangeRoutesNavigator extends UserAnswersHelper {
 
-  val checkRouteMap: Page => UserAnswers => Call = { case _ =>
-    _ => routes.JourneyRecoveryController.onPageLoad()
+  val checkRouteMap: Page => UserAnswers => Call = {
+    case NavigatorOnlyIndividualRegistrationTypePage =>
+      userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
+
+    case NavigatorOnlyOrganisationRegistrationTypePage =>
+      _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(ChangeMode)
+
+    case RegisteredAddressInUkPage =>
+      userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
+
+    case HaveUTRPage =>
+      userAnswers => navigateFromHaveUTR(userAnswers)
+
+    case YourUtrPageForNavigatorOnly =>
+      userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
+
+    case WhatIsTheNameOfYourBusinessPage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(ChangeMode)
+
+    case WhatIsYourNamePage =>
+      _ => routes.IsThisYourBusinessController.onPageLoad(ChangeMode)
+
+    case IsThisYourBusinessPage => userAnswers => navigateFromIsThisYourBusiness(userAnswers)
+
+    case FirstContactNamePage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case FirstContactEmailPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case FirstContactPhonePage =>
+      userAnswers => navigateFromChangeFirstContactHavePhone(userAnswers)
+
+    case FirstContactPhoneNumberPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationHaveSecondContactPage =>
+      userAnswers => navigateFromChangeHaveSecondContact(userAnswers)
+
+    case OrganisationSecondContactNamePage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationSecondContactEmailPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case OrganisationSecondContactHavePhonePage =>
+      userAnswers => navigateFromChangeSecondContactHavePhone(userAnswers)
+
+    case OrganisationSecondContactPhoneNumberPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case IndividualEmailPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case IndividualHavePhonePage =>
+      userAnswers => navigateFromChangeIndividualHavePhone(userAnswers)
+
+    case IndividualPhoneNumberPage =>
+      _ => CheckYourAnswersController.onPageLoad()
+
+    case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
+
+  private def navigateFromChangeFirstContactHavePhone(userAnswers: UserAnswers): Call =
+    userAnswers.get(FirstContactPhonePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = FirstContactPhoneNumberPage,
+          callWhenNotAnswered = controllers.organisation.routes.FirstContactPhoneNumberController.onPageLoad(ChangeMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeHaveSecondContact(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationHaveSecondContactPage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = OrganisationSecondContactNamePage,
+          callWhenNotAnswered =
+            controllers.organisation.routes.OrganisationSecondContactNameController.onPageLoad(NormalMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeSecondContactHavePhone(userAnswers: UserAnswers): Call =
+    userAnswers.get(OrganisationSecondContactHavePhonePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = OrganisationSecondContactPhoneNumberPage,
+          callWhenNotAnswered =
+            controllers.organisation.routes.OrganisationSecondContactPhoneNumberController.onPageLoad(NormalMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromChangeIndividualHavePhone(userAnswers: UserAnswers): Call =
+    userAnswers.get(IndividualHavePhonePage) match {
+      case Some(false) =>
+        CheckYourAnswersController.onPageLoad()
+      case Some(true)  =>
+        checkNextPageForValueThenRoute(
+          userAnswers = userAnswers,
+          page = IndividualPhoneNumberPage,
+          callWhenNotAnswered = controllers.individual.routes.IndividualPhoneNumberController.onPageLoad(NormalMode)
+        )
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def checkNextPageForValueThenRoute[A](
+      userAnswers: UserAnswers,
+      page: QuestionPage[A],
+      callWhenNotAnswered: Call,
+      callWhenAlreadyAnswered: Call = CheckYourAnswersController.onPageLoad()
+  )(implicit rds: Reads[A]): Call = {
+    val answerExists = userAnswers.get(page).fold(false)(_ => true)
+    if (answerExists) {
+      callWhenAlreadyAnswered
+    } else {
+      callWhenNotAnswered
+    }
+  }
+
+  private def navigateFromIndividualRegistrationTypePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(RegistrationTypePage) match {
+      case Some(SoleTrader)                  =>
+        controllers.routes.RegisteredAddressInUkController.onPageLoad(ChangeMode)
+      case Some(RegistrationType.Individual) =>
+        controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
+      case _                                 =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromRegisteredAddressInUk(userAnswers: UserAnswers): Call =
+    userAnswers.get(RegisteredAddressInUkPage) match {
+      case Some(true)  =>
+        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
+      case Some(false) =>
+        controllers.organisation.routes.HaveUTRController.onPageLoad(ChangeMode)
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
+    userAnswers.get(HaveUTRPage) match {
+      case Some(true)  =>
+        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
+      case Some(false) =>
+        if (isSoleTrader(userAnswers)) {
+          controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
+        } else {
+          checkNextPageForValueThenRoute(
+            userAnswers = userAnswers,
+            page = OrgWithoutIdBusinessNamePage,
+            callWhenNotAnswered =
+              controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
+          )
+        }
+      case None        =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromYourUniqueTaxpayerReference(userAnswers: UserAnswers): Call =
+    if (isSoleTrader(userAnswers)) {
+      controllers.organisation.routes.WhatIsYourNameController.onPageLoad(ChangeMode)
+    } else {
+      controllers.organisation.routes.WhatIsTheNameOfYourBusinessController.onPageLoad(ChangeMode)
+    }
+
+  private def navigateFromIsThisYourBusiness(userAnswers: UserAnswers): Call =
+    userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
+      case Some(true) =>
+        if (isSoleTrader(userAnswers)) {
+          checkNextPageForValueThenRoute(
+            userAnswers = userAnswers,
+            page = IndividualEmailPage,
+            callWhenNotAnswered = controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+          )
+        } else {
+          checkNextPageForValueThenRoute(
+            userAnswers = userAnswers,
+            page = FirstContactNamePage,
+            callWhenNotAnswered = controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+          )
+        }
+
+      case Some(false) =>
+        if (userAnswers.isCtAutoMatched) {
+          controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
+        } else {
+          if (isSoleTrader(userAnswers)) {
+            controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()
+          } else {
+            controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()
+          }
+        }
+
+      case None =>
+        routes.JourneyRecoveryController.onPageLoad()
+    }
 
 }

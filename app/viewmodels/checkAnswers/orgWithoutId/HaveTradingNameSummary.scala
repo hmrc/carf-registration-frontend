@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.orgWithoutId
 
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.orgWithoutId.HaveTradingNamePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -37,7 +37,7 @@ object HaveTradingNameSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(CheckMode).url
+            href = controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("haveTradingName.change.hidden"))
         )
       )

@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import base.SpecBase
 import models.error.ApiError.InternalServerError
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -54,7 +54,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       actions = Seq(
         ActionItemViewModel(
           Text("TEST Action"),
-          controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(CheckMode).url
+          controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(ChangeMode).url
         )
           .withVisuallyHiddenText("TEST HIDDEN TEXT")
       )

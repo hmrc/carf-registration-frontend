@@ -51,7 +51,7 @@ class ContactDetailsMissingController @Inject() (
           case false =>
             val continueUrl: String =
               controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController
-                .onPageLoad()
+                .onPageLoad(ProvideMode)
                 .url
             Ok(view(continueUrl))
         }

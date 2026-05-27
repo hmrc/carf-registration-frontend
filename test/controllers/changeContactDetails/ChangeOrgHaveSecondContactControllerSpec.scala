@@ -43,7 +43,7 @@ class ChangeOrgHaveSecondContactControllerSpec extends SpecBase with MockitoSuga
 
   lazy val changeDetailsOrganisationHaveSecondContactRoute: String =
     controllers.changeContactDetails.routes.ChangeOrgHaveSecondContactController
-      .onPageLoad()
+      .onPageLoad(NormalMode)
       .url
 
   "ChangeDetailsOrganisationHaveSecondContact Controller" - {

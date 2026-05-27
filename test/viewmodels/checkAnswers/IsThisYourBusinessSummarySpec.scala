@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import models.{IsThisYourBusinessPageDetails, UserAnswers}
+import models.{ChangeMode, IsThisYourBusinessPageDetails, UserAnswers}
 import pages.IsThisYourBusinessPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
@@ -44,7 +44,7 @@ class IsThisYourBusinessSummarySpec extends SpecBase {
         val testRow: Option[SummaryListRow] = IsThisYourBusinessSummary.row(testUserAnswers)
 
         val href = testRow.get.actions.head.items.head.href
-        href mustBe controllers.routes.IndexController.onPageLoad().url
+        href mustBe controllers.routes.IndexController.onPageLoad(ChangeMode).url
       }
     }
   }

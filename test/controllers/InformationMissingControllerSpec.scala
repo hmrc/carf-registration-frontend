@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.InformationMissingView
@@ -37,7 +38,7 @@ class InformationMissingControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[InformationMissingView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(routes.IndexController.onPageLoad().url)(
+        contentAsString(result) mustEqual view(routes.IndexController.onPageLoad(NormalMode).url)(
           request,
           messages(application)
         ).toString

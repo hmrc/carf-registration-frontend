@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individual.HaveNiNumberPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -38,7 +38,7 @@ object HaveNiNumberSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individual.routes.HaveNiNumberController.onPageLoad(CheckMode).url
+            href = controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("haveNiNumber.change.hidden"))
         )
       )

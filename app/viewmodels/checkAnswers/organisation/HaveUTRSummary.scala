@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.organisation
 
 import controllers.organisation.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.organisation.HaveUTRPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -38,7 +38,7 @@ object HaveUTRSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = routes.HaveUTRController.onPageLoad(CheckMode).url
+            href = routes.HaveUTRController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("haveUTR.change.hidden"))
         )
       )

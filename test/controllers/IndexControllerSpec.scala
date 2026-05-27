@@ -48,7 +48,7 @@ class IndexControllerSpec extends SpecBase {
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction())
 
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
 
         val result: Future[Result] = route(application, request).value
 
@@ -67,7 +67,7 @@ class IndexControllerSpec extends SpecBase {
         when(mockSessionRepository.set(testExistingUserAnswers)).thenReturn(Future.successful(true))
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction())
 
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
 
         val result: Future[Result] = route(application, request).value
 
@@ -87,7 +87,7 @@ class IndexControllerSpec extends SpecBase {
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
 
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
 
         val result: Future[Result] = route(application, request).value
 
@@ -111,7 +111,7 @@ class IndexControllerSpec extends SpecBase {
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
         when(mockSessionRepository.set(testExistingUserAnswersWithUtr)).thenReturn(Future.successful(true))
 
-        val request                = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request                = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
         val result: Future[Result] = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
@@ -127,7 +127,7 @@ class IndexControllerSpec extends SpecBase {
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = None))
 
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
 
         val result: Future[Result] = route(application, request).value
 
@@ -146,7 +146,7 @@ class IndexControllerSpec extends SpecBase {
         when(mockSessionRepository.set(testExistingUserAnswers)).thenReturn(Future.successful(true))
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = None))
 
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
 
         val result: Future[Result] = route(application, request).value
 

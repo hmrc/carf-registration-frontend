@@ -19,7 +19,7 @@ package utils
 import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.RegistrationType.SoleTrader
 import models.{JourneyType, RegistrationType, UserAnswers}
-import pages.organisation.RegistrationTypePage
+import pages.RegistrationTypePage
 
 trait UserAnswersHelper {
 

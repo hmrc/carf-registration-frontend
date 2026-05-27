@@ -29,7 +29,7 @@ import pages.individual.*
 import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
-import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage, WhereDoYouLivePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import viewmodels.Section
@@ -585,7 +585,7 @@ class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks 
             case journeyType @ (OrgWithUtr | IndWithUtr) =>
               val userAnswers = emptyUserAnswers
                 .copy(journeyType = Some(journeyType))
-                .withPage(IsThisYourBusinessPage, IsThisYourBusinessPageDetails(testBusinessDetails, Some(true)))
+                .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
 
               val result = testHelper.getUserPostcode(userAnswers).value.futureValue
               result mustBe Right(testBusinessDetails.address.postalCode)

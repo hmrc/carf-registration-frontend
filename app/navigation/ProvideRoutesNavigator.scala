@@ -16,20 +16,14 @@
 
 package navigation
 
-import config.Constants.noneOfTheseValue
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
-import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.RegistrationType.{Individual, SoleTrader}
-import models.{NormalMode, ProvideMode, RegistrationType, UserAnswers}
+import models.{ProvideMode, UserAnswers}
 import pages.*
-import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondNamePage}
-import pages.organisation.{HaveUTRPage, NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
+import pages.changeContactDetails.*
 import play.api.Logging
 import play.api.mvc.Call
 import utils.UserAnswersHelper
-
-import java.time.LocalDate
 
 trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
 
@@ -44,11 +38,32 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
     case ChangeDetailsIndividualPhoneNumberPage =>
       _ => changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
 
-    case ChangeDetailsOrgSecondEmailPage =>
-      _ => changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad()
+    case ChangeDetailsOrgFirstNamePage =>
+      _ => changeDetailsRoutes.ChangeOrgFirstContactEmailController.onPageLoad(ProvideMode)
+
+    case ChangeDetailsOrgFirstEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrgFirstContactHavePhoneController.onPageLoad(ProvideMode)
+
+    case ChangeDetailsOrgFirstHavePhonePage =>
+      userAnswers => navigateFromProvideOrgFirstHavePhonePage(userAnswers)
+
+    case ChangeDetailsOrgFirstPhoneNumberPage =>
+      _ => changeDetailsRoutes.ChangeOrgHaveSecondContactController.onPageLoad(ProvideMode)
+
+    case ChangeDetailsOrgHaveSecondContactPage =>
+      userAnswers => navigateFromProvideOrgHaveSecondContactPage(userAnswers)
 
     case ChangeDetailsOrgSecondNamePage =>
       _ => changeDetailsRoutes.ChangeOrgSecondContactEmailController.onPageLoad(ProvideMode)
+
+    case ChangeDetailsOrgSecondEmailPage =>
+      _ => changeDetailsRoutes.ChangeOrgSecondContactHavePhoneController.onPageLoad(ProvideMode)
+
+    case ChangeDetailsOrgSecondHavePhonePage =>
+      userAnswers => navigateFromProvideOrgSecondHavePhonePage(userAnswers)
+
+    case ChangeDetailsOrgSecondPhoneNumberPage =>
+      _ => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
 
     case _ =>
       _ => routes.JourneyRecoveryController.onPageLoad()
@@ -62,5 +77,26 @@ trait ProvideRoutesNavigator extends UserAnswersHelper with Logging {
         changeDetailsRoutes.ChangeIndividualContactDetailsController.onPageLoad()
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromProvideOrgFirstHavePhonePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(ChangeDetailsOrgFirstHavePhonePage) match {
+      case Some(true)  => changeDetailsRoutes.ChangeOrgFirstContactPhoneNumberController.onPageLoad(ProvideMode)
+      case Some(false) => changeDetailsRoutes.ChangeOrgHaveSecondContactController.onPageLoad(ProvideMode)
+      case None        => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromProvideOrgHaveSecondContactPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(ChangeDetailsOrgHaveSecondContactPage) match {
+      case Some(true)  => changeDetailsRoutes.ChangeOrgSecondContactNameController.onPageLoad(ProvideMode)
+      case Some(false) => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      case None        => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromProvideOrgSecondHavePhonePage(userAnswers: UserAnswers): Call =
+    userAnswers.get(ChangeDetailsOrgSecondHavePhonePage) match {
+      case Some(true)  => changeDetailsRoutes.ChangeOrgSecondContactPhoneNumberController.onPageLoad(ProvideMode)
+      case Some(false) => changeDetailsRoutes.ChangeOrganisationContactDetailsController.onPageLoad()
+      case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 }

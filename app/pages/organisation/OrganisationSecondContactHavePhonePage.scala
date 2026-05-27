@@ -16,12 +16,26 @@
 
 package pages.organisation
 
+import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object OrganisationSecondContactHavePhonePage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "organisationSecondContactHavePhone"
+
+  override def cleanup(
+      value: Boolean,
+      userAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (hasChanged && !value) {
+      userAnswers.remove(OrganisationSecondContactPhoneNumberPage)
+    } else {
+      Success(userAnswers)
+    }
 }

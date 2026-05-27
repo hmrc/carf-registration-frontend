@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.orgWithoutId
 
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -37,7 +37,7 @@ object OrgWithoutIdBusinessNameSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(CheckMode).url
+            href = controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("businessName.change.hidden"))
         )
       )

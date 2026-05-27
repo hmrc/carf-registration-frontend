@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individual
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individual.WhatIsYourNameIndividualPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat

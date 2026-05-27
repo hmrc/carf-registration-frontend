@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.organisation.OrganisationRegistrationTypeFormProvider
 import models.{Mode, OrganisationRegistrationType}
 import navigation.Navigator
-import pages.organisation.{NavigatorOnlyOrganisationRegistrationTypePage, RegistrationTypePage}
+import pages.{NavigatorOnlyIndividualRegistrationTypePage, NavigatorOnlyOrganisationRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

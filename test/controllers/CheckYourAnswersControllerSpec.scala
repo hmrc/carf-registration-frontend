@@ -691,7 +691,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         }
       }
 
-      "when the audit service call is unsuccessful the request should still be successful" in new Setup(
+      "when the audit service call returns an error the request should still be successful" in new Setup(
         AffinityGroup.Organisation,
         orgWithUtrUserAnswers()
       ) {

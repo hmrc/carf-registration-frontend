@@ -22,7 +22,7 @@ import generators.Generators
 import models.countries.{Country, CountryUk}
 import models.requests.{AddressDetails, ContactDetails}
 import models.responses.*
-import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, OrganisationBusinessAddress, RichJsObject, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
+import models.{AddressUk, BusinessDetails, IndFindAddress, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, OrganisationBusinessAddress, RichJsObject, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -125,6 +125,8 @@ trait SpecBase
       userAnswers.remove(page).success.value
 
   }
+
+  lazy val testIndFindAddress: IndFindAddress = IndFindAddress("SW1A 1AA", Some("10"))
 
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
 

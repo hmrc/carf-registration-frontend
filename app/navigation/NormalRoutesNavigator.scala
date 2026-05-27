@@ -188,7 +188,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     if (userAnswers.get(FirstContactNamePage).isDefined) {
       controllers.routes.CheckYourAnswersController.onPageLoad()
     } else {
-      controllers.organisation.routes.FirstContactNameController.onPageLoad(NormalMode)
+      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
     }
 
   private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =

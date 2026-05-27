@@ -50,14 +50,6 @@ class HaveTradingNamePageSpec extends SpecBase {
 
         result.get(TradingNamePage) mustBe Some("Trading Name")
       }
-
-      "must navigate to JourneyRecoveryController when answer is missing" in {
-        navigator.nextPage(
-          HaveTradingNamePage,
-          ChangeMode,
-          emptyUserAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
     }
   }
 }

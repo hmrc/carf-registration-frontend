@@ -22,10 +22,20 @@ import pages.individualWithoutId.*
 import models.ChangeMode
 import navigation.Navigator
 import controllers.routes
+import models.countries.CountryUk
 
 class HaveNiNumberPageSpec extends SpecBase {
 
   val navigator = new Navigator()
+
+  val address = AddressUk(
+    "1 Test Street",
+    Some("Line 2"),
+    None,
+    "Testtown",
+    "BB00 0BB",
+    CountryUk("GB", "United Kingdom")
+  )
 
   "HaveNiNumberPage" - {
     "cleanup" - {
@@ -34,7 +44,7 @@ class HaveNiNumberPageSpec extends SpecBase {
           .withPage(IndFindAddressAdditionalCallUa, true)
           .withPage(IndFindAddressPage, testIndFindAddress)
           .withPage(WhereDoYouLivePage, true)
-          .withPage(AddressLookupPage, Seq(testAddressUk))
+          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
           .withPage(IndWithoutNinoNamePage, Name("Timmy", "Turner"))
           .withPage(IndWithoutIdAddressNonUkPage, testIndWithoutIdAddressNonUk)
           .withPage(IndWithoutIdAddressPagePrePop, testAddressUk)

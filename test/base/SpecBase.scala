@@ -65,6 +65,7 @@ trait SpecBase
   val testInternalId: String             = "12345"
   val testSubscriptionId: SubscriptionId = SubscriptionId("CARF0000000001")
   val testSafeId: String                 = "XE0000123456789"
+  val testUPRN: Int                      = 123456789
 
   private val UtcZoneId          = "UTC"
   implicit val fixedClock: Clock = Clock.fixed(Instant.parse("2020-05-20T12:34:56.789012Z"), ZoneId.of(UtcZoneId))
@@ -122,6 +123,7 @@ trait SpecBase
   def oneAddressResponse: AddressResponse =
     AddressResponse(
       id = "123",
+      uprn = testUPRN,
       address = AddressRecord(
         lines = List("1 Test", "Test Street", "Test Region"),
         town = "Testingtown",

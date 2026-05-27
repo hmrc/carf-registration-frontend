@@ -20,6 +20,7 @@ import base.SpecBase
 import cats.data.EitherT
 import connectors.AddressLookupConnector
 import generators.Generators
+import models.AddressesAndUPRN
 import models.error.{ApiError, CarfError, ConversionError}
 import models.requests.SearchByPostcodeRequest
 import models.responses.AddressResponse
@@ -55,7 +56,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val Right(result, retry) = service.postcodeSearch("TE1 1ST", Some("Flat 1")).futureValue
 
-        result   mustBe Seq(testAddressUk)
+        result   mustBe Seq(AddressesAndUPRN(testAddressUk, testUPRN))
         retry mustEqual false
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 1"))))(any())
@@ -67,7 +68,11 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val Right(result, retry) = service.postcodeSearch("TE1 1ST", None).futureValue
 
-        result   mustBe Seq(testAddressUk, testAddressUk, testAddressUk)
+        result   mustBe Seq(
+          AddressesAndUPRN(testAddressUk, testUPRN),
+          AddressesAndUPRN(testAddressUk, testUPRN),
+          AddressesAndUPRN(testAddressUk, testUPRN)
+        )
         retry mustEqual false
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", None)))(any())
@@ -84,7 +89,11 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
         val Right(result, retry) = service.postcodeSearch("TE1 1ST", Some("Flat 99")).futureValue
 
-        result   mustBe Seq(testAddressUk, testAddressUk, testAddressUk)
+        result   mustBe Seq(
+          AddressesAndUPRN(testAddressUk, testUPRN),
+          AddressesAndUPRN(testAddressUk, testUPRN),
+          AddressesAndUPRN(testAddressUk, testUPRN)
+        )
         retry mustEqual true
         verify(mockAddressLookupConnector, times(1))
           .searchByPostcode(eqTo(SearchByPostcodeRequest("TE1 1ST", Some("Flat 99"))))(any())

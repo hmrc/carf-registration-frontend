@@ -16,13 +16,14 @@
 
 package models.responses
 
-import models.AddressUk
+import models.{AddressUk, AddressesAndUPRN}
 import models.countries.CountryUk
 import models.error.{CarfError, ConversionError}
 import play.api.libs.json.{Json, OFormat}
 
 case class AddressResponse(
     id: String,
+    uprn: Long,
     address: AddressRecord
     // ISO639-1 code, e.g. 'en' for English
     // see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
@@ -32,18 +33,21 @@ object AddressResponse {
   implicit val format: OFormat[AddressResponse] = Json.format[AddressResponse]
 
   extension (addressResponse: AddressResponse)
-    def toDomainAddressUk: Either[CarfError, AddressUk] = {
+    def toDomainAddressUk: Either[CarfError, AddressesAndUPRN] = {
       val address = addressResponse.address
       address.lines match {
         case head :: next =>
           Right(
-            AddressUk(
-              addressLine1 = head,
-              addressLine2 = next.headOption,
-              addressLine3 = next.lift(1),
-              townOrCity = address.town,
-              postCode = address.postcode,
-              countryUk = CountryUk(code = address.country.code, name = address.country.name)
+            AddressesAndUPRN(
+              AddressUk(
+                addressLine1 = head,
+                addressLine2 = next.headOption,
+                addressLine3 = next.lift(1),
+                townOrCity = address.town,
+                postCode = address.postcode,
+                countryUk = CountryUk(code = address.country.code, name = address.country.name)
+              ),
+              addressResponse.uprn
             )
           )
         case Nil          => Left(ConversionError)

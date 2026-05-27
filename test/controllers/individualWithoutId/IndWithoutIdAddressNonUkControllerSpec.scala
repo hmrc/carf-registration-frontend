@@ -22,9 +22,10 @@ import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
 import models.countries.Country
 import models.{IndWithoutIdAddressNonUk, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AddressUPRNUserAnswers
 import pages.individualWithoutId.IndWithoutIdAddressNonUkPage
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -123,7 +124,11 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers =
+          Some(
+            emptyUserAnswers.withPage(AddressUPRNUserAnswers, testUPRN)
+          )
+        )
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[CountryListFactory].toInstance(mockCountryListFactory)
@@ -146,6 +151,10 @@ class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar 
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+
+        verify(mockSessionRepository, times(1)).set(
+          argThat(_.get(AddressUPRNUserAnswers).isEmpty)
+        )
       }
     }
 

@@ -40,6 +40,7 @@ class AddressLookupConnectorISpec
   val searchByPostcodeValidResponse: Seq[AddressResponse] = Seq(
     AddressResponse(
       id = "Test-Id",
+      uprn = 123456,
       address = AddressRecord(
         lines = List("Address-Line1", "Address-Line2"),
         town = "Bristol",

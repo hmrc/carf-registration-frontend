@@ -25,12 +25,13 @@ import models.countries.UnitedKingdom
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUk, IndFindAddress, NormalMode, UserAnswers}
+import models.{AddressUk, AddressesAndUPRN, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AddressUPRNUserAnswers
 import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.inject.bind
@@ -63,6 +64,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
   val searchByPostcodeValidResponse: Seq[AddressResponse] = Seq(
     AddressResponse(
       id = "Test-Id",
+      uprn = 123456,
       address = AddressRecord(
         lines = List("Address-Line1", "Address-Line2"),
         town = "Bristol",
@@ -153,7 +155,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
         .thenReturn(
           Future.successful(
-            Right(Seq(testAddressUk), false)
+            Right(Seq(AddressesAndUPRN(testAddressUk, testUPRN)), false)
           )
         )
 
@@ -174,6 +176,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRouteOneAddress.url
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any())
+        verify(mockSessionRepository, times(1)).set(
+          argThat(_.get(AddressUPRNUserAnswers).get == testUPRN)
+        )
       }
     }
 
@@ -187,7 +192,12 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         .thenReturn(
           Future.successful(
             Right(
-              (Seq(testAddressUk, testAddressUk, testAddressUk), false)
+              Seq(
+                AddressesAndUPRN(testAddressUk, testUPRN),
+                AddressesAndUPRN(testAddressUk, testUPRN),
+                AddressesAndUPRN(testAddressUk, testUPRN)
+              ),
+              false
             )
           )
         )
@@ -221,7 +231,14 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
         .thenReturn(
           Future.successful(
-            Right(Seq(testAddressUk, testAddressUk, testAddressUk), true)
+            Right(
+              Seq(
+                AddressesAndUPRN(testAddressUk, testUPRN),
+                AddressesAndUPRN(testAddressUk, testUPRN),
+                AddressesAndUPRN(testAddressUk, testUPRN)
+              ),
+              true
+            )
           )
         )
 

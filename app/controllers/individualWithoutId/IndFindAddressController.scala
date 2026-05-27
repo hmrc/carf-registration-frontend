@@ -103,7 +103,7 @@ class IndFindAddressController @Inject() (
       updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, indFindAddress))
       (filledAddress, maybeUPRN) =
         addressesAndUPRNs.headOption.fold(
-          (AddressUk("", None, None, "", indFindAddress.postcode, CountryUk("", "")), Option.empty[Int])
+          (AddressUk("", None, None, "", indFindAddress.postcode, CountryUk("", "")), Option.empty[Long])
         )(addressAndUPRN => (addressAndUPRN.address, Some(addressAndUPRN.UPRN)))
 
       updatedAnswersWithPrePop <-

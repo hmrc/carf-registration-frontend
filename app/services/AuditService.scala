@@ -28,7 +28,7 @@ import pages.orgWithoutId.*
 import pages.organisation.*
 import pages.*
 import play.api.Logging
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import types.ResultT
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.audit.http.connector
@@ -120,12 +120,14 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                            )
     } yield ()
 
-  private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) =
+  private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) = {
+    logger.debug(s"Sending Audit event detail:\n ${Json.prettyPrint(eventJsValue)}")
     ExtendedDataEvent(
       auditSource = "carf-registration-frontend",
       auditType = auditType,
       detail = eventJsValue
     )
+  }
 
   private def getUtrJourneyType(userAnswers: UserAnswers): Option[UtrJourneyAuditEvent] =
     (

@@ -23,7 +23,7 @@ import play.api.libs.json.{Json, OFormat}
 
 case class AddressResponse(
     id: String,
-    uprn: Int,
+    uprn: Long,
     address: AddressRecord
     // ISO639-1 code, e.g. 'en' for English
     // see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes

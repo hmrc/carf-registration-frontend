@@ -22,7 +22,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 
 case class RegistrationAuditEvent(
     affinityGroup: AffinityGroup,
-    registeredAs: RegistrationType,
+    registeredAs: Option[RegistrationType],
     registeredUkAddress: Option[Boolean],
     hasUtr: Option[Boolean],
     hasNINO: Option[Boolean],

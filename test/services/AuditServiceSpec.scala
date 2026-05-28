@@ -87,7 +87,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = indAffinityGroup,
-          registeredAs = regType,
+          registeredAs = Some(regType),
           registeredUkAddress = Some(true),
           hasUtr = Some(true),
           hasNINO = None,
@@ -170,15 +170,6 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
       }
 
-      "should return DataError when RegistrationTypePage is missing from user answers" in {
-
-        val userAnswers = emptyUserAnswers
-
-        val result = service.auditRegistration(userAnswers, IndWithUtr, indAffinityGroup).value.futureValue
-
-        result mustBe Left(DataError)
-      }
-
       "should return success for organisationWithIdJourney" in {
 
         val regType     = LimitedCompany
@@ -208,7 +199,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = orgAffinityGroup,
-          registeredAs = regType,
+          registeredAs = Some(regType),
           registeredUkAddress = Some(true),
           hasUtr = Some(true),
           hasNINO = None,
@@ -259,7 +250,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = orgAffinityGroup,
-          registeredAs = regType,
+          registeredAs = Some(regType),
           registeredUkAddress = Some(true),
           hasUtr = Some(false),
           hasNINO = None,
@@ -314,7 +305,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = indAffinityGroup,
-          registeredAs = regType,
+          registeredAs = Some(regType),
           registeredUkAddress = None,
           hasUtr = None,
           hasNINO = Some(true),
@@ -369,7 +360,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = indAffinityGroup,
-          registeredAs = regType,
+          registeredAs = Some(regType),
           registeredUkAddress = Some(true),
           hasUtr = None,
           hasNINO = Some(false),
@@ -434,7 +425,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val expectedExtendedAudit = RegistrationAuditEvent(
           affinityGroup = indAffinityGroup,
-          registeredAs = regType,
+          registeredAs = Some(regType),
           registeredUkAddress = Some(false),
           hasUtr = None,
           hasNINO = Some(false),

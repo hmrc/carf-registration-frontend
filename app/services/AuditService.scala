@@ -84,13 +84,14 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                                  getIndividualWithoutIdJourney(userAnswers)
                                } else None,
                                individualContactDetails = journeyType match {
-                                 case IndWithNino | IndWithoutId             => getIndividualContactDetails(userAnswers)
-                                 case OrgWithUtr | OrgWithoutId | IndWithUtr => None
+                                 case IndWithNino | IndWithoutId | IndWithUtr =>
+                                   getIndividualContactDetails(userAnswers)
+                                 case OrgWithUtr | OrgWithoutId               => None
                                },
                                organisationContactDetails = journeyType match {
-                                 case OrgWithUtr | OrgWithoutId | IndWithUtr =>
+                                 case OrgWithUtr | OrgWithoutId               =>
                                    getOrganisationContactDetails(userAnswers)
-                                 case IndWithNino | IndWithoutId             => None
+                                 case IndWithNino | IndWithoutId | IndWithUtr => None
                                }
                              )
                            )

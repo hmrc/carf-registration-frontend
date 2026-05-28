@@ -61,7 +61,7 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
   "AuditService" - {
     "registration audit event" - {
-      "should return success for withUtrJourney" in {
+      "should return success for soleTraderWithUTRJourney" in {
 
         val regType     = SoleTrader
         val utr         = "testUtr"
@@ -112,9 +112,6 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
         val result = service.auditRegistration(userAnswers, IndWithUtr, indAffinityGroup).value.futureValue
 
         result mustBe Right(())
-
-        println("Json.toJson(expectedExtendedAudit)")
-        println(Json.toJson(expectedExtendedAudit))
 
         verify(mockAuditConnector, times(1)).sendExtendedEvent(
           argThat(event =>

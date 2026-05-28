@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{Name, NormalMode}
+import models.{AddressAndUPRN, Name, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -45,7 +45,8 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
   "IndReviewConfirmAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val userAnswers = emptyUserAnswers.set(AddressLookupPage, Seq(testAddressUk)).success.value
+      val userAnswers =
+        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -104,7 +105,8 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when user clicks the Continue button" in {
-      val userAnswers = emptyUserAnswers.set(AddressLookupPage, Seq(testAddressUk)).success.value
+      val userAnswers =
+        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -152,7 +154,13 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery when multiple addresses are found in userAnswers" in {
-      val userAnswers = emptyUserAnswers.set(AddressLookupPage, Seq(testAddressUk, testAddressUk)).success.value
+      val userAnswers = emptyUserAnswers
+        .set(
+          AddressLookupPage,
+          Seq(AddressAndUPRN(testAddressUk, testUPRN), AddressAndUPRN(testAddressUk, testUPRN))
+        )
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

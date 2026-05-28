@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.individualWithoutId.IndWithoutIdAddressNonUkPage
+import pages.individualWithoutId.{AddressUPRNUserAnswers, IndWithoutIdAddressNonUkPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,6 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
 import views.html.individualWithoutId.IndWithoutIdAddressNonUkView
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import models.countries.Country
@@ -94,9 +95,10 @@ class IndWithoutIdAddressNonUkController @Inject() (
                 ),
               value =>
                 for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressNonUkPage, value))
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswers))
+                  updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndWithoutIdAddressNonUkPage, value))
+                  updatedAnswersWithoutUPRN <- Future.fromTry(updatedAnswers.remove(AddressUPRNUserAnswers))
+                  _                         <- sessionRepository.set(updatedAnswersWithoutUPRN)
+                } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswersWithoutUPRN))
             )
         case None            =>
           logger.error("Could not retrieve countries list from JSON file.")

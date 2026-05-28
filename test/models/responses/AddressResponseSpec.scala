@@ -26,6 +26,7 @@ class AddressResponseSpec extends SpecBase {
   def createAddressResponse(lines: List[String]) =
     AddressResponse(
       id = "test id",
+      uprn = testUPRN,
       address = AddressRecord(
         lines = lines,
         town = "Testington",
@@ -40,7 +41,7 @@ class AddressResponseSpec extends SpecBase {
         "when lines has one value" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1"))
 
-          val result = testAddressResponse.toDomainAddressUk
+          val result = testAddressResponse.toDomainAddressUk.map(_.address)
 
           result mustBe Right(
             AddressUk(
@@ -56,7 +57,7 @@ class AddressResponseSpec extends SpecBase {
         "when lines has two values" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1", "Line 2"))
 
-          val result = testAddressResponse.toDomainAddressUk
+          val result = testAddressResponse.toDomainAddressUk.map(_.address)
 
           result mustBe Right(
             AddressUk(
@@ -72,7 +73,7 @@ class AddressResponseSpec extends SpecBase {
         "when lines has three values" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1", "Line 2", "Line 3"))
 
-          val result = testAddressResponse.toDomainAddressUk
+          val result = testAddressResponse.toDomainAddressUk.map(_.address)
 
           result mustBe Right(
             AddressUk(
@@ -88,7 +89,7 @@ class AddressResponseSpec extends SpecBase {
         "when lines has four values, only populate the first three because lines has a max size of three in the API spec" in {
           val testAddressResponse = createAddressResponse(lines = List("Line 1", "Line 2", "Line 3", "Line 4"))
 
-          val result = testAddressResponse.toDomainAddressUk
+          val result = testAddressResponse.toDomainAddressUk.map(_.address)
 
           result mustBe Right(
             AddressUk(

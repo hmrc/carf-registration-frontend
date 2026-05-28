@@ -56,7 +56,7 @@ class IndReviewConfirmAddressController @Inject() (
 
       request.userAnswers.get(AddressLookupPage) match {
         case Some(address :: Nil) =>
-          Future.successful(Ok(view(address, mode, editAddressLink)))
+          Future.successful(Ok(view(address.address, mode, editAddressLink)))
         case Some(list)           =>
           logger.warn("One address in user answers expected, multiple were found")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -73,7 +73,7 @@ class IndReviewConfirmAddressController @Inject() (
         case Some(addresses) if addresses.nonEmpty =>
           for {
             updatedAnswers <-
-              Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, addresses.head))
+              Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, addresses.head.address))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPageForNavigatorOnly, mode, updatedAnswers))
         case _                                     =>

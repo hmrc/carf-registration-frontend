@@ -31,7 +31,7 @@ import play.api.inject.bind
 import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.{EnrolmentService, RegistrationService, SubscriptionService}
+import services.{AuditService, EnrolmentService, RegistrationService, SubscriptionService}
 import types.ResultT
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -546,6 +546,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           )
             .thenReturn(ResultT.fromValue(()))
 
+          when(mockAuditService.auditRegistration(orgWithUtrUserAnswers(), OrgWithUtr, AffinityGroup.Organisation))
+            .thenReturn(ResultT.fromValue(()))
+
           val request                = FakeRequest(POST, cyaRoute)
           val result: Future[Result] = route(application, request).value
 
@@ -687,6 +690,52 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           verify(mockEnrolmentService, times(0)).enrol(any(), any(), any())(any(), any())
         }
       }
+
+      "when the audit service call returns an error the request should still be successful" in new Setup(
+        AffinityGroup.Organisation,
+        orgWithUtrUserAnswers()
+      ) {
+        val subscriptionId = SubscriptionId("XCARF1234567890")
+
+        when(mockRegistrationService.registerForWithoutIdJourneys(any[UserAnswers])(any()))
+          .thenReturn(ResultT.fromValue(orgWithUtrUserAnswers()))
+
+        when(mockSessionRepository.set(any[UserAnswers]))
+          .thenReturn(Future.successful(true))
+
+        when(mockSubscriptionService.subscribe(any[UserAnswers])(any(), any()))
+          .thenReturn(ResultT.fromValue(subscriptionId))
+
+        when(mockCYAHelper.getUserPostcode(any()))
+          .thenReturn(ResultT.fromValue(testBusinessDetails.address.postalCode))
+
+        when(mockCYAHelper.getUserIsAbroad(any()))
+          .thenReturn(ResultT.fromValue(false))
+
+        when(
+          mockEnrolmentService.enrol(
+            ArgumentMatchers.eq(subscriptionId),
+            ArgumentMatchers.eq(testBusinessDetails.address.postalCode),
+            ArgumentMatchers.eq(false)
+          )(any(), any())
+        )
+          .thenReturn(ResultT.fromValue(()))
+
+        when(mockAuditService.auditRegistration(orgWithUtrUserAnswers(), OrgWithUtr, AffinityGroup.Organisation))
+          .thenReturn(ResultT.fromError(InternalServerError))
+
+        val request                = FakeRequest(POST, cyaRoute)
+        val result: Future[Result] = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.RegistrationConfirmationController
+          .onPageLoad()
+          .url
+
+        verify(mockCYAHelper).getUserPostcode(
+          ArgumentMatchers.eq(orgWithUtrUserAnswers())
+        )
+      }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
@@ -719,6 +768,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     final val mockCYAHelper           = mock[CheckYourAnswersHelper]
     final val mockRegistrationService = mock[RegistrationService]
     final val mockEnrolmentService    = mock[EnrolmentService]
+    final val mockAuditService        = mock[AuditService]
 
     val application: Application =
       applicationBuilder(affinityGroup = affinityGroup, userAnswers = Some(userAnswers))
@@ -726,6 +776,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           bind[EnrolmentService].toInstance(mockEnrolmentService),
           bind[SubscriptionService].toInstance(mockSubscriptionService),
           bind[RegistrationService].toInstance(mockRegistrationService),
+          bind[AuditService].toInstance(mockAuditService),
           bind[CheckYourAnswersHelper].toInstance(mockCYAHelper),
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[Clock].toInstance(clock)

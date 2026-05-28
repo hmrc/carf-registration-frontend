@@ -80,6 +80,7 @@ object Constants {
     IndFindAddressPage,
     WhereDoYouLivePage,
     AddressLookupPage,
+    AddressUPRNUserAnswers,
     IndWithoutNinoNamePage,
     IndWithoutIdAddressNonUkPage,
     IndWithoutIdAddressPagePrePop,

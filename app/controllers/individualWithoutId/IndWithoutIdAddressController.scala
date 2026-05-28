@@ -75,11 +75,12 @@ class IndWithoutIdAddressController @Inject() (
             ),
           value =>
             for {
-              updatedAnswers           <- Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, value))
-              updatedAnswersWithPrePop <- Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, value))
-              _                        <- sessionRepository.set(updatedAnswersWithPrePop)
+              a <- Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, value))
+              b <- Future.fromTry(a.set(IndWithoutIdAddressPagePrePop, value))
+              c <- Future.fromTry(b.remove(AddressUPRNUserAnswers))
+              _ <- sessionRepository.set(c)
             } yield Redirect(
-              navigator.nextPage(IndWithoutIdAddressPageForNavigatorOnly, mode, updatedAnswersWithPrePop)
+              navigator.nextPage(IndWithoutIdAddressPageForNavigatorOnly, mode, c)
             )
         )
   }

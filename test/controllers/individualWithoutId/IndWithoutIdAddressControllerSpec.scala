@@ -23,11 +23,11 @@ import generators.Generators
 import models.countries.Country
 import models.{AddressUk, NormalMode}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import pages.individualWithoutId.IndWithoutIdAddressPagePrePop
+import pages.individualWithoutId.{AddressUPRNUserAnswers, IndWithoutIdAddressPagePrePop}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -113,11 +113,13 @@ class IndWithoutIdAddressControllerSpec
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+        applicationBuilder(userAnswers =
+          Some(
+            emptyUserAnswers.withPage(AddressUPRNUserAnswers, testUPRN)
           )
-          .build()
+        ).overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+        ).build()
 
       running(application) {
         val request =
@@ -134,6 +136,9 @@ class IndWithoutIdAddressControllerSpec
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository, times(1)).set(
+          argThat(_.get(AddressUPRNUserAnswers).isEmpty)
+        )
       }
     }
 

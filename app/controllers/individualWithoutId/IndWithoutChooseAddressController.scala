@@ -21,9 +21,9 @@ import controllers.actions.*
 import forms.IndWithoutChooseAddressFormProvider
 import models.countries.CountryUk
 import models.requests.DataRequest
-import models.{format, AddressUk, IndFindAddress, Mode, UserAnswers}
+import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator
-import pages.individualWithoutId.{AddressLookupPage, IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage, IndWithoutIdUkAddressInUserAnswers}
+import pages.individualWithoutId.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -53,7 +53,7 @@ class IndWithoutChooseAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  private case class WithRadiosResult(result: Result, addresses: Seq[AddressUk])
+  private case class WithRadiosResult(result: Result, addresses: Seq[AddressAndUPRN])
 
   val form: Form[String] = formProvider()
 
@@ -118,28 +118,28 @@ class IndWithoutChooseAddressController @Inject() (
         )
   }
 
-  private def storeAddress(addressToStore: AddressUk, userAnswer: UserAnswers): Future[UserAnswers] =
+  private def storeAddress(addressToStore: AddressAndUPRN, userAnswer: UserAnswers): Future[UserAnswers] =
     for {
-      updatedUserAnswers                <- Future.fromTry(userAnswer.set(IndWithoutIdSelectedChooseAddressPage, addressToStore))
-      updatedUserAnswersWithUkAddressUa <-
-        Future.fromTry(updatedUserAnswers.set(IndWithoutIdUkAddressInUserAnswers, addressToStore))
-    } yield updatedUserAnswersWithUkAddressUa
+      a                  <- Future.fromTry(userAnswer.set(IndWithoutIdSelectedChooseAddressPage, addressToStore.address))
+      b                  <- Future.fromTry(a.set(IndWithoutIdUkAddressInUserAnswers, addressToStore.address))
+      updatedUserAnswers <- Future.fromTry(b.set(AddressUPRNUserAnswers, addressToStore.UPRN))
+    } yield updatedUserAnswers
 
   private def findAddressToStore(mode: Mode, value: String)(implicit
       request: DataRequest[AnyContent]
-  ): Future[Option[AddressUk]] = Future.fromTry {
+  ): Future[Option[AddressAndUPRN]] = Future.fromTry {
     val WithRadiosResult(_, addresses) = resultWithRadios(mode) { (_, _) =>
       Redirect(call = controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 
     val exception = new Exception("Failed to find address")
     addresses
-      .find(_.format == value)
+      .find(_.address.format == value)
       .fold {
         if (value == noneOfTheseValue) {
           Success(None)
         } else {
-          Failure[Option[AddressUk]](exception)
+          Failure[Option[AddressAndUPRN]](exception)
         }
       }(address => Success(Some(address)))
   }
@@ -159,10 +159,11 @@ class IndWithoutChooseAddressController @Inject() (
       .get(AddressLookupPage)
       .fold {
         WithRadiosResult(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()), Seq.empty)
-      } { addresses =>
-        if (addresses.isEmpty) {
+      } { addressesAndUPRN =>
+        if (addressesAndUPRN.isEmpty) {
           WithRadiosResult(indWithoutIdAddressControllerRedirect(mode), Seq.empty)
         } else {
+          val addresses                   = addressesAndUPRN.map(_.address)
           lazy val radios: Seq[RadioItem] = createAddressRadios(addresses)
 
           val maybeWithRadiosResult = for {
@@ -173,7 +174,7 @@ class IndWithoutChooseAddressController @Inject() (
               radios,
               if (additionalCallMade) Some(indFindAddress) else None
             ),
-            addresses = addresses
+            addresses = addressesAndUPRN
           )
 
           maybeWithRadiosResult.fold(

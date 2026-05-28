@@ -17,7 +17,7 @@
 package pages.organisation
 
 import base.SpecBase
-import models.{AddressUk, IndFindAddress, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, SafeId, UniqueTaxpayerReference, UserAnswers}
+import models.{AddressAndUPRN, AddressUk, IndFindAddress, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, Name, OrganisationBusinessAddress, SafeId, UniqueTaxpayerReference, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import pages.IsThisYourBusinessPage
@@ -29,17 +29,18 @@ import java.time.LocalDate
 
 class HaveUTRPageSpec extends SpecBase {
   private val testParamGenerator = for {
-    stringField     <- Gen.alphaStr.suchThat(_.nonEmpty)
-    booleanField    <- Gen.oneOf(true, false)
-    dob             <- Gen.choose(LocalDate.of(1901, 1, 1), LocalDate.now)
-    businessAddress <- arbitrary[OrganisationBusinessAddress]
-    name            <- arbitrary[Name]
-    findAddress     <- arbitrary[IndFindAddress]
-    addressNonUk    <- arbitrary[IndWithoutIdAddressNonUk]
-    addressUk       <- arbitrary[AddressUk]
-    utr             <- arbitrary[UniqueTaxpayerReference]
-    itybpd          <- arbitrary[IsThisYourBusinessPageDetails]
-    addressLookup   <- arbitrary[Seq[AddressUk]]
+    stringField       <- Gen.alphaStr.suchThat(_.nonEmpty)
+    booleanField      <- Gen.oneOf(true, false)
+    dob               <- Gen.choose(LocalDate.of(1901, 1, 1), LocalDate.now)
+    businessAddress   <- arbitrary[OrganisationBusinessAddress]
+    name              <- arbitrary[Name]
+    findAddress       <- arbitrary[IndFindAddress]
+    addressNonUk      <- arbitrary[IndWithoutIdAddressNonUk]
+    addressUk         <- arbitrary[AddressUk]
+    utr               <- arbitrary[UniqueTaxpayerReference]
+    itybpd            <- arbitrary[IsThisYourBusinessPageDetails]
+    addressesAndUPRNs <- arbitrary[Seq[AddressAndUPRN]]
+    longField         <- Gen.long
   } yield (
     stringField,
     booleanField,
@@ -51,7 +52,8 @@ class HaveUTRPageSpec extends SpecBase {
     addressUk,
     utr,
     itybpd,
-    addressLookup
+    addressesAndUPRNs,
+    longField
   )
 
   "HaveUTRPage" - {
@@ -73,6 +75,7 @@ class HaveUTRPageSpec extends SpecBase {
           result.get(IndFindAddressPage)                    mustBe empty
           result.get(WhereDoYouLivePage)                    mustBe empty
           result.get(AddressLookupPage)                     mustBe empty
+          result.get(AddressUPRNUserAnswers)                mustBe empty
           result.get(IndWithoutNinoNamePage)                mustBe empty
           result.get(IndWithoutIdAddressNonUkPage)          mustBe empty
           result.get(IndWithoutIdAddressPagePrePop)         mustBe empty
@@ -182,7 +185,8 @@ class HaveUTRPageSpec extends SpecBase {
         addressUk,
         utr,
         itybpd,
-        addressLookup
+        addressesAndUPRNs,
+        longField
       ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
@@ -197,7 +201,8 @@ class HaveUTRPageSpec extends SpecBase {
       .withPage(IndFindAddressAdditionalCallUa, booleanField)
       .withPage(IndFindAddressPage, findAddress)
       .withPage(WhereDoYouLivePage, booleanField)
-      .withPage(AddressLookupPage, addressLookup)
+      .withPage(AddressLookupPage, addressesAndUPRNs)
+      .withPage(AddressUPRNUserAnswers, longField)
       .withPage(IndWithoutNinoNamePage, name)
       .withPage(IndWithoutIdAddressNonUkPage, addressNonUk)
       .withPage(IndWithoutIdAddressPagePrePop, addressUk)
@@ -219,7 +224,8 @@ class HaveUTRPageSpec extends SpecBase {
         addressUk,
         utr,
         itybpd,
-        addressLookup
+        addressesAndUPRNs,
+        longField
       ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers

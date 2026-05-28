@@ -653,7 +653,7 @@ class SubscriptionHelperSpec extends SpecBase {
           result mustBe defined
           val request = result.get
 
-          request.idType                      mustBe "SAFE"
+          request.idType                      mustBe "ZCAR"
           request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe Some(testTradingName)
           request.gbUser                      mustBe true
@@ -724,14 +724,14 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
             .withPage(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
-            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
           result mustBe defined
           val request = result.get
 
-          request.idType                      mustBe "SAFE"
+          request.idType                      mustBe "ZCAR"
           request.idNumber                    mustBe exampleSafeId.value
           request.tradingName                 mustBe Some(testBusinessName)
           request.gbUser                      mustBe true
@@ -762,7 +762,7 @@ class SubscriptionHelperSpec extends SpecBase {
           result mustBe defined
           val request = result.get
 
-          request.idType                            mustBe "SAFE"
+          request.idType                            mustBe "ZCAR"
           request.idNumber                          mustBe exampleSafeId.value
           request.tradingName                       mustBe Some(testBusinessName)
           request.gbUser                            mustBe true
@@ -813,11 +813,10 @@ class SubscriptionHelperSpec extends SpecBase {
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
-          result                      mustBe defined
-          result.get.secondaryContact mustBe None
+          result mustBe None
         }
 
-        "should not include secondary contact when secondary contact email is missing" in {
+        "should return None when secondary contact is required but email is missing" in {
           val userAnswers = emptyUserAnswers
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
@@ -829,8 +828,7 @@ class SubscriptionHelperSpec extends SpecBase {
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
-          result                      mustBe defined
-          result.get.secondaryContact mustBe None
+          result mustBe None
         }
       }
 

@@ -19,16 +19,14 @@ package controllers.changeContactDetails
 import com.google.inject.Inject
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import controllers.routes
-import models.DataRequestWithSubscriptionId
-import models.error.{ApiError, CarfError, DataError}
+import models.error.DataError
 import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.Logging
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.SubscriptionService
-import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeIndividualDetailsHelper
@@ -88,30 +86,18 @@ class ChangeIndividualContactDetailsController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
-      updateSub().value.map {
-        case Right(result)   => result
-        case Left(DataError) =>
-          logger.error(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case error           =>
-          logger.error(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
-  }
-
-  private def updateSub()(implicit request: DataRequestWithSubscriptionId[AnyContent], ec: ExecutionContext) = {
-    lazy val answers = request.userAnswers
-    for {
-      subscriptionId <- subscriptionService.updateSubscription(answers)
-      result         <- ResultT.fromFuture {
-                          val updatedUserAnswers = answers.copy(subscriptionId = Some(subscriptionId))
-                          sessionRepository.set(updatedUserAnswers).map { _ =>
-                            Right[ApiError, Result](
-                              Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
-                            )
-
-                          }
-                        }
-    } yield result
+      subscriptionService
+        .updateSubscription(request.userAnswers)
+        .value
+        .map {
+          case Right(value)    =>
+            Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
+          case Left(DataError) =>
+            logger.error(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case error           =>
+            logger.error(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
   }
 }

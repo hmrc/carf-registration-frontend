@@ -87,14 +87,11 @@ class SubscriptionService @Inject() (
           }
       case None          =>
         logger.error("There has been an error building the subscription request from userAnswers")
-        EitherT {
-          Future.successful(
-            Left(
-              MandatoryInformationMissingError(
-                s"There has been an error building the subscription request from userAnswers"
-              )
-            )
+        ResultT.fromError(
+          MandatoryInformationMissingError(
+            s"There has been an error building the subscription request from userAnswers"
           )
-        }
+        )
+
     }
 }

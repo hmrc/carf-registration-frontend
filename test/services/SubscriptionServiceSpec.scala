@@ -76,41 +76,17 @@ class SubscriptionServiceSpec extends SpecBase {
           mobile = Some("07232473743"),
           organisation = None
         ),
-        secondaryContact = Some(
-          DisplaySubscriptionContact(
-            individual = Some(
-              DisplaySubscriptionIndividual(
-                firstName = "Joe",
-                middleName = Some("Martyn"),
-                lastName = "Smith"
-              )
-            ),
-            email = "GroupRep@FATCACRS.com",
-            phone = Some("01232473744"),
-            mobile = Some("07232473744"),
-            organisation = None
-          )
-        )
+        secondaryContact = None
       )
     )
   )
 
   val updatedUserAnswers: UserAnswers = emptyUserAnswers
-    .copy(journeyType = Some(JourneyType.IndWithNino))
-    .copy(safeId = Some(exampleSafeId))
+    .copy(subscriptionId = Some(testSubscriptionId))
     .copy(displaySubscriptionResponse = Some(exampleSubscriptionDisplayResponse))
-    .set(WhatIsYourNameIndividualPage, Name("John", "Doe"))
-    .success
-    .value
-    .set(ChangeDetailsIndividualEmailPage, "john.doe@example.com")
-    .success
-    .value
-    .set(ChangeDetailsIndividualHavePhonePage, true)
-    .success
-    .value
-    .set(ChangeDetailsIndividualPhoneNumberPage, "01234567890")
-    .success
-    .value
+    .withPage(ChangeDetailsIndividualEmailPage, "john.doe@example.com")
+    .withPage(ChangeDetailsIndividualHavePhonePage, true)
+    .withPage(ChangeDetailsIndividualPhoneNumberPage, "01234567890")
 
   override def beforeEach(): Unit = {
     super.beforeEach()

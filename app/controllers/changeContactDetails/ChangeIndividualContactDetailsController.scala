@@ -25,7 +25,6 @@ import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetai
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import services.SubscriptionService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -40,8 +39,7 @@ class ChangeIndividualContactDetailsController @Inject() (
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeIndividualDetailsHelper,
-    view: ChangeIndividualContactDetailsView,
-    sessionRepository: SessionRepository
+    view: ChangeIndividualContactDetailsView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport

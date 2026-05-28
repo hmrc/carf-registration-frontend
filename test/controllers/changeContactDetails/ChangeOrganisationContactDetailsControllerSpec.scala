@@ -288,9 +288,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
         when(mockSubscriptionService.updateSubscription(any[UserAnswers])(any(), any()))
           .thenReturn(ResultT.fromValue(testSubscriptionId))
 
-        when(mockSessionRepository.set(any[UserAnswers]))
-          .thenReturn(Future.successful(true))
-
         val request                = FakeRequest(POST, pageRoute)
         val result: Future[Result] = route(application, request).value
 

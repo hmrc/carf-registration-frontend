@@ -25,7 +25,6 @@ import pages.changeContactDetails.*
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
@@ -39,8 +38,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeOrganisationDetailsHelper,
-    view: ChangeOrganisationContactDetailsView,
-    sessionRepository: SessionRepository
+    view: ChangeOrganisationContactDetailsView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -119,10 +117,10 @@ class ChangeOrganisationContactDetailsController @Inject() (
           case Right(value)    =>
             Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logger.error(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
+            logger.error(s"[ChangeOrganisationContactDetailsController] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error           =>
-            logger.error(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+            logger.error(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
   }

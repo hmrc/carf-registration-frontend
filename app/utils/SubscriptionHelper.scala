@@ -50,7 +50,7 @@ class SubscriptionHelper {
       displayResponse  <- userAnswers.displaySubscriptionResponse
       isIndividual     <- displayResponse.isIndividualRegistrationType
       primaryContact   <- buildChangePrimaryContact(userAnswers, displayResponse)
-      carfId            = displayResponse.success.carfSubscriptionDetails.carfReference
+      carfId           <- userAnswers.subscriptionId
       tradingName       = displayResponse.success.carfSubscriptionDetails.tradingName
       gbUser            = displayResponse.success.carfSubscriptionDetails.gbUser
       secondaryContact <-
@@ -61,7 +61,7 @@ class SubscriptionHelper {
         }
     } yield SubscriptionRequest(
       idType = IdentifierType.ZCAR,
-      idNumber = carfId,
+      idNumber = carfId.value,
       tradingName = tradingName,
       gbUser = gbUser,
       primaryContact = primaryContact,

@@ -18,10 +18,10 @@ package controllers
 
 import base.SpecBase
 import forms.RegisteredAddressInUkFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{ChangeMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RegisteredAddressInUkPage
 import play.api.data.Form
@@ -41,8 +41,10 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
   val formProvider: RegisteredAddressInUkFormProvider = new RegisteredAddressInUkFormProvider()
   val form: Form[Boolean]                             = formProvider()
 
-  lazy val registeredAddressInUkControllerRoute: String =
+  lazy val registeredAddressInUkControllerNormalRoute: String     =
     routes.RegisteredAddressInUkController.onPageLoad(NormalMode).url
+  lazy val registeredAddressInUkControllerChangeModeRoute: String =
+    routes.RegisteredAddressInUkController.onPageLoad(ChangeMode).url
 
   "RegisteredAddressInUkController Controller" - {
 
@@ -51,7 +53,7 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, registeredAddressInUkControllerRoute)
+        val request = FakeRequest(GET, registeredAddressInUkControllerNormalRoute)
 
         val result = route(application, request).value
 
@@ -69,7 +71,7 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, registeredAddressInUkControllerRoute)
+        val request = FakeRequest(GET, registeredAddressInUkControllerNormalRoute)
 
         val view = application.injector.instanceOf[RegisteredAddressInUkView]
 
@@ -93,7 +95,7 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, registeredAddressInUkControllerRoute)
+          FakeRequest(POST, registeredAddressInUkControllerNormalRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -111,7 +113,7 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, registeredAddressInUkControllerRoute)
+          FakeRequest(POST, registeredAddressInUkControllerNormalRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
@@ -130,7 +132,7 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, registeredAddressInUkControllerRoute)
+        val request = FakeRequest(GET, registeredAddressInUkControllerNormalRoute)
 
         val result = route(application, request).value
 
@@ -145,13 +147,83 @@ class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, registeredAddressInUkControllerRoute)
+          FakeRequest(POST, registeredAddressInUkControllerNormalRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to information missing for a GET in ChangeMode when existing answer is yes" in {
+      val userAnswers = UserAnswers(userAnswersId).set(RegisteredAddressInUkPage, true).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, registeredAddressInUkControllerChangeModeRoute)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.InformationMissingController.onPageLoad().url
+      }
+    }
+
+    "must redirect to information missing for a GET in ChangeMode when existing answer is missing" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, registeredAddressInUkControllerChangeModeRoute)
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.InformationMissingController.onPageLoad().url
+      }
+    }
+
+    "must redirect to information missing for a POST in ChangeMode when existing answer is yes" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId).set(RegisteredAddressInUkPage, true).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, registeredAddressInUkControllerChangeModeRoute)
+            .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.InformationMissingController.onPageLoad().url
+        verify(mockSessionRepository, never()).set(any[UserAnswers])
+      }
+    }
+
+    "must allow a POST in ChangeMode when existing answer is no" in {
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId).set(RegisteredAddressInUkPage, false).success.value
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Organisation)
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, registeredAddressInUkControllerChangeModeRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(any[UserAnswers])
       }
     }
   }

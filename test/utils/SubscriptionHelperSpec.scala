@@ -855,6 +855,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
@@ -867,6 +868,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
@@ -879,6 +881,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
@@ -892,6 +895,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
 
@@ -905,7 +909,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
-            .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
             .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
@@ -922,7 +925,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
-            .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
             .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
             .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
@@ -939,7 +941,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
-            .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
             .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
@@ -956,7 +957,6 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
-            .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
             .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)

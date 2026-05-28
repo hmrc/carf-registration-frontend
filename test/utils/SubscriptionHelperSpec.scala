@@ -428,7 +428,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with trading name" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
+            .withPage(RegisteredAddressInUkPage, true)
             .withPage(FirstContactNamePage, testOrganisationFirstContactName)
             .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
             .withPage(FirstContactPhonePage, true)
@@ -436,7 +436,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(HaveTradingNamePage, true)
             .withPage(TradingNamePage, testTradingName)
             .withPage(OrganisationHaveSecondContactPage, false)
-            .withPage(RegisteredAddressInUkPage, true)
+            .copy(safeId = Some(exampleSafeId))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -459,7 +459,7 @@ class SubscriptionHelperSpec extends SpecBase {
         "should build subscription request with secondary contact" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
+            .withPage(RegisteredAddressInUkPage, true)
             .withPage(FirstContactNamePage, testOrganisationFirstContactName)
             .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
             .withPage(FirstContactPhonePage, false)
@@ -468,7 +468,7 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(OrganisationSecondContactHavePhonePage, false)
             .withPage(OrganisationSecondContactEmailPage, testOrganisationSecondEmail)
             .withPage(TradingNamePage, testTradingName)
-            .withPage(RegisteredAddressInUkPage, true)
+            .copy(safeId = Some(exampleSafeId))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 
@@ -496,13 +496,13 @@ class SubscriptionHelperSpec extends SpecBase {
         "should fall back to business name when trading name is not set" in {
           val userAnswers = emptyUserAnswers
             .copy(journeyType = Some(OrgWithoutId))
-            .copy(safeId = Some(exampleSafeId))
+            .withPage(RegisteredAddressInUkPage, true)
             .withPage(FirstContactNamePage, testOrganisationFirstContactName)
             .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
             .withPage(FirstContactPhonePage, false)
             .withPage(OrganisationHaveSecondContactPage, false)
-            .withPage(RegisteredAddressInUkPage, true)
             .withPage(OrgWithoutIdBusinessNamePage, testBusinessName)
+            .copy(safeId = Some(exampleSafeId))
 
           val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
 

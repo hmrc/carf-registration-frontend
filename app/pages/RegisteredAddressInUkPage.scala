@@ -16,11 +16,60 @@
 
 package pages
 
+import models.UserAnswers
+import pages.individual.{HaveNiNumberPage, NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
+import pages.individualWithoutId.*
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
+import pages.organisation.HaveUTRPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object RegisteredAddressInUkPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "registeredAddressInUk"
+
+  private val orgWithoutUtrPages = List(
+    OrgWithoutIdBusinessNamePage,
+    HaveTradingNamePage,
+    TradingNamePage,
+    OrganisationBusinessAddressPage
+  )
+
+  private val indWithNinoPages = List(
+    HaveNiNumberPage,
+    NiNumberPage,
+    WhatIsYourNameIndividualPage,
+    RegisterDateOfBirthPage
+  )
+
+  private val indWithoutIdPages = List(
+    HaveNiNumberPage,
+    IndWithoutNinoNamePage,
+    IndWithoutIdDateOfBirthPage,
+    WhereDoYouLivePage,
+    IndFindAddressAdditionalCallUa,
+    IndFindAddressPage,
+    IndWithoutIdAddressNonUkPage,
+    IndWithoutIdAddressPagePrePop,
+    IndWithoutIdChooseAddressPage,
+    IndWithoutIdSelectedChooseAddressPage,
+    IndWithoutIdUkAddressInUserAnswers
+  )
+
+  private val noToYesPagesToRemove = HaveUTRPage :: (orgWithoutUtrPages ++ indWithNinoPages ++ indWithoutIdPages)
+
+  override def cleanup(
+      newValue: Boolean,
+      updatedUserAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (hasChanged && newValue) {
+      updatedUserAnswers.clearMatchFlagAndSafeId
+        .remove(noToYesPagesToRemove)
+    } else {
+      Success(updatedUserAnswers)
+    }
 }

@@ -18,13 +18,14 @@ package models
 
 import play.api.libs.json.*
 
-enum RegistrationType(val code: String, val messagesKey: String):
-  case LimitedCompany extends RegistrationType("0000", "limitedCompany")
-  case Partnership extends RegistrationType("0001", "partnership")
-  case LLP extends RegistrationType("0002", "llp")
-  case Trust extends RegistrationType("0003", "trust")
-  case SoleTrader extends RegistrationType("0004", "soleTrader")
-  case Individual extends RegistrationType("Individual code not needed", "individual")
+enum RegistrationType(val code: String, val messagesKey: String, val humanReadable: String):
+  case LimitedCompany extends RegistrationType("0000", "limitedCompany", "Limited company")
+  case Partnership extends RegistrationType("0001", "partnership", "Partnership")
+  case LLP extends RegistrationType("0002", "llp", "Limited partnership or limited liability partnership")
+  case Trust extends RegistrationType("0003", "trust", "Unincorporated association or trust")
+  case SoleTrader extends RegistrationType("0004", "soleTrader", "Sole Trader")
+  case Individual
+      extends RegistrationType("Individual code not needed", "individual", "Individual not connected to a business,")
 
 object RegistrationType {
   implicit val reads: Reads[RegistrationType] = Reads {

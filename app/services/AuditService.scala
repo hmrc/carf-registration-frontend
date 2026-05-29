@@ -62,7 +62,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       registrationEvent <- ResultT.fromValue(
                              RegistrationAuditEvent(
                                affinityGroup = affinityGroup,
-                               registeredAs = userAnswers.get(RegistrationTypePage),
+                               registeredAs = userAnswers.get(RegistrationTypePage).map(_.humanReadable),
                                registeredUkAddress = userAnswers
                                  .get(RegisteredAddressInUkPage)
                                  .fold(userAnswers.get(WhereDoYouLivePage))(Some(_)),
@@ -134,12 +134,12 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
     }
 
   private def getOrganisationWithIdJourney(userAnswers: UserAnswers): Option[OrganisationWithIdJourney] =
-    (
-      userAnswers.get(UniqueTaxpayerReferenceInUserAnswers),
-      userAnswers.get(WhatIsTheNameOfYourBusinessPage),
-      userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer)
-    ).mapN { (utr, businessName, isThisYouBusiness) =>
-      OrganisationWithIdJourney(utr.uniqueTaxPayerReference, businessName, isThisYouBusiness)
+    userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer).map { isThisYouBusiness =>
+      OrganisationWithIdJourney(
+        userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference),
+        userAnswers.get(WhatIsTheNameOfYourBusinessPage),
+        isThisYouBusiness
+      )
     }
 
   private def getOrganisationWithoutIdJourney(userAnswers: UserAnswers): Option[OrganisationWithoutIdJourney] =

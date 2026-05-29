@@ -616,6 +616,16 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
       }
     }
+    
+    "when on WhatIsYourNameIndividualPage" - {
+      "must navigate to RegisterDateOfBirthController" in {
+        navigator.nextPage(
+          WhatIsYourNameIndividualPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+      }
+    }
 
     "when on an unknown page" - {
       "must navigate to JourneyRecoveryController" in {

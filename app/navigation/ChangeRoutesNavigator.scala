@@ -109,6 +109,8 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
 
     case NiNumberPage => _ => controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
 
+    case WhatIsYourNameIndividualPage => _ => controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 

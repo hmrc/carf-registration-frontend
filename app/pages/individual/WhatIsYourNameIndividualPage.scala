@@ -16,13 +16,22 @@
 
 package pages.individual
 
-import models.Name
+import models.{Name, UserAnswers}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object WhatIsYourNameIndividualPage extends QuestionPage[Name] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "whatIsYourNameIndividual"
+
+  override def cleanup(newValue: Name, updatedUserAnswers: UserAnswers, hasChanged: Boolean): Try[UserAnswers] =
+    if (hasChanged) {
+      Success(updatedUserAnswers.clearMatchFlagAndSafeId)
+    } else {
+      Success(updatedUserAnswers)
+    }
 }

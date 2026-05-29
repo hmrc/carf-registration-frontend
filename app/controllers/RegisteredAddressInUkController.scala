@@ -89,5 +89,5 @@ class RegisteredAddressInUkController @Inject() (
   private def isInvalidChangeModeRequest(mode: Mode)(implicit
       request: DataRequest[AnyContent]
   ): Boolean =
-    mode == ChangeMode && !request.userAnswers.get(RegisteredAddressInUkPage).contains(false)
+    mode == ChangeMode && request.userAnswers.get(RegisteredAddressInUkPage).contains(true)
 }

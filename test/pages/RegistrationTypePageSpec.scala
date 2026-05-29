@@ -41,6 +41,8 @@ class RegistrationTypePageSpec extends SpecBase {
     addressUk       <- arbitrary[AddressUk]
     utr             <- arbitrary[UniqueTaxpayerReference]
     itybpd          <- arbitrary[IsThisYourBusinessPageDetails]
+    addressLookup   <- arbitrary[Seq[AddressAndUPRN]]
+    longField       <- Gen.long
   } yield (
     stringField,
     booleanField,
@@ -52,7 +54,9 @@ class RegistrationTypePageSpec extends SpecBase {
     addressNonUk,
     addressUk,
     utr,
-    itybpd
+    itybpd,
+    addressLookup,
+    longField
   )
 
   "RegistrationTypePage" - {
@@ -111,6 +115,9 @@ class RegistrationTypePageSpec extends SpecBase {
           result.get(RegisterDateOfBirthPage)               mustBe empty
           result.get(IndFindAddressAdditionalCallUa)        mustBe empty
           result.get(IndFindAddressPage)                    mustBe empty
+          result.get(WhereDoYouLivePage)                    mustBe empty
+          result.get(AddressLookupPage)                     mustBe empty
+          result.get(AddressUPRNUserAnswers)                mustBe empty
           result.get(IndWithoutNinoNamePage)                mustBe empty
           result.get(IndWithoutIdAddressNonUkPage)          mustBe empty
           result.get(IndWithoutIdAddressPagePrePop)         mustBe empty
@@ -283,7 +290,9 @@ class RegistrationTypePageSpec extends SpecBase {
         addressNonUk,
         addressUk,
         utr,
-        itybpd
+        itybpd,
+        addressesAndUPRNs,
+        longField
       ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
@@ -316,7 +325,9 @@ class RegistrationTypePageSpec extends SpecBase {
         addressNonUk,
         addressUk,
         utr,
-        itybpd
+        itybpd,
+        addressesAndUPRNs,
+        longField
       ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers
@@ -328,6 +339,9 @@ class RegistrationTypePageSpec extends SpecBase {
       .withPage(RegisterDateOfBirthPage, dob)
       .withPage(IndFindAddressAdditionalCallUa, booleanField)
       .withPage(IndFindAddressPage, findAddress)
+      .withPage(WhereDoYouLivePage, booleanField)
+      .withPage(AddressLookupPage, addressesAndUPRNs)
+      .withPage(AddressUPRNUserAnswers, longField)
       .withPage(IndWithoutNinoNamePage, name)
       .withPage(IndWithoutIdAddressNonUkPage, addressNonUk)
       .withPage(IndWithoutIdAddressPagePrePop, addressUk)
@@ -352,7 +366,9 @@ class RegistrationTypePageSpec extends SpecBase {
         addressNonUk,
         addressUk,
         utr,
-        itybpd
+        itybpd,
+        addressesAndUPRNs,
+        longField
       ) <-
         testParamGenerator.suchThat(_ != null)
     } yield emptyUserAnswers

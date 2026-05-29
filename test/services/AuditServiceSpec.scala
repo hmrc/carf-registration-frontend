@@ -17,6 +17,7 @@
 package services
 
 import base.SpecBase
+import models.*
 import models.JourneyType.*
 import models.RegistrationType.*
 import models.audit.*
@@ -24,17 +25,15 @@ import models.countries.{Country, CountryUk, UnitedKingdom}
 import models.error.ApiError.InternalServerError
 import models.error.DataError
 import models.responses.AddressRegistrationResponse
-import models.*
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.*
-import pages.RegistrationTypePage
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
+import pages.individualWithoutId.*
+import pages.orgWithoutId.*
 import pages.organisation.*
-import pages.{AddressUPRNUserAnswers, IsThisYourBusinessPage, RegisteredAddressInUkPage, WhereDoYouLivePage}
+import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage}
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation

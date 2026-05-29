@@ -16,12 +16,34 @@
 
 package pages.organisation
 
+import config.Constants.*
+import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object HaveUTRPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "haveUTR"
+
+  private val withoutUtrPages =
+    indGeneralPage ++ orgWithoutIdPages ++ indWithNinoPages ++ indWithoutIdPages
+
+  override def cleanup(
+      newValue: Boolean,
+      updatedUserAnswers: UserAnswers,
+      hasChanged: Boolean
+  ): Try[UserAnswers] =
+    if (hasChanged) {
+      if (newValue) {
+        updatedUserAnswers.clearMatchFlagAndSafeId.remove(withoutUtrPages)
+      } else {
+        updatedUserAnswers.clearMatchFlagAndSafeId.remove(withUtrPages)
+      }
+    } else {
+      Success(updatedUserAnswers)
+    }
 }

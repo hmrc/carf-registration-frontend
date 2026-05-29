@@ -19,7 +19,7 @@ package services
 import cats.data.EitherT
 import cats.syntax.all.*
 import connectors.AddressLookupConnector
-import models.AddressesAndUPRN
+import models.AddressAndUPRN
 import models.error.{ApiError, CarfError}
 import models.requests.SearchByPostcodeRequest
 import models.responses.AddressResponse
@@ -34,7 +34,7 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
   def postcodeSearch(postcode: String, propertyNameOrNumber: Option[String])(implicit
       ec: ExecutionContext,
       hc: HeaderCarrier
-  ): Future[Either[CarfError, (Seq[AddressesAndUPRN], Boolean)]] = {
+  ): Future[Either[CarfError, (Seq[AddressAndUPRN], Boolean)]] = {
     val initialRequest = SearchByPostcodeRequest(postcode = postcode, filter = propertyNameOrNumber)
     {
       for {
@@ -50,7 +50,7 @@ class AddressLookupService @Inject() (addressLookupConnector: AddressLookupConne
             } yield (address, true)
           }
         (lookupResponse, additionalCall)                                = addressLookupCombinedResponse
-        addressUkAndUPRN: Seq[AddressesAndUPRN]                        <-
+        addressUkAndUPRN: Seq[AddressAndUPRN]                          <-
           EitherT.fromEither[Future](lookupResponse.traverse(AddressResponse.toDomainAddressUk))
       } yield (addressUkAndUPRN, additionalCall)
     }.value

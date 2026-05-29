@@ -20,10 +20,9 @@ import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.countries.CountryUk
 import models.requests.DataRequest
-import models.{AddressUk, AddressesAndUPRN, IndFindAddress, Mode}
+import models.{AddressAndUPRN, AddressUk, IndFindAddress, Mode}
 import navigation.Navigator
 import pages.individualWithoutId.*
-import pages.{AddressLookupPage, AddressUPRNUserAnswers}
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -94,7 +93,7 @@ class IndFindAddressController @Inject() (
 
   private def save(
       indFindAddress: IndFindAddress,
-      addressesAndUPRNs: Seq[AddressesAndUPRN],
+      addressesAndUPRNs: Seq[AddressAndUPRN],
       additionalCallMade: Boolean
   )(implicit
       request: DataRequest[AnyContent]

@@ -20,10 +20,10 @@ import controllers.routes
 import controllers.routes.CheckYourAnswersController
 import models.RegistrationType.SoleTrader
 import models.{ChangeMode, NormalMode, RegistrationType, UserAnswers}
-import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
+import pages.*
+import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.*
-import pages.*
 import play.api.libs.json.Reads
 import play.api.mvc.Call
 import utils.UserAnswersHelper
@@ -39,9 +39,6 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
 
     case RegisteredAddressInUkPage =>
       userAnswers => navigateFromRegisteredAddressInUk(userAnswers)
-
-    case HaveUTRPage =>
-      userAnswers => navigateFromHaveUTR(userAnswers)
 
     case YourUtrPageForNavigatorOnly =>
       userAnswers => navigateFromYourUniqueTaxpayerReference(userAnswers)
@@ -181,25 +178,6 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
         controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
       case Some(false) =>
         controllers.organisation.routes.HaveUTRController.onPageLoad(ChangeMode)
-      case None        =>
-        routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  private def navigateFromHaveUTR(userAnswers: UserAnswers): Call =
-    userAnswers.get(HaveUTRPage) match {
-      case Some(true)  =>
-        controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
-      case Some(false) =>
-        if (isSoleTrader(userAnswers)) {
-          controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
-        } else {
-          checkNextPageForValueThenRoute(
-            userAnswers = userAnswers,
-            page = OrgWithoutIdBusinessNamePage,
-            callWhenNotAnswered =
-              controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
-          )
-        }
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }

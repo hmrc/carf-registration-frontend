@@ -17,16 +17,19 @@
 package controllers.organisation
 
 import controllers.actions.*
+import controllers.routes
 import forms.organisation.HaveUTRFormProvider
-import models.{Mode, UniqueTaxpayerReference}
+import models.{ChangeMode, Mode, NormalMode, ProvideMode, UserAnswers}
 import navigation.Navigator
+import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.HaveUTRPage
 import play.api.Logging
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.UserAnswersHelper
 import views.html.organisation.HaveUTRView
 
 import javax.inject.Inject
@@ -40,17 +43,16 @@ class HaveUTRController @Inject() (
     getData: DataRetrievalAction,
     submissionLock: SubmissionLockAction,
     requireData: DataRequiredAction,
-    service: RegistrationService,
-    retrieveCtUTR: CtUtrRetrievalAction,
     formProvider: HaveUTRFormProvider,
     val controllerComponents: MessagesControllerComponents,
     view: HaveUTRView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
-    with Logging {
+    with Logging
+    with UserAnswersHelper {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
@@ -70,7 +72,45 @@ class HaveUTRController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(HaveUTRPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(HaveUTRPage, mode, updatedAnswers))
+            } yield Redirect(
+              handleRedirect(
+                mode = mode,
+                oldUserAnswers = request.userAnswers,
+                newUserAnswers = updatedAnswers,
+                newValue = value
+              )
+            )
         )
   }
+
+  private def handleRedirect(
+      mode: Mode,
+      oldUserAnswers: UserAnswers,
+      newUserAnswers: UserAnswers,
+      newValue: Boolean
+  ): Call =
+    mode match {
+      case NormalMode => navigator.nextPage(HaveUTRPage, mode, newUserAnswers)
+      case _          =>
+        val hasChanged = !oldUserAnswers.get(HaveUTRPage).contains(newValue)
+        changeModeNavigation(newValue = newValue, hasChanged = hasChanged, newUserAnswers)
+    }
+
+  private def changeModeNavigation(newValue: Boolean, hasChanged: Boolean, newUserAnswers: UserAnswers): Call =
+    if (newValue) {
+      controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
+    } else {
+      (hasChanged, isSoleTrader(newUserAnswers)) match {
+        case (true, true)   => controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
+        case (true, false)  => controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
+        case (false, true)  => controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
+        case (false, false) =>
+          if (newUserAnswers.get(OrgWithoutIdBusinessNamePage).isDefined) {
+            controllers.routes.CheckYourAnswersController.onPageLoad()
+          } else {
+            controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
+          }
+      }
+    }
+
 }

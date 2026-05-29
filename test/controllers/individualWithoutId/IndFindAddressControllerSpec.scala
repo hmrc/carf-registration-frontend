@@ -25,14 +25,13 @@ import models.countries.UnitedKingdom
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressUk, AddressesAndUPRN, IndFindAddress, NormalMode, UserAnswers}
+import models.{AddressAndUPRN, AddressUk, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AddressUPRNUserAnswers
-import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.{AddressUPRNUserAnswers, IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -155,7 +154,7 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any()))
         .thenReturn(
           Future.successful(
-            Right(Seq(AddressesAndUPRN(testAddressUk, testUPRN)), false)
+            Right(Seq(AddressAndUPRN(testAddressUk, testUPRN)), false)
           )
         )
 
@@ -193,9 +192,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
           Future.successful(
             Right(
               Seq(
-                AddressesAndUPRN(testAddressUk, testUPRN),
-                AddressesAndUPRN(testAddressUk, testUPRN),
-                AddressesAndUPRN(testAddressUk, testUPRN)
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN)
               ),
               false
             )
@@ -233,9 +232,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
           Future.successful(
             Right(
               Seq(
-                AddressesAndUPRN(testAddressUk, testUPRN),
-                AddressesAndUPRN(testAddressUk, testUPRN),
-                AddressesAndUPRN(testAddressUk, testUPRN)
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN)
               ),
               true
             )

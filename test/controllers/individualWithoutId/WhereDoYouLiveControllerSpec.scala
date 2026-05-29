@@ -42,6 +42,7 @@ import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
+import pages.individualWithoutId.WhereDoYouLivePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

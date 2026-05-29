@@ -18,8 +18,8 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class AddressesAndUPRN(address: AddressUk, UPRN: Long)
+case class AddressAndUPRN(address: AddressUk, UPRN: Long)
 
-object AddressesAndUPRN {
-  implicit val format: OFormat[AddressesAndUPRN] = Json.format[AddressesAndUPRN]
+object AddressAndUPRN {
+  implicit val format: OFormat[AddressAndUPRN] = Json.format[AddressAndUPRN]
 }

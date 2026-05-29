@@ -19,12 +19,11 @@ package controllers.individualWithoutId
 import base.SpecBase
 import forms.IndWithoutChooseAddressFormProvider
 import models.countries.CountryUk
-import models.{format, AddressUk, AddressesAndUPRN, IndFindAddress, NormalMode, UserAnswers}
+import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddressLookupPage, AddressUPRNUserAnswers}
 import pages.individualWithoutId.*
 import play.api.data.Form
 import play.api.inject.bind
@@ -33,7 +32,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import utils.CountryListFactory
 import views.html.IndWithoutChooseAddressView
 
 import scala.concurrent.Future
@@ -66,7 +64,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .set(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .set(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .success
           .value
           .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
@@ -100,7 +98,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .set(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .set(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .success
           .value
           .set(IndFindAddressPage, IndFindAddress(address.postCode, Some("property 1")))
@@ -140,7 +138,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
           .set(IndWithoutIdChooseAddressPage, address.format)
           .success
           .value
-          .set(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .set(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .success
           .value
           .set(IndFindAddressPage, IndFindAddress(address.postCode, None))
@@ -175,7 +173,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
     "must return Redirect to journey recovery when IndFindAddressPage or IndFindAddressAdditionalCallUa is missing in ua for GET " in {
 
       val userAnswers =
-        UserAnswers(userAnswersId).set(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN))).success.value
+        UserAnswers(userAnswersId).set(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN))).success.value
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -237,7 +235,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .withPage(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .withPage(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .withPage(IndFindAddressAdditionalCallUa, false)
 
@@ -268,7 +266,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .withPage(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .withPage(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .withPage(IndFindAddressAdditionalCallUa, false)
 
@@ -297,7 +295,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .withPage(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .withPage(IndFindAddressPage, IndFindAddress(address.postCode, None))
           .withPage(IndFindAddressAdditionalCallUa, false)
 
@@ -328,7 +326,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .withPage(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .withPage(IndFindAddressPage, IndFindAddress(address.postCode, Some("property 1")))
           .withPage(IndFindAddressAdditionalCallUa, true)
 
@@ -378,7 +376,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         UserAnswers(userAnswersId)
-          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .withPage(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))

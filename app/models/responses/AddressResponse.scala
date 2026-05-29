@@ -16,7 +16,7 @@
 
 package models.responses
 
-import models.{AddressUk, AddressesAndUPRN}
+import models.{AddressAndUPRN, AddressUk}
 import models.countries.CountryUk
 import models.error.{CarfError, ConversionError}
 import play.api.libs.json.{Json, OFormat}
@@ -33,12 +33,12 @@ object AddressResponse {
   implicit val format: OFormat[AddressResponse] = Json.format[AddressResponse]
 
   extension (addressResponse: AddressResponse)
-    def toDomainAddressUk: Either[CarfError, AddressesAndUPRN] = {
+    def toDomainAddressUk: Either[CarfError, AddressAndUPRN] = {
       val address = addressResponse.address
       address.lines match {
         case head :: next =>
           Right(
-            AddressesAndUPRN(
+            AddressAndUPRN(
               AddressUk(
                 addressLine1 = head,
                 addressLine2 = next.headOption,

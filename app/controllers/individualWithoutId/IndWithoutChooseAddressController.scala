@@ -21,10 +21,9 @@ import controllers.actions.*
 import forms.IndWithoutChooseAddressFormProvider
 import models.countries.CountryUk
 import models.requests.DataRequest
-import models.{format, AddressUk, AddressesAndUPRN, IndFindAddress, Mode, UserAnswers}
+import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator
-import pages.{AddressLookupPage, AddressUPRNUserAnswers}
-import pages.individualWithoutId.{IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutIdChooseAddressPage, IndWithoutIdSelectedChooseAddressPage, IndWithoutIdUkAddressInUserAnswers}
+import pages.individualWithoutId.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -54,7 +53,7 @@ class IndWithoutChooseAddressController @Inject() (
     with I18nSupport
     with Logging {
 
-  private case class WithRadiosResult(result: Result, addresses: Seq[AddressesAndUPRN])
+  private case class WithRadiosResult(result: Result, addresses: Seq[AddressAndUPRN])
 
   val form: Form[String] = formProvider()
 
@@ -119,7 +118,7 @@ class IndWithoutChooseAddressController @Inject() (
         )
   }
 
-  private def storeAddress(addressToStore: AddressesAndUPRN, userAnswer: UserAnswers): Future[UserAnswers] =
+  private def storeAddress(addressToStore: AddressAndUPRN, userAnswer: UserAnswers): Future[UserAnswers] =
     for {
       a                  <- Future.fromTry(userAnswer.set(IndWithoutIdSelectedChooseAddressPage, addressToStore.address))
       b                  <- Future.fromTry(a.set(IndWithoutIdUkAddressInUserAnswers, addressToStore.address))
@@ -128,7 +127,7 @@ class IndWithoutChooseAddressController @Inject() (
 
   private def findAddressToStore(mode: Mode, value: String)(implicit
       request: DataRequest[AnyContent]
-  ): Future[Option[AddressesAndUPRN]] = Future.fromTry {
+  ): Future[Option[AddressAndUPRN]] = Future.fromTry {
     val WithRadiosResult(_, addresses) = resultWithRadios(mode) { (_, _) =>
       Redirect(call = controllers.routes.JourneyRecoveryController.onPageLoad())
     }
@@ -140,7 +139,7 @@ class IndWithoutChooseAddressController @Inject() (
         if (value == noneOfTheseValue) {
           Success(None)
         } else {
-          Failure[Option[AddressesAndUPRN]](exception)
+          Failure[Option[AddressAndUPRN]](exception)
         }
       }(address => Success(Some(address)))
   }

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.individualWithoutId.IndWithoutIdAddressNonUkPage
+import pages.individualWithoutId.{AddressUPRNUserAnswers, IndWithoutIdAddressNonUkPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,7 +32,6 @@ import views.html.individualWithoutId.IndWithoutIdAddressNonUkView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import models.countries.Country
-import pages.AddressUPRNUserAnswers
 
 class IndWithoutIdAddressNonUkController @Inject() (
     override val messagesApi: MessagesApi,

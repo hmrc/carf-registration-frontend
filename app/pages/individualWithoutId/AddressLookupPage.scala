@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package pages
+package pages.individualWithoutId
 
-import models.{AddressUk, AddressesAndUPRN}
+import models.{AddressAndUPRN, AddressUk}
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object AddressLookupPage extends QuestionPage[Seq[AddressesAndUPRN]] {
+case object AddressLookupPage extends QuestionPage[Seq[AddressAndUPRN]] {
 
   override def path: JsPath = JsPath \ toString
 

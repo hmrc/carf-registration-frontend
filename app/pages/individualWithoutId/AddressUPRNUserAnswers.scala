@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package pages
+package pages.individualWithoutId
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object AddressUPRNUserAnswers extends QuestionPage[Long] {

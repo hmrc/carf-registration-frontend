@@ -18,13 +18,12 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressesAndUPRN, Name, NormalMode}
+import models.{AddressAndUPRN, Name, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.AddressLookupPage
-import pages.individualWithoutId.{IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
+import pages.individualWithoutId.{AddressLookupPage, IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
 import play.api.data.Form
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -47,7 +46,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
       val userAnswers =
-        emptyUserAnswers.set(AddressLookupPage, Seq(AddressesAndUPRN(testAddressUk, testUPRN))).success.value
+        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -107,7 +106,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when user clicks the Continue button" in {
       val userAnswers =
-        emptyUserAnswers.set(AddressLookupPage, Seq(AddressesAndUPRN(testAddressUk, testUPRN))).success.value
+        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -158,7 +157,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers
         .set(
           AddressLookupPage,
-          Seq(AddressesAndUPRN(testAddressUk, testUPRN), AddressesAndUPRN(testAddressUk, testUPRN))
+          Seq(AddressAndUPRN(testAddressUk, testUPRN), AddressAndUPRN(testAddressUk, testUPRN))
         )
         .success
         .value

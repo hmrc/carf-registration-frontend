@@ -1032,7 +1032,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
         val userAnswers =
           emptyUserAnswers
-            .set(AddressLookupPage, Seq(AddressesAndUPRN(testAddressUk, testUPRN)))
+            .set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN)))
             .success
             .value
 
@@ -1049,8 +1049,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             .set(
               AddressLookupPage,
               Seq(
-                AddressesAndUPRN(testAddressUk, testUPRN),
-                AddressesAndUPRN(testAddressUk, testUPRN)
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN)
               )
             )
             .success

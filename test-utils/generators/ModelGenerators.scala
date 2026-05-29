@@ -157,4 +157,16 @@ trait ModelGenerators {
         pageAnswer      <- Gen.option(arbitrary[Boolean])
       } yield IsThisYourBusinessPageDetails(businessDetails, pageAnswer)
     }
+
+  implicit lazy val arbitraryAddressesAndUPRNSeq: Arbitrary[Seq[AddressAndUPRN]] =
+    Arbitrary {
+      for {
+        addressUk <- arbitrary[AddressUk]
+        uprn      <- Gen.long
+      } yield Seq(
+        AddressAndUPRN(addressUk, uprn),
+        AddressAndUPRN(addressUk, uprn),
+        AddressAndUPRN(addressUk, uprn)
+      )
+    }
 }

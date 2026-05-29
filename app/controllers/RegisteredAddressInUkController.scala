@@ -58,10 +58,8 @@ class RegisteredAddressInUkController @Inject() (
         )
         Redirect(controllers.routes.InformationMissingController.onPageLoad())
       } else {
-        val preparedForm = request.userAnswers.get(RegisteredAddressInUkPage) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
+        val preparedForm =
+          request.userAnswers.get(RegisteredAddressInUkPage).fold(form)(form.fill)
 
         Ok(view(preparedForm, mode))
       }

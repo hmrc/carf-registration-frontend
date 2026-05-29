@@ -215,7 +215,7 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
       This path is a defensive backend guard, it's not reachable via UX
       because CYA does not expose the /change-registered-address-in-uk
       for this journey.
-      */
+       */
       "when user changes from Yes to No" - {
         "must retain existing answers, validated match state and safeId" in {
           val existingAnswers = baseAnswersWithValidatedMatch(registeredAddressInUk = true)

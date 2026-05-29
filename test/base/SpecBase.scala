@@ -122,18 +122,6 @@ trait SpecBase
       userAnswers.copy(data = updatedData.success.value)
     }
 
-    def withPage[T](page: Settable[T] & Gettable[T], value: T)(implicit
-        writes: Writes[T],
-        rds: Reads[T]
-    ): UserAnswers = {
-      val updatedData = userAnswers.data.setObject(page.path, Json.toJson(value)) match {
-        case JsSuccess(jsValue, _) =>
-          Success(jsValue)
-        case JsError(errors)       =>
-          Failure(JsResultException(errors))
-      }
-      userAnswers.copy(data = updatedData.success.value)
-    }
     def withoutPage[T](page: Settable[T])(implicit writes: Writes[T]): UserAnswers =
       userAnswers.remove(page).success.value
 

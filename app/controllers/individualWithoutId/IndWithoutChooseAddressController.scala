@@ -24,7 +24,6 @@ import models.requests.DataRequest
 import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator
 import pages.individualWithoutId.*
-import pages.AddressUPRNUserAnswers
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}

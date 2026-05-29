@@ -24,7 +24,6 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AddressUPRNUserAnswers
 import pages.individualWithoutId.*
 import play.api.data.Form
 import play.api.inject.bind

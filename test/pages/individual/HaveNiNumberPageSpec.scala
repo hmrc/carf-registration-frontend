@@ -42,7 +42,7 @@ class HaveNiNumberPageSpec extends SpecBase {
           .withPage(IndFindAddressAdditionalCallUa, true)
           .withPage(IndFindAddressPage, testIndFindAddress)
           .withPage(WhereDoYouLivePage, true)
-          .withPage(AddressLookupPage, Seq(AddressesAndUPRN(address, testUPRN)))
+          .withPage(AddressLookupPage, Seq(AddressAndUPRN(address, testUPRN)))
           .withPage(IndWithoutNinoNamePage, Name("Timmy", "Turner"))
           .withPage(IndWithoutIdAddressNonUkPage, testIndWithoutIdAddressNonUk)
           .withPage(IndWithoutIdAddressPagePrePop, testAddressUk)

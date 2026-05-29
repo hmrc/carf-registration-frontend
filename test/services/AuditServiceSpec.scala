@@ -29,8 +29,8 @@ import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage}
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
+import pages.individualWithoutId.*
+import pages.orgWithoutId.*
 import pages.organisation.*
 import pages.*
 import play.api.libs.json.Json

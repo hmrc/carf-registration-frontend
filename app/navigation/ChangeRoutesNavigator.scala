@@ -33,6 +33,8 @@ import play.api.libs.json.Reads
 import play.api.mvc.Call
 import utils.UserAnswersHelper
 
+import java.time.LocalDate
+
 trait ChangeRoutesNavigator extends UserAnswersHelper {
 
   val checkRouteMap: Page => UserAnswers => Call = {
@@ -109,7 +111,10 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
 
     case NiNumberPage => _ => controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
 
-    case WhatIsYourNameIndividualPage => _ => controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+    case WhatIsYourNameIndividualPage =>
+      _ => controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+
+    case RegisterDateOfBirthPage => _ => controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad()
 
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }

@@ -168,7 +168,8 @@ class NiNumberControllerSpec extends SpecBase with MockitoSugar {
         val application =
           applicationBuilder(userAnswers =
             Some(
-              emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
+              emptyUserAnswers
+                .copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
                 .withPage(NiNumberPage, "BA123456A")
             )
           )

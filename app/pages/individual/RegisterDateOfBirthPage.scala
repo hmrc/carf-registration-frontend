@@ -16,14 +16,23 @@
 
 package pages.individual
 
+import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import java.time.LocalDate
+import scala.util.{Success, Try}
 
 case object RegisterDateOfBirthPage extends QuestionPage[LocalDate] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "registerDateOfBirth"
+
+  override def cleanup(newValue: LocalDate, updatedUserAnswers: UserAnswers, hasChanged: Boolean): Try[UserAnswers] =
+    if (hasChanged) {
+      Success(updatedUserAnswers.clearMatchFlagAndSafeId)
+    } else {
+      Success(updatedUserAnswers)
+    }
 }

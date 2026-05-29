@@ -518,6 +518,14 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
+
+      "must navigate to journey recovery when answer is missing" in {
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "when on IndividualPhoneNumberPage" - {
@@ -616,8 +624,18 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
       }
     }
-    
+
     "when on WhatIsYourNameIndividualPage" - {
+      "must navigate to RegisterDateOfBirthController" in {
+        navigator.nextPage(
+          WhatIsYourNameIndividualPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+      }
+    }
+
+    "when on RegisterDateOfBirthPage" - {
       "must navigate to RegisterDateOfBirthController" in {
         navigator.nextPage(
           WhatIsYourNameIndividualPage,

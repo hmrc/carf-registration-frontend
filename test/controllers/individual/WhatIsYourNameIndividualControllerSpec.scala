@@ -70,7 +70,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
           val result = route(application, request).value
 
-          status(result) mustEqual OK
+          status(result)          mustEqual OK
           contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
         }
       }
@@ -89,7 +89,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
           val result = route(application, request).value
 
-          status(result) mustEqual OK
+          status(result)          mustEqual OK
           contentAsString(result) mustEqual view(form.fill(Name("firstName", "lastName")), NormalMode)(
             request,
             messages(application)
@@ -115,7 +115,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
           val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
+          status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
         }
       }
@@ -135,7 +135,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
           val result = route(application, request).value
 
-          status(result) mustEqual BAD_REQUEST
+          status(result)          mustEqual BAD_REQUEST
           contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
         }
       }
@@ -149,7 +149,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
           val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
+          status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
@@ -165,13 +165,13 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
           val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
+          status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }
   }
-  
+
   "Change Mode" - {
     "must redirect to the next page and clear match flag if changed" in {
 
@@ -180,7 +180,8 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
       val application =
         applicationBuilder(userAnswers =
           Some(
-            emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
+            emptyUserAnswers
+              .copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
               .withPage(WhatIsYourNameIndividualPage, Name("firstName", "lastName"))
           )
         )
@@ -196,7 +197,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
         verify(mockSessionRepository).set(
@@ -204,7 +205,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
         )
       }
     }
-    
+
     "must redirect to the next page and not clear match flag if not changed" in {
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -212,7 +213,8 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
       val application =
         applicationBuilder(userAnswers =
           Some(
-            emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
+            emptyUserAnswers
+              .copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
               .withPage(WhatIsYourNameIndividualPage, Name("firstName", "lastName"))
           )
         )
@@ -228,7 +230,7 @@ class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar 
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+        status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
         verify(mockSessionRepository).set(

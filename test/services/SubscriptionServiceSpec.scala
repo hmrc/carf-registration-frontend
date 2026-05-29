@@ -42,18 +42,10 @@ class SubscriptionServiceSpec extends SpecBase {
   val userAnswers: UserAnswers = emptyUserAnswers
     .copy(journeyType = Some(JourneyType.IndWithNino))
     .copy(safeId = Some(exampleSafeId))
-    .set(WhatIsYourNameIndividualPage, Name("John", "Doe"))
-    .success
-    .value
-    .set(IndividualEmailPage, "john.doe@example.com")
-    .success
-    .value
-    .set(IndividualHavePhonePage, true)
-    .success
-    .value
-    .set(IndividualPhoneNumberPage, "01234567890")
-    .success
-    .value
+    .withPage(IndividualEmailPage, "john.doe@example.com")
+    .withPage(IndividualHavePhonePage, true)
+    .withPage(IndividualPhoneNumberPage, "01234567890")
+    .withPage(WhatIsYourNameIndividualPage, Name("John", "Doe"))
 
   val exampleSubscriptionDisplayResponse = DisplaySubscriptionResponse(
     success = DisplaySubscriptionSuccess(

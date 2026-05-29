@@ -22,6 +22,7 @@ import models.RegistrationType.*
 import models.{ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.individual.IndividualEmailPage
 import pages.individual.*
@@ -585,13 +586,13 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           HaveNiNumberPage,
           ChangeMode,
           userAnswers
-        ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(ChangeMode)
       }
 
-      "must navigate to CheckYourAnswersController when answer is no and WhatIsYourNameIndividualPage has already been answered" in {
+      "must navigate to CheckYourAnswersController when answer is no and IndWithoutNinoNamePage has already been answered" in {
         val userAnswers = emptyUserAnswers
           .withPage(HaveNiNumberPage, false)
-          .withPage(WhatIsYourNameIndividualPage, Name("Timmy", "McFly"))
+          .withPage(IndWithoutNinoNamePage, Name("Timmy", "McFly"))
 
         navigator.nextPage(
           HaveNiNumberPage,

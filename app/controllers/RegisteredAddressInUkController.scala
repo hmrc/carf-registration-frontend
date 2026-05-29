@@ -52,42 +52,24 @@ class RegisteredAddressInUkController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
-      if (isInvalidChangeModeRequest(mode)) {
-        logger.warn(
-          "[RegisteredAddressInUkController] Invalid ChangeMode access for registered-address-in-uk. Redirecting to information missing."
-        )
-        Redirect(controllers.routes.InformationMissingController.onPageLoad())
-      } else {
-        val preparedForm =
-          request.userAnswers.get(RegisteredAddressInUkPage).fold(form)(form.fill)
+      val preparedForm =
+        request.userAnswers.get(RegisteredAddressInUkPage).fold(form)(form.fill)
 
-        Ok(view(preparedForm, mode))
-      }
+      Ok(view(preparedForm, mode))
+
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      if (isInvalidChangeModeRequest(mode)) {
-        logger.warn(
-          "[RegisteredAddressInUkController] Invalid ChangeMode submit for registered-address-in-uk. Redirecting to information missing."
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisteredAddressInUkPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(RegisteredAddressInUkPage, mode, updatedAnswers))
         )
-        Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
-      } else {
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(RegisteredAddressInUkPage, value))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(RegisteredAddressInUkPage, mode, updatedAnswers))
-          )
-      }
   }
-
-  private def isInvalidChangeModeRequest(mode: Mode)(implicit
-      request: DataRequest[AnyContent]
-  ): Boolean =
-    mode == ChangeMode && request.userAnswers.get(RegisteredAddressInUkPage).contains(true)
 }

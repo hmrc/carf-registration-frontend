@@ -143,7 +143,7 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
           userAnswers = userAnswers,
           page = WhatIsYourNameIndividualPage,
           callWhenNotAnswered =
-            controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
+            controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(ChangeMode)
         )
 
       case None =>

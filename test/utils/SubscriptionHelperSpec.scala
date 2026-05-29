@@ -643,13 +643,12 @@ class SubscriptionHelperSpec extends SpecBase {
       "for Individual updating details" - {
         "should build updated subscription request successfully with all required fields" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
             .withPage(ChangeDetailsIndividualHavePhonePage, true)
             .withPage(ChangeDetailsIndividualPhoneNumberPage, testIndividualPhone)
 
-          val result = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe defined
           val request = result.get
@@ -669,12 +668,12 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build updated subscription request without optional phone number" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
             .withPage(ChangeDetailsIndividualHavePhonePage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result                          mustBe defined
           result.get.primaryContact.phone mustBe None
@@ -682,7 +681,6 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should return None when name is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse =
               Some(
                 testIndividualSubscriptionDisplayResponse.copy(
@@ -708,41 +706,42 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
             .withPage(ChangeDetailsIndividualHavePhonePage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when email is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .withPage(ChangeDetailsIndividualHavePhonePage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when have phone is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when phone is missing and have phone was 'yes'" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
             .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
             .withPage(ChangeDetailsIndividualHavePhonePage, true)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
@@ -751,7 +750,6 @@ class SubscriptionHelperSpec extends SpecBase {
       "for Organisation updating details" - {
         "should build updated subscription request with primary contact only" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -759,7 +757,8 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe defined
           val request = result.get
@@ -779,7 +778,6 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build updated subscription request with primary and secondary contact" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -791,7 +789,8 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
             .withPage(ChangeDetailsOrgSecondPhoneNumberPage, testOrganisationSecondPhone)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe defined
           val request = result.get
@@ -817,14 +816,14 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build updated subscription request without optional phone number" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result                          mustBe defined
           result.get.primaryContact.phone mustBe None
@@ -832,7 +831,6 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should build updated subscription request without optional second contact phone number" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -843,7 +841,8 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
             .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result                                mustBe defined
           result.get.secondaryContact.get.phone mustBe None
@@ -851,60 +850,59 @@ class SubscriptionHelperSpec extends SpecBase {
 
         "should return None when primary contact name is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when primary contact email is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when primary contact have phone is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when primary contact phone is missing when have phone was 'yes'" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
             .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
             .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when secondary contact is required but name is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -913,14 +911,14 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
             .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when secondary contact is required but email is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -929,14 +927,14 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
             .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when secondary contact is required but have phone is missing" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -945,14 +943,14 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }
 
         "should return None when secondary contact is required but phone is missing when have phone was 'yes'" in {
           val userAnswers = emptyUserAnswers
-            .copy(subscriptionId = Some(testSubscriptionId))
             .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
             .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
             .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
@@ -962,7 +960,8 @@ class SubscriptionHelperSpec extends SpecBase {
             .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
             .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
 
-          val result: Option[SubscriptionRequest] = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers)
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
 
           result mustBe None
         }

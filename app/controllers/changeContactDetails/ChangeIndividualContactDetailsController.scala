@@ -85,7 +85,7 @@ class ChangeIndividualContactDetailsController @Inject() (
   def onSubmit(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
       subscriptionService
-        .updateSubscription(request.userAnswers)
+        .updateSubscription(request.userAnswers, request.subscriptionId.value)
         .value
         .map {
           case Right(value)    =>

@@ -132,7 +132,7 @@ class SubscriptionServiceSpec extends SpecBase {
           EitherT.rightT[Future, ApiError](exampleSubscriptionId)
         )
 
-        val result = testService.updateSubscription(updatedUserAnswers).value.futureValue
+        val result = testService.updateSubscription(updatedUserAnswers, exampleSubscriptionId.value).value.futureValue
 
         result mustBe Right(exampleSubscriptionId)
         verify(mockConnector).updateSubscription(any[SubscriptionRequest])(any(), any())
@@ -143,13 +143,13 @@ class SubscriptionServiceSpec extends SpecBase {
           EitherT.leftT[Future, SubscriptionId](InternalServerError)
         )
 
-        val result = testService.updateSubscription(updatedUserAnswers).value.futureValue
+        val result = testService.updateSubscription(updatedUserAnswers, exampleSubscriptionId.value).value.futureValue
 
         result mustBe Left(InternalServerError)
       }
 
       "should return BadRequestError when there is a problem with userAnswers" in {
-        val result = testService.updateSubscription(emptyUserAnswers).value.futureValue
+        val result = testService.updateSubscription(emptyUserAnswers, exampleSubscriptionId.value).value.futureValue
 
         result mustBe Left(
           MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")

@@ -285,7 +285,7 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
 
     "onSubmit" - {
       "must redirect to success page if update subscription is successful" in new Setup(emptyUserAnswers) {
-        when(mockSubscriptionService.updateSubscription(any[UserAnswers])(any(), any()))
+        when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
           .thenReturn(ResultT.fromValue(testSubscriptionId))
 
         val request                = FakeRequest(POST, pageRoute)
@@ -297,10 +297,10 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .onPageLoad()
           .url
 
-        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers])(any(), any())
+        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers], any[String])(any(), any())
       }
       "must redirect to journey recovery if update subscription is unsuccessful" in new Setup(emptyUserAnswers) {
-        when(mockSubscriptionService.updateSubscription(any[UserAnswers])(any(), any()))
+        when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
           .thenReturn(ResultT.fromError(InternalServerError))
 
         val request                = FakeRequest(POST, pageRoute)
@@ -308,7 +308,7 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers])(any(), any())
+        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers], any[String])(any(), any())
       }
       "must redirect to journey recovery if no existing data is found" in {
         val application = applicationBuilder(userAnswers = None).build()

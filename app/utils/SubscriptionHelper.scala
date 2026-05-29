@@ -45,12 +45,11 @@ class SubscriptionHelper {
       secondaryContact = secondaryContact
     )
 
-  def buildUpdatedSubscriptionRequest(userAnswers: UserAnswers): Option[SubscriptionRequest] =
+  def buildUpdatedSubscriptionRequest(userAnswers: UserAnswers, carfId: String): Option[SubscriptionRequest] =
     for {
       displayResponse  <- userAnswers.displaySubscriptionResponse
       isIndividual     <- displayResponse.isIndividualRegistrationType
       primaryContact   <- buildChangePrimaryContact(userAnswers, displayResponse)
-      carfId           <- userAnswers.subscriptionId
       tradingName       = displayResponse.success.carfSubscriptionDetails.tradingName
       gbUser            = displayResponse.success.carfSubscriptionDetails.gbUser
       secondaryContact <-
@@ -61,7 +60,7 @@ class SubscriptionHelper {
         }
     } yield SubscriptionRequest(
       idType = IdentifierType.ZCAR,
-      idNumber = carfId.value,
+      idNumber = carfId,
       tradingName = tradingName,
       gbUser = gbUser,
       primaryContact = primaryContact,

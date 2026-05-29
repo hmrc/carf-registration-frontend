@@ -73,11 +73,11 @@ class SubscriptionService @Inject() (
         error
       }
 
-  def updateSubscription(userAnswers: UserAnswers)(implicit
+  def updateSubscription(userAnswers: UserAnswers, carfId: String)(implicit
       hc: HeaderCarrier,
       ec: ExecutionContext
   ): ResultT[SubscriptionId] =
-    subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers) match {
+    subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, carfId) match {
       case Some(request) =>
         subscriptionConnector
           .updateSubscription(request)

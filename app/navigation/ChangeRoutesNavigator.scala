@@ -25,6 +25,7 @@ import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, Or
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.*
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.*
 import play.api.libs.json.Reads
@@ -141,7 +142,7 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
       case Some(false) =>
         checkNextPageForValueThenRoute(
           userAnswers = userAnswers,
-          page = WhatIsYourNameIndividualPage,
+          page = IndWithoutNinoNamePage,
           callWhenNotAnswered =
             controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(ChangeMode)
         )

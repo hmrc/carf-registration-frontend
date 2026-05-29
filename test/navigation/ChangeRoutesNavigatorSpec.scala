@@ -21,8 +21,8 @@ import controllers.routes
 import models.RegistrationType.*
 import models.{ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
-import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.individual.*
+import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
@@ -604,6 +604,16 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           ChangeMode,
           emptyUserAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on NiNumberPage" - {
+      "must navigate to WhatIsYourNameIndividualController" in {
+        navigator.nextPage(
+          NiNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
       }
     }
 

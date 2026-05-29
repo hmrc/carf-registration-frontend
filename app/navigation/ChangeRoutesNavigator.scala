@@ -27,6 +27,7 @@ import pages.*
 import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
+import pages.individual.*
 import pages.organisation.*
 import play.api.libs.json.Reads
 import play.api.mvc.Call
@@ -105,6 +106,8 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
 
     case IndividualPhoneNumberPage =>
       _ => CheckYourAnswersController.onPageLoad()
+
+    case NiNumberPage => _ => controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
 
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }

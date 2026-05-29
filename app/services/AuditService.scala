@@ -59,47 +59,42 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       affinityGroup: AffinityGroup
   ): ResultT[Unit] =
     for {
-      registrationEvent <- userAnswers
-                             .get(RegistrationTypePage)
-                             .fold(
-                               ResultT.fromError[RegistrationAuditEvent](DataError)
-                             ) { regType =>
-                               ResultT.fromValue(
-                                 RegistrationAuditEvent(
-                                   affinityGroup = affinityGroup,
-                                   registeredAs = regType,
-                                   registeredUkAddress = userAnswers
-                                     .get(RegisteredAddressInUkPage)
-                                     .fold(userAnswers.get(WhereDoYouLivePage))(Some(_)),
-                                   hasUtr = userAnswers.get(HaveUTRPage),
-                                   hasNINO = userAnswers.get(HaveNiNumberPage),
-                                   soleTraderWithUTRJourney = if (journeyType == IndWithUtr) {
-                                     getUtrJourneyType(userAnswers)
-                                   } else None,
-                                   organisationWithIdJourney = if (journeyType == OrgWithUtr) {
-                                     getOrganisationWithIdJourney(userAnswers)
-                                   } else None,
-                                   organisationWithoutIdJourney = if (journeyType == OrgWithoutId) {
-                                     getOrganisationWithoutIdJourney(userAnswers)
-                                   } else None,
-                                   withNinoJourney = if (journeyType == IndWithNino) {
-                                     getWithNinoJourney(userAnswers)
-                                   } else None,
-                                   individualWithoutIdJourney = if (journeyType == IndWithoutId) {
-                                     getIndividualWithoutIdJourney(userAnswers)
-                                   } else None,
-                                   individualContactDetails = journeyType match {
-                                     case IndWithNino | IndWithoutId             => getIndividualContactDetails(userAnswers)
-                                     case OrgWithUtr | OrgWithoutId | IndWithUtr => None
-                                   },
-                                   organisationContactDetails = journeyType match {
-                                     case OrgWithUtr | OrgWithoutId | IndWithUtr =>
-                                       getOrganisationContactDetails(userAnswers)
-                                     case IndWithNino | IndWithoutId             => None
-                                   }
-                                 )
-                               )
-                             }
+      registrationEvent <- ResultT.fromValue(
+                             RegistrationAuditEvent(
+                               affinityGroup = affinityGroup,
+                               registeredAs = userAnswers.get(RegistrationTypePage).map(_.humanReadable),
+                               registeredUkAddress = userAnswers
+                                 .get(RegisteredAddressInUkPage)
+                                 .fold(userAnswers.get(WhereDoYouLivePage))(Some(_)),
+                               hasUtr = userAnswers.get(HaveUTRPage),
+                               hasNINO = userAnswers.get(HaveNiNumberPage),
+                               soleTraderWithUTRJourney = if (journeyType == IndWithUtr) {
+                                 getUtrJourneyType(userAnswers)
+                               } else None,
+                               organisationWithIdJourney = if (journeyType == OrgWithUtr) {
+                                 getOrganisationWithIdJourney(userAnswers)
+                               } else None,
+                               organisationWithoutIdJourney = if (journeyType == OrgWithoutId) {
+                                 getOrganisationWithoutIdJourney(userAnswers)
+                               } else None,
+                               withNinoJourney = if (journeyType == IndWithNino) {
+                                 getWithNinoJourney(userAnswers)
+                               } else None,
+                               individualWithoutIdJourney = if (journeyType == IndWithoutId) {
+                                 getIndividualWithoutIdJourney(userAnswers)
+                               } else None,
+                               individualContactDetails = journeyType match {
+                                 case IndWithNino | IndWithoutId | IndWithUtr =>
+                                   getIndividualContactDetails(userAnswers)
+                                 case OrgWithUtr | OrgWithoutId               => None
+                               },
+                               organisationContactDetails = journeyType match {
+                                 case OrgWithUtr | OrgWithoutId               =>
+                                   getOrganisationContactDetails(userAnswers)
+                                 case IndWithNino | IndWithoutId | IndWithUtr => None
+                               }
+                             )
+                           )
       extendedEvent      = convertToExtendedEvent(registrationEvent.toJson, "Registration")
       _                 <- ResultT.fromFuture(
                              auditConnector.sendExtendedEvent(extendedEvent).map {
@@ -139,12 +134,12 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
     }
 
   private def getOrganisationWithIdJourney(userAnswers: UserAnswers): Option[OrganisationWithIdJourney] =
-    (
-      userAnswers.get(UniqueTaxpayerReferenceInUserAnswers),
-      userAnswers.get(WhatIsTheNameOfYourBusinessPage),
-      userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer)
-    ).mapN { (utr, businessName, isThisYouBusiness) =>
-      OrganisationWithIdJourney(utr.uniqueTaxPayerReference, businessName, isThisYouBusiness)
+    userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer).map { isThisYouBusiness =>
+      OrganisationWithIdJourney(
+        userAnswers.get(UniqueTaxpayerReferenceInUserAnswers).map(_.uniqueTaxPayerReference),
+        userAnswers.get(WhatIsTheNameOfYourBusinessPage),
+        isThisYouBusiness
+      )
     }
 
   private def getOrganisationWithoutIdJourney(userAnswers: UserAnswers): Option[OrganisationWithoutIdJourney] =

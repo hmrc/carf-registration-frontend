@@ -22,7 +22,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 
 case class RegistrationAuditEvent(
     affinityGroup: AffinityGroup,
-    registeredAs: RegistrationType,
+    registeredAs: Option[String],
     registeredUkAddress: Option[Boolean],
     hasUtr: Option[Boolean],
     hasNINO: Option[Boolean],
@@ -55,8 +55,8 @@ object UtrJourneyAuditEvent {
 }
 
 case class OrganisationWithIdJourney(
-    utr: String,
-    businessName: String,
+    utr: Option[String],
+    businessName: Option[String],
     isThisYourBusiness: Boolean
 )
 

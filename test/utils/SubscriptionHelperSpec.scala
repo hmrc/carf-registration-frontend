@@ -57,7 +57,6 @@ class SubscriptionHelperSpec extends SpecBase {
   )
 
   val testIndWithoutIdAddressGb: AddressUk = testIndWithoutIdAddress.copy(countryUk = CountryUk("GB", "United Kingdom"))
-  val testIndFindAddress: IndFindAddress   = IndFindAddress("SW1A 1AA", Some("10"))
 
   "SubscriptionHelper" - {
 

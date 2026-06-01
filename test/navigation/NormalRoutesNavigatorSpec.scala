@@ -29,7 +29,7 @@ import pages.*
 import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
+import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
 import java.time.LocalDate
@@ -290,6 +290,15 @@ class NormalRoutesNavigatorSpec extends SpecBase {
             userAnswers
           ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
         }
+      }
+      "must navigate to Journey Recovery when no answer is provided" in {
+        val userAnswers = UserAnswers("id")
+
+        navigator.nextPage(
+          HaveNiNumberPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
@@ -576,6 +585,36 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       }
     }
 
+    "when on OrgWithoutIdBusinessNamePage" - {
+      "must navigate to HaveTradingNameController" in {
+        val userAnswers = emptyUserAnswers
+          .set(OrgWithoutIdBusinessNamePage, "TestName")
+          .success
+          .value
+
+        navigator.nextPage(
+          OrgWithoutIdBusinessNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.orgWithoutId.routes.HaveTradingNameController.onPageLoad(NormalMode)
+      }
+    }
+
+    "when on TradingNamePage" - {
+      "must navigate to OrganisationBusinessAddressController" in {
+        val userAnswers = emptyUserAnswers
+          .set(TradingNamePage, "Test Trading Name")
+          .success
+          .value
+
+        navigator.nextPage(
+          TradingNamePage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
+      }
+    }
+
     "must navigate from WhatIsYourName to IsThisYourBusiness page for matched Individual SoleTrader" in {
 
       val updatedAnswers =
@@ -674,8 +713,33 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
     "OrganisationBusinessAddressPage navigation" - {
 
-      "must navigate from OrganisationBusinessAddressPage to the next page in the journey" in {
+      "must navigate to CheckYourAnswersController when FirstContactName has been answered" in {
+        val userAnswers = emptyUserAnswers
+          .set(
+            OrganisationBusinessAddressPage,
+            OrganisationBusinessAddress(
+              "Address Line 1",
+              Some("Address Line 2"),
+              "City",
+              Some("Region"),
+              Some("Postcode"),
+              Country("FR", "France")
+            )
+          )
+          .success
+          .value
+          .set(FirstContactNamePage, "John Doe")
+          .success
+          .value
 
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to OrgYourContactDetailsController when FirstContactName has not been answered" in {
         val userAnswers = emptyUserAnswers
           .set(
             OrganisationBusinessAddressPage,
@@ -698,6 +762,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
       }
     }
+
     "RegisterDateOfBirth navigation" - {
       "must navigate from RegisterDateOfBirth to RegisterIdentityConfirmed for SoleTrader without UTR and valid IndividualDetails" in {
         val userAnswers =

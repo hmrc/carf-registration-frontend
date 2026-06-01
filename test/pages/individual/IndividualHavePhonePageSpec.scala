@@ -23,8 +23,6 @@ import controllers.routes
 
 class IndividualHavePhonePageSpec extends SpecBase {
 
-  val navigator = new Navigator()
-
   "IndividualHavePhonePage" - {
     "cleanup" - {
       "must remove individual phone number when answer changes to no" in {
@@ -49,14 +47,6 @@ class IndividualHavePhonePageSpec extends SpecBase {
         val result = IndividualHavePhonePage.cleanup(false, ua, hasChanged = false).success.value
 
         result.get(IndividualPhoneNumberPage) mustBe Some(testPhone)
-      }
-
-      "must navigate to journey recovery when answer is missing" in {
-        navigator.nextPage(
-          IndividualHavePhonePage,
-          ChangeMode,
-          emptyUserAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

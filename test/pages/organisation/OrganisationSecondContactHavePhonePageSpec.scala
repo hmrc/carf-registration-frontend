@@ -23,8 +23,6 @@ import controllers.routes
 
 class OrganisationSecondContactHavePhonePageSpec extends SpecBase {
 
-  val navigator = new Navigator()
-
   "OrganisationSecondContactHavePhonePage" - {
     "cleanup" - {
       "must remove second contact phone number when answer changes to no" in {
@@ -49,14 +47,6 @@ class OrganisationSecondContactHavePhonePageSpec extends SpecBase {
         val result = OrganisationSecondContactHavePhonePage.cleanup(false, ua, hasChanged = false).success.value
 
         result.get(OrganisationSecondContactPhoneNumberPage) mustBe Some(testPhone)
-      }
-
-      "must navigate to journey recovery when answer is missing" in {
-        navigator.nextPage(
-          OrganisationSecondContactHavePhonePage,
-          ChangeMode,
-          emptyUserAnswers
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

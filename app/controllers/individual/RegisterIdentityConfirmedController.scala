@@ -17,8 +17,9 @@
 package controllers.individual
 
 import controllers.actions.*
-import models.{ChangeMode, Mode, NormalMode}
+import models.{ChangeMode, Mode, NormalMode, ProvideMode}
 import pages.individual.IndividualEmailPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -35,7 +36,8 @@ class RegisterIdentityConfirmedController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     view: RegisterIdentityConfirmedView
 ) extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   lazy val emailUrl: Mode => String =
     mode => controllers.individual.routes.IndividualEmailController.onPageLoad(mode).url
@@ -44,11 +46,14 @@ class RegisterIdentityConfirmedController @Inject() (
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       val continueUrl =
         mode match {
-          case NormalMode => emailUrl(NormalMode)
-          case ChangeMode =>
+          case NormalMode  => emailUrl(NormalMode)
+          case ChangeMode  =>
             if request.userAnswers.get(IndividualEmailPage).isDefined then
               controllers.routes.CheckYourAnswersController.onPageLoad().url
             else emailUrl(ChangeMode)
+          case ProvideMode =>
+            logger.warn("Unsupported navigation for Provide mode on Identity confirmed page")
+            controllers.routes.JourneyRecoveryController.onPageLoad().url
         }
       Ok(view(continueUrl))
     }

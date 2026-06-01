@@ -107,6 +107,7 @@ POST        /register/change-date-of-birth                                      
 
 GET         /register/identity-confirmed                                        controllers.individual.RegisterIdentityConfirmedController.onPageLoad(mode: Mode = NormalMode)
 GET         /register/change-identity-confirmed                                 controllers.individual.RegisterIdentityConfirmedController.onPageLoad(mode: Mode = ChangeMode)
+GET         /register/provide-identity-confirmed                                controllers.individual.RegisterIdentityConfirmedController.onPageLoad(mode: Mode = ProvideMode)
 
 GET         /register/contact-name                                              controllers.organisation.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/contact-name                                              controllers.organisation.FirstContactNameController.onSubmit(mode: Mode = NormalMode)

@@ -16,6 +16,7 @@
 
 package navigation
 
+import config.Constants.noneOfTheseValue
 import controllers.routes
 import controllers.routes.CheckYourAnswersController
 import models.RegistrationType.SoleTrader
@@ -28,7 +29,7 @@ import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePh
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage, WhereDoYouLivePage}
+import pages.individualWithoutId.{IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdAddressNonUkPage, IndWithoutIdAddressPageForNavigatorOnly, IndWithoutIdChooseAddressPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage, WhereDoYouLivePage}
 import pages.organisation.*
 import play.api.libs.json.Reads
 import play.api.mvc.Call
@@ -36,7 +37,7 @@ import utils.UserAnswersHelper
 
 trait ChangeRoutesNavigator extends UserAnswersHelper {
 
-  val checkRouteMap: Page => UserAnswers => Call = {
+  val checkRouteMap: Page => UserAnswers => Call                             = {
     case NavigatorOnlyIndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
@@ -116,11 +117,22 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     case RegisterDateOfBirthPage =>
       _ => controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(ChangeMode)
 
-    case IndWithoutNinoNamePage => _ => CheckYourAnswersController.onPageLoad()
-    case IndWithoutIdDateOfBirthPage => _ => CheckYourAnswersController.onPageLoad()
-    case WhereDoYouLivePage => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
-    case _ => _ => routes.JourneyRecoveryController.onPageLoad()
+    case IndWithoutNinoNamePage                      => _ => CheckYourAnswersController.onPageLoad()
+    case IndWithoutIdDateOfBirthPage                 => _ => CheckYourAnswersController.onPageLoad()
+    case WhereDoYouLivePage                          => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
+    case IndWithoutIdAddressNonUkPage                => userAnswers => navigateFromAddressNonUk(userAnswers)
+    case IndWithoutIdChooseAddressPage               => userAnswers => navigateFromChooseAddressPage(userAnswers)
+    case IndReviewConfirmAddressPageForNavigatorOnly =>
+      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
+    case IndWithoutIdAddressPageForNavigatorOnly     => userAnswers => navigateFromIndWithoutIdAddressPage(userAnswers)
+    case _                                           => _ => routes.JourneyRecoveryController.onPageLoad()
   }
+  private def ifIndividualEmailIsPresentNavigation(userAnswers: UserAnswers) =
+    userAnswers
+      .get(IndividualEmailPage)
+      .fold(
+        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      )(_ => CheckYourAnswersController.onPageLoad())
 
   private def navigateFromHaveTradingName(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveTradingNamePage) match {
@@ -164,13 +176,36 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
+  private def navigateFromAddressNonUk(userAnswers: UserAnswers) =
+    ifIndividualEmailIsPresentNavigation(userAnswers)
+
+  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers) =
+    ifIndividualEmailIsPresentNavigation(userAnswers)
+
+  private def navigateFromIndWithoutIdAddressPage(userAnswers: UserAnswers) =
+    ifIndividualEmailIsPresentNavigation(userAnswers)
+
   private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers) = {
     userAnswers.get(WhereDoYouLivePage) match {
-      case Some(true) => controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
-      case Some(false) => controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
-      case None => routes.JourneyRecoveryController.onPageLoad()
+      case Some(true)  => controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      case Some(false) =>
+        controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
+      case None        => routes.JourneyRecoveryController.onPageLoad()
     }
   }
+
+  private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =
+    userAnswers
+      .get(IndWithoutIdChooseAddressPage)
+      .fold {
+        routes.JourneyRecoveryController.onPageLoad()
+      } { answer =>
+        if (answer == noneOfTheseValue) {
+          controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
+        } else {
+          ifIndividualEmailIsPresentNavigation(userAnswers)
+        }
+      }
 
   private def navigateFromChangeFirstContactHavePhone(userAnswers: UserAnswers): Call =
     userAnswers.get(FirstContactPhonePage) match {

@@ -21,10 +21,7 @@ import controllers.routes
 import models.RegistrationType.*
 import models.{ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
-import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
-import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
-import pages.individual.IndividualEmailPage
 import pages.individual.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
@@ -586,7 +583,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           HaveNiNumberPage,
           ChangeMode,
           userAnswers
-        ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(ChangeMode)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutNinoNameController.onPageLoad(NormalMode)
       }
 
       "must navigate to CheckYourAnswersController when answer is no and IndWithoutNinoNamePage has already been answered" in {

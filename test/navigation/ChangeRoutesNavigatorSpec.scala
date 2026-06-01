@@ -22,7 +22,7 @@ import models.RegistrationType.*
 import models.{ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.IndWithoutNinoNamePage
+import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage, WhereDoYouLivePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
@@ -638,10 +638,56 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
     "when on RegisterDateOfBirthPage" - {
       "must navigate to RegisterDateOfBirthController" in {
         navigator.nextPage(
-          WhatIsYourNameIndividualPage,
+          RegisterDateOfBirthPage,
           ChangeMode,
           emptyUserAnswers
-        ) mustBe controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+        ) mustBe controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(ChangeMode)
+      }
+    }
+
+    "when on IndWithoutNinoNamePage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          IndWithoutNinoNamePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on IndWithoutIdDateOfBirthPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          IndWithoutIdDateOfBirthPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on WhereDoYouLivePage" - {
+      "must navigate to IndFindAddressController when answer is true" in {
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          ChangeMode,
+          emptyUserAnswers.withPage(WhereDoYouLivePage, true)
+        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to IndWithoutIdAddressNonUkController when answer is false" in {
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          ChangeMode,
+          emptyUserAnswers.withPage(WhereDoYouLivePage, false)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to JourneyRecoveryController when answer cannot be found" in {
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
 

@@ -28,12 +28,11 @@ import pages.individual.{HaveNiNumberPage, IndividualEmailPage, IndividualHavePh
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.individual.*
+import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage, WhereDoYouLivePage}
 import pages.organisation.*
 import play.api.libs.json.Reads
 import play.api.mvc.Call
 import utils.UserAnswersHelper
-
-import java.time.LocalDate
 
 trait ChangeRoutesNavigator extends UserAnswersHelper {
 
@@ -117,6 +116,9 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     case RegisterDateOfBirthPage =>
       _ => controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(ChangeMode)
 
+    case IndWithoutNinoNamePage => _ => CheckYourAnswersController.onPageLoad()
+    case IndWithoutIdDateOfBirthPage => _ => CheckYourAnswersController.onPageLoad()
+    case WhereDoYouLivePage => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -161,6 +163,14 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers) = {
+    userAnswers.get(WhereDoYouLivePage) match {
+      case Some(true) => controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+      case Some(false) => controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
+      case None => routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 
   private def navigateFromChangeFirstContactHavePhone(userAnswers: UserAnswers): Call =
     userAnswers.get(FirstContactPhonePage) match {

@@ -185,14 +185,13 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
   private def navigateFromIndWithoutIdAddressPage(userAnswers: UserAnswers) =
     ifIndividualEmailIsPresentNavigation(userAnswers)
 
-  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers) = {
+  private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers) =
     userAnswers.get(WhereDoYouLivePage) match {
       case Some(true)  => controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
       case Some(false) =>
         controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
       case None        => routes.JourneyRecoveryController.onPageLoad()
     }
-  }
 
   private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =
     userAnswers

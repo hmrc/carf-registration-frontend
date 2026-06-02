@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressAndUPRN, Name, NormalMode}
+import models.{AddressAndUPRN, ChangeMode, Name, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -38,6 +38,9 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val indReviewConfirmAddressRoute: String =
     controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode).url
+
+  lazy val indReviewConfirmAddressRouteChangeMode: String =
+    controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(ChangeMode).url
 
   lazy val indReviewConfirmAddressOnSubmitRoute: String =
     controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onSubmit(NormalMode).url
@@ -64,6 +67,32 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(testAddressUk, NormalMode, editAddressLink)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET for change mode" in {
+      val userAnswers =
+        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(
+          GET,
+          indReviewConfirmAddressRouteChangeMode
+        )
+
+        val result = route(application, request).value
+
+        val view            = application.injector.instanceOf[IndReviewConfirmAddressView]
+        val editAddressLink =
+          controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(ChangeMode).url
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(testAddressUk, ChangeMode, editAddressLink)(
           request,
           messages(application)
         ).toString

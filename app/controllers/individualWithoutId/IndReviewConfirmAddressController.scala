@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
-import models.{Mode, NormalMode}
+import models.{ChangeMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.individualWithoutId.{AddressLookupPage, IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
 import play.api.Logging
@@ -51,7 +51,7 @@ class IndReviewConfirmAddressController @Inject() (
 
       val editAddressLink: String =
         controllers.individualWithoutId.routes.IndWithoutIdAddressController
-          .onPageLoad(NormalMode)
+          .onPageLoad(mode)
           .url
 
       request.userAnswers.get(AddressLookupPage) match {

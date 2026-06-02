@@ -39,19 +39,19 @@ class RegisterIdentityConfirmedController @Inject() (
     with I18nSupport
     with Logging {
 
-  lazy val emailUrl: Mode => String =
-    mode => controllers.individual.routes.IndividualEmailController.onPageLoad(mode).url
+  private lazy val emailUrl: String =
+    controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       val continueUrl =
         mode match {
-          case NormalMode  => emailUrl(NormalMode)
-          case ChangeMode  =>
+          case NormalMode => emailUrl
+          case ChangeMode =>
             if request.userAnswers.get(IndividualEmailPage).isDefined then
               controllers.routes.CheckYourAnswersController.onPageLoad().url
-            else emailUrl(ChangeMode)
-          case ProvideMode =>
+            else emailUrl
+          case _          =>
             logger.warn("Unsupported navigation for Provide mode on Identity confirmed page")
             controllers.routes.JourneyRecoveryController.onPageLoad().url
         }

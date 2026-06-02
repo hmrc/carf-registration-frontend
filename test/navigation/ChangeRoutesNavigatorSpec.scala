@@ -727,7 +727,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
 
         navigator.nextPage(
           IndFindAddressPage,
-          NormalMode,
+          ChangeMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }

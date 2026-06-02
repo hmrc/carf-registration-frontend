@@ -81,33 +81,7 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar
         val result      = route(application, request).value
         val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
         val continueUrl =
-          controllers.individual.routes.IndividualEmailController.onPageLoad(ChangeMode).url
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString
-      }
-    }
-  }
-
-  "provide mode" - {
-    "must provide journey recovery url if this mode is provided to onPageLoad" in {
-
-      val application = applicationBuilder(userAnswers =
-        Some(
-          emptyUserAnswers
-            .withPage(IndividualEmailPage, testEmail)
-        )
-      ).build()
-
-      running(application) {
-        val request     = FakeRequest(
-          GET,
-          controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(ProvideMode).url
-        )
-        val result      = route(application, request).value
-        val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
-        val continueUrl =
-          controllers.routes.JourneyRecoveryController.onPageLoad().url
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString

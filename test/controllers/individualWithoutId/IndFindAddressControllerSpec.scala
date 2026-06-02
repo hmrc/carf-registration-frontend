@@ -25,7 +25,7 @@ import models.countries.UnitedKingdom
 import models.error.ApiError
 import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressAndUPRN, AddressUk, IndFindAddress, NormalMode, UserAnswers}
+import models.{AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
@@ -84,6 +84,9 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
     )
   )
 
+  private def expectedManualUrl: String =
+    controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url
+
   "IndFindAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -100,7 +103,10 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         val result = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, expectedManualUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -119,8 +125,40 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         val result = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, expectedManualUrl)(
+          request,
+          messages(application)
+        ).toString
         verify(mockSessionRepository).set(argThat(_.get(IndWithoutIdAddressPagePrePop).isEmpty))
+      }
+    }
+
+    "must return OK and NOT remove IndWithoutIdAddressPagePrePop from ua when performing a GET via Change mode" in {
+      val userAnswers = emptyUserAnswers.withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      running(application) {
+        val indFindAddressRouteChangeMode: String =
+          controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(ChangeMode).url
+
+        val expectedManualUrlChangeMode: String =
+          controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(ChangeMode).url
+
+        val request = FakeRequest(GET, indFindAddressRouteChangeMode)
+
+        val view = application.injector.instanceOf[IndFindAddressView]
+
+        val result = route(application, request).value
+
+        status(result)          mustEqual OK
+        contentAsString(result) mustEqual view(form, ChangeMode, expectedManualUrlChangeMode)(
+          request,
+          messages(application)
+        ).toString
+        verify(mockSessionRepository).set(argThat(_.get(IndWithoutIdAddressPagePrePop).isDefined))
       }
     }
 
@@ -138,7 +176,11 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         val result = route(application, request).value
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(IndFindAddress("AA1 1AA", Some("value 2"))), NormalMode)(
+        contentAsString(result) mustEqual view(
+          form.fill(IndFindAddress("AA1 1AA", Some("value 2"))),
+          NormalMode,
+          expectedManualUrl
+        )(
           request,
           messages(application)
         ).toString
@@ -279,7 +321,10 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         val result = route(application, request).value
 
         status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, expectedManualUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -342,7 +387,10 @@ class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with Befor
         val boundForm     = form.bind(Map("postcode" -> "TE1 1ST"))
         val formWithError = boundForm.withError("postcode", "indFindAddress.error.postcode.notFound")
 
-        contentAsString(result) mustEqual view(formWithError, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(formWithError, NormalMode, expectedManualUrl)(
+          request,
+          messages(application)
+        ).toString
 
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
       }

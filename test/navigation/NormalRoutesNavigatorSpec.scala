@@ -1097,9 +1097,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
         val userAnswers =
           emptyUserAnswers
-            .set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN)))
-            .success
-            .value
+            .withPage(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN)))
 
         navigator.nextPage(
           IndFindAddressPage,
@@ -1111,15 +1109,13 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
         val userAnswers =
           emptyUserAnswers
-            .set(
+            .withPage(
               AddressLookupPage,
               Seq(
                 AddressAndUPRN(testAddressUk, testUPRN),
                 AddressAndUPRN(testAddressUk, testUPRN)
               )
             )
-            .success
-            .value
 
         navigator.nextPage(
           IndFindAddressPage,
@@ -1137,7 +1133,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
-
     }
 
     "IndReviewConfirmAddressPage navigation" - {

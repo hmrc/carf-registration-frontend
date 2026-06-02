@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.countries.CountryUk
 import models.requests.DataRequest
-import models.{AddressAndUPRN, AddressUk, IndFindAddress, Mode}
+import models.{AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, Mode, NormalMode}
 import navigation.Navigator
 import pages.individualWithoutId.*
 import play.api.Logging
@@ -54,15 +54,23 @@ class IndFindAddressController @Inject() (
 
   val form: Form[IndFindAddress] = formProvider()
 
+  lazy val manualLink: Mode => String =
+    mode => controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(mode).url
+
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
 
       lazy val preparedForm = request.userAnswers.get(IndFindAddressPage).fold(form)(form.fill)
 
       for {
-        userAnswersNoPrePop <- Future.fromTry(request.userAnswers.remove(IndWithoutIdAddressPagePrePop))
+        userAnswersNoPrePop <- {
+          mode match {
+            case NormalMode => Future.fromTry(request.userAnswers.remove(IndWithoutIdAddressPagePrePop))
+            case _          => Future.successful(request.userAnswers)
+          }
+        }
         _                   <- sessionRepository.set(userAnswersNoPrePop)
-      } yield Ok(view(preparedForm, mode))
+      } yield Ok(view(preparedForm, mode, manualLink(mode)))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
@@ -71,7 +79,7 @@ class IndFindAddressController @Inject() (
       val formReturned = form.bindFromRequest()
       formReturned
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, manualLink(mode)))),
           value =>
             addressLookupService
               .postcodeSearch(value.postcode, value.propertyNameOrNumber)
@@ -82,7 +90,7 @@ class IndFindAddressController @Inject() (
                 case Right((Nil, _))                                =>
                   val formError =
                     formReturned.withError(FormError("postcode", List("indFindAddress.error.postcode.notFound")))
-                  Future.successful(BadRequest(view(formError, mode)))
+                  Future.successful(BadRequest(view(formError, mode, manualLink(mode))))
                 case Right((addressesAndUPRNs, additionalCallMade)) =>
                   for {
                     updatedAnswersWithFlag <- save(value, addressesAndUPRNs, additionalCallMade)

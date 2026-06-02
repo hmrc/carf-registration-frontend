@@ -19,13 +19,11 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.RegistrationType.*
-import models.{ChangeMode, Name, NormalMode, ProvideMode}
-import models.{format, ChangeMode, NormalMode, ProvideMode}
+import models.{format, AddressAndUPRN, ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
 import pages.individual.*
-import pages.individualWithoutId.{IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage, WhereDoYouLivePage}
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
-import pages.individualWithoutId.{IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdAddressNonUkPage, IndWithoutIdAddressPageForNavigatorOnly, IndWithoutIdChooseAddressPage, IndWithoutIdDateOfBirthPage, IndWithoutNinoNamePage, WhereDoYouLivePage}
 import pages.organisation.*
 
 class ChangeRoutesNavigatorSpec extends SpecBase {
@@ -673,7 +671,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           WhereDoYouLivePage,
           ChangeMode,
           emptyUserAnswers.withPage(WhereDoYouLivePage, true)
-        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(NormalMode)
+        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(ChangeMode)
       }
 
       "must navigate to IndWithoutIdAddressNonUkController when answer is false" in {
@@ -681,7 +679,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           WhereDoYouLivePage,
           ChangeMode,
           emptyUserAnswers.withPage(WhereDoYouLivePage, false)
-        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(NormalMode)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(ChangeMode)
       }
 
       "must navigate to JourneyRecoveryController when answer cannot be found" in {
@@ -690,6 +688,48 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           ChangeMode,
           emptyUserAnswers
         ) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndFindAddressPage navigation" - {
+      "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
+        val userAnswers =
+          emptyUserAnswers
+            .withPage(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN)))
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
+        val userAnswers =
+          emptyUserAnswers
+            .withPage(
+              AddressLookupPage,
+              Seq(
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN)
+              )
+            )
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
@@ -735,7 +775,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           IndWithoutIdChooseAddressPage,
           ChangeMode,
           emptyUserAnswers.withPage(IndWithoutIdChooseAddressPage, "none")
-        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(ChangeMode)
       }
 
       "must navigate to Journey Recover if user answers is empty" in {

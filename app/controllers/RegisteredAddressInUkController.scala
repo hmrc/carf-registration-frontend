@@ -18,9 +18,11 @@ package controllers
 
 import controllers.actions.*
 import forms.RegisteredAddressInUkFormProvider
-import models.Mode
+import models.requests.DataRequest
+import models.{ChangeMode, Mode}
 import navigation.Navigator
 import pages.RegisteredAddressInUkPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,19 +45,18 @@ class RegisteredAddressInUkController @Inject() (
     view: RegisteredAddressInUkView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
-
-      val preparedForm = request.userAnswers.get(RegisteredAddressInUkPage) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm =
+        request.userAnswers.get(RegisteredAddressInUkPage).fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
+
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {

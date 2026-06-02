@@ -294,8 +294,8 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
 
         val userAnswers = emptyUserAnswers
           .withPage(RegistrationTypePage, regType)
-          .withPage(HaveUTRPage, false)
           .withPage(RegisteredAddressInUkPage, true)
+          .withPage(HaveUTRPage, false)
           .withPage(HaveTradingNamePage, true)
           .withPage(TradingNamePage, name)
           .withPage(OrgWithoutIdBusinessNamePage, name)

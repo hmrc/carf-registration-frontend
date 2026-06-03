@@ -47,7 +47,7 @@ object IndWithoutIdAddressNonUkSummary {
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),
-            href = controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(ChangeMode).url
+            href = controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(ChangeMode).url
           ).withVisuallyHiddenText(messages("indWithoutIdAddressNonUk.change.hidden"))
         )
       )

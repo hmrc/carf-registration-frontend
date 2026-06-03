@@ -27,6 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.SubscriptionService
 import testUtils.ChangeDetailsTestData
+import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow}
 import utils.ChangeOrganisationDetailsHelper
@@ -284,8 +285,8 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
 
     "onSubmit" - {
       "must redirect to success page if update subscription is successful" in new Setup(emptyUserAnswers) {
-        when(mockSubscriptionService.updateSubscription(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+        when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
+          .thenReturn(ResultT.fromValue(testSubscriptionId))
 
         val request                = FakeRequest(POST, pageRoute)
         val result: Future[Result] = route(application, request).value
@@ -296,18 +297,29 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .onPageLoad()
           .url
 
-        verify(mockSubscriptionService, times(1)).updateSubscription(any())(any())
+        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers], any[String])(any(), any())
       }
       "must redirect to journey recovery if update subscription is unsuccessful" in new Setup(emptyUserAnswers) {
-        when(mockSubscriptionService.updateSubscription(any())(any()))
-          .thenReturn(Future.successful(Left(InternalServerError)))
+        when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
+          .thenReturn(ResultT.fromError(InternalServerError))
 
         val request                = FakeRequest(POST, pageRoute)
         val result: Future[Result] = route(application, request).value
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        verify(mockSubscriptionService, times(1)).updateSubscription(any())(any())
+        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers], any[String])(any(), any())
+      }
+      "must redirect to journey recovery if no existing data is found" in {
+        val application = applicationBuilder(userAnswers = None).build()
+        running(application) {
+          val request = FakeRequest(POST, pageRoute)
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
       }
     }
   }

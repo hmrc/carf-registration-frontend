@@ -19,7 +19,7 @@ package controllers.changeContactDetails
 import com.google.inject.Inject
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import controllers.routes
-import models.error.CarfError
+import models.error.DataError
 import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.Logging
@@ -84,14 +84,18 @@ class ChangeIndividualContactDetailsController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
-      subscriptionService.updateSubscription(request.subscriptionId) map {
-        case Left(value) =>
-          logger.warn(s"[ChangeIndividualContactDetailsController] Error updating user details")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case Right(())   =>
-          Redirect(
-            controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad()
-          )
-      }
+      subscriptionService
+        .updateSubscription(request.userAnswers, request.subscriptionId.value)
+        .value
+        .map {
+          case Right(value)    =>
+            Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
+          case Left(DataError) =>
+            logger.error(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case error           =>
+            logger.error(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
   }
 }

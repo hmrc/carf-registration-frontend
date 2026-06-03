@@ -21,8 +21,9 @@ import models.*
 import models.JourneyType.*
 import models.countries.CountryUk
 import models.requests.{SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact, SubscriptionRequest}
-import models.responses.AddressRegistrationResponse
+import models.responses.*
 import pages.*
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
@@ -57,6 +58,66 @@ class SubscriptionHelperSpec extends SpecBase {
   )
 
   val testIndWithoutIdAddressGb: AddressUk = testIndWithoutIdAddress.copy(countryUk = CountryUk("GB", "United Kingdom"))
+
+  val testIndividualSubscriptionDisplayResponse = DisplaySubscriptionResponse(
+    success = DisplaySubscriptionSuccess(
+      processingDate = "2024-01-25T09:26:17Z",
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
+        tradingName = Some(testTradingName),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = Some(
+            DisplaySubscriptionIndividual(
+              firstName = "John",
+              middleName = None,
+              lastName = "Doe"
+            )
+          ),
+          email = testIndividualEmail,
+          phone = Some(testIndividualPhone),
+          mobile = Some("07123412345"),
+          organisation = None
+        ),
+        secondaryContact = None
+      )
+    )
+  )
+
+  val testOrganisationSubscriptionDisplayResponse = DisplaySubscriptionResponse(
+    success = DisplaySubscriptionSuccess(
+      processingDate = "2024-01-25T09:26:17Z",
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
+        tradingName = Some(testBusinessName),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual = None,
+          email = testOrganisationFirstEmail,
+          phone = Some(testOrganisationFirstPhone),
+          mobile = Some("07123412345"),
+          organisation = Some(
+            DisplaySubscriptionOrganisation(
+              name = testOrganisationFirstContactName
+            )
+          )
+        ),
+        secondaryContact = Some(
+          DisplaySubscriptionContact(
+            individual = None,
+            email = testOrganisationSecondEmail,
+            phone = Some(testOrganisationSecondPhone),
+            mobile = Some("07123412345"),
+            organisation = Some(
+              DisplaySubscriptionOrganisation(
+                name = testOrganisationSecondContactName
+              )
+            )
+          )
+        )
+      )
+    )
+  )
 
   "SubscriptionHelper" - {
 
@@ -574,6 +635,337 @@ class SubscriptionHelperSpec extends SpecBase {
         result.get.tradingName mustBe Some(testTradingName)
         result.get.idNumber    mustBe exampleSafeId.value
       }
+    }
+
+    "buildUpdatedSubscriptionRequest" - {
+
+      "for Individual updating details" - {
+        "should build updated subscription request successfully with all required fields" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
+            .withPage(ChangeDetailsIndividualHavePhonePage, true)
+            .withPage(ChangeDetailsIndividualPhoneNumberPage, testIndividualPhone)
+
+          val result = subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe defined
+          val request = result.get
+
+          request.idType                      mustBe "ZCAR"
+          request.idNumber                    mustBe testSubscriptionId.value
+          request.tradingName                 mustBe Some(testTradingName)
+          request.gbUser                      mustBe true
+          request.primaryContact.individual   mustBe Some(
+            SubscriptionIndividualContact(testIndividualName.firstName, testIndividualName.lastName)
+          )
+          request.primaryContact.organisation mustBe None
+          request.primaryContact.email        mustBe testIndividualEmail
+          request.primaryContact.phone        mustBe Some(testIndividualPhone)
+          request.secondaryContact            mustBe None
+        }
+
+        "should build updated subscription request without optional phone number" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
+            .withPage(ChangeDetailsIndividualHavePhonePage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result                          mustBe defined
+          result.get.primaryContact.phone mustBe None
+        }
+
+        "should return None when name is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse =
+              Some(
+                testIndividualSubscriptionDisplayResponse.copy(
+                  success = DisplaySubscriptionSuccess(
+                    processingDate = "2024-01-25T09:26:17Z",
+                    carfSubscriptionDetails = DisplaySubscriptionDetails(
+                      carfReference = testSubscriptionId.value,
+                      tradingName = Some(testTradingName),
+                      gbUser = true,
+                      primaryContact = DisplaySubscriptionContact(
+                        individual = None,
+                        email = testIndividualEmail,
+                        phone = Some(testIndividualPhone),
+                        mobile = Some("07123412345"),
+                        organisation = None
+                      ),
+                      secondaryContact = None
+                    )
+                  )
+                )
+              )
+            )
+            .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
+            .withPage(ChangeDetailsIndividualHavePhonePage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when email is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsIndividualHavePhonePage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when have phone is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when phone is missing and have phone was 'yes'" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testIndividualSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsIndividualEmailPage, testIndividualEmail)
+            .withPage(ChangeDetailsIndividualHavePhonePage, true)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+      }
+
+      "for Organisation updating details" - {
+        "should build updated subscription request with primary contact only" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
+            .withPage(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe defined
+          val request = result.get
+
+          request.idType                      mustBe "ZCAR"
+          request.idNumber                    mustBe testSubscriptionId.value
+          request.tradingName                 mustBe Some(testBusinessName)
+          request.gbUser                      mustBe true
+          request.primaryContact.individual   mustBe None
+          request.primaryContact.organisation mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationFirstContactName)
+          )
+          request.primaryContact.email        mustBe testOrganisationFirstEmail
+          request.primaryContact.phone        mustBe Some(testOrganisationFirstPhone)
+          request.secondaryContact            mustBe None
+        }
+
+        "should build updated subscription request with primary and secondary contact" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
+            .withPage(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+            .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
+            .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
+            .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
+            .withPage(ChangeDetailsOrgSecondPhoneNumberPage, testOrganisationSecondPhone)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe defined
+          val request = result.get
+
+          request.idType                            mustBe "ZCAR"
+          request.idNumber                          mustBe testSubscriptionId.value
+          request.tradingName                       mustBe Some(testBusinessName)
+          request.gbUser                            mustBe true
+          request.primaryContact.individual         mustBe None
+          request.primaryContact.organisation       mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationFirstContactName)
+          )
+          request.primaryContact.email              mustBe testOrganisationFirstEmail
+          request.primaryContact.phone              mustBe Some(testOrganisationFirstPhone)
+          request.secondaryContact                  mustBe defined
+          request.secondaryContact.get.individual   mustBe None
+          request.secondaryContact.get.organisation mustBe Some(
+            SubscriptionOrganisationContact(testOrganisationSecondContactName)
+          )
+          request.secondaryContact.get.email        mustBe testOrganisationSecondEmail
+          request.secondaryContact.get.phone        mustBe Some(testOrganisationSecondPhone)
+        }
+
+        "should build updated subscription request without optional phone number" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result                          mustBe defined
+          result.get.primaryContact.phone mustBe None
+        }
+
+        "should build updated subscription request without optional second contact phone number" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
+            .withPage(ChangeDetailsOrgFirstPhoneNumberPage, testOrganisationFirstPhone)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+            .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
+            .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
+            .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result                                mustBe defined
+          result.get.secondaryContact.get.phone mustBe None
+        }
+
+        "should return None when primary contact name is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when primary contact email is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when primary contact have phone is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when primary contact phone is missing when have phone was 'yes'" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when secondary contact is required but name is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+            .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
+            .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when secondary contact is required but email is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+            .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
+            .withPage(ChangeDetailsOrgSecondHavePhonePage, false)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when secondary contact is required but have phone is missing" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+            .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
+            .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+
+        "should return None when secondary contact is required but phone is missing when have phone was 'yes'" in {
+          val userAnswers = emptyUserAnswers
+            .copy(displaySubscriptionResponse = Some(testOrganisationSubscriptionDisplayResponse))
+            .withPage(ChangeDetailsOrgFirstNamePage, testOrganisationFirstContactName)
+            .withPage(ChangeDetailsOrgFirstEmailPage, testOrganisationFirstEmail)
+            .withPage(ChangeDetailsOrgFirstHavePhonePage, false)
+            .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+            .withPage(ChangeDetailsOrgSecondNamePage, testOrganisationSecondContactName)
+            .withPage(ChangeDetailsOrgSecondEmailPage, testOrganisationSecondEmail)
+            .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
+
+          val result: Option[SubscriptionRequest] =
+            subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, testSubscriptionId.value)
+
+          result mustBe None
+        }
+      }
+
     }
 
   }

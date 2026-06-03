@@ -73,14 +73,25 @@ class SubscriptionService @Inject() (
         error
       }
 
-  def updateSubscription(
-      subscriptionId: SubscriptionId
-  )(implicit hc: HeaderCarrier): Future[Either[CarfError, Unit]] = {
-    val firstThreeChars = subscriptionId.value.take(3).toUpperCase
-    if (Set("199", "R99").contains(firstThreeChars)) {
-      Future.successful(Left(InternalServerError))
-    } else {
-      Future.successful(Right((): Unit))
+  def updateSubscription(userAnswers: UserAnswers, carfId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext
+  ): ResultT[SubscriptionId] =
+    subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, carfId) match {
+      case Some(request) =>
+        subscriptionConnector
+          .updateSubscription(request)
+          .leftMap { error =>
+            logger.error(s"Failed to update subscription: $error")
+            error
+          }
+      case None          =>
+        logger.error("There has been an error building the subscription request from userAnswers")
+        ResultT.fromError(
+          MandatoryInformationMissingError(
+            s"There has been an error building the subscription request from userAnswers"
+          )
+        )
+
     }
-  }
 }

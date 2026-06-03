@@ -18,8 +18,10 @@ package utils
 
 import models.JourneyType.*
 import models.requests.*
+import models.responses.{DisplaySubscriptionIndividual, DisplaySubscriptionResponse}
 import models.{IdentifierType, JourneyType, Name, UserAnswers}
 import pages.*
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
@@ -43,6 +45,28 @@ class SubscriptionHelper {
       secondaryContact = secondaryContact
     )
 
+  def buildUpdatedSubscriptionRequest(userAnswers: UserAnswers, carfId: String): Option[SubscriptionRequest] =
+    for {
+      displayResponse  <- userAnswers.displaySubscriptionResponse
+      isIndividual     <- displayResponse.isIndividualRegistrationType
+      primaryContact   <- buildChangePrimaryContact(userAnswers, displayResponse)
+      tradingName       = displayResponse.success.carfSubscriptionDetails.tradingName
+      gbUser            = displayResponse.success.carfSubscriptionDetails.gbUser
+      secondaryContact <-
+        if (isIndividual) {
+          Some(None)
+        } else {
+          buildChangeSecondaryContact(userAnswers)
+        }
+    } yield SubscriptionRequest(
+      idType = IdentifierType.ZCAR,
+      idNumber = carfId,
+      tradingName = tradingName,
+      gbUser = gbUser,
+      primaryContact = primaryContact,
+      secondaryContact = secondaryContact
+    )
+
   private def buildPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     userAnswers.journeyType match {
       case Some(IndWithNino)                     => buildIndividualContact(userAnswers, WhatIsYourNameIndividualPage)
@@ -50,6 +74,15 @@ class SubscriptionHelper {
       case Some(IndWithUtr)                      => buildIndividualContact(userAnswers, WhatIsYourNamePage)
       case Some(OrgWithUtr) | Some(OrgWithoutId) => buildOrganisationPrimaryContact(userAnswers)
       case _                                     => None
+    }
+
+  private def buildChangePrimaryContact(
+      userAnswers: UserAnswers,
+      displaySubscriptionResponse: DisplaySubscriptionResponse
+  ): Option[SubscriptionContactDetails] =
+    displaySubscriptionResponse.success.carfSubscriptionDetails.primaryContact.individual match {
+      case Some(individual) => buildChangedIndividualContact(userAnswers, individual)
+      case _                => buildChangedOrganisationPrimaryContact(userAnswers)
     }
 
   private def buildIndividualContact(
@@ -72,6 +105,30 @@ class SubscriptionHelper {
       phone = phone
     )
 
+  private def buildChangedIndividualContact(
+      userAnswers: UserAnswers,
+      individual: DisplaySubscriptionIndividual
+  ): Option[SubscriptionContactDetails] =
+    for {
+      email     <- userAnswers.get(ChangeDetailsIndividualEmailPage)
+      havePhone <- userAnswers.get(ChangeDetailsIndividualHavePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(ChangeDetailsIndividualPhoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
+    } yield SubscriptionContactDetails(
+      individual = Some(
+        SubscriptionIndividualContact(
+          individual.firstName,
+          individual.lastName
+        )
+      ),
+      organisation = None,
+      email = email,
+      phone = phone
+    )
+
   private def buildOrganisationPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
       name      <- userAnswers.get(FirstContactNamePage)
@@ -79,6 +136,23 @@ class SubscriptionHelper {
       havePhone <- userAnswers.get(FirstContactPhonePage)
       phone     <- if (havePhone) {
                      userAnswers.get(FirstContactPhoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
+    } yield SubscriptionContactDetails(
+      individual = None,
+      organisation = Some(SubscriptionOrganisationContact(name)),
+      email = email,
+      phone = phone
+    )
+
+  private def buildChangedOrganisationPrimaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
+    for {
+      name      <- userAnswers.get(ChangeDetailsOrgFirstNamePage)
+      email     <- userAnswers.get(ChangeDetailsOrgFirstEmailPage)
+      havePhone <- userAnswers.get(ChangeDetailsOrgFirstHavePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(ChangeDetailsOrgFirstPhoneNumberPage).map(Some(_))
                    } else {
                      Some(None)
                    }
@@ -106,6 +180,23 @@ class SubscriptionHelper {
       phone = phone
     )
 
+  private def buildChangedOrganisationSecondaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
+    for {
+      name      <- userAnswers.get(ChangeDetailsOrgSecondNamePage)
+      email     <- userAnswers.get(ChangeDetailsOrgSecondEmailPage)
+      havePhone <- userAnswers.get(ChangeDetailsOrgSecondHavePhonePage)
+      phone     <- if (havePhone) {
+                     userAnswers.get(ChangeDetailsOrgSecondPhoneNumberPage).map(Some(_))
+                   } else {
+                     Some(None)
+                   }
+    } yield SubscriptionContactDetails(
+      individual = None,
+      organisation = Some(SubscriptionOrganisationContact(name)),
+      email = email,
+      phone = phone
+    )
+
   private def buildSecondaryContact(userAnswers: UserAnswers): Option[SubscriptionContactDetails] =
     for {
       journeyType      <- userAnswers.journeyType
@@ -113,6 +204,18 @@ class SubscriptionHelper {
       hasSecond        <- userAnswers.get(OrganisationHaveSecondContactPage)
       if hasSecond
       secondaryContact <- buildOrganisationSecondaryContact(userAnswers)
+    } yield secondaryContact
+
+  private def buildChangeSecondaryContact(
+      userAnswers: UserAnswers
+  ): Option[Option[SubscriptionContactDetails]] =
+    for {
+      hasSecond        <- userAnswers.get(ChangeDetailsOrgHaveSecondContactPage)
+      secondaryContact <-
+        if (hasSecond) { buildChangedOrganisationSecondaryContact(userAnswers).map(Some(_)) }
+        else {
+          Some(None)
+        }
     } yield secondaryContact
 
   private def isOrganisationJourney(journeyType: JourneyType): Boolean =

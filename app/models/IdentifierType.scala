@@ -25,4 +25,6 @@ object IdentifierType {
   val SAFE = "SAFE"
 
   val NINO = "NINO"
+
+  val ZCAR = "ZCAR"
 }

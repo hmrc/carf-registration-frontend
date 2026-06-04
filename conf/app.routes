@@ -105,7 +105,8 @@ POST        /register/date-of-birth                                             
 GET         /register/change-date-of-birth                                      controllers.individual.RegisterDateOfBirthController.onPageLoad(mode: Mode = ChangeMode)
 POST        /register/change-date-of-birth                                      controllers.individual.RegisterDateOfBirthController.onSubmit(mode: Mode = ChangeMode)
 
-GET         /register/identity-confirmed                                        controllers.individual.RegisterIdentityConfirmedController.onPageLoad()
+GET         /register/identity-confirmed                                        controllers.individual.RegisterIdentityConfirmedController.onPageLoad(mode: Mode = NormalMode)
+GET         /register/change-identity-confirmed                                 controllers.individual.RegisterIdentityConfirmedController.onPageLoad(mode: Mode = ChangeMode)
 
 GET         /register/contact-name                                              controllers.organisation.FirstContactNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/contact-name                                              controllers.organisation.FirstContactNameController.onSubmit(mode: Mode = NormalMode)
@@ -214,8 +215,8 @@ POST        /register/individual-without-id/change-address-non-uk               
 
 GET         /register/individual-without-id/address                             controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /register/individual-without-id/address                             controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = ChangeMode)
-POST        /register/change-individual-without-id/address                      controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = ChangeMode)
+GET         /register/individual-without-id/change-address                      controllers.individualWithoutId.IndWithoutIdAddressController.onPageLoad(mode: Mode = ChangeMode)
+POST        /register/individual-without-id/change-address                      controllers.individualWithoutId.IndWithoutIdAddressController.onSubmit(mode: Mode = ChangeMode)
 
 GET         /register/problem/unable-to-change-business                         controllers.organisation.UnableToChangeBusinessController.onPageLoad()
 

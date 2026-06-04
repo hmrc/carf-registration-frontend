@@ -301,7 +301,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
   private def navigateFromRegisterDateOfBirth(userAnswers: UserAnswers): Call =
     userAnswers.get(RegisterDateOfBirthPage) match {
       case Some(_: LocalDate) =>
-        controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad()
+        controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(NormalMode)
       case _                  => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 

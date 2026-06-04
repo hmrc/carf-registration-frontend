@@ -56,10 +56,10 @@ class IndWithoutIdAddressController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
-      Future.successful(Ok(view(preFillForm(mode), mode, countryListWithFilledForm(preFillForm(mode)))))
+      Future.successful(Ok(view(preFillForm, mode, countryListWithFilledForm(preFillForm))))
     }
 
-  private def preFillForm(mode: Mode)(implicit request: DataRequest[AnyContent]) =
+  private def preFillForm(implicit request: DataRequest[AnyContent]) =
     request.userAnswers
       .get(IndWithoutIdAddressPagePrePop)
       .fold(form)(form.fill)

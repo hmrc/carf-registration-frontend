@@ -19,10 +19,10 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.RegistrationType.*
-import models.{ChangeMode, Name, NormalMode, ProvideMode}
+import models.{format, AddressAndUPRN, ChangeMode, Name, NormalMode, ProvideMode}
 import pages.*
-import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.individual.*
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 
@@ -518,6 +518,14 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
+
+      "must navigate to journey recovery when answer is missing" in {
+        navigator.nextPage(
+          IndividualHavePhonePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "when on IndividualPhoneNumberPage" - {
@@ -604,6 +612,214 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           ChangeMode,
           emptyUserAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on NiNumberPage" - {
+      "must navigate to WhatIsYourNameIndividualController" in {
+        navigator.nextPage(
+          NiNumberPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.WhatIsYourNameIndividualController.onPageLoad(ChangeMode)
+      }
+    }
+
+    "when on WhatIsYourNameIndividualPage" - {
+      "must navigate to RegisterDateOfBirthController" in {
+        navigator.nextPage(
+          WhatIsYourNameIndividualPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(ChangeMode)
+      }
+    }
+
+    "when on RegisterDateOfBirthPage" - {
+      "must navigate to RegisterDateOfBirthController" in {
+        navigator.nextPage(
+          RegisterDateOfBirthPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(ChangeMode)
+      }
+    }
+
+    "when on IndWithoutNinoNamePage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          IndWithoutNinoNamePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on IndWithoutIdDateOfBirthPage" - {
+      "must navigate to CheckYourAnswersController" in {
+        navigator.nextPage(
+          IndWithoutIdDateOfBirthPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+    }
+
+    "when on WhereDoYouLivePage" - {
+      "must navigate to IndFindAddressController when answer is true" in {
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          ChangeMode,
+          emptyUserAnswers.withPage(WhereDoYouLivePage, true)
+        ) mustBe controllers.individualWithoutId.routes.IndFindAddressController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to IndWithoutIdAddressNonUkController when answer is false" in {
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          ChangeMode,
+          emptyUserAnswers.withPage(WhereDoYouLivePage, false)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressNonUkController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to JourneyRecoveryController when answer cannot be found" in {
+        navigator.nextPage(
+          WhereDoYouLivePage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "IndFindAddressPage navigation" - {
+      "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
+        val userAnswers =
+          emptyUserAnswers
+            .withPage(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN)))
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
+        val userAnswers =
+          emptyUserAnswers
+            .withPage(
+              AddressLookupPage,
+              Seq(
+                AddressAndUPRN(testAddressUk, testUPRN),
+                AddressAndUPRN(testAddressUk, testUPRN)
+              )
+            )
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        val userAnswers = emptyUserAnswers
+
+        navigator.nextPage(
+          IndFindAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on IndWithoutIdAddressNonUkPage" - {
+      "must navigate to CheckYourAnswersController if individual email is populated" in {
+        navigator.nextPage(
+          IndWithoutIdAddressNonUkPage,
+          ChangeMode,
+          emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to IndividualEmailController if individual email is NOT populated" in {
+        navigator.nextPage(
+          IndWithoutIdAddressNonUkPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
+    "when on IndWithoutIdChooseAddressPage" - {
+      "must navigate to CheckYourAnswersController if individual email is populated and an address has been chosen" in {
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          ChangeMode,
+          emptyUserAnswers
+            .withPage(IndWithoutIdChooseAddressPage, testAddressUk.format)
+            .withPage(IndividualEmailPage, testEmail)
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to IndividualEmailController if individual email is NOT populated and an address has been chosen" in {
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          ChangeMode,
+          emptyUserAnswers.withPage(IndWithoutIdChooseAddressPage, testAddressUk.format)
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to IndWithoutIdAddressController if no address has been chosen" in {
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          ChangeMode,
+          emptyUserAnswers.withPage(IndWithoutIdChooseAddressPage, "none")
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(ChangeMode)
+      }
+
+      "must navigate to Journey Recover if user answers is empty" in {
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "when on IndReviewConfirmAddressPage" - {
+      "must navigate to CheckYourAnswersController if individual email is populated" in {
+        navigator.nextPage(
+          IndReviewConfirmAddressPageForNavigatorOnly,
+          ChangeMode,
+          emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to IndividualEmailController if individual email is NOT populated" in {
+        navigator.nextPage(
+          IndReviewConfirmAddressPageForNavigatorOnly,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+    }
+
+    "when on IndWithoutIdAddressPage" - {
+      "must navigate to CheckYourAnswersController if individual email is populated" in {
+        navigator.nextPage(
+          IndWithoutIdAddressPageForNavigatorOnly,
+          ChangeMode,
+          emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+        ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must navigate to IndividualEmailController if individual email is NOT populated" in {
+        navigator.nextPage(
+          IndWithoutIdAddressPageForNavigatorOnly,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
       }
     }
 

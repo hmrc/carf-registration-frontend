@@ -20,12 +20,13 @@ import base.SpecBase
 import controllers.routes
 import forms.individual.NiNumberFormProvider
 import models.JourneyType.IndWithNino
-import models.{NormalMode, UserAnswers}
+import models.{ChangeMode, NormalMode, SafeId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.NiNumberPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -38,121 +39,197 @@ class NiNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new NiNumberFormProvider()
-  val form         = formProvider()
+  val formProvider       = new NiNumberFormProvider()
+  val form: Form[String] = formProvider()
 
-  lazy val niNumberRoute = controllers.individual.routes.NiNumberController.onPageLoad(NormalMode).url
+  val niNumberRoute: String       = controllers.individual.routes.NiNumberController.onPageLoad(NormalMode).url
+  val changeNiNumberRoute: String = controllers.individual.routes.NiNumberController.onPageLoad(ChangeMode).url
 
   "NiNumber Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "Normal Mode" - {
+      "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      running(application) {
-        val request = FakeRequest(GET, niNumberRoute)
+        running(application) {
+          val request = FakeRequest(GET, niNumberRoute)
 
-        val result = route(application, request).value
+          val result = route(application, request).value
 
-        val view = application.injector.instanceOf[NiNumberView]
+          val view = application.injector.instanceOf[NiNumberView]
 
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        }
+      }
+
+      "must populate the view correctly on a GET when the question has previously been answered" in {
+
+        val userAnswers = UserAnswers(userAnswersId).set(NiNumberPage, "BA123456A").success.value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, niNumberRoute)
+
+          val view = application.injector.instanceOf[NiNumberView]
+
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(form.fill("BA123456A"), NormalMode)(
+            request,
+            messages(application)
+          ).toString
+        }
+      }
+
+      "must redirect to the next page and set journey type when valid data is submitted" in {
+
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application =
+          applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, niNumberRoute)
+              .withFormUrlEncodedBody(("value", "BA123456A"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(IndWithNino)))
+        }
+      }
+
+      "must return a Bad Request and errors when invalid data is submitted" in {
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, niNumberRoute)
+              .withFormUrlEncodedBody(("value", ""))
+
+          val boundForm = form.bind(Map("value" -> ""))
+
+          val view = application.injector.instanceOf[NiNumberView]
+
+          val result = route(application, request).value
+
+          status(result)          mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val request = FakeRequest(GET, niNumberRoute)
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery for a POST if no existing data is found" in {
+
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, niNumberRoute)
+              .withFormUrlEncodedBody(("value", "BA123456A"))
+
+          val result = route(application, request).value
+
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "Change Mode" - {
+      "must redirect to the next page and clear match flag if changed" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(NiNumberPage, "BA123456A").success.value
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, niNumberRoute)
-
-        val view = application.injector.instanceOf[NiNumberView]
-
-        val result = route(application, request).value
-
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("BA123456A"), NormalMode)(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
-    "must redirect to the next page and set journey type when valid data is submitted" in {
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+        val application =
+          applicationBuilder(userAnswers =
+            Some(
+              emptyUserAnswers
+                .copy(hasValidMatch = true, safeId = Some(SafeId("XCARF000000001")))
+                .withPage(NiNumberPage, "BA123456A")
+            )
           )
-          .build()
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
 
-      running(application) {
-        val request =
-          FakeRequest(POST, niNumberRoute)
-            .withFormUrlEncodedBody(("value", "BA123456A"))
+        running(application) {
+          val request = FakeRequest(POST, changeNiNumberRoute).withFormUrlEncodedBody(("value", "BA123456B"))
 
-        val result = route(application, request).value
+          val result = route(application, request).value
 
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockSessionRepository).set(argThat(ua => ua.journeyType.contains(IndWithNino)))
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+
+          verify(mockSessionRepository).set(
+            argThat(ua =>
+              ua.journeyType.contains(IndWithNino) &&
+                !ua.hasValidMatch && ua.safeId.isEmpty
+            )
+          )
+        }
       }
-    }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+      "must redirect to the next page and not clear match flag if not changed" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      running(application) {
-        val request =
-          FakeRequest(POST, niNumberRoute)
-            .withFormUrlEncodedBody(("value", ""))
+        val application =
+          applicationBuilder(userAnswers =
+            Some(
+              emptyUserAnswers
+                .copy(
+                  hasValidMatch = true,
+                  safeId = Some(SafeId("XCARF000000001"))
+                )
+                .withPage(NiNumberPage, "BA123456A")
+            )
+          )
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            )
+            .build()
 
-        val boundForm = form.bind(Map("value" -> ""))
+        running(application) {
+          val request = FakeRequest(POST, changeNiNumberRoute).withFormUrlEncodedBody(("value", "BA123456A"))
 
-        val view = application.injector.instanceOf[NiNumberView]
+          val result = route(application, request).value
 
-        val result = route(application, request).value
+          status(result)                 mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
 
-        status(result)          mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, niNumberRoute)
-
-        val result = route(application, request).value
-
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, niNumberRoute)
-            .withFormUrlEncodedBody(("value", "BA123456A"))
-
-        val result = route(application, request).value
-
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(mockSessionRepository).set(
+            argThat(ua =>
+              ua.journeyType.contains(IndWithNino) &&
+                ua.hasValidMatch && ua.safeId.isDefined
+            )
+          )
+        }
       }
     }
   }

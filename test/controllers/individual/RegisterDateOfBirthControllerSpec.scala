@@ -71,13 +71,10 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     controllers.individual.routes.RegisterDateOfBirthController.onPageLoad(NormalMode).url
   override val emptyUserAnswers             = UserAnswers(userAnswersId)
 
-  private def buildGetRequest(
-      userAnswers: Option[UserAnswers] = Some(emptyUserAnswers)
-  ): FakeRequest[AnyContentAsEmpty.type] =
+  private def buildGetRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest("GET", registerDateOfBirthRoute)
 
   private def buildPostRequest(
-      userAnswers: Option[UserAnswers] = Some(emptyUserAnswers),
       day: String = validBirthDate.getDayOfMonth.toString,
       month: String = validBirthDate.getMonthValue.toString,
       year: String = validBirthDate.getYear.toString,
@@ -102,7 +99,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
   ): UserAnswers = {
     val base     = UserAnswers(userAnswersId)
     val withNino = nino.fold(base)(n => base.set(NiNumberPage, n).success.value)
-    val withName = name.fold(withNino)(n => withNino.set(WhatIsYourNameIndividualPage, n).success.value)
+    val withName = name.fold(withNino)(n => withNino.withPage(WhatIsYourNameIndividualPage, n))
     dob.fold(withName)(d => withName.set(RegisterDateOfBirthPage, d).success.value)
   }
 
@@ -110,11 +107,11 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(buildUserAnswers())).build()
       running(application) {
-        val result = route(application, buildGetRequest()).value
+        val result = route(application, buildGetRequest).value
         val view   = application.injector.instanceOf[RegisterDateOfBirthView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(buildGetRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode)(buildGetRequest, messages(application)).toString
       }
     }
 
@@ -122,11 +119,11 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(buildUserAnswers(dob = Some(validBirthDate)))).build()
       running(application) {
         val view   = application.injector.instanceOf[RegisterDateOfBirthView]
-        val result = route(application, buildGetRequest()).value
+        val result = route(application, buildGetRequest).value
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form.fill(validBirthDate), NormalMode)(
-          buildGetRequest(),
+          buildGetRequest,
           messages(application)
         ).toString
       }
@@ -283,7 +280,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
-        val result = route(application, buildGetRequest(userAnswers = None)).value
+        val result = route(application, buildGetRequest).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -292,7 +289,7 @@ class RegisterDateOfBirthControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
       running(application) {
-        val result = route(application, buildPostRequest(userAnswers = None)).value
+        val result = route(application, buildPostRequest()).value
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

@@ -57,10 +57,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
       countriesList match {
         case Some(countries) =>
           val form         = formProvider(countries)
-          val preparedForm = request.userAnswers.get(IndWithoutIdAddressNonUkPage) match {
-            case None        => form
-            case Some(value) => form.fill(value)
-          }
+          val preparedForm = request.userAnswers.get(IndWithoutIdAddressNonUkPage).fold(form)(form.fill)
           Ok(
             view(
               preparedForm,

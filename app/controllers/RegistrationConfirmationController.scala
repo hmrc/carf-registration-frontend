@@ -30,6 +30,7 @@ import repositories.SessionRepository
 import services.{ContactEmailInfo, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
+import config.FrontendAppConfig
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,6 +41,7 @@ class RegistrationConfirmationController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    appConfig: FrontendAppConfig,
     emailService: EmailService,
     val controllerComponents: MessagesControllerComponents,
     view: RegistrationConfirmationView
@@ -118,18 +120,13 @@ class RegistrationConfirmationController @Inject() (
   private def getAddProviderUrl(journeyType: JourneyType, isCtAutoMatched: Boolean): String =
     journeyType match {
       case OrgWithUtr | OrgWithoutId if isCtAutoMatched =>
-        controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-          .url
+        appConfig.managementReportForRegisteredBusinessUrl
 
       case OrgWithUtr | OrgWithoutId =>
-        controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
-          .url
+        appConfig.managementOrganisationOrIndividualUrl
 
       case IndWithNino | IndWithUtr | IndWithoutId =>
-        controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-          .url
+        appConfig.managementOrganisationOrIndividualUrl
+
     }
 }

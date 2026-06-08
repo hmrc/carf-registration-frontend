@@ -97,9 +97,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("org@test.com", "org2@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-              .url
+            addProviderUrl = "http://localhost:17002/rcasp/report-for-registered-business"
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -141,9 +139,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("org@test.com", "org2@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-              .url
+            addProviderUrl = "http://localhost:17002/rcasp/report-for-registered-business"
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -182,9 +178,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("timmy@example.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-              .url
+            addProviderUrl = "http://localhost:17002/rcasp/organisation-or-individual"
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -222,9 +216,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("orgwithout@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
-              .url
+            addProviderUrl = "http://localhost:17002/rcasp/organisation-or-individual"
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -318,9 +310,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("indwithout@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-              .url
+            addProviderUrl = "http://localhost:17002/rcasp/organisation-or-individual"
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(

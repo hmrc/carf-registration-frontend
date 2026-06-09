@@ -64,10 +64,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")
   val aeoiEmailAddress: String        = configuration.get("email.aeoi")
 
-  private val managementFrontendHost: String = servicesConfig.baseUrl("management-frontend")
-
-  lazy val managementFrontendBaseUrl: String = managementFrontendHost
-
+  private val managementFrontendBaseUrl: String = servicesConfig.baseUrl("carf-management-frontend")
 
   lazy val managementReportForRegisteredBusinessUrl: String =
     s"$managementFrontendBaseUrl/rcasp/report-for-registered-business"

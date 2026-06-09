@@ -29,11 +29,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val appName: String = configuration.get[String]("appName")
 
   private val carfRegistrationHost: String       = servicesConfig.baseUrl("carf-registration")
-  private val carfManagementFrontendHost: String = servicesConfig.baseUrl("carf-management-frontend")
   private val taxEnrolmentHost: String           = servicesConfig.baseUrl("tax-enrolments")
 
   val carfRegistrationBaseUrl: String           = s"$carfRegistrationHost/carf-registration"
-  val carfManagementFrontendHomePageUrl: String = s"$carfManagementFrontendHost/rcasp/manage-cryptoasset-reports"
 
   val taxEnrolmentBaseUrl: String =
     s"$taxEnrolmentHost${configuration.get[String]("microservice.services.tax-enrolments.uri")}"
@@ -57,6 +55,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val findCorpTaxUTRUrl: String = configuration.get[String]("urls.findCorporationTaxUTR")
   lazy val findNINumberUrl: String   = configuration.get[String]("urls.findNINumberUrl")
   lazy val utrGuidanceUrl: String    = configuration.get[String]("urls.utrGuidanceUrl")
+  
+  private lazy val carfManagementFrontendBaseUrl: String = configuration.get[String]("urls.managementFrontendBaseUrl")
+  lazy val carfManagementFrontendHomePageUrl: String = s"$carfManagementFrontendBaseUrl/rcasp/manage-cryptoasset-reports"
 
   val companiesHouseSearchUrl: String = configuration.get("urls.companiesHouseSearch")
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")

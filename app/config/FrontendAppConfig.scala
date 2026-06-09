@@ -28,15 +28,18 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val host: String    = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
-  private val carfRegistrationHost: String = servicesConfig.baseUrl("carf-registration")
-  private val taxEnrolmentHost: String     = servicesConfig.baseUrl("tax-enrolments")
+  private val carfRegistrationHost: String       = servicesConfig.baseUrl("carf-registration")
+  private val carfManagementFrontendHost: String = servicesConfig.baseUrl("carf-management-frontend")
+  private val taxEnrolmentHost: String           = servicesConfig.baseUrl("tax-enrolments")
 
-  val carfRegistrationBaseUrl: String = s"$carfRegistrationHost/carf-registration"
-  val taxEnrolmentBaseUrl: String     =
+  val carfRegistrationBaseUrl: String           = s"$carfRegistrationHost/carf-registration"
+  val carfManagementFrontendHomePageUrl: String = s"$carfManagementFrontendHost/rcasp/manage-cryptoasset-reports"
+
+  val taxEnrolmentBaseUrl: String =
     s"$taxEnrolmentHost${configuration.get[String]("microservice.services.tax-enrolments.uri")}"
 
-  val addressLookupHost: String    = servicesConfig.baseUrl("address-lookup")
-  val addressLookupBaseUrl: String = s"$addressLookupHost/address-lookup"
+  private val addressLookupHost: String = servicesConfig.baseUrl("address-lookup")
+  val addressLookupBaseUrl: String      = s"$addressLookupHost/address-lookup"
 
   val emailUrl: String = s"${servicesConfig.baseUrl("email")}/hmrc/email"
 

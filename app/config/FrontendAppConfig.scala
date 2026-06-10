@@ -65,7 +65,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val aeoiEmailAddress: String        = configuration.get("email.aeoi")
 
   val managementRoutingUrl: String =
-    configuration.get[String]("urls.managementFrontendBaseUrl") + "/rcasp/rcasp-routing"
+    configuration.get[String]("urls.managementFrontendBaseUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/carf-registration-frontend"

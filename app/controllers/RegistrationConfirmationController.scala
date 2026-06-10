@@ -59,7 +59,6 @@ class RegistrationConfirmationController @Inject() (
         contacts       <- getContacts(journeyType, request.userAnswers)
       } yield {
         val addProviderUrl = getAddProviderUrl
-        logger.info(s"addProviderUrl = $addProviderUrl")
 
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
         val maybeSubscriptionId            =

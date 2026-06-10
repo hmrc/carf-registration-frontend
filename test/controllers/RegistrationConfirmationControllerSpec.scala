@@ -39,6 +39,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
   private val mockEmailService = mock[EmailService]
   private val subscriptionId   = SubscriptionId("XCARF0012345678")
+  private val routingUrl       = "http://localhost:17002/rcasp/rcasp-routing"
 
   override def beforeEach(): Unit = {
     reset(mockEmailService)
@@ -97,7 +98,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("org@test.com", "org2@test.com"),
-            addProviderUrl = "http://localhost:17002/rcasp/report-for-registered-business"
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -139,7 +140,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("org@test.com", "org2@test.com"),
-            addProviderUrl = "http://localhost:17002/rcasp/report-for-registered-business"
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -178,7 +179,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("timmy@example.com"),
-            addProviderUrl = "http://localhost:17002/rcasp/organisation-or-individual"
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -216,7 +217,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("orgwithout@test.com"),
-            addProviderUrl = "http://localhost:17002/rcasp/organisation-or-individual"
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -310,7 +311,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("indwithout@test.com"),
-            addProviderUrl = "http://localhost:17002/rcasp/organisation-or-individual"
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(

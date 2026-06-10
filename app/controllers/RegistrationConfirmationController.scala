@@ -58,7 +58,9 @@ class RegistrationConfirmationController @Inject() (
         journeyType    <- request.userAnswers.journeyType
         contacts       <- getContacts(journeyType, request.userAnswers)
       } yield {
-        val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
+        val addProviderUrl = getAddProviderUrl
+        logger.info(s"addProviderUrl = $addProviderUrl")
+
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
         val maybeSubscriptionId            =
           journeyType match {
@@ -117,16 +119,5 @@ class RegistrationConfirmationController @Inject() (
         } yield List(ContactEmailInfo(name.fullName, email))
     }
 
-  private def getAddProviderUrl(journeyType: JourneyType, isCtAutoMatched: Boolean): String =
-    journeyType match {
-      case OrgWithUtr | OrgWithoutId if isCtAutoMatched =>
-        appConfig.managementReportForRegisteredBusinessUrl
-
-      case OrgWithUtr | OrgWithoutId =>
-        appConfig.managementOrganisationOrIndividualUrl
-
-      case IndWithNino | IndWithUtr | IndWithoutId =>
-        appConfig.managementOrganisationOrIndividualUrl
-
-    }
+  private def getAddProviderUrl: String = appConfig.managementRoutingUrl
 }

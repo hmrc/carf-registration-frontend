@@ -64,13 +64,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")
   val aeoiEmailAddress: String        = configuration.get("email.aeoi")
 
-  private val managementFrontendBaseUrl: String = servicesConfig.baseUrl("carf-management-frontend")
-
-  lazy val managementReportForRegisteredBusinessUrl: String =
-    s"$managementFrontendBaseUrl/rcasp/report-for-registered-business"
-
-  lazy val managementOrganisationOrIndividualUrl: String =
-    s"$managementFrontendBaseUrl/rcasp/organisation-or-individual"
+  val managementRoutingUrl: String = servicesConfig.baseUrl("carf-management-frontend") + "/rcasp/rcasp-routing"
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/carf-registration-frontend"

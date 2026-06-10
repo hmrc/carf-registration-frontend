@@ -32,11 +32,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private val taxEnrolmentHost: String     = servicesConfig.baseUrl("tax-enrolments")
 
   val carfRegistrationBaseUrl: String = s"$carfRegistrationHost/carf-registration"
-  val taxEnrolmentBaseUrl: String     =
+
+  val taxEnrolmentBaseUrl: String =
     s"$taxEnrolmentHost${configuration.get[String]("microservice.services.tax-enrolments.uri")}"
 
-  val addressLookupHost: String    = servicesConfig.baseUrl("address-lookup")
-  val addressLookupBaseUrl: String = s"$addressLookupHost/address-lookup"
+  private val addressLookupHost: String = servicesConfig.baseUrl("address-lookup")
+  val addressLookupBaseUrl: String      = s"$addressLookupHost/address-lookup"
 
   val emailUrl: String = s"${servicesConfig.baseUrl("email")}/hmrc/email"
 
@@ -54,6 +55,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val findCorpTaxUTRUrl: String = configuration.get[String]("urls.findCorporationTaxUTR")
   lazy val findNINumberUrl: String   = configuration.get[String]("urls.findNINumberUrl")
   lazy val utrGuidanceUrl: String    = configuration.get[String]("urls.utrGuidanceUrl")
+
+  private lazy val carfManagementFrontendBaseUrl: String = configuration.get[String]("urls.managementFrontendBaseUrl")
+  lazy val carfManagementFrontendHomePageUrl: String     =
+    s"$carfManagementFrontendBaseUrl/rcasp/manage-cryptoasset-reports"
 
   val companiesHouseSearchUrl: String = configuration.get("urls.companiesHouseSearch")
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")

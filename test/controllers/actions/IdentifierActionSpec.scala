@@ -124,6 +124,7 @@ class IdentifierActionSpec extends SpecBase {
 
     "return ok with a message if the user is already registered for this service" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
+      when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("www.carf-management.co.uk")
       when(
         mockAuthConnector.authorise(
           ArgumentMatchers.eq(EmptyPredicate),
@@ -136,8 +137,8 @@ class IdentifierActionSpec extends SpecBase {
 
       val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
 
-      status(result)        mustBe OK
-      contentAsString(result) must include("User is already enrolled!")
+      status(result)           mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("www.carf-management.co.uk")
     }
 
     "throw an exception if affinity group cannot be retrieved" in {

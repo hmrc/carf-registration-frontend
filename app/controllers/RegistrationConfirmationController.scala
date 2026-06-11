@@ -58,8 +58,6 @@ class RegistrationConfirmationController @Inject() (
         journeyType    <- request.userAnswers.journeyType
         contacts       <- getContacts(journeyType, request.userAnswers)
       } yield {
-        val addProviderUrl = getAddProviderUrl
-
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
         val maybeSubscriptionId            =
           journeyType match {
@@ -74,7 +72,7 @@ class RegistrationConfirmationController @Inject() (
           view(
             subscriptionId = subscriptionId.value,
             emailAddresses = contacts.map(_.email),
-            addProviderUrl = addProviderUrl
+            addProviderUrl = appConfig.managementRoutingUrl
           )
         )
       }
@@ -117,6 +115,4 @@ class RegistrationConfirmationController @Inject() (
           email <- userAnswers.get(IndividualEmailPage)
         } yield List(ContactEmailInfo(name.fullName, email))
     }
-
-  private def getAddProviderUrl: String = appConfig.managementRoutingUrl
 }

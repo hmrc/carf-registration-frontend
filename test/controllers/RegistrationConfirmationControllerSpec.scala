@@ -39,7 +39,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
   private val mockEmailService = mock[EmailService]
   private val subscriptionId   = SubscriptionId("XCARF0012345678")
-  private val routingUrl       = "http://localhost:17002/rcasp/rcasp-routing"
+  private val routingUrl       = "http://localhost:17002/manage-your-rcasps"
 
   override def beforeEach(): Unit = {
     reset(mockEmailService)

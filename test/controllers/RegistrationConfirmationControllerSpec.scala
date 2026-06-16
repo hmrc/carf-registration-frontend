@@ -39,6 +39,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
   private val mockEmailService = mock[EmailService]
   private val subscriptionId   = SubscriptionId("XCARF0012345678")
+  private val routingUrl       = "http://localhost:17002/manage-your-rcasps"
 
   override def beforeEach(): Unit = {
     reset(mockEmailService)
@@ -97,9 +98,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("org@test.com", "org2@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-              .url
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -141,9 +140,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("org@test.com", "org2@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-              .url
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -182,9 +179,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("timmy@example.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-              .url
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -222,9 +217,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("orgwithout@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
-              .url
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -318,9 +311,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar 
           contentAsString(result) mustEqual view(
             subscriptionId = subscriptionId.value,
             emailAddresses = List("indwithout@test.com"),
-            addProviderUrl = controllers.routes.PlaceholderController
-              .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-              .url
+            addProviderUrl = routingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(

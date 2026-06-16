@@ -58,7 +58,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   private lazy val carfManagementFrontendBaseUrl: String = configuration.get[String]("urls.managementFrontendBaseUrl")
   lazy val carfManagementFrontendHomePageUrl: String     =
-    s"$carfManagementFrontendBaseUrl/rcasp/manage-cryptoasset-reports"
+    s"$carfManagementFrontendBaseUrl/manage-cryptoasset-reports"
+
+  val managementRoutingUrl: String = s"$carfManagementFrontendBaseUrl/manage-your-rcasps"
 
   val companiesHouseSearchUrl: String = configuration.get("urls.companiesHouseSearch")
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")

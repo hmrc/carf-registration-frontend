@@ -30,6 +30,7 @@ import repositories.SessionRepository
 import services.{ContactEmailInfo, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
+import config.FrontendAppConfig
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,6 +41,7 @@ class RegistrationConfirmationController @Inject() (
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    appConfig: FrontendAppConfig,
     emailService: EmailService,
     val controllerComponents: MessagesControllerComponents,
     view: RegistrationConfirmationView
@@ -56,7 +58,6 @@ class RegistrationConfirmationController @Inject() (
         journeyType    <- request.userAnswers.journeyType
         contacts       <- getContacts(journeyType, request.userAnswers)
       } yield {
-        val addProviderUrl                 = getAddProviderUrl(journeyType, request.userAnswers.isCtAutoMatched)
         val haveEmailsSentAlready: Boolean = request.userAnswers.get(SubmissionSucceededPage).getOrElse(false)
         val maybeSubscriptionId            =
           journeyType match {
@@ -71,7 +72,7 @@ class RegistrationConfirmationController @Inject() (
           view(
             subscriptionId = subscriptionId.value,
             emailAddresses = contacts.map(_.email),
-            addProviderUrl = addProviderUrl
+            addProviderUrl = appConfig.managementRoutingUrl
           )
         )
       }
@@ -113,23 +114,5 @@ class RegistrationConfirmationController @Inject() (
           name  <- nameOpt
           email <- userAnswers.get(IndividualEmailPage)
         } yield List(ContactEmailInfo(name.fullName, email))
-    }
-
-  private def getAddProviderUrl(journeyType: JourneyType, isCtAutoMatched: Boolean): String =
-    journeyType match {
-      case OrgWithUtr | OrgWithoutId if isCtAutoMatched =>
-        controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /report-for-registered-business (ct automatch) (CARF-368)")
-          .url
-
-      case OrgWithUtr | OrgWithoutId =>
-        controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /organisation-or-individual (non-automatch) (CARF-368)")
-          .url
-
-      case IndWithNino | IndWithUtr | IndWithoutId =>
-        controllers.routes.PlaceholderController
-          .onPageLoad("redirect to /organisation-or-individual (individual) (CARF-368)")
-          .url
     }
 }

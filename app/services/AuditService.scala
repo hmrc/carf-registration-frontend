@@ -17,20 +17,21 @@
 package services
 
 import cats.syntax.all.*
-import models.audit.*
 import models.JourneyType.*
+import models.audit.*
 import models.error.ApiError.InternalServerError
-import models.error.{CarfError, DataError}
+import models.error.CarfError
 import models.{JourneyType, RegistrationType, UserAnswers}
+import pages.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.*
 import pages.organisation.*
-import pages.*
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import types.ResultT
 import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.*
@@ -57,7 +58,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       userAnswers: UserAnswers,
       journeyType: JourneyType,
       affinityGroup: AffinityGroup
-  ): ResultT[Unit] =
+  )(implicit hc: HeaderCarrier): ResultT[Unit] =
     for {
       registrationEvent <- ResultT.fromValue(
                              RegistrationAuditEvent(

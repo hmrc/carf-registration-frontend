@@ -81,7 +81,7 @@ class CarfIdRetrievalActionExtractor @Inject() (
         }
       case _                             =>
         logger.warn("Unable to retrieve internal id")
-        throw AuthorisationException.fromString(msg)
+        throw AuthorisationException.fromString("Unable to retrieve internal id")
     } recover {
       case _: NoActiveSession        =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))

@@ -72,10 +72,6 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
         http.post(submissionUrl)
       }
 
-    logger.debug(
-      s"[SubscriptionConnector] $action subscription with request:\n ${Json.prettyPrint(Json.toJson(request))}"
-    )
-
     ResultT.fromFuture(
       requestBuilder
         .withBody(Json.toJson(request))

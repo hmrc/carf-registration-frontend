@@ -116,7 +116,6 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
     } yield ()
 
   private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) = {
-    logger.debug(s"Sending Audit event detail:\n ${Json.prettyPrint(eventJsValue)}")
     ExtendedDataEvent(
       auditSource = "carf-registration-frontend",
       auditType = auditType,

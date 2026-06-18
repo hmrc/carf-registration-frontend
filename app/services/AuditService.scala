@@ -115,13 +115,12 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                            )
     } yield ()
 
-  private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) = {
+  private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) =
     ExtendedDataEvent(
       auditSource = "carf-registration-frontend",
       auditType = auditType,
       detail = eventJsValue
     )
-  }
 
   private def getUtrJourneyType(userAnswers: UserAnswers): Option[UtrJourneyAuditEvent] =
     (

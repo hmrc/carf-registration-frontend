@@ -546,8 +546,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           )
             .thenReturn(ResultT.fromValue(()))
 
-          when(mockAuditService.auditRegistration(orgWithUtrUserAnswers(), OrgWithUtr, AffinityGroup.Organisation))
-            .thenReturn(ResultT.fromValue(()))
+          when(
+            mockAuditService.auditRegistration(
+              eqTo(orgWithUtrUserAnswers()),
+              eqTo(OrgWithUtr),
+              eqTo(AffinityGroup.Organisation)
+            )(any())
+          ).thenReturn(ResultT.fromValue(()))
 
           val request                = FakeRequest(POST, cyaRoute)
           val result: Future[Result] = route(application, request).value
@@ -721,7 +726,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         )
           .thenReturn(ResultT.fromValue(()))
 
-        when(mockAuditService.auditRegistration(orgWithUtrUserAnswers(), OrgWithUtr, AffinityGroup.Organisation))
+        when(
+          mockAuditService
+            .auditRegistration(eqTo(orgWithUtrUserAnswers()), eqTo(OrgWithUtr), eqTo(AffinityGroup.Organisation))(any())
+        )
           .thenReturn(ResultT.fromError(InternalServerError))
 
         val request                = FakeRequest(POST, cyaRoute)

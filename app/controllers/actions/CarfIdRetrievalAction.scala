@@ -80,8 +80,7 @@ class CarfIdRetrievalActionExtractor @Inject() (
             Future.successful(Redirect(controllers.routes.IndexController.onPageLoad(NormalMode)))
         }
       case _                             =>
-        val msg = "Unable to retrieve internal id"
-        logger.warn(msg)
+        logger.warn("Unable to retrieve internal id")
         throw AuthorisationException.fromString(msg)
     } recover {
       case _: NoActiveSession        =>

@@ -103,7 +103,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
             None
         }
       } else {
-        logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered: $haveNino")
+        logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered false")
         None
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
@@ -144,7 +144,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
         }
       } else {
         logger.warn(
-          s"Individual without NINO requires user to NOT have a nino. When questioned, user answered: $haveNino"
+          s"Individual without NINO requires user to NOT have a nino. When questioned, user answered true"
         )
         None
       }

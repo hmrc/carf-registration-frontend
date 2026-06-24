@@ -17,7 +17,7 @@
 package pages.organisation
 
 import models.UserAnswers
-import pages.QuestionPage
+import pages.{IsThisYourBusinessPage, QuestionPage}
 import play.api.libs.json.JsPath
 
 import scala.util.{Success, Try}
@@ -34,7 +34,7 @@ case object WhatIsTheNameOfYourBusinessPage extends QuestionPage[String] {
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      Success(updatedUserAnswers.clearMatchFlagAndSafeId)
+      updatedUserAnswers.clearMatchFlagAndSafeId.remove(IsThisYourBusinessPage)
     } else {
       Success(updatedUserAnswers)
     }

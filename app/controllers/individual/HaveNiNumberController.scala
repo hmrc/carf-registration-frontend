@@ -18,14 +18,13 @@ package controllers.individual
 
 import controllers.actions.*
 import forms.individual.HaveNiNumberFormProvider
-import models.{Mode, UniqueTaxpayerReference}
+import models.Mode
 import navigation.Navigator
 import pages.individual.HaveNiNumberPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.HaveNiNumberView
 
@@ -43,7 +42,6 @@ class HaveNiNumberController @Inject() (
     formProvider: HaveNiNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
     view: HaveNiNumberView,
-    service: RegistrationService,
     retrieveCtUTR: CtUtrRetrievalAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController

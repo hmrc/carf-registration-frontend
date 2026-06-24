@@ -24,8 +24,6 @@ import pages.orgWithoutId.*
 import pages.organisation.*
 import queries.Settable
 
-import scala.util.matching.Regex
-
 object Constants {
 
   val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"

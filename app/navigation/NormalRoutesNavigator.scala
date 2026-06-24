@@ -21,7 +21,7 @@ import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{NormalMode, ProvideMode, RegistrationType, UserAnswers}
+import models.{NormalMode, RegistrationType, UserAnswers}
 import pages.*
 import pages.changeContactDetails.*
 import pages.individual.*
@@ -121,7 +121,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
     case IndWithoutIdAddressNonUkPage =>
-      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      userAnswers => navigateFromAddressNonUk(userAnswers)
 
     case IndWithoutIdDateOfBirthPage =>
       _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
@@ -130,7 +130,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
     case IndReviewConfirmAddressPageForNavigatorOnly =>
-      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
@@ -138,7 +138,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case WhereDoYouLivePage => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
     case IndWithoutIdAddressPageForNavigatorOnly =>
-      _ => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      userAnswers => navigateFromIndWithoutIdAddressPage(userAnswers)
 
     case IndWithoutIdChooseAddressPage => userAnswers => navigateFromChooseAddressPage(userAnswers)
 
@@ -200,7 +200,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         if (answer == noneOfTheseValue) {
           controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
         } else {
-          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+          ifIndividualEmailIsPresentNavigation(userAnswers)
         }
       }
 
@@ -261,13 +261,14 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+          ifIndividualEmailIsPresentNavigation(userAnswers)
         } else {
           controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
         }
 
       case Some(false) =>
         if (userAnswers.isCtAutoMatched) {
+          println("***** reached here")
           controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
@@ -278,6 +279,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         }
 
       case None =>
+        println("***** reached here!!!!")
         routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -341,6 +343,22 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromAddressNonUk(userAnswers: UserAnswers) =
+    ifIndividualEmailIsPresentNavigation(userAnswers)
+
+  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers) =
+    ifIndividualEmailIsPresentNavigation(userAnswers)
+
+  private def navigateFromIndWithoutIdAddressPage(userAnswers: UserAnswers) =
+    ifIndividualEmailIsPresentNavigation(userAnswers)
+
+  private def ifIndividualEmailIsPresentNavigation(userAnswers: UserAnswers) =
+    userAnswers
+      .get(IndividualEmailPage)
+      .fold(
+        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      )(_ => routes.CheckYourAnswersController.onPageLoad())
 
   private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
     userAnswers.get(AddressLookupPage) match {

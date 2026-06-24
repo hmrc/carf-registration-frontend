@@ -16,16 +16,8 @@
 
 package pages
 
-import config.Constants.{indGeneralPage, indWithNinoPages, indWithoutIdPages}
-import models.RegistrationType.{Individual, SoleTrader}
-import models.{IndWithoutIdAddressNonUk, RegistrationType, UserAnswers}
-import pages.individual.*
-import pages.individualWithoutId.*
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
-import pages.organisation.*
+import models.RegistrationType
 import play.api.libs.json.JsPath
-
-import scala.util.{Success, Try}
 
 case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
@@ -33,56 +25,7 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
 
   override def toString: String = "registrationType"
 
-  private val nonSoleTraderPages = List(
-    WhatIsTheNameOfYourBusinessPage,
-    IsThisYourBusinessPage,
-    FirstContactNamePage,
-    FirstContactEmailPage,
-    FirstContactPhonePage,
-    FirstContactPhoneNumberPage,
-    OrganisationHaveSecondContactPage,
-    OrganisationSecondContactNamePage,
-    OrganisationSecondContactEmailPage,
-    OrganisationSecondContactHavePhonePage,
-    OrganisationSecondContactPhoneNumberPage,
-    HaveTradingNamePage,
-    TradingNamePage,
-    OrgWithoutIdBusinessNamePage,
-    OrganisationBusinessAddressPage
-  )
+  // CARF-545: Don't automatically clear match flag and safeId when registrationType has changed
+  // Cleanup is now handled in IndividualRegistrationTypePageForNavigatorAndCleanup or OrganisationRegistrationTypePageForNavigatorAndCleanup
 
-  private val soleTraderPages = {
-    val indWithUtrPage         = List(WhatIsYourNamePage, IsThisYourBusinessPage)
-    val indContactDetailsPages = List(IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage)
-    indWithUtrPage ++ indGeneralPage ++ indWithNinoPages ++ indWithoutIdPages ++ indContactDetailsPages
-  }
-
-  private val nonIndNotConnectedToABusinessPages = List(
-    RegisteredAddressInUkPage,
-    HaveUTRPage,
-    UniqueTaxpayerReferenceInUserAnswers,
-    WhatIsYourNamePage,
-    IsThisYourBusinessPage
-  )
-
-  override def cleanup(
-      newValue: RegistrationType,
-      updatedUserAnswers: UserAnswers,
-      hasChanged: Boolean
-  ): Try[UserAnswers] =
-    if (hasChanged) {
-      if (newValue == SoleTrader) {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(nonSoleTraderPages)
-      } else if (newValue == Individual) {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(nonIndNotConnectedToABusinessPages)
-      } else {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(soleTraderPages)
-      }
-    } else {
-      Success(updatedUserAnswers)
-    }
 }
-
-case object NavigatorOnlyIndividualRegistrationTypePage extends Page
-
-case object NavigatorOnlyOrganisationRegistrationTypePage extends Page

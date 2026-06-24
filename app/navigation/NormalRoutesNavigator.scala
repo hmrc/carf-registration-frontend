@@ -38,10 +38,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
-    case NavigatorOnlyIndividualRegistrationTypePage =>
+    case IndividualRegistrationTypePageForNavigatorAndCleanup =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case NavigatorOnlyOrganisationRegistrationTypePage =>
+    case OrganisationRegistrationTypePageForNavigatorAndCleanup =>
       _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>
@@ -268,7 +268,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
       case Some(false) =>
         if (userAnswers.isCtAutoMatched) {
-          println("***** reached here")
           controllers.organisation.routes.ProblemDifferentBusinessController.onPageLoad()
         } else {
           if (isSoleTrader(userAnswers)) {
@@ -279,7 +278,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
         }
 
       case None =>
-        println("***** reached here!!!!")
         routes.JourneyRecoveryController.onPageLoad()
     }
 

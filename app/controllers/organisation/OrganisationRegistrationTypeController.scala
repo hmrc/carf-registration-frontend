@@ -18,9 +18,9 @@ package controllers.organisation
 
 import controllers.actions.*
 import forms.organisation.OrganisationRegistrationTypeFormProvider
-import models.{Mode, OrganisationRegistrationType}
+import models.{Mode, OrganisationRegistrationType, RegistrationType}
 import navigation.Navigator
-import pages.{NavigatorOnlyIndividualRegistrationTypePage, NavigatorOnlyOrganisationRegistrationTypePage, RegistrationTypePage}
+import pages.{OrganisationRegistrationTypePageForNavigatorAndCleanup, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -66,10 +66,19 @@ class OrganisationRegistrationTypeController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <-
-                Future.fromTry(request.userAnswers.set(RegistrationTypePage, value.toRegistrationType))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(NavigatorOnlyOrganisationRegistrationTypePage, mode, updatedAnswers))
+              updatedAnswers1 <-
+                Future.fromTry(
+                  request.userAnswers.set(
+                    OrganisationRegistrationTypePageForNavigatorAndCleanup,
+                    value.toRegistrationType
+                  )
+                )
+              updatedAnswers2 <-
+                Future.fromTry(updatedAnswers1.set(RegistrationTypePage, value.toRegistrationType))
+              _               <- sessionRepository.set(updatedAnswers2)
+            } yield Redirect(
+              navigator.nextPage(OrganisationRegistrationTypePageForNavigatorAndCleanup, mode, updatedAnswers2)
+            )
         )
   }
 }

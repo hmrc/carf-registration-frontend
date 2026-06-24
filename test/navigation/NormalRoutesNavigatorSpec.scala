@@ -38,6 +38,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
   val navigator = new Navigator
 
+  // TODO: Updates for individual-email
   "NormalRoutesNavigator" - {
 
     "must go from a page that doesn't exist in the route map to Journey Recovery" in {
@@ -50,7 +51,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrganisationRegistrationTypePage to Registered Address in the UK page" in {
 
       navigator.nextPage(
-        NavigatorOnlyOrganisationRegistrationTypePage,
+        OrganisationRegistrationTypePageForNavigatorAndCleanup,
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
@@ -60,17 +61,17 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       val userAnswers = UserAnswers("id").set(RegistrationTypePage, SoleTrader).success.value
 
       navigator.nextPage(
-        NavigatorOnlyIndividualRegistrationTypePage,
+        IndividualRegistrationTypePageForNavigatorAndCleanup,
         NormalMode,
         userAnswers
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
     }
 
-    "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page? when user is an Individual" in {
+    "must go from IndividualRegistrationTypePage to Do You Have An NI Number Page when user is an Individual" in {
       val userAnswers = UserAnswers("id").set(RegistrationTypePage, Individual).success.value
 
       navigator.nextPage(
-        NavigatorOnlyIndividualRegistrationTypePage,
+        IndividualRegistrationTypePageForNavigatorAndCleanup,
         NormalMode,
         userAnswers
       ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
@@ -321,7 +322,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
       "when user answers 'true' (yes, this is their business)" - {
 
-        "must navigate to individual email page for organisation sole traders" in {
+        "must navigate to individual email page for sole traders if individual email is not present" in {
           val userAnswers = UserAnswers("id")
             .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
             .withPage(
@@ -343,7 +344,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
           ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
         }
 
-        "must navigate to individual email page for individual sole traders" in {
+        "must navigate to Check your answers page for sole traders if individual email is present" in {
           val userAnswers = UserAnswers("id")
             .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
             .withPage(
@@ -357,12 +358,13 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(true)
               )
             )
+            .withPage(IndividualEmailPage, "testEmail")
 
           navigator.nextPage(
             IsThisYourBusinessPage,
             NormalMode,
             userAnswers
-          ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+          ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
         }
 
         "must navigate to contact details page for non-sole traders" in {
@@ -419,6 +421,9 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
           val userAnswers = UserAnswers("id")
             .copy(isCtAutoMatched = true)
+            .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+            .success
+            .value
             .set(
               IsThisYourBusinessPage,
               IsThisYourBusinessPageDetails(
@@ -430,9 +435,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
                 Some(false)
               )
             )
-            .success
-            .value
-            .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
             .success
             .value
 

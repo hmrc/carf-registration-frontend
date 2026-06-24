@@ -33,10 +33,10 @@ import utils.UserAnswersHelper
 trait ChangeRoutesNavigator extends UserAnswersHelper {
 
   val checkRouteMap: Page => UserAnswers => Call = {
-    case NavigatorOnlyIndividualRegistrationTypePage =>
+    case IndividualRegistrationTypePageForNavigatorAndCleanup =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case NavigatorOnlyOrganisationRegistrationTypePage =>
+    case OrganisationRegistrationTypePageForNavigatorAndCleanup =>
       _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(ChangeMode)
 
     case RegisteredAddressInUkPage =>

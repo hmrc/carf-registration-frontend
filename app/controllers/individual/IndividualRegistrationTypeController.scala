@@ -18,9 +18,9 @@ package controllers.individual
 
 import controllers.actions.*
 import forms.individual.IndividualRegistrationTypeFormProvider
-import models.{IndividualRegistrationType, Mode}
+import models.{IndividualRegistrationType, Mode, RegistrationType}
 import navigation.Navigator
-import pages.{NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
+import pages.{IndividualRegistrationTypePageForNavigatorAndCleanup, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -67,11 +67,21 @@ class IndividualRegistrationTypeController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           individualRegistrationType =>
             for {
-              updatedAnswers <-
-                Future
-                  .fromTry(request.userAnswers.set(RegistrationTypePage, individualRegistrationType.toRegistrationType))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers))
+              updatedAnswers1 <-
+                Future.fromTry(
+                  request.userAnswers.set(
+                    IndividualRegistrationTypePageForNavigatorAndCleanup,
+                    individualRegistrationType.toRegistrationType
+                  )
+                )
+              updatedAnswers2 <-
+                Future.fromTry(
+                  updatedAnswers1.set(RegistrationTypePage, individualRegistrationType.toRegistrationType)
+                )
+              _               <- sessionRepository.set(updatedAnswers2)
+            } yield Redirect(
+              navigator.nextPage(IndividualRegistrationTypePageForNavigatorAndCleanup, mode, updatedAnswers2)
+            )
         )
   }
 }

@@ -25,7 +25,7 @@ enum RegistrationType(val code: String, val messagesKey: String, val humanReadab
   case Trust extends RegistrationType("0003", "trust", "Unincorporated association or trust")
   case SoleTrader extends RegistrationType("0004", "soleTrader", "Sole Trader")
   case Individual
-      extends RegistrationType("Individual code not needed", "individual", "Individual not connected to a business,")
+      extends RegistrationType("Individual code not needed", "individual", "Individual not connected to a business")
 
 object RegistrationType {
   implicit val reads: Reads[RegistrationType] = Reads {

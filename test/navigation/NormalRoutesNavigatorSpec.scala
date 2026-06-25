@@ -38,7 +38,6 @@ class NormalRoutesNavigatorSpec extends SpecBase {
 
   val navigator = new Navigator
 
-  // TODO: Updates for individual-email
   "NormalRoutesNavigator" - {
 
     "must go from a page that doesn't exist in the route map to Journey Recovery" in {

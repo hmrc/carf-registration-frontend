@@ -121,7 +121,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
     case IndWithoutIdAddressNonUkPage =>
-      userAnswers => navigateFromAddressNonUk(userAnswers)
+      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
 
     case IndWithoutIdDateOfBirthPage =>
       _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
@@ -130,7 +130,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
     case IndReviewConfirmAddressPageForNavigatorOnly =>
-      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
+      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
@@ -138,7 +138,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
     case WhereDoYouLivePage => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
     case IndWithoutIdAddressPageForNavigatorOnly =>
-      userAnswers => navigateFromIndWithoutIdAddressPage(userAnswers)
+      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
 
     case IndWithoutIdChooseAddressPage => userAnswers => navigateFromChooseAddressPage(userAnswers)
 
@@ -341,15 +341,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def navigateFromAddressNonUk(userAnswers: UserAnswers) =
-    ifIndividualEmailIsPresentNavigation(userAnswers)
-
-  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers) =
-    ifIndividualEmailIsPresentNavigation(userAnswers)
-
-  private def navigateFromIndWithoutIdAddressPage(userAnswers: UserAnswers) =
-    ifIndividualEmailIsPresentNavigation(userAnswers)
 
   private def ifIndividualEmailIsPresentNavigation(userAnswers: UserAnswers) =
     userAnswers

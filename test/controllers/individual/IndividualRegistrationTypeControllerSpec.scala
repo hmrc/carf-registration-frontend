@@ -19,10 +19,11 @@ package controllers.individual
 import base.SpecBase
 import controllers.routes
 import forms.individual.IndividualRegistrationTypeFormProvider
-import models.{IndividualRegistrationType, NormalMode, RegistrationType, UserAnswers}
+import models.IndividualRegistrationType.{IndividualNotConnectedToABusiness, IndividualSoleTrader}
+import models.{IndividualRegistrationType, NormalMode, RegistrationType, SafeId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationTypePage
 import play.api.inject.bind
@@ -43,6 +44,11 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
 
   val formProvider = new IndividualRegistrationTypeFormProvider()
   val form         = formProvider()
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionRepository)
+  }
 
   "IndividualRegistrationType Controller" - {
 
@@ -94,21 +100,165 @@ class IndividualRegistrationTypeControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Individual)
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-          )
-          .build()
-      running(application) {
-        val request =
-          FakeRequest(POST, individualRegistrationTypeRoute)
-            .withFormUrlEncodedBody(("individualRegistrationType", IndividualRegistrationType.values.head.toString))
-        val result  = route(application, request).value
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+    "must redirect to the next page when valid data is submitted" - {
+      "when the answer has not changed" - {
+        "when match flag is true and safeId has been set" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Individual)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, individualRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("individualRegistrationType", IndividualSoleTrader.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(userAnswers))
+          }
+        }
+
+        "when match flag is false and safeId has not been set" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.Individual)
+
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Individual)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, individualRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("individualRegistrationType", IndividualNotConnectedToABusiness.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(userAnswers))
+          }
+        }
+      }
+
+      "when the answer has changed" - {
+        "when RegistrationTypePage was not previously populated" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val application =
+            applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Individual)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, individualRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("individualRegistrationType", IndividualSoleTrader.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(
+              eqTo(emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.SoleTrader))
+            )
+          }
+        }
+
+        "when RegistrationType changes from SoleTrader to Individual, does not clear match flag and safeId" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+
+          val expectedSetUserAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.Individual)
+
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Individual)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, individualRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("individualRegistrationType", IndividualNotConnectedToABusiness.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(expectedSetUserAnswers))
+          }
+        }
+
+        "when RegistrationType changes from Individual to SoleTrader, does not clear match flag and safeId" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.Individual)
+
+          val expectedSetUserAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Individual)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, individualRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("individualRegistrationType", IndividualSoleTrader.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(expectedSetUserAnswers))
+          }
+        }
+
+        "when RegistrationType changes from LimitedCompany to SoleTrader, clears match flag and safeId" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+
+          val expectedSetUserAnswers = emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Individual)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, individualRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("individualRegistrationType", IndividualSoleTrader.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(expectedSetUserAnswers))
+          }
+        }
       }
     }
 

@@ -28,7 +28,7 @@ import pages.organisation.*
 
 import java.time.LocalDate
 
-class IndividualRegistrationTypePageForNavigatorAndCleanupSpec extends SpecBase {
+class RegistrationTypePageSpec extends SpecBase {
   private val testParamGenerator = for {
     stringField     <- Gen.alphaStr.suchThat(_.nonEmpty)
     booleanField    <- Gen.oneOf(true, false)
@@ -59,14 +59,13 @@ class IndividualRegistrationTypePageForNavigatorAndCleanupSpec extends SpecBase 
     longField
   )
 
-  "IndividualRegistrationTypePageForNavigatorAndCleanup" - {
+  "RegistrationTypePage" - {
     "cleanup" - {
       "must clear answers" - {
         "when the new answer is different to the previous one and is sole trader" in {
-          val ua     = generateUserAnswers(SoleTrader)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, SoleTrader)
+          val ua     = generateUserAnswers(SoleTrader).withPage(RegistrationTypePage, SoleTrader)
           val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
+            RegistrationTypePage
               .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
               .success
               .value
@@ -88,10 +87,9 @@ class IndividualRegistrationTypePageForNavigatorAndCleanupSpec extends SpecBase 
         }
 
         "when the new answer is different to the previous one and is individual not connected to a business" in {
-          val ua     = generateUserAnswers(Individual)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, Individual)
+          val ua     = generateUserAnswers(Individual).withPage(RegistrationTypePage, Individual)
           val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
+            RegistrationTypePage
               .cleanup(newValue = Individual, updatedUserAnswers = ua, hasChanged = true)
               .success
               .value
@@ -103,107 +101,43 @@ class IndividualRegistrationTypePageForNavigatorAndCleanupSpec extends SpecBase 
           result.get(IsThisYourBusinessPage)               mustBe empty
         }
 
+        "when the new answer is different to the previous one and is Limited Company (non sole trader)" in {
+          val ua     = generateUserAnswers(LimitedCompany).withPage(RegistrationTypePage, LimitedCompany)
+          val result = RegistrationTypePage
+            .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = true)
+            .success
+            .value
+
+          result.get(WhatIsYourNamePage)                    mustBe empty
+          result.get(HaveNiNumberPage)                      mustBe empty
+          result.get(NiNumberPage)                          mustBe empty
+          result.get(WhatIsYourNameIndividualPage)          mustBe empty
+          result.get(RegisterDateOfBirthPage)               mustBe empty
+          result.get(IndFindAddressAdditionalCallUa)        mustBe empty
+          result.get(IndFindAddressPage)                    mustBe empty
+          result.get(WhereDoYouLivePage)                    mustBe empty
+          result.get(AddressLookupPage)                     mustBe empty
+          result.get(AddressUPRNUserAnswers)                mustBe empty
+          result.get(IndWithoutNinoNamePage)                mustBe empty
+          result.get(IndWithoutIdAddressNonUkPage)          mustBe empty
+          result.get(IndWithoutIdAddressPagePrePop)         mustBe empty
+          result.get(IndWithoutIdChooseAddressPage)         mustBe empty
+          result.get(IndWithoutIdDateOfBirthPage)           mustBe empty
+          result.get(IndWithoutIdSelectedChooseAddressPage) mustBe empty
+          result.get(IndWithoutIdUkAddressInUserAnswers)    mustBe empty
+          result.get(IndividualEmailPage)                   mustBe empty
+          result.get(IndividualHavePhonePage)               mustBe empty
+          result.get(IndividualPhoneNumberPage)             mustBe empty
+        }
+
         "when answer has not changed, do nothing" in {
-          val ua     = generateUserAnswers(Individual)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, Individual)
-          val result = IndividualRegistrationTypePageForNavigatorAndCleanup
-            .cleanup(newValue = Individual, updatedUserAnswers = ua, hasChanged = false)
+          val ua     = emptyUserAnswers
+          val result = RegistrationTypePage
+            .cleanup(newValue = LimitedCompany, updatedUserAnswers = ua, hasChanged = false)
             .success
             .value
 
           result mustBe ua
-        }
-      }
-
-      "match flag must" - {
-        "remain true and safe id not cleared when the new answer is different to the previous one and is sole trader" in {
-          val ua = generateUserAnswers(SoleTrader)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, SoleTrader)
-            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
-
-          val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
-              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
-              .success
-              .value
-
-          result.hasValidMatch mustBe true
-          result.safeId        mustBe Some(SafeId(testSafeId))
-        }
-
-        "remain false and keep safe id clear when the new answer is different to the previous one and is sole trader" in {
-          val ua = generateUserAnswers(SoleTrader)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, SoleTrader)
-            .copy(hasValidMatch = false, safeId = None)
-
-          val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
-              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
-              .success
-              .value
-
-          result.hasValidMatch mustBe false
-          result.safeId        mustBe None
-        }
-
-        "remain true and safe id not cleared when the new answer is different to the previous one and is individual not connected to a business" in {
-          val ua = generateUserAnswers(Individual)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, Individual)
-            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
-
-          val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
-              .cleanup(newValue = Individual, updatedUserAnswers = ua, hasChanged = true)
-              .success
-              .value
-
-          result.hasValidMatch mustBe true
-          result.safeId        mustBe Some(SafeId(testSafeId))
-        }
-
-        "remain false and keep safe id clear when the new answer is different to the previous one and is individual not connected to a business" in {
-          val ua = generateUserAnswers(SoleTrader)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, SoleTrader)
-            .copy(hasValidMatch = false, safeId = None)
-
-          val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
-              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = true)
-              .success
-              .value
-
-          result.hasValidMatch mustBe false
-          result.safeId        mustBe None
-        }
-
-        "remain unchanged and safe id kept when answer has not changed, and hasValidMatch is true" in {
-          val ua = generateUserAnswers(SoleTrader)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, SoleTrader)
-            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
-
-          val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
-              .cleanup(newValue = SoleTrader, updatedUserAnswers = ua, hasChanged = false)
-              .success
-              .value
-
-          result.hasValidMatch mustBe true
-          result.safeId        mustBe Some(SafeId(testSafeId))
-        }
-
-        "remain unchanged and safe id kept when answer has not changed, and hasValidMatch is false" in {
-          val ua = generateUserAnswers(Individual)
-            .withPage(IndividualRegistrationTypePageForNavigatorAndCleanup, Individual)
-            .copy(hasValidMatch = false, safeId = None)
-
-          val result =
-            IndividualRegistrationTypePageForNavigatorAndCleanup
-              .cleanup(newValue = Individual, updatedUserAnswers = ua, hasChanged = false)
-              .success
-              .value
-
-          result.hasValidMatch mustBe false
-          result.safeId        mustBe None
         }
       }
     }
@@ -213,7 +147,7 @@ class IndividualRegistrationTypePageForNavigatorAndCleanupSpec extends SpecBase 
     val answers = cleanupType match {
       case SoleTrader => createUserAnswersForNonSoleTraderCleanup.suchThat(_ != null)
       case Individual => createUserAnswersForIndividualCleanup.suchThat(_ != null)
-      case _          => fail("Registration type can only be SoleTrader or Individual")
+      case _          => createUserAnswersForSoleTraderCleanup.suchThat(_ != null)
     }
     answers.sample match {
       case Some(value) => value
@@ -255,6 +189,47 @@ class IndividualRegistrationTypePageForNavigatorAndCleanupSpec extends SpecBase 
       .withPage(TradingNamePage, stringField)
       .withPage(OrgWithoutIdBusinessNamePage, stringField)
       .withPage(OrganisationBusinessAddressPage, businessAddress)
+
+  def createUserAnswersForSoleTraderCleanup: Gen[UserAnswers] =
+    for {
+      (
+        stringField,
+        booleanField,
+        postcode,
+        dob,
+        businessAddress,
+        name,
+        findAddress,
+        addressNonUk,
+        addressUk,
+        utr,
+        itybpd,
+        addressesAndUPRNs,
+        longField
+      ) <-
+        testParamGenerator.suchThat(_ != null)
+    } yield emptyUserAnswers
+      .withPage(WhatIsYourNamePage, name)
+      .withPage(IsThisYourBusinessPage, itybpd)
+      .withPage(HaveNiNumberPage, booleanField)
+      .withPage(NiNumberPage, stringField)
+      .withPage(WhatIsYourNameIndividualPage, name)
+      .withPage(RegisterDateOfBirthPage, dob)
+      .withPage(IndFindAddressAdditionalCallUa, booleanField)
+      .withPage(IndFindAddressPage, findAddress)
+      .withPage(WhereDoYouLivePage, booleanField)
+      .withPage(AddressLookupPage, addressesAndUPRNs)
+      .withPage(AddressUPRNUserAnswers, longField)
+      .withPage(IndWithoutNinoNamePage, name)
+      .withPage(IndWithoutIdAddressNonUkPage, addressNonUk)
+      .withPage(IndWithoutIdAddressPagePrePop, addressUk)
+      .withPage(IndWithoutIdChooseAddressPage, stringField)
+      .withPage(IndWithoutIdDateOfBirthPage, dob)
+      .withPage(IndWithoutIdSelectedChooseAddressPage, addressUk)
+      .withPage(IndWithoutIdUkAddressInUserAnswers, addressUk)
+      .withPage(IndividualEmailPage, stringField)
+      .withPage(IndividualHavePhonePage, booleanField)
+      .withPage(IndividualPhoneNumberPage, stringField)
 
   def createUserAnswersForIndividualCleanup: Gen[UserAnswers] =
     for {

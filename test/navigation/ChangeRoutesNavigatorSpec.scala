@@ -37,7 +37,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           .withPage(RegistrationTypePage, SoleTrader)
 
         navigator.nextPage(
-          IndividualRegistrationTypePageForNavigatorAndCleanup,
+          NavigatorOnlyIndividualRegistrationTypePage,
           ChangeMode,
           userAnswers
         ) mustBe controllers.routes.RegisteredAddressInUkController.onPageLoad(ChangeMode)
@@ -47,7 +47,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           .withPage(RegistrationTypePage, Individual)
 
         navigator.nextPage(
-          IndividualRegistrationTypePageForNavigatorAndCleanup,
+          NavigatorOnlyIndividualRegistrationTypePage,
           ChangeMode,
           userAnswers
         ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
@@ -57,7 +57,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           .withPage(RegistrationTypePage, LimitedCompany)
 
         navigator.nextPage(
-          IndividualRegistrationTypePageForNavigatorAndCleanup,
+          NavigatorOnlyIndividualRegistrationTypePage,
           ChangeMode,
           userAnswers
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
@@ -67,7 +67,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
     "when on NavigatorOnlyOrganisationRegistrationTypePage" - {
       "must navigate to RegisteredAddressInUkController" in {
         navigator.nextPage(
-          OrganisationRegistrationTypePageForNavigatorAndCleanup,
+          NavigatorOnlyOrganisationRegistrationTypePage,
           ChangeMode,
           emptyUserAnswers
         ) mustBe controllers.routes.RegisteredAddressInUkController.onPageLoad(ChangeMode)

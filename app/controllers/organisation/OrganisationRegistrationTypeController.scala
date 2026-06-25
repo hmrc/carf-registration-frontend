@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.organisation.OrganisationRegistrationTypeFormProvider
 import models.{Mode, OrganisationRegistrationType, RegistrationType}
 import navigation.Navigator
-import pages.{OrganisationRegistrationTypePageForNavigatorAndCleanup, RegistrationTypePage}
+import pages.{NavigatorOnlyOrganisationRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -65,19 +65,14 @@ class OrganisationRegistrationTypeController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
+            val hasAnswerChanged = !request.userAnswers.get(RegistrationTypePage).contains(value.toRegistrationType)
+            val updatedAnswers1  =
+              if (hasAnswerChanged) request.userAnswers.clearMatchFlagAndSafeId else request.userAnswers
             for {
-              updatedAnswers1 <-
-                Future.fromTry(
-                  request.userAnswers.set(
-                    OrganisationRegistrationTypePageForNavigatorAndCleanup,
-                    value.toRegistrationType
-                  )
-                )
-              updatedAnswers2 <-
-                Future.fromTry(updatedAnswers1.set(RegistrationTypePage, value.toRegistrationType))
+              updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(RegistrationTypePage, value.toRegistrationType))
               _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(
-              navigator.nextPage(OrganisationRegistrationTypePageForNavigatorAndCleanup, mode, updatedAnswers2)
+              navigator.nextPage(NavigatorOnlyOrganisationRegistrationTypePage, mode, updatedAnswers2)
             )
         )
   }

@@ -18,9 +18,10 @@ package controllers.individual
 
 import controllers.actions.*
 import forms.individual.IndividualRegistrationTypeFormProvider
+import models.RegistrationType.{Individual, SoleTrader}
 import models.{IndividualRegistrationType, Mode, RegistrationType}
 import navigation.Navigator
-import pages.{IndividualRegistrationTypePageForNavigatorAndCleanup, RegistrationTypePage}
+import pages.{NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -66,21 +67,26 @@ class IndividualRegistrationTypeController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           individualRegistrationType =>
+            // CARF-545: If answer has changed from SoleTrader to Individual or vice versa, don't clear match flag and safeId
+            val hasAnswerChanged                       =
+              !request.userAnswers.get(RegistrationTypePage).contains(individualRegistrationType.toRegistrationType)
+            val previousAnswerIsIndividualOrSoleTrader =
+              request.userAnswers.get(RegistrationTypePage).contains(Individual) ||
+                request.userAnswers.get(RegistrationTypePage).contains(SoleTrader)
+
+            val updatedAnswers1 =
+              // covers edge case of e.g. LimitedCompany -> Individual (should clear)
+              if (hasAnswerChanged && !previousAnswerIsIndividualOrSoleTrader)
+                request.userAnswers.clearMatchFlagAndSafeId
+              else request.userAnswers
             for {
-              updatedAnswers1 <-
-                Future.fromTry(
-                  request.userAnswers.set(
-                    IndividualRegistrationTypePageForNavigatorAndCleanup,
-                    individualRegistrationType.toRegistrationType
-                  )
-                )
               updatedAnswers2 <-
                 Future.fromTry(
                   updatedAnswers1.set(RegistrationTypePage, individualRegistrationType.toRegistrationType)
                 )
               _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(
-              navigator.nextPage(IndividualRegistrationTypePageForNavigatorAndCleanup, mode, updatedAnswers2)
+              navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers2)
             )
         )
   }

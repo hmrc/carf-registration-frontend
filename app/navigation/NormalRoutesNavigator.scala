@@ -38,10 +38,10 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
-    case IndividualRegistrationTypePageForNavigatorAndCleanup =>
+    case NavigatorOnlyIndividualRegistrationTypePage =>
       userAnswers => navigateFromIndividualRegistrationTypePage(userAnswers)
 
-    case OrganisationRegistrationTypePageForNavigatorAndCleanup =>
+    case NavigatorOnlyOrganisationRegistrationTypePage =>
       _ => controllers.routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
 
     case RegisteredAddressInUkPage =>

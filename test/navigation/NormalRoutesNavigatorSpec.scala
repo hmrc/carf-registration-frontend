@@ -51,7 +51,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     "must go from OrganisationRegistrationTypePage to Registered Address in the UK page" in {
 
       navigator.nextPage(
-        OrganisationRegistrationTypePageForNavigatorAndCleanup,
+        NavigatorOnlyOrganisationRegistrationTypePage,
         NormalMode,
         UserAnswers("id")
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
@@ -61,7 +61,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       val userAnswers = UserAnswers("id").set(RegistrationTypePage, SoleTrader).success.value
 
       navigator.nextPage(
-        IndividualRegistrationTypePageForNavigatorAndCleanup,
+        NavigatorOnlyIndividualRegistrationTypePage,
         NormalMode,
         userAnswers
       ) mustBe routes.RegisteredAddressInUkController.onPageLoad(NormalMode)
@@ -71,7 +71,7 @@ class NormalRoutesNavigatorSpec extends SpecBase {
       val userAnswers = UserAnswers("id").set(RegistrationTypePage, Individual).success.value
 
       navigator.nextPage(
-        IndividualRegistrationTypePageForNavigatorAndCleanup,
+        NavigatorOnlyIndividualRegistrationTypePage,
         NormalMode,
         userAnswers
       ) mustBe controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)

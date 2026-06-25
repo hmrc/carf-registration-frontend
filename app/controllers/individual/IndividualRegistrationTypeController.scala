@@ -19,7 +19,7 @@ package controllers.individual
 import controllers.actions.*
 import forms.individual.IndividualRegistrationTypeFormProvider
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{IndividualRegistrationType, Mode, RegistrationType}
+import models.{IndividualRegistrationType, Mode, RegistrationType, UserAnswers}
 import navigation.Navigator
 import pages.{NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -67,27 +67,31 @@ class IndividualRegistrationTypeController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           individualRegistrationType =>
-            // CARF-545: If answer has changed from SoleTrader to Individual or vice versa, don't clear match flag and safeId
-            val hasAnswerChanged                       =
-              !request.userAnswers.get(RegistrationTypePage).contains(individualRegistrationType.toRegistrationType)
-            val previousAnswerIsIndividualOrSoleTrader =
-              request.userAnswers.get(RegistrationTypePage).contains(Individual) ||
-                request.userAnswers.get(RegistrationTypePage).contains(SoleTrader)
-
-            val updatedAnswers1 =
-              // covers edge case of e.g. LimitedCompany -> Individual (should clear)
-              if (hasAnswerChanged && !previousAnswerIsIndividualOrSoleTrader)
-                request.userAnswers.clearMatchFlagAndSafeId
-              else request.userAnswers
+            val userAnswersWithMatchFlagMaybeCleared =
+              clearMatchFlagAndSafeIdIfNeeded(request.userAnswers, individualRegistrationType.toRegistrationType)
             for {
-              updatedAnswers2 <-
-                Future.fromTry(
-                  updatedAnswers1.set(RegistrationTypePage, individualRegistrationType.toRegistrationType)
-                )
-              _               <- sessionRepository.set(updatedAnswers2)
+              updatedAnswers <- Future.fromTry(
+                                  userAnswersWithMatchFlagMaybeCleared
+                                    .set(RegistrationTypePage, individualRegistrationType.toRegistrationType)
+                                )
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers2)
+              navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers)
             )
         )
+  }
+
+  private def clearMatchFlagAndSafeIdIfNeeded(
+      oldUserAnswers: UserAnswers,
+      submittedRegistrationType: RegistrationType
+  ): UserAnswers = {
+    val hasAnswerChanged = !oldUserAnswers.get(RegistrationTypePage).contains(submittedRegistrationType)
+
+    val previousAnswerIsIndividualOrSoleTrader =
+      oldUserAnswers.get(RegistrationTypePage).contains(Individual) ||
+        oldUserAnswers.get(RegistrationTypePage).contains(SoleTrader)
+
+    if (hasAnswerChanged && !previousAnswerIsIndividualOrSoleTrader) oldUserAnswers.clearMatchFlagAndSafeId
+    else oldUserAnswers
   }
 }

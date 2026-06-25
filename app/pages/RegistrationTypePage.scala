@@ -70,9 +70,6 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      // CARF-545: Don't automatically clear match flag and safeId here
-      // If answer has changed on /individual-registration-type (SoleTrader <-> Individual), don't clear
-      // Continue to clear if answer has changed on /organisation-registration-type
       if (newValue == SoleTrader) {
         updatedUserAnswers.remove(nonSoleTraderPages)
       } else if (newValue == Individual) {

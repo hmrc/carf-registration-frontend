@@ -41,7 +41,6 @@ class RegisterIdentityConfirmedController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
-      // CARF-545: If the user is in Normal mode, still redirect to CYA if individualEmail is already present from previously completing a journey
       val continueUrl =
         if (request.userAnswers.get(IndividualEmailPage).isDefined)
           controllers.routes.CheckYourAnswersController.onPageLoad().url

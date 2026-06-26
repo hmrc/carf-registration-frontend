@@ -18,9 +18,8 @@ package pages
 
 import config.Constants.{indGeneralPage, indWithNinoPages, indWithoutIdPages}
 import models.RegistrationType.{Individual, SoleTrader}
-import models.{IndWithoutIdAddressNonUk, RegistrationType, UserAnswers}
+import models.{RegistrationType, UserAnswers}
 import pages.individual.*
-import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
 import play.api.libs.json.JsPath
@@ -72,11 +71,11 @@ case object RegistrationTypePage extends QuestionPage[RegistrationType] {
   ): Try[UserAnswers] =
     if (hasChanged) {
       if (newValue == SoleTrader) {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(nonSoleTraderPages)
+        updatedUserAnswers.remove(nonSoleTraderPages)
       } else if (newValue == Individual) {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(nonIndNotConnectedToABusinessPages)
+        updatedUserAnswers.remove(nonIndNotConnectedToABusinessPages)
       } else {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(soleTraderPages)
+        updatedUserAnswers.remove(soleTraderPages)
       }
     } else {
       Success(updatedUserAnswers)

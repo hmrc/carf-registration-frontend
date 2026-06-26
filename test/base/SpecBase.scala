@@ -19,10 +19,10 @@ package base
 import config.Constants.ukTimeZoneStringId
 import controllers.actions.*
 import generators.Generators
+import models.*
 import models.countries.{Country, CountryUk}
 import models.requests.{AddressDetails, ContactDetails}
 import models.responses.*
-import models.*
 import org.mockito.Mockito.reset
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -36,7 +36,6 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
-import play.api.libs.json.{Reads, Writes}
 import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import queries.{Gettable, Settable}

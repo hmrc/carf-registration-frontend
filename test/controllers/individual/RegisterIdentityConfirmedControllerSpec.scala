@@ -33,9 +33,29 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar
   lazy val changeRegisterIdentityConfirmedRoute: String =
     controllers.individual.routes.RegisterIdentityConfirmedController.onPageLoad(ChangeMode).url
 
-  "Normal mode" - {
-    "RegisterIdentityConfirmed Controller" - {
-      "must return OK and the correct view for a GET" in {
+  "RegisterIdentityConfirmed Controller" - {
+    "Normal mode" - {
+      "must return OK and the correct continue url when individual email is populated" in {
+        val application = applicationBuilder(userAnswers =
+          Some(
+            emptyUserAnswers
+              .withPage(IndividualEmailPage, testEmail)
+          )
+        ).build()
+
+        running(application) {
+          val request     = FakeRequest(GET, registerIdentityConfirmedRoute)
+          val result      = route(application, request).value
+          val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
+          val continueUrl =
+            controllers.routes.CheckYourAnswersController.onPageLoad().url
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString
+        }
+      }
+
+      "must return OK and the correct continue url when individual email is NOT populated" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -50,41 +70,41 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar
         }
       }
     }
-  }
 
-  "Change mode" - {
-    "must return OK and the correct continue url when individual email is populated" in {
-      val application = applicationBuilder(userAnswers =
-        Some(
-          emptyUserAnswers
-            .withPage(IndividualEmailPage, testEmail)
-        )
-      ).build()
+    "Change mode" - {
+      "must return OK and the correct continue url when individual email is populated" in {
+        val application = applicationBuilder(userAnswers =
+          Some(
+            emptyUserAnswers
+              .withPage(IndividualEmailPage, testEmail)
+          )
+        ).build()
 
-      running(application) {
-        val request     = FakeRequest(GET, changeRegisterIdentityConfirmedRoute)
-        val result      = route(application, request).value
-        val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
-        val continueUrl =
-          controllers.routes.CheckYourAnswersController.onPageLoad().url
+        running(application) {
+          val request     = FakeRequest(GET, changeRegisterIdentityConfirmedRoute)
+          val result      = route(application, request).value
+          val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
+          val continueUrl =
+            controllers.routes.CheckYourAnswersController.onPageLoad().url
 
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString
+        }
       }
-    }
 
-    "must return OK and the correct continue url when individual email is NOT populated" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return OK and the correct continue url when individual email is NOT populated" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      running(application) {
-        val request     = FakeRequest(GET, changeRegisterIdentityConfirmedRoute)
-        val result      = route(application, request).value
-        val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
-        val continueUrl =
-          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
+        running(application) {
+          val request     = FakeRequest(GET, changeRegisterIdentityConfirmedRoute)
+          val result      = route(application, request).value
+          val view        = application.injector.instanceOf[RegisterIdentityConfirmedView]
+          val continueUrl =
+            controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url
 
-        status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(continueUrl)(request, messages(application)).toString
+        }
       }
     }
   }

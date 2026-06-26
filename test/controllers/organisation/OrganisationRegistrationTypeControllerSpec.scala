@@ -19,10 +19,11 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationRegistrationTypeFormProvider
-import models.{NormalMode, OrganisationRegistrationType, RegistrationType, UserAnswers}
+import models.OrganisationRegistrationType.{OrganisationLLP, OrganisationPartnership, OrganisationSoleTrader, OrganisationTrust}
+import models.{NormalMode, OrganisationRegistrationType, RegistrationType, SafeId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationTypePage
 import play.api.inject.bind
@@ -43,6 +44,11 @@ class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSu
 
   val formProvider = new OrganisationRegistrationTypeFormProvider()
   val form         = formProvider()
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionRepository)
+  }
 
   "OrganisationRegistrationType Controller" - {
 
@@ -103,26 +109,109 @@ class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSu
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when valid data is submitted" - {
+      "when the answer has not changed" - {
+        "when match flag is true and safeId has been set" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+          val userAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.Partnership)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Organisation)
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-          )
-          .build()
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Organisation)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
 
-      running(application) {
-        val request =
-          FakeRequest(POST, organisationRegistrationTypeRoute)
-            .withFormUrlEncodedBody(("value", OrganisationRegistrationType.values.head.toString))
+          running(application) {
+            val request =
+              FakeRequest(POST, organisationRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("value", OrganisationPartnership.toString))
+            val result  = route(application, request).value
 
-        val result = route(application, request).value
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
 
-        status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+            verify(mockSessionRepository, times(1)).set(eqTo(userAnswers))
+          }
+        }
+
+        "when match flag is false and safeId has not been set" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.LLP)
+
+          val application =
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Organisation)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, organisationRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("value", OrganisationLLP.toString))
+            val result  = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(userAnswers))
+          }
+        }
+      }
+
+      "when the answer has changed" - {
+        "when RegistrationTypePage was not previously populated" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val application =
+            applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Organisation)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, organisationRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("value", OrganisationSoleTrader.toString))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(
+              eqTo(emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.SoleTrader))
+            )
+          }
+        }
+
+        "when RegistrationTypePage was previously populated, clears match flag and safeId" in {
+          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+          val userAnswers = emptyUserAnswers
+            .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+
+          val expectedSetUserAnswers = emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.Trust)
+
+          val application =
+            applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Organisation)
+              .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+              .build()
+
+          running(application) {
+            val request =
+              FakeRequest(POST, organisationRegistrationTypeRoute)
+                .withFormUrlEncodedBody(("value", OrganisationTrust.toString))
+
+            val result = route(application, request).value
+
+            status(result)                 mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+
+            verify(mockSessionRepository, times(1)).set(eqTo(expectedSetUserAnswers))
+          }
+        }
       }
     }
 

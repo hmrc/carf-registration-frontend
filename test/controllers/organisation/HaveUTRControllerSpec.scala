@@ -124,28 +124,31 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value mustEqual expectedUrl
         }
       }
-      "must redirect to have ni number page normal mode" - {
-        "when answer is false, user is sole trader and the answer is different than before" in {
-          when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-          val ua = emptyUserAnswers
-            .withPage(RegistrationTypePage, SoleTrader)
-            .withPage(HaveUTRPage, true)
+      "must redirect to have ni number page change mode" - {
+        for { (existingAnswer, sameOrDifferent) <- List((true, "different"), (false, "the same")) }
+          s"when existing answer is $existingAnswer, user is sole trader and new answer is $sameOrDifferent" in {
+            when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-          val expectedUrl = controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode).url
+            val ua = emptyUserAnswers
+              .withPage(RegistrationTypePage, SoleTrader)
+              .withPage(HaveUTRPage, existingAnswer)
 
-          val application = applicationBuilder(userAnswers = Some(ua)).build()
+            val expectedUrl = controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode).url
 
-          running(application) {
-            val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
+            val application = applicationBuilder(userAnswers = Some(ua)).build()
 
-            val result = route(application, request).value
+            running(application) {
+              val request = FakeRequest(POST, haveUTRChangeRoute).withFormUrlEncodedBody(("value", "false"))
 
-            status(result)                 mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual expectedUrl
+              val result = route(application, request).value
+
+              status(result)                 mustEqual SEE_OTHER
+              redirectLocation(result).value mustEqual expectedUrl
+            }
           }
-        }
       }
+
       "must redirect to org without id business name page normal mode" - {
         "when answer is false, user is NOT sole trader and the answer is different than before" in {
           when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -169,6 +172,7 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
           }
         }
       }
+
       "must redirect to have ni number page change mode" - {
         "when answer is false, user is sole trader and the answer is the same as before" in {
           when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -191,6 +195,7 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
           }
         }
       }
+
       "must redirect to check your answers page" - {
         "when answer is false, user is NOT sole trader and the answer is the same as before and org without id business name has been answered" in {
           when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -214,6 +219,7 @@ class HaveUTRControllerSpec extends SpecBase with MockitoSugar {
           }
         }
       }
+
       "must redirect to org without id business name page normal mode" - {
         "when answer is false, user is NOT sole trader and the answer is the same as before and org without id business name has NOT been answered" in {
           when(mockSessionRepository.set(any())) thenReturn Future.successful(true)

@@ -18,11 +18,30 @@ package pages.organisation
 
 import base.SpecBase
 import models.*
+import pages.IsThisYourBusinessPage
 
 class WhatIsTheNameOfYourBusinessPageSpec extends SpecBase {
 
   "WhatIsTheNameOfYourBusinessPage" - {
     "cleanup" - {
+      "removal of IsThisYourBusinessPage" - {
+        "when the answer has changed" in {
+          val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
+
+          val result = WhatIsTheNameOfYourBusinessPage.cleanup("name", userAnswers, hasChanged = true).success.value
+
+          result.get(IsThisYourBusinessPage) mustBe None
+        }
+
+        "when the answer has not changed" in {
+          val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
+
+          val result = WhatIsTheNameOfYourBusinessPage.cleanup("name", userAnswers, hasChanged = false).success.value
+
+          result.get(IsThisYourBusinessPage) mustBe Some(testIsThisYourBusinessPageDetails)
+        }
+      }
+
       "must set the match flag to false and the clear safe id when the answer has changed" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
         val result = WhatIsTheNameOfYourBusinessPage.cleanup("Timmy", ua, hasChanged = true).success.value

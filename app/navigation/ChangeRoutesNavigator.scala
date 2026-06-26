@@ -116,11 +116,11 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     case IndWithoutIdDateOfBirthPage                 => _ => CheckYourAnswersController.onPageLoad()
     case WhereDoYouLivePage                          => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
     case IndFindAddressPage                          => userAnswers => navigateFromIndFindAddressPage(userAnswers)
-    case IndWithoutIdAddressNonUkPage                => userAnswers => navigateFromAddressNonUk(userAnswers)
+    case IndWithoutIdAddressNonUkPage                => userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
     case IndWithoutIdChooseAddressPage               => userAnswers => navigateFromChooseAddressPage(userAnswers)
     case IndReviewConfirmAddressPageForNavigatorOnly =>
-      userAnswers => navigateFromIndReviewConfirmAddressPage(userAnswers)
-    case IndWithoutIdAddressPageForNavigatorOnly     => userAnswers => navigateFromIndWithoutIdAddressPage(userAnswers)
+      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
+    case IndWithoutIdAddressPageForNavigatorOnly     => userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
     case _                                           => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -182,15 +182,6 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def navigateFromAddressNonUk(userAnswers: UserAnswers) =
-    ifIndividualEmailIsPresentNavigation(userAnswers)
-
-  private def navigateFromIndReviewConfirmAddressPage(userAnswers: UserAnswers) =
-    ifIndividualEmailIsPresentNavigation(userAnswers)
-
-  private def navigateFromIndWithoutIdAddressPage(userAnswers: UserAnswers) =
-    ifIndividualEmailIsPresentNavigation(userAnswers)
 
   private def navigateFromWhereDoYouLivePage(userAnswers: UserAnswers) =
     userAnswers.get(WhereDoYouLivePage) match {

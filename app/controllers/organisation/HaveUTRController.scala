@@ -17,9 +17,8 @@
 package controllers.organisation
 
 import controllers.actions.*
-import controllers.routes
 import forms.organisation.HaveUTRFormProvider
-import models.{ChangeMode, Mode, NormalMode, ProvideMode, UserAnswers}
+import models.{ChangeMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import pages.organisation.HaveUTRPage
@@ -101,9 +100,8 @@ class HaveUTRController @Inject() (
       controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onPageLoad(ChangeMode)
     } else {
       (hasChanged, isSoleTrader(newUserAnswers)) match {
-        case (true, true)   => controllers.individual.routes.HaveNiNumberController.onPageLoad(NormalMode)
+        case (_, true)      => controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
         case (true, false)  => controllers.orgWithoutId.routes.OrgWithoutIdBusinessNameController.onPageLoad(NormalMode)
-        case (false, true)  => controllers.individual.routes.HaveNiNumberController.onPageLoad(ChangeMode)
         case (false, false) =>
           if (newUserAnswers.get(OrgWithoutIdBusinessNamePage).isDefined) {
             controllers.routes.CheckYourAnswersController.onPageLoad()

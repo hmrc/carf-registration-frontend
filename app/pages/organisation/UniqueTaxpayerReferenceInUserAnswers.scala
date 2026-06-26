@@ -17,7 +17,7 @@
 package pages.organisation
 
 import models.{UniqueTaxpayerReference, UserAnswers}
-import pages.{Page, QuestionPage}
+import pages.{IsThisYourBusinessPage, Page, QuestionPage}
 import play.api.libs.json.JsPath
 
 import scala.util.{Success, Try}
@@ -34,7 +34,7 @@ case object UniqueTaxpayerReferenceInUserAnswers extends QuestionPage[UniqueTaxp
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (hasChanged) {
-      Success(updatedUserAnswers.clearMatchFlagAndSafeId)
+      updatedUserAnswers.clearMatchFlagAndSafeId.remove(IsThisYourBusinessPage)
     } else {
       Success(updatedUserAnswers)
     }

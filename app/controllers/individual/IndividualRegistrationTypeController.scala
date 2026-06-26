@@ -18,7 +18,8 @@ package controllers.individual
 
 import controllers.actions.*
 import forms.individual.IndividualRegistrationTypeFormProvider
-import models.{IndividualRegistrationType, Mode}
+import models.RegistrationType.{Individual, SoleTrader}
+import models.{IndividualRegistrationType, Mode, RegistrationType, UserAnswers}
 import navigation.Navigator
 import pages.{NavigatorOnlyIndividualRegistrationTypePage, RegistrationTypePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -66,12 +67,31 @@ class IndividualRegistrationTypeController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           individualRegistrationType =>
+            val userAnswersWithMatchFlagMaybeCleared =
+              clearMatchFlagAndSafeIdIfNeeded(request.userAnswers, individualRegistrationType.toRegistrationType)
             for {
-              updatedAnswers <-
-                Future
-                  .fromTry(request.userAnswers.set(RegistrationTypePage, individualRegistrationType.toRegistrationType))
+              updatedAnswers <- Future.fromTry(
+                                  userAnswersWithMatchFlagMaybeCleared
+                                    .set(RegistrationTypePage, individualRegistrationType.toRegistrationType)
+                                )
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers))
+            } yield Redirect(
+              navigator.nextPage(NavigatorOnlyIndividualRegistrationTypePage, mode, updatedAnswers)
+            )
         )
+  }
+
+  private def clearMatchFlagAndSafeIdIfNeeded(
+      oldUserAnswers: UserAnswers,
+      submittedRegistrationType: RegistrationType
+  ): UserAnswers = {
+    val hasAnswerChanged = !oldUserAnswers.get(RegistrationTypePage).contains(submittedRegistrationType)
+
+    val previousAnswerIsIndividualOrSoleTrader =
+      oldUserAnswers.get(RegistrationTypePage).contains(Individual) ||
+        oldUserAnswers.get(RegistrationTypePage).contains(SoleTrader)
+
+    if (hasAnswerChanged && !previousAnswerIsIndividualOrSoleTrader) oldUserAnswers.clearMatchFlagAndSafeId
+    else oldUserAnswers
   }
 }

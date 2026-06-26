@@ -123,13 +123,6 @@ class HaveUTRPageSpec extends SpecBase {
         result.hasValidMatch mustBe false
         result.safeId        mustBe None
       }
-      "must clear match flag and remove safe id when the answer has changed to no" in {
-        val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
-        val result = HaveUTRPage.cleanup(newValue = false, updatedUserAnswers = ua, hasChanged = true).success.value
-
-        result.hasValidMatch mustBe false
-        result.safeId        mustBe None
-      }
       "must keep match flag false and safe id NOT present when the answer has changed to yes" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
         val result = HaveUTRPage.cleanup(newValue = true, updatedUserAnswers = ua, hasChanged = true).success.value
@@ -137,13 +130,49 @@ class HaveUTRPageSpec extends SpecBase {
         result.hasValidMatch mustBe false
         result.safeId        mustBe None
       }
-      "must keep match flag false and safe id NOT present when the answer has changed to no" in {
-        val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
-        val result = HaveUTRPage.cleanup(newValue = false, updatedUserAnswers = ua, hasChanged = true).success.value
 
-        result.hasValidMatch mustBe false
-        result.safeId        mustBe None
+      "match flag and safe id when the answer has changed to no" - {
+        "when NiNumberPage is populated" - {
+          "must NOT clear match flag and remove safe id" in {
+            val ua = emptyUserAnswers
+              .copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+              .withPage(NiNumberPage, "test-nino")
+
+            val result = HaveUTRPage.cleanup(newValue = false, updatedUserAnswers = ua, hasChanged = true).success.value
+
+            result.hasValidMatch mustBe true
+            result.safeId        mustBe Some(SafeId(testSafeId))
+          }
+          "must keep match flag false and safe id NOT present" in {
+            val ua = emptyUserAnswers
+              .copy(hasValidMatch = false, safeId = None)
+              .withPage(NiNumberPage, "test-nino")
+
+            val result = HaveUTRPage.cleanup(newValue = false, updatedUserAnswers = ua, hasChanged = true).success.value
+
+            result.hasValidMatch mustBe false
+            result.safeId        mustBe None
+          }
+        }
+
+        "when NiNumberPage is not populated" - {
+          "must clear match flag and remove safe id" in {
+            val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
+            val result = HaveUTRPage.cleanup(newValue = false, updatedUserAnswers = ua, hasChanged = true).success.value
+
+            result.hasValidMatch mustBe false
+            result.safeId        mustBe None
+          }
+          "must keep match flag false and safe id NOT present" in {
+            val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
+            val result = HaveUTRPage.cleanup(newValue = false, updatedUserAnswers = ua, hasChanged = true).success.value
+
+            result.hasValidMatch mustBe false
+            result.safeId        mustBe None
+          }
+        }
       }
+
       "must keep the flag as true and safe id as present when the answer has not changed" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
         val result = HaveUTRPage.cleanup(newValue = true, updatedUserAnswers = ua, hasChanged = false).success.value
@@ -151,7 +180,7 @@ class HaveUTRPageSpec extends SpecBase {
         result.hasValidMatch mustBe true
         result.safeId        mustBe Some(SafeId(testSafeId))
       }
-      "must keep the flag as false and safe id as NOt present when the answer has not changed" in {
+      "must keep the flag as false and safe id as NOT present when the answer has not changed" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
         val result = HaveUTRPage.cleanup(newValue = true, updatedUserAnswers = ua, hasChanged = false).success.value
 

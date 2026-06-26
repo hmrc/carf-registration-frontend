@@ -18,11 +18,32 @@ package pages.organisation
 
 import base.SpecBase
 import models.SafeId
+import pages.IsThisYourBusinessPage
 
 class UniqueTaxpayerReferenceInUserAnswersSpec extends SpecBase {
 
   "UniqueTaxpayerReferenceInUserAnswers" - {
     "cleanup" - {
+      "removal of IsThisYourBusinessPage" - {
+        "when the answer has changed" in {
+          val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
+
+          val result =
+            UniqueTaxpayerReferenceInUserAnswers.cleanup(testUtr, userAnswers, hasChanged = true).success.value
+
+          result.get(IsThisYourBusinessPage) mustBe None
+        }
+
+        "when the answer has not changed" in {
+          val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
+
+          val result =
+            UniqueTaxpayerReferenceInUserAnswers.cleanup(testUtr, userAnswers, hasChanged = false).success.value
+
+          result.get(IsThisYourBusinessPage) mustBe Some(testIsThisYourBusinessPageDetails)
+        }
+      }
+
       "must set the match flag to false and the clear safe id when the answer has changed" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
         val result = UniqueTaxpayerReferenceInUserAnswers.cleanup(testUtr, ua, hasChanged = true).success.value

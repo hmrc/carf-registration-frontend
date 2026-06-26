@@ -18,7 +18,6 @@ package models
 
 import models.RegistrationType.{Individual, SoleTrader}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsString, Writes}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 

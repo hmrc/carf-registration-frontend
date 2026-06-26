@@ -19,6 +19,7 @@ package pages.organisation
 import config.Constants.*
 import models.UserAnswers
 import pages.QuestionPage
+import pages.individual.NiNumberPage
 import play.api.libs.json.JsPath
 
 import scala.util.{Success, Try}
@@ -41,7 +42,12 @@ case object HaveUTRPage extends QuestionPage[Boolean] {
       if (newValue) {
         updatedUserAnswers.clearMatchFlagAndSafeId.remove(withoutUtrPages)
       } else {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(withUtrPages)
+        // CARF-545: If NINO was previously provided, don't clear match flag and safeId here
+        // so that we can redirect to CYA from /change-have-ni-number if it was previously matched
+        val userAnswersWithMatchFlagMaybeCleared =
+          if (updatedUserAnswers.get(NiNumberPage).isDefined) updatedUserAnswers
+          else updatedUserAnswers.clearMatchFlagAndSafeId
+        userAnswersWithMatchFlagMaybeCleared.remove(withUtrPages)
       }
     } else {
       Success(updatedUserAnswers)

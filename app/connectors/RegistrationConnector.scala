@@ -19,7 +19,7 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.error.{ApiError, CarfError}
+import models.error.ApiError
 import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
 import play.api.Logging
@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import java.net.URL
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit

@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import controllers.routes
-import models.{ChangeMode, Mode, NormalMode}
+import models.Mode
 import navigation.Navigator
 import pages.individualWithoutId.{AddressLookupPage, IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
 import play.api.Logging

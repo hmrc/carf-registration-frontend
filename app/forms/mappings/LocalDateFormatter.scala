@@ -18,10 +18,9 @@ package forms.mappings
 
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import play.api.i18n.Messages
-import java.time.{LocalDate, Month}
+
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import models.DateHelper.formatDateToString
 import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
@@ -40,8 +39,7 @@ class LocalDateFormatter(
     maxDate: LocalDate,
     minDate: LocalDate,
     args: Seq[String] = Seq.empty
-)(implicit messages: Messages)
-    extends Formatter[LocalDate] {
+) extends Formatter[LocalDate] {
 
   private val fieldKeys: List[String] = List("day", "month", "year")
   private val monthNames              = Seq(

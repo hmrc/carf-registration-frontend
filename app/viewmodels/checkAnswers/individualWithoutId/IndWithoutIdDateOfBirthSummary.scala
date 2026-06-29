@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.individualWithoutId
 
-import controllers.routes
 import models.{ChangeMode, UserAnswers}
 import pages.individualWithoutId.IndWithoutIdDateOfBirthPage
 import play.api.i18n.{Lang, Messages}

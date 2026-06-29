@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.*
 import forms.individual.IndividualEmailFormProvider
-import models.{Mode, NormalMode}
+import models.Mode
 import navigation.Navigator
 import pages.changeContactDetails.ChangeDetailsIndividualEmailPage
 import play.api.data.Form

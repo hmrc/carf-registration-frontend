@@ -28,7 +28,7 @@ import pages.individualWithoutId.*
 import pages.orgWithoutId.*
 import pages.organisation.*
 import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.JsValue
 import types.ResultT
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier

@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.individualWithoutId
 
 import controllers.individualWithoutId.routes
-import models.{ChangeMode, NormalMode, UserAnswers}
+import models.{ChangeMode, UserAnswers}
 import pages.individualWithoutId.WhereDoYouLivePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent

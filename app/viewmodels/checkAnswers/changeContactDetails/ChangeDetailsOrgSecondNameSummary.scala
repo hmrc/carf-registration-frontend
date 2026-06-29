@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers.changeContactDetails
 
-import models.{Mode, NormalMode, UserAnswers}
+import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.ChangeDetailsOrgSecondNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat

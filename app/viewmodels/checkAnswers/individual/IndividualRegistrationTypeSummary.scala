@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.individual
 
-import controllers.routes
 import models.{ChangeMode, RegistrationType, UserAnswers}
 import pages.RegistrationTypePage
 import play.api.i18n.Messages

@@ -18,14 +18,13 @@ package services
 
 import connectors.RegistrationConnector
 import models.JourneyType.{IndWithoutId, OrgWithoutId}
-import models.error.ApiError.InternalServerError
-import models.error.{ApiError, CarfError, DataError}
+import models.error.{CarfError, DataError}
 import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
 import models.{toAddressDetails, toAddressDetailsNonUk, toAddressDetailsOrg, BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage, WhereDoYouLivePage}
+import pages.individualWithoutId.*
 import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
 import play.api.Logging

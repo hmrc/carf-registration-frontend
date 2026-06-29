@@ -370,7 +370,6 @@ trait Formatters extends Transforms with Logging {
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
         val postCode          = data.get(key).map(_.trim)
         val maxLengthPostcode = 10
-        val notRealPostCode   = "AA11AA"
 
         postCode match {
           case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
@@ -383,7 +382,7 @@ trait Formatters extends Transforms with Logging {
               case "AA11AA" if notRealKey.isDefined                                   => notRealError(notRealKey.get)
               case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
               case s if notRealKey.isDefined                                          =>
-                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get, regex)
+                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get)
               case s                                                                  => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
@@ -399,8 +398,7 @@ trait Formatters extends Transforms with Logging {
       postcode: String,
       data: Map[String, String],
       invalidCharKey: String,
-      notRealKey: String,
-      regex: String
+      notRealKey: String
   ): Either[Seq[FormError], String] = {
 
     val postcodeNormalised = PostcodeUtil.normalise(true, postcode)

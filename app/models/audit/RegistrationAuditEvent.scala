@@ -16,7 +16,6 @@
 
 package models.audit
 
-import models.RegistrationType
 import play.api.libs.json.{JsValue, Json, OFormat}
 import uk.gov.hmrc.auth.core.AffinityGroup
 

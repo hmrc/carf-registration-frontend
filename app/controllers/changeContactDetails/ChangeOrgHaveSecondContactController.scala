@@ -18,9 +18,9 @@ package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.{DataRequestWithSubscriptionId, Mode, NormalMode, ProvideMode}
+import models.{DataRequestWithSubscriptionId, Mode, ProvideMode}
 import navigation.Navigator
-import pages.changeContactDetails.{ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgHaveSecondContactPage, ChangeDetailsOrgSecondEmailPage, ChangeDetailsOrgSecondHavePhonePage, ChangeDetailsOrgSecondNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
+import pages.changeContactDetails.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}

@@ -20,7 +20,6 @@ import models.Enumerable
 import models.countries.*
 import play.api.data.Forms.of
 import play.api.data.{FieldMapping, Mapping}
-import play.api.i18n.Messages
 
 import java.time.LocalDate
 
@@ -66,7 +65,7 @@ trait Mappings extends Formatters with Constraints {
       maxDate: LocalDate,
       minDate: LocalDate,
       args: Seq[String] = Seq.empty
-  )(implicit messages: Messages): FieldMapping[LocalDate] =
+  ): FieldMapping[LocalDate] =
     of(
       new LocalDateFormatter(
         invalidKey,
@@ -83,7 +82,7 @@ trait Mappings extends Formatters with Constraints {
         maxDate,
         minDate,
         args
-      )(messages)
+      )
     )
 
   protected def currency(
@@ -140,7 +139,7 @@ trait Mappings extends Formatters with Constraints {
       invalidRealCrownKey: String
   ): FieldMapping[Option[String]] =
     of(
-      new PostcodeFormatter(
+      PostcodeFormatter(
         countryList,
         lengthKey,
         invalidCharKey,

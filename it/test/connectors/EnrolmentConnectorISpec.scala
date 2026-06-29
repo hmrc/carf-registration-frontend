@@ -16,15 +16,15 @@
 
 package connectors
 
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.should.Matchers
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.HeaderCarrier
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import itutil.ApplicationWithWiremock
 import models.error.ApiError
 import models.requests.{EnrolmentRequest, Identifier, Verifier}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT}
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class EnrolmentConnectorISpec extends ApplicationWithWiremock
   with Matchers

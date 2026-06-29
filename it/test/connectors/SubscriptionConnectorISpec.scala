@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import itutil.ApplicationWithWiremock
 import models.SubscriptionId
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, JsonValidationError, NotFoundError, UnableToProcessSubscriptionError}
-import models.requests.{SubscriptionRequest, SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact}
-import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
+import models.requests.{SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact, SubscriptionRequest}
+import models.responses.*
 import org.scalactic.Prettifier.default
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers

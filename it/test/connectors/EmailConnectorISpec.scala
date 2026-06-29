@@ -16,20 +16,20 @@
 
 package connectors
 
-import itutil.{ApplicationWithWiremock, WireMockConstants}
-import config.FrontendAppConfig
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import itutil.ApplicationWithWiremock
 import models.SendEmailRequest
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.Application
+import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import uk.gov.hmrc.http.HeaderCarrier
-import play.api.libs.json.Json
-import com.github.tomakehurst.wiremock.client.WireMock._
+
 import scala.concurrent.ExecutionContext
 
 class EmailConnectorISpec extends AnyWordSpec with Matchers with ApplicationWithWiremock {

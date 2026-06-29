@@ -17,8 +17,6 @@
 package models
 
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment}
-import models.responses.DisplaySubscriptionResponse
 
 case class IdentifierRequestWithSubscriptionId[A](
     request: Request[A],

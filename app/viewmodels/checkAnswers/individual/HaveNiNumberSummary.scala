@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.individual
 
-import controllers.routes
 import models.{ChangeMode, UserAnswers}
 import pages.individual.HaveNiNumberPage
 import play.api.i18n.Messages

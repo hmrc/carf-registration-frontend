@@ -17,9 +17,6 @@
 package pages.individual
 
 import base.SpecBase
-import models.ChangeMode
-import navigation.Navigator
-import controllers.routes
 
 class IndividualHavePhonePageSpec extends SpecBase {
 

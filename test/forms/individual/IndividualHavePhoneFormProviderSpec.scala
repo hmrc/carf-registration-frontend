@@ -17,7 +17,6 @@
 package forms.individual
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.individual.IndividualHavePhoneFormProvider
 import play.api.data.FormError
 
 class IndividualHavePhoneFormProviderSpec extends BooleanFieldBehaviours {

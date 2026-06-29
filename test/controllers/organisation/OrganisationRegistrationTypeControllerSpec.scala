@@ -24,7 +24,6 @@ import models.{NormalMode, OrganisationRegistrationType, RegistrationType, SafeI
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationTypePage
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -35,7 +34,7 @@ import views.html.organisation.OrganisationRegistrationTypeView
 
 import scala.concurrent.Future
 
-class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationRegistrationTypeControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -195,7 +194,7 @@ class OrganisationRegistrationTypeControllerSpec extends SpecBase with MockitoSu
           val expectedSetUserAnswers = emptyUserAnswers.withPage(RegistrationTypePage, RegistrationType.Trust)
 
           val application =
-            applicationBuilder(userAnswers = Some(emptyUserAnswers), affinityGroup = Organisation)
+            applicationBuilder(userAnswers = Some(userAnswers), affinityGroup = Organisation)
               .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
               .build()
 

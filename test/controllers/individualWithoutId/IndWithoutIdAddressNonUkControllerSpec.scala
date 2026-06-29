@@ -24,20 +24,17 @@ import models.{IndWithoutIdAddressNonUk, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.{AddressUPRNUserAnswers, IndWithoutIdAddressNonUkPage}
 import play.api.inject.bind
-import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import utils.CountryListFactory
 import views.html.individualWithoutId.IndWithoutIdAddressNonUkView
 
 import scala.concurrent.Future
 
-class IndWithoutIdAddressNonUkControllerSpec extends SpecBase with MockitoSugar {
+class IndWithoutIdAddressNonUkControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

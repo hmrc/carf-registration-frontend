@@ -16,7 +16,6 @@
 
 package models
 
-import models.responses.DisplaySubscriptionResponse
 import play.api.mvc.{Request, WrappedRequest}
 
 case class DataRequestWithSubscriptionId[A](

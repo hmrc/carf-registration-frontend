@@ -42,11 +42,10 @@ import queries.{Gettable, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.{Clock, Instant, LocalDate, ZoneId}
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 trait SpecBase
     extends AnyFreeSpec

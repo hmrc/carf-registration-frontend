@@ -16,9 +16,10 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import models.JourneyType.*
-import models.{JourneyType, RegistrationType, SubscriptionId, UserAnswers}
+import models.{JourneyType, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
@@ -30,7 +31,6 @@ import repositories.SessionRepository
 import services.{ContactEmailInfo, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RegistrationConfirmationView
-import config.FrontendAppConfig
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

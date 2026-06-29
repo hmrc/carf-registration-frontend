@@ -17,25 +17,21 @@
 package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import models.{Mode, ProvideMode}
+import models.ProvideMode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ContactDetailsMissingdView
+import views.html.ContactDetailsMissingView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ContactDetailsMissingController @Inject() (
     override val messagesApi: MessagesApi,
-    sessionRepository: SessionRepository,
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
-    view: ContactDetailsMissingdView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+    view: ContactDetailsMissingView
+) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] =

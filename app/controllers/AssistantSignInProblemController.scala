@@ -16,19 +16,15 @@
 
 package controllers
 
-import controllers.actions._
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.AssistantSignInProblemView
 
+import javax.inject.Inject
+
 class AssistantSignInProblemController @Inject() (
     override val messagesApi: MessagesApi,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    submissionLock: SubmissionLockAction,
-    requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     view: AssistantSignInProblemView
 ) extends FrontendBaseController

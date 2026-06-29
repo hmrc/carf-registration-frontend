@@ -17,15 +17,14 @@
 package controllers.individual
 
 import base.SpecBase
-import models.{ChangeMode, NormalMode, ProvideMode}
-import org.scalatestplus.mockito.MockitoSugar
+import models.{ChangeMode, NormalMode}
 import pages.individual.IndividualEmailPage
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.individual.RegisterIdentityConfirmedView
 
-class RegisterIdentityConfirmedControllerSpec extends SpecBase with MockitoSugar {
+class RegisterIdentityConfirmedControllerSpec extends SpecBase {
 
   def onwardRoute: Call                                 = Call("GET", "/foo")
   lazy val registerIdentityConfirmedRoute: String       =

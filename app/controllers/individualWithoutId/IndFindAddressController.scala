@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.countries.CountryUk
 import models.requests.DataRequest
-import models.{AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, Mode, NormalMode}
+import models.{AddressAndUPRN, AddressUk, IndFindAddress, Mode, NormalMode}
 import navigation.Navigator
 import pages.individualWithoutId.*
 import play.api.Logging

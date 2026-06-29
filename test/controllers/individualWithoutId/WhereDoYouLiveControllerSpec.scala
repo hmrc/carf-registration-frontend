@@ -34,26 +34,22 @@ package controllers.individualWithoutId
 
 import base.SpecBase
 import controllers.routes
-import forms.{IsThisYourBusinessFormProvider, WhereDoYouLiveFormProvider}
+import forms.WhereDoYouLiveFormProvider
 import models.*
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{reset, verify, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
 import pages.*
 import pages.individualWithoutId.WhereDoYouLivePage
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.RegistrationService
-import views.html.{IsThisYourBusinessView, WhereDoYouLiveView}
+import views.html.WhereDoYouLiveView
 
 import scala.concurrent.Future
 
-class WhereDoYouLiveControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
+class WhereDoYouLiveControllerSpec extends SpecBase {
 
   def onwardRoute: Call = Call("GET", "/foo")
 

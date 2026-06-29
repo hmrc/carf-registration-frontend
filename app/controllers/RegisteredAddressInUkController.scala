@@ -18,8 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.RegisteredAddressInUkFormProvider
-import models.requests.DataRequest
-import models.{ChangeMode, Mode}
+import models.Mode
 import navigation.Navigator
 import pages.RegisteredAddressInUkPage
 import play.api.Logging

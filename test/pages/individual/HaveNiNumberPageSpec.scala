@@ -18,11 +18,8 @@ package pages.individual
 
 import base.SpecBase
 import models.*
-import pages.individualWithoutId.*
-import models.ChangeMode
-import navigation.Navigator
-import controllers.routes
 import models.countries.CountryUk
+import pages.individualWithoutId.*
 
 class HaveNiNumberPageSpec extends SpecBase {
 

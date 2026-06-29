@@ -23,7 +23,6 @@ import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, NormalMode, Us
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.*
 import play.api.data.Form
 import play.api.inject.bind
@@ -36,7 +35,7 @@ import views.html.IndWithoutChooseAddressView
 
 import scala.concurrent.Future
 
-class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
+class IndWithoutChooseAddressControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -54,9 +53,6 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
     "BB00 0BB",
     CountryUk("GB", "United Kingdom")
   )
-
-  private lazy val expectedHtml =
-    s"We could not find a match for ‘property 1’ — showing all results for B23 1AZ instead."
 
   "IndWithoutChooseAddress Controller" - {
 
@@ -183,12 +179,8 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
-
         status(result)                 mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController
-          .onPageLoad()
-          .url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

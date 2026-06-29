@@ -17,9 +17,6 @@
 package pages.orgWithoutId
 
 import base.SpecBase
-import models.ChangeMode
-import navigation.Navigator
-import controllers.routes
 
 class HaveTradingNamePageSpec extends SpecBase {
 

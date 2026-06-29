@@ -23,19 +23,17 @@ import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.organisation.FirstContactEmailView
 
 import scala.concurrent.Future
 
-class FirstContactEmailControllerSpec extends SpecBase with MockitoSugar {
+class FirstContactEmailControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

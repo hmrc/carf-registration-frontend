@@ -19,7 +19,6 @@ package controllers.individualWithoutId
 import config.Constants.noneOfTheseValue
 import controllers.actions.*
 import forms.IndWithoutChooseAddressFormProvider
-import models.countries.CountryUk
 import models.requests.DataRequest
 import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator

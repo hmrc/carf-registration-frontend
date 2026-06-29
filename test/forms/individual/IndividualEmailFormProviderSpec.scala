@@ -18,7 +18,6 @@ package forms.individual
 
 import config.Constants
 import forms.behaviours.StringFieldBehaviours
-import forms.individual.IndividualEmailFormProvider
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 

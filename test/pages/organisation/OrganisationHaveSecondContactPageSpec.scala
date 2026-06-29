@@ -17,9 +17,6 @@
 package pages.organisation
 
 import base.SpecBase
-import models.ChangeMode
-import navigation.Navigator
-import controllers.routes
 
 class OrganisationHaveSecondContactPageSpec extends SpecBase {
 

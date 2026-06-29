@@ -16,7 +16,7 @@
 
 package models
 
-import models.countries.{Country, CountryUk}
+import models.countries.Country
 import models.requests.AddressDetails
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec

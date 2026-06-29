@@ -19,23 +19,16 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
-import generators.Generators
 import models.JourneyType.IndWithoutId
-import models.countries.UnitedKingdom
 import models.error.ApiError
-import models.requests.SearchByPostcodeRequest
 import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
-import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import pages.individualWithoutId.{AddressUPRNUserAnswers, IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -45,7 +38,7 @@ import views.html.individualWithoutId.IndFindAddressView
 import scala.concurrent.Future
 import scala.util.Right
 
-class IndFindAddressControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with Generators {
+class IndFindAddressControllerSpec extends SpecBase {
 
   val formProvider: IndFindAddressFormProvider       = new IndFindAddressFormProvider()
   val form: Form[IndFindAddress]                     = formProvider()

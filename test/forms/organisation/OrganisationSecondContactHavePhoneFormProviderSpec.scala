@@ -17,7 +17,6 @@
 package forms.organisation
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
 import play.api.data.FormError
 
 class OrganisationSecondContactHavePhoneFormProviderSpec extends BooleanFieldBehaviours {

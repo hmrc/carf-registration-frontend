@@ -17,7 +17,6 @@
 package forms.organisation
 
 import forms.behaviours.StringFieldBehaviours
-import forms.organisation.FirstContactNameFormProvider
 import org.scalacheck.Gen
 import play.api.data.FormError
 

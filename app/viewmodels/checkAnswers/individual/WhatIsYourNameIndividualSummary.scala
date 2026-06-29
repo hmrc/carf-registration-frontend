@@ -16,11 +16,9 @@
 
 package viewmodels.checkAnswers.individual
 
-import controllers.routes
-import models.{ChangeMode, UserAnswers}
+import models.UserAnswers
 import pages.individual.WhatIsYourNameIndividualPage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*

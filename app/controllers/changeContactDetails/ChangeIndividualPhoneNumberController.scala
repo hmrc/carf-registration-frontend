@@ -18,7 +18,7 @@ package controllers.changeContactDetails
 
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
 import forms.individual.IndividualPhoneNumberFormProvider
-import models.{Mode, NormalMode}
+import models.Mode
 import navigation.Navigator
 import pages.changeContactDetails.ChangeDetailsIndividualPhoneNumberPage
 import play.api.data.Form

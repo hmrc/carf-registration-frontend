@@ -16,8 +16,7 @@
 
 package pages.individualWithoutId
 
-import pages.QuestionPage
-import models.{AddressAndUPRN, AddressUk}
+import models.AddressAndUPRN
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 

@@ -18,12 +18,12 @@ package controllers
 
 import base.SpecBase
 import models.JourneyType.{IndWithNino, IndWithUtr, IndWithoutId, OrgWithUtr, OrgWithoutId}
-import models.error.{ApiError, DataError}
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError}
+import models.error.{ApiError, DataError}
 import models.{ChangeMode, IsThisYourBusinessPageDetails, JourneyType, SafeId, SubscriptionId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import pages.IsThisYourBusinessPage
 import play.api.Application
@@ -38,7 +38,6 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow}
 import utils.CheckYourAnswersHelper
 import viewmodels.Section
-import viewmodels.checkAnswers.IsThisYourBusinessSummary
 import viewmodels.govuk.summarylist.*
 import views.html.CheckYourAnswersView
 

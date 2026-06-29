@@ -19,12 +19,12 @@ package controllers.actions
 import base.SpecBase
 import models.requests.OptionalDataRequest
 import pages.SubmissionSucceededPage
-import play.api.mvc.{AnyContentAsEmpty, BodyParsers, Result}
+import play.api.mvc.{BodyParsers, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{redirectLocation, status, SEE_OTHER}
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status, SEE_OTHER}
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
+
 import scala.concurrent.Future
-import play.api.test.Helpers.defaultAwaitTimeout
 
 class SubmissionLockActionSpec extends SpecBase {
 

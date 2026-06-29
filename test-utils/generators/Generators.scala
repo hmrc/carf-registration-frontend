@@ -133,6 +133,9 @@ trait Generators extends ModelGenerators {
       .suchThat(value => value.trim.nonEmpty)
       .map(_.take(length))
 
+  def nonEmptyStringsWithMaxLength(maxLength: Int): Gen[String] =
+    stringsWithMaxLength(maxLength).retryUntil(_.trim.nonEmpty)
+
   def validEmailAddressTooLong(maxLength: Int): Gen[String] =
     for {
       part <- listOfN(maxLength, Gen.alphaChar).map(_.mkString)

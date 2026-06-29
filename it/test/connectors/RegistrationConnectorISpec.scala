@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import itutil.ApplicationWithWiremock
 import models.error.ApiError
 import models.requests.*
-import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterWithoutIdResponse, RegisterOrganisationWithIdResponse}
+import models.responses.{AddressRegistrationResponse, RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse, RegisterWithoutIdResponse}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}

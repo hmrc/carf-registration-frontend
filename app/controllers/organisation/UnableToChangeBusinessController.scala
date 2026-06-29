@@ -18,7 +18,7 @@ package controllers.organisation
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import models.{BusinessDetails, IsThisYourBusinessPageDetails}
+import models.IsThisYourBusinessPageDetails
 import pages.IsThisYourBusinessPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}

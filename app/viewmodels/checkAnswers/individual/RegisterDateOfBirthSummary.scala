@@ -16,15 +16,14 @@
 
 package viewmodels.checkAnswers.individual
 
-import controllers.routes
 import models.{ChangeMode, UserAnswers}
 import pages.individual.RegisterDateOfBirthPage
 import play.api.i18n.{Lang, Messages}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 object RegisterDateOfBirthSummary {
 

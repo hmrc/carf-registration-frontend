@@ -19,7 +19,6 @@ package pages.individualWithoutId
 import models.AddressUk
 import pages.QuestionPage
 import play.api.libs.json.JsPath
-import models.responses.{AddressRecord, AddressResponse}
 
 case object IndWithoutIdSelectedChooseAddressPage extends QuestionPage[AddressUk] {
 

@@ -18,8 +18,8 @@ package services
 
 import cats.data.EitherT
 import connectors.SubscriptionConnector
-import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
-import models.error.{ApiError, CarfError}
+import models.error.ApiError
+import models.error.ApiError.MandatoryInformationMissingError
 import models.requests.SubscriptionRequest
 import models.responses.*
 import models.{SubscriptionId, UserAnswers}

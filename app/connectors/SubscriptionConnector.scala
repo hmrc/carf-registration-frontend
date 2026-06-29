@@ -16,7 +16,6 @@
 
 package connectors
 
-import cats.data.EitherT
 import config.FrontendAppConfig
 import models.SubscriptionId
 import models.error.ApiError
@@ -34,7 +33,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import java.net.URL
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -62,8 +61,6 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       hc: HeaderCarrier,
       ec: ExecutionContext
   ): ResultT[SubscriptionId] = {
-
-    val action = if isUpdate then "Updating" else "Creating"
 
     val requestBuilder =
       if (isUpdate) {

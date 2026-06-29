@@ -22,7 +22,7 @@ import play.api.Application
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ContactDetailsMissingdView
+import views.html.ContactDetailsMissingView
 
 import scala.concurrent.Future
 
@@ -44,7 +44,7 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
           controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
 
         val request                = FakeRequest(GET, pageRoute)
-        val view                   = application.injector.instanceOf[ContactDetailsMissingdView]
+        val view                   = application.injector.instanceOf[ContactDetailsMissingView]
         val result: Future[Result] = route(application, request).value
 
         status(result)          mustBe OK
@@ -69,7 +69,7 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
           controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
 
         val request                = FakeRequest(GET, pageRoute)
-        val view                   = application.injector.instanceOf[ContactDetailsMissingdView]
+        val view                   = application.injector.instanceOf[ContactDetailsMissingView]
         val result: Future[Result] = route(application, request).value
 
         status(result)          mustBe OK

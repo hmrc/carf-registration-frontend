@@ -21,7 +21,7 @@ import models.ProvideMode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ContactDetailsMissingdView
+import views.html.ContactDetailsMissingView
 
 import javax.inject.Inject
 
@@ -30,7 +30,7 @@ class ContactDetailsMissingController @Inject() (
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
-    view: ContactDetailsMissingdView
+    view: ContactDetailsMissingView
 ) extends FrontendBaseController
     with I18nSupport {
 

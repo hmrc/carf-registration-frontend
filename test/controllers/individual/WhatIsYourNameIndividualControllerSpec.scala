@@ -19,12 +19,10 @@ package controllers.individual
 import base.SpecBase
 import controllers.routes
 import forms.individual.WhatIsYourNameIndividualFormProvider
-import models.JourneyType.IndWithNino
 import models.{Name, NormalMode, SafeId, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.WhatIsYourNameIndividualPage
 import play.api.data.Form
 import play.api.inject.bind
@@ -36,7 +34,7 @@ import views.html.individual.WhatIsYourNameIndividualView
 
 import scala.concurrent.Future
 
-class WhatIsYourNameIndividualControllerSpec extends SpecBase with MockitoSugar {
+class WhatIsYourNameIndividualControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

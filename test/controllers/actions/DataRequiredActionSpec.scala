@@ -30,8 +30,6 @@ import scala.concurrent.Future
 
 class DataRequiredActionSpec extends SpecBase {
 
-  private def fakeRequest = FakeRequest("", "")
-
   class Harness extends DataRequiredActionImpl {
     def actionRefine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = refine(request)
   }

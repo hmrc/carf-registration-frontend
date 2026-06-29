@@ -23,19 +23,17 @@ import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.{IndividualEmailPage, NiNumberPage}
+import pages.individual.IndividualEmailPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.individual.IndividualEmailView
 
 import scala.concurrent.Future
 
-class IndividualEmailControllerSpec extends SpecBase with MockitoSugar {
+class IndividualEmailControllerSpec extends SpecBase {
 
   def onwardRoute: Call                         = Call("GET", "/foo")
   val formProvider: IndividualEmailFormProvider = new IndividualEmailFormProvider()
@@ -102,8 +100,6 @@ class IndividualEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must return BadRequest when and errors when invalid email data is submitted" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      val userAnswers = UserAnswers(userAnswersId).set(IndividualEmailPage, "not-an-email").success.value
 
       running(application) {
         val request   =

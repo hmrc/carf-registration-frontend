@@ -25,8 +25,6 @@ import models.responses.AddressRegistrationResponse
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import pages.*
 import pages.organisation.*
 import play.api.data.Form
@@ -40,7 +38,7 @@ import views.html.IsThisYourBusinessView
 
 import scala.concurrent.Future
 
-class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
+class IsThisYourBusinessControllerSpec extends SpecBase {
 
   def onwardRoute: Call                            = Call("GET", "/foo")
   val formProvider: IsThisYourBusinessFormProvider = new IsThisYourBusinessFormProvider()
@@ -203,9 +201,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       }
 
       "must prepopulate the page if it has been answered previously" in {
-        val soleTraderUtr       = UniqueTaxpayerReference("5234567890")
-        val testBusinessDetails = BusinessDetails("testName", soleTraderTestIndividual.address, testSafeId)
-        val userAnswers         = UserAnswers(userAnswersId)
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
+        val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
@@ -408,7 +405,6 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
         running(application) {
           val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
           val result  = route(application, request).value
-          val view    = application.injector.instanceOf[IsThisYourBusinessView]
 
           status(result)                 mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -416,8 +412,6 @@ class IsThisYourBusinessControllerSpec extends SpecBase with MockitoSugar with S
       }
 
       "must prepopulate the page if it has been answered previously" in {
-        val testBusinessDetails = BusinessDetails("testName", businessTestBusiness.address, businessTestBusiness.safeId)
-
         val userAnswers = UserAnswers(userAnswersId)
           .copy(journeyType = Some(OrgWithUtr))
           .copy(isCtAutoMatched = true)

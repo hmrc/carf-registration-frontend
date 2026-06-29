@@ -17,7 +17,6 @@
 package controllers.actions
 
 import models.requests.BasicAuthRequest
-import models.{IdentifierRequestWithSubscriptionId, SubscriptionId}
 import play.api.mvc.*
 
 import javax.inject.Inject

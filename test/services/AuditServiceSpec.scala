@@ -27,15 +27,11 @@ import models.responses.AddressRegistrationResponse
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import pages.*
 import pages.individual.*
-import pages.RegistrationTypePage
-import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdDateOfBirthPage, IndWithoutIdUkAddressInUserAnswers, IndWithoutNinoNamePage, WhereDoYouLivePage}
-import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.individualWithoutId.*
 import pages.orgWithoutId.*
 import pages.organisation.*
-import pages.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
@@ -47,7 +43,7 @@ import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class AuditServiceSpec extends SpecBase with MockitoSugar {
+class AuditServiceSpec extends SpecBase {
 
   private val mockAuditConnector = mock[AuditConnector]
   private val service            = new AuditService(mockAuditConnector)
@@ -231,7 +227,6 @@ class AuditServiceSpec extends SpecBase with MockitoSugar {
       "should return success for organisationWithIdJourney (with match)" in {
 
         val regType     = LimitedCompany
-        val utr         = "testUtr"
         val name        = "Arsenal FC"
         val userAnswers = emptyUserAnswers
           .withPage(RegisteredAddressInUkPage, true)

@@ -20,7 +20,7 @@ import base.SpecBase
 import models.JourneyType.OrgWithUtr
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.{any, argThat}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{verify, when}
 import pages.SubmissionSucceededPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

@@ -19,25 +19,22 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationHaveSecondContactFormProvider
-import models.JourneyType.OrgWithUtr
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.organisation.{FirstContactNamePage, OrganisationHaveSecondContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.organisation.OrganisationHaveSecondContactView
 
 import java.time.Clock
 import scala.concurrent.Future
 
-class OrganisationHaveSecondContactControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationHaveSecondContactControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

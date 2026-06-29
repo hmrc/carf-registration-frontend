@@ -28,7 +28,6 @@ import play.api.inject.bind
 import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import services.SubscriptionService
 import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text

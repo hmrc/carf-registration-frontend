@@ -19,13 +19,12 @@ package controllers
 import base.SpecBase
 import models.JourneyType.*
 import models.{Name, RegistrationType, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
-import org.mockito.Mockito.{never, reset, verify, when}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.scalatestplus.mockito.MockitoSugar
-import pages.{RegistrationTypePage, SubmissionSucceededPage}
-import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, NiNumberPage, WhatIsYourNameIndividualPage}
+import org.mockito.Mockito.{never, reset, verify, when}
+import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.organisation.*
+import pages.{RegistrationTypePage, SubmissionSucceededPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -35,7 +34,7 @@ import views.html.RegistrationConfirmationView
 
 import scala.concurrent.Future
 
-class RegistrationConfirmationControllerSpec extends SpecBase with MockitoSugar {
+class RegistrationConfirmationControllerSpec extends SpecBase {
 
   private val mockEmailService = mock[EmailService]
   private val subscriptionId   = SubscriptionId("XCARF0012345678")

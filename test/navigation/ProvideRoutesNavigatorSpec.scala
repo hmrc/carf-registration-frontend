@@ -19,9 +19,8 @@ package navigation
 import base.SpecBase
 import controllers.changeContactDetails.routes as changeDetailsRoutes
 import controllers.routes
-import models.{ProvideMode, UserAnswers}
+import models.ProvideMode
 import pages.changeContactDetails.*
-import pages.individual.HaveNiNumberPage
 
 class ProvideRoutesNavigatorSpec extends SpecBase {
 

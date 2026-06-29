@@ -17,14 +17,10 @@
 package controllers.individualWithoutId
 
 import base.SpecBase
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
-import models.{AddressAndUPRN, ChangeMode, Name, NormalMode}
+import models.{AddressAndUPRN, ChangeMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.individualWithoutId.{AddressLookupPage, IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
-import play.api.data.Form
+import pages.individualWithoutId.AddressLookupPage
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -32,7 +28,7 @@ import views.html.individualWithoutId.IndReviewConfirmAddressView
 
 import scala.concurrent.Future
 
-class IndReviewConfirmAddressControllerSpec extends SpecBase with MockitoSugar {
+class IndReviewConfirmAddressControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

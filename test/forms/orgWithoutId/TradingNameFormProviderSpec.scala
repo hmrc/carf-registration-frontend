@@ -17,7 +17,6 @@
 package forms.orgWithoutId
 
 import forms.behaviours.StringFieldBehaviours
-import forms.orgWithoutId.TradingNameFormProvider
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 

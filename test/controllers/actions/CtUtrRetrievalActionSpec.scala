@@ -32,8 +32,6 @@ import scala.concurrent.Future
 
 class CtUtrRetrievalActionSpec extends SpecBase {
 
-  private def fakeRequest = FakeRequest("", "")
-
   val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
 
   val testContent     = "Test Content "

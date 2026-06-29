@@ -17,7 +17,6 @@
 package forms.individual
 
 import forms.behaviours.StringFieldBehaviours
-import forms.individual.NiNumberFormProvider
 import play.api.data.FormError
 
 class NiNumberFormProviderSpec extends StringFieldBehaviours {

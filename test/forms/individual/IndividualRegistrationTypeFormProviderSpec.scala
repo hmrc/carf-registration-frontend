@@ -17,7 +17,6 @@
 package forms.individual
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.individual.IndividualRegistrationTypeFormProvider
 import models.IndividualRegistrationType
 import play.api.data.FormError
 

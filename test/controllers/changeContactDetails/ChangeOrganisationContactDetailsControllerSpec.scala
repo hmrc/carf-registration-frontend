@@ -113,7 +113,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .thenReturn(None)
 
         val request                = FakeRequest(GET, pageRoute)
-        private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
@@ -132,7 +131,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .thenReturn(Some(Seq(testRow)))
 
         val request                = FakeRequest(GET, pageRoute)
-        private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
@@ -151,7 +149,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .thenReturn(Some(Seq(testRow)))
 
         val request                = FakeRequest(GET, pageRoute)
-        private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
@@ -173,7 +170,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
             .thenReturn(Some(Seq(testRow)))
 
           val request                = FakeRequest(GET, pageRoute)
-          private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
           val result: Future[Result] = route(application, request).value
 
           status(result)           mustBe SEE_OTHER
@@ -195,7 +191,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .thenReturn(None)
 
         val request                = FakeRequest(GET, pageRoute)
-        private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
@@ -216,7 +211,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
           .thenReturn(Some(Seq(testRow)))
 
         val request                = FakeRequest(GET, pageRoute)
-        private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
         val result: Future[Result] = route(application, request).value
 
         status(result)           mustBe SEE_OTHER
@@ -237,7 +231,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
             .thenReturn(Some(Seq(testRow)))
 
           val request                = FakeRequest(GET, pageRoute)
-          private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
           val result: Future[Result] = route(application, request).value
 
           status(result)           mustBe SEE_OTHER
@@ -258,7 +251,6 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
             .thenReturn(Some(Seq(testRow)))
 
           val request                = FakeRequest(GET, pageRoute)
-          private val view           = application.injector.instanceOf[ChangeOrganisationContactDetailsView]
           val result: Future[Result] = route(application, request).value
 
           status(result)           mustBe SEE_OTHER

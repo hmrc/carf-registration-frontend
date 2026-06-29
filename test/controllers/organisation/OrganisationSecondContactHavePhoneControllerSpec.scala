@@ -19,12 +19,10 @@ package controllers.organisation
 import base.SpecBase
 import controllers.routes
 import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
-import models.JourneyType.OrgWithUtr
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.organisation.{FirstContactNamePage, OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
 import play.api.data.Form
 import play.api.inject.bind
@@ -36,7 +34,7 @@ import views.html.organisation.OrganisationSecondContactHavePhoneView
 import java.time.Clock
 import scala.concurrent.Future
 
-class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase with MockitoSugar {
+class OrganisationSecondContactHavePhoneControllerSpec extends SpecBase {
 
   def onwardRoute                              = Call("GET", "/foo")
   lazy val secondContactHavePhoneRoute: String =

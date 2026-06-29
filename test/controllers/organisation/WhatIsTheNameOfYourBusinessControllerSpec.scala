@@ -21,14 +21,12 @@ import controllers.routes
 import forms.organisation.WhatIsTheNameOfYourBusinessFormProvider
 import models.JourneyType.OrgWithUtr
 import models.RegistrationType.*
-import models.responses.AddressRegistrationResponse
-import models.{BusinessDetails, NormalMode, UserAnswers}
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationTypePage
-import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
+import pages.organisation.WhatIsTheNameOfYourBusinessPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -37,7 +35,7 @@ import views.html.organisation.WhatIsTheNameOfYourBusinessView
 
 import scala.concurrent.Future
 
-class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase with MockitoSugar {
+class WhatIsTheNameOfYourBusinessControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

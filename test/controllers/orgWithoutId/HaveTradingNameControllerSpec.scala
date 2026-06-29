@@ -23,20 +23,18 @@ import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import pages.orgWithoutId.HaveTradingNamePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import views.html.orgWithoutId.HaveTradingNameView
 
 import scala.concurrent.Future
 
-class HaveTradingNameControllerSpec extends SpecBase with MockitoSugar {
+class HaveTradingNameControllerSpec extends SpecBase {
 
   def onwardRoute: Call = Call("GET", "/foo")
 

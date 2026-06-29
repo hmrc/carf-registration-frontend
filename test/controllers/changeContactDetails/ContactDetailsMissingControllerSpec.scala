@@ -88,7 +88,6 @@ class ContactDetailsMissingControllerSpec extends SpecBase {
           controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad().url
 
         val request                = FakeRequest(GET, pageRoute)
-        val view                   = application.injector.instanceOf[ContactDetailsMissingdView]
         val result: Future[Result] = route(application, request).value
 
         status(result)              mustEqual SEE_OTHER

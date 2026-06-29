@@ -21,8 +21,7 @@ import forms.RegisteredAddressInUkFormProvider
 import models.{ChangeMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{verify, when}
 import pages.RegisteredAddressInUkPage
 import play.api.data.Form
 import play.api.inject.bind
@@ -34,7 +33,7 @@ import views.html.RegisteredAddressInUkView
 
 import scala.concurrent.Future
 
-class RegisteredAddressInUkControllerSpec extends SpecBase with MockitoSugar {
+class RegisteredAddressInUkControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 

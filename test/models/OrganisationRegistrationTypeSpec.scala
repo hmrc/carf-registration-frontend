@@ -17,7 +17,6 @@
 package models
 
 import base.SpecBase
-import play.api.libs.json.{JsString, Json}
 
 class OrganisationRegistrationTypeSpec extends SpecBase {
 

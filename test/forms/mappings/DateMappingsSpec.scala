@@ -16,20 +16,19 @@
 
 package forms.mappings
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import generators.Generators
 import models.DateHelper.today
 import org.scalacheck.Gen
-import org.scalatest.{EitherValues, OptionValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{EitherValues, OptionValues}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class DateMappingsSpec
     extends AnyFreeSpec

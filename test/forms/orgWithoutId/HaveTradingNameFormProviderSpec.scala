@@ -17,7 +17,6 @@
 package forms.orgWithoutId
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.orgWithoutId.HaveTradingNameFormProvider
 import play.api.data.{Form, FormError}
 
 class HaveTradingNameFormProviderSpec extends BooleanFieldBehaviours {

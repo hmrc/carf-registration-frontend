@@ -96,7 +96,7 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
   "RegisteredAddressInUkPage" - {
     "cleanup" - {
       "when user changes from No to Yes from CYA" - {
-        "must clear organisation-without-id branch answers, clears match flag and safeId but retain organisation contact details" in {
+        "must clear organisation-without-id branch answers, but retain organisation contact details" in {
           val result = RegisteredAddressInUkPage
             .cleanup(newValue = true, updatedUserAnswers = withOrganisationWithoutIdAnswers, hasChanged = true)
             .success
@@ -110,11 +110,11 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
 
           result.get(FirstContactNamePage)  mustBe Some(firstContactName)
           result.get(FirstContactEmailPage) mustBe Some(firstContactEmail)
-          result.hasValidMatch              mustBe false
-          result.safeId                     mustBe None
+          result.hasValidMatch              mustBe true
+          result.safeId                     mustBe Some(SafeId(testSafeId))
         }
 
-        "must clear sole-trader-with-NINO branch answers, clear match flag and safeId but retain Ind/ST Contact Details" in {
+        "must clear sole-trader-with-NINO branch answers, but retain Ind/ST Contact Details" in {
           val result = RegisteredAddressInUkPage
             .cleanup(newValue = true, updatedUserAnswers = withSoleTraderWithNinoAnswers, hasChanged = true)
             .success
@@ -129,8 +129,8 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
           result.get(IndividualEmailPage)       mustBe Some(individualContactEmail)
           result.get(IndividualHavePhonePage)   mustBe Some(true)
           result.get(IndividualPhoneNumberPage) mustBe Some(individualContactPhone)
-          result.hasValidMatch                  mustBe false
-          result.safeId                         mustBe None
+          result.hasValidMatch                  mustBe true
+          result.safeId                         mustBe Some(SafeId(testSafeId))
         }
 
         "must clear individual-with-NINO branch answers but retain Ind/ST Contact details" in {
@@ -148,8 +148,8 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
           result.get(IndividualEmailPage)       mustBe Some(individualContactEmail)
           result.get(IndividualHavePhonePage)   mustBe Some(true)
           result.get(IndividualPhoneNumberPage) mustBe Some(individualContactPhone)
-          result.hasValidMatch                  mustBe false
-          result.safeId                         mustBe None
+          result.hasValidMatch                  mustBe true
+          result.safeId                         mustBe Some(SafeId(testSafeId))
         }
 
         "must clear sole-trader-without-id branch answers but retain Ind/ST Contact details" in {
@@ -173,8 +173,8 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
           result.get(IndividualEmailPage)       mustBe Some(individualContactEmail)
           result.get(IndividualHavePhonePage)   mustBe Some(true)
           result.get(IndividualPhoneNumberPage) mustBe Some(individualContactPhone)
-          result.hasValidMatch                  mustBe false
-          result.safeId                         mustBe None
+          result.hasValidMatch                  mustBe true
+          result.safeId                         mustBe Some(SafeId(testSafeId))
         }
 
         "must clear individual-without-id branch answers but retain Ind/ST Contact details" in {
@@ -193,8 +193,8 @@ class RegisteredAddressInUkPageSpec extends SpecBase {
           result.get(IndividualEmailPage)       mustBe Some(individualContactEmail)
           result.get(IndividualHavePhonePage)   mustBe Some(true)
           result.get(IndividualPhoneNumberPage) mustBe Some(individualContactPhone)
-          result.hasValidMatch                  mustBe false
-          result.safeId                         mustBe None
+          result.hasValidMatch                  mustBe true
+          result.safeId                         mustBe Some(SafeId(testSafeId))
         }
       }
 

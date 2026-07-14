@@ -26,8 +26,9 @@ import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.*
+import play.api.Logging
 
-class SubscriptionHelper {
+class SubscriptionHelper extends Logging {
 
   def buildSubscriptionRequest(userAnswers: UserAnswers): Option[SubscriptionRequest] =
     for {
@@ -235,15 +236,28 @@ class SubscriptionHelper {
       userAnswers.journeyType.flatMap {
         case IndWithUtr   => businessNameAutoMatch
         case OrgWithoutId =>
-          userAnswers
-            .get(TradingNamePage)
-            .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
-            .orElse(userAnswers.get(OrgWithoutIdBusinessNamePage))
+          businessNameLengthCheck(
+            userAnswers
+              .get(TradingNamePage)
+              .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
+              .orElse(userAnswers.get(OrgWithoutIdBusinessNamePage))
+          )
 
         case _ => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
       }
     }
   }
+
+  private def businessNameLengthCheck(businessName: Option[String]) =
+    for {
+      name   <- businessName
+      result <- if (name.length > 80) {
+                  logger.info(
+                    s"[SubscriptionHelper] Business name was greater than 80 characters and has been replaced with $None"
+                  )
+                  None
+                } else Some(name)
+    } yield result
 
   private def isGBUser(userAnswers: UserAnswers): Boolean = {
     val businessHasUtr              = checkBusinessHasUtr(userAnswers)

@@ -45,6 +45,7 @@ class SubscriptionHelperSpec extends SpecBase {
   val testOrganisationSecondPhone       = "01122334455"
   val testTradingName                   = "Test Trading Ltd"
   val testBusinessName                  = "Test Business Ltd"
+  val testLongBusinessName              = "This is a very long business name that is too many characters and just keeps going on"
   val testNino                          = "AB123456C"
   val testUtrValue                      = "1234567890"
 
@@ -590,6 +591,22 @@ class SubscriptionHelperSpec extends SpecBase {
           result.get.tradingName mustBe Some(testTradingName)
         }
 
+        "should use None for Trading Name when tradingName is not set and businessName is over 80 characters" in {
+          val userAnswers = emptyUserAnswers
+            .copy(journeyType = Some(OrgWithoutId))
+            .withPage(RegisteredAddressInUkPage, true)
+            .withPage(FirstContactNamePage, testOrganisationFirstContactName)
+            .withPage(FirstContactEmailPage, testOrganisationFirstEmail)
+            .withPage(FirstContactPhonePage, false)
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(OrgWithoutIdBusinessNamePage, testLongBusinessName)
+            .copy(safeId = Some(exampleSafeId))
+
+          val result: Option[SubscriptionRequest] = subscriptionHelper.buildSubscriptionRequest(userAnswers)
+
+          result                 mustBe defined
+          result.get.tradingName mustBe None
+        }
       }
 
       "for unknown or missing journey type" - {

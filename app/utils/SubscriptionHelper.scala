@@ -237,14 +237,12 @@ class SubscriptionHelper extends Logging {
       userAnswers.journeyType.flatMap {
         case IndWithUtr   => businessNameAutoMatch
         case OrgWithoutId =>
-          businessNameLengthCheck(
-            userAnswers
-              .get(TradingNamePage)
-              .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
-              .orElse(
-                businessNameLengthCheck(userAnswers.get(OrgWithoutIdBusinessNamePage))
-              )
-          )
+          userAnswers
+            .get(TradingNamePage)
+            .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
+            .orElse(
+              businessNameLengthCheck(userAnswers.get(OrgWithoutIdBusinessNamePage))
+            )
 
         case _ => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
       }

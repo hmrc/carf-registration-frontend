@@ -67,7 +67,7 @@ case object RegisteredAddressInUkPage extends QuestionPage[Boolean] {
       hasChanged: Boolean
   ): Try[UserAnswers] =
     if (newValue) {
-      updatedUserAnswers.clearMatchFlagAndSafeId
+      updatedUserAnswers
         .remove(noToYesPagesToRemove)
     } else {
       Success(updatedUserAnswers)

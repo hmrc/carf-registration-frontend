@@ -16,6 +16,7 @@
 
 package utils
 
+import config.Constants.validTradingNameMaxLength
 import models.JourneyType.*
 import models.requests.*
 import models.responses.{DisplaySubscriptionIndividual, DisplaySubscriptionResponse}
@@ -240,7 +241,9 @@ class SubscriptionHelper extends Logging {
             userAnswers
               .get(TradingNamePage)
               .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
-              .orElse(userAnswers.get(OrgWithoutIdBusinessNamePage))
+              .orElse(
+                businessNameLengthCheck(userAnswers.get(OrgWithoutIdBusinessNamePage))
+              )
           )
 
         case _ => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
@@ -248,10 +251,10 @@ class SubscriptionHelper extends Logging {
     }
   }
 
-  private def businessNameLengthCheck(businessName: Option[String]) =
+  private def businessNameLengthCheck(businessName: Option[String]): Option[String] =
     for {
       name   <- businessName
-      result <- if (name.length > 80) {
+      result <- if (name.length > validTradingNameMaxLength) {
                   logger.info(
                     s"[SubscriptionHelper] Business name was greater than 80 characters and has been replaced with $None"
                   )

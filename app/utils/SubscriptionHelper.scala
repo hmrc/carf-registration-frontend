@@ -16,6 +16,7 @@
 
 package utils
 
+import config.Constants.validTradingNameMaxLength
 import models.JourneyType.*
 import models.requests.*
 import models.responses.{DisplaySubscriptionIndividual, DisplaySubscriptionResponse}
@@ -26,8 +27,9 @@ import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.*
+import play.api.Logging
 
-class SubscriptionHelper {
+class SubscriptionHelper extends Logging {
 
   def buildSubscriptionRequest(userAnswers: UserAnswers): Option[SubscriptionRequest] =
     for {
@@ -238,12 +240,25 @@ class SubscriptionHelper {
           userAnswers
             .get(TradingNamePage)
             .filter(_ => userAnswers.get(HaveTradingNamePage).exists(identity))
-            .orElse(userAnswers.get(OrgWithoutIdBusinessNamePage))
+            .orElse(
+              businessNameLengthCheck(userAnswers.get(OrgWithoutIdBusinessNamePage))
+            )
 
         case _ => userAnswers.get(WhatIsTheNameOfYourBusinessPage)
       }
     }
   }
+
+  private def businessNameLengthCheck(businessName: Option[String]): Option[String] =
+    for {
+      name   <- businessName
+      result <- if (name.length > validTradingNameMaxLength) {
+                  logger.info(
+                    s"[SubscriptionHelper] Business name was greater than 80 characters and has been replaced with $None"
+                  )
+                  None
+                } else Some(name)
+    } yield result
 
   private def isGBUser(userAnswers: UserAnswers): Boolean = {
     val businessHasUtr              = checkBusinessHasUtr(userAnswers)

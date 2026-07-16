@@ -29,6 +29,7 @@ object Constants {
   val businessNameRegex: String       = "^[A-Za-z0-9&'\\\\^`\\- ]+$"
   val validBusinessNameMaxLength: Int = 105
   val validBusinessNameMinLength: Int = 1
+  val validTradingNameMaxLength: Int  = 80
   val validEmailMaxLength: Int        = 132
 
   val crownDependencyPostcodeRegex = "^(?:(GY|JE)[0-9]{1,2} ?[0-9][A-Z]{2}|IM[0-9]{1,2} ?[0-9][A-Z]{2})$"

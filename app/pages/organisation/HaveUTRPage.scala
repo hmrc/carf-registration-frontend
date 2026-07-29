@@ -40,7 +40,7 @@ case object HaveUTRPage extends QuestionPage[Boolean] {
   ): Try[UserAnswers] =
     if (hasChanged) {
       if (newValue) {
-        updatedUserAnswers.clearMatchFlagAndSafeId.remove(withoutUtrPages)
+        updatedUserAnswers.remove(withoutUtrPages)
       } else {
         // CARF-545: If NINO was previously provided, don't clear match flag and safeId here
         // so that we can redirect to CYA from /change-have-ni-number if it was previously matched

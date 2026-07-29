@@ -19,8 +19,7 @@ package viewmodels.checkAnswers.changeContactDetails
 import models.{NormalMode, UserAnswers}
 import pages.changeContactDetails.ChangeDetailsOrgSecondNamePage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -30,7 +29,7 @@ object ChangeDetailsOrgSecondNameSummary {
     answers.get(ChangeDetailsOrgSecondNamePage).map { answer =>
       SummaryListRowViewModel(
         key = "changeOrgDetails.secondContact.summaryList.contactName.key",
-        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        value = ValueViewModel(HtmlContent(answer)),
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),

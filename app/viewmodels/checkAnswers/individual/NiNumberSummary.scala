@@ -19,7 +19,7 @@ package viewmodels.checkAnswers.individual
 import models.UserAnswers
 import pages.individual.NiNumberPage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -30,7 +30,7 @@ object NiNumberSummary {
     answers.get(NiNumberPage).map { answer =>
       SummaryListRowViewModel(
         key = "niNumber.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        value = ValueViewModel(HtmlContent(answer)),
         actions = Seq.empty
       ).withCssClass("govuk-summary-list__row govuk-summary-list__row--no-actions govuk-summary-list__row--no-border")
     }

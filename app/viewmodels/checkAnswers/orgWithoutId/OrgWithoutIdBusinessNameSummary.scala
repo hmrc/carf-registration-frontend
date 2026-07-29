@@ -19,8 +19,7 @@ package viewmodels.checkAnswers.orgWithoutId
 import models.{ChangeMode, UserAnswers}
 import pages.orgWithoutId.OrgWithoutIdBusinessNamePage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -29,7 +28,7 @@ object OrgWithoutIdBusinessNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(OrgWithoutIdBusinessNamePage).map { answer =>
-      val value = ValueViewModel(HtmlContent(HtmlFormat.escape(answer.value)))
+      val value = ValueViewModel(HtmlContent(answer))
 
       SummaryListRowViewModel(
         key = "orgWithoutIdBusinessName.checkYourAnswersLabel",

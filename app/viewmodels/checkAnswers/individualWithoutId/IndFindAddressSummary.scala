@@ -19,8 +19,7 @@ package viewmodels.checkAnswers.individualWithoutId
 import models.{ChangeMode, UserAnswers}
 import pages.individualWithoutId.IndFindAddressPage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -30,9 +29,7 @@ object IndFindAddressSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(IndFindAddressPage).map { answer =>
 
-      val value = HtmlFormat.escape(answer.postcode).toString + "<br/>" + HtmlFormat
-        .escape(answer.propertyNameOrNumber.getOrElse(""))
-        .toString
+      val value = answer.postcode + "<br/>" + answer.propertyNameOrNumber.getOrElse("")
 
       SummaryListRowViewModel(
         key = "indFindAddress.checkYourAnswersLabel",

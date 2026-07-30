@@ -20,11 +20,10 @@ import controllers.orgWithoutId.routes
 import models.{ChangeMode, UserAnswers}
 import pages.orgWithoutId.TradingNamePage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 object TradingNameSummary {
 
@@ -32,7 +31,7 @@ object TradingNameSummary {
     answers.get(TradingNamePage).map { answer =>
       SummaryListRowViewModel(
         key = "tradingName.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        value = ValueViewModel(HtmlContent(answer)),
         actions = Seq(
           ActionItemViewModel(
             content = HtmlContent(s"""<span aria-hidden='true'>${messages("site.change")}</span>"""),

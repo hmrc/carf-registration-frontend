@@ -19,8 +19,10 @@ package repositories
 import config.FrontendAppConfig
 import models.JourneyType.OrgWithUtr
 import models.UserAnswers
+import models.crypto.SensitiveJsObject
 import org.mockito.Mockito.when
 import org.mongodb.scala.SingleObservableFuture
+import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
 import org.scalatest.OptionValues
@@ -30,8 +32,9 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 import play.api.Configuration
-import play.api.libs.json.Json
-import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
+import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.crypto.json.JsonEncryption
+import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, SymmetricCryptoFactory}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
@@ -42,7 +45,7 @@ import java.util.Base64
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionRepositorySpec
+class EncryptedSessionRepositorySpec
     extends AnyFreeSpec
     with Matchers
     with DefaultPlayMongoRepositorySupport[UserAnswers]
@@ -64,7 +67,7 @@ class SessionRepositorySpec
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L
-  when(mockAppConfig.mongoEncryptionEnabled) thenReturn false
+  when(mockAppConfig.mongoEncryptionEnabled) thenReturn true
 
   private val aesKey = {
     val keyLength = 32
@@ -77,6 +80,9 @@ class SessionRepositorySpec
 
   implicit private val crypto: Encrypter with Decrypter =
     SymmetricCryptoFactory.aesGcmCryptoFromConfig("crypto", configuration.underlying)
+
+  implicit val sensitiveFormat: Format[SensitiveJsObject] =
+    JsonEncryption.sensitiveEncrypterDecrypter(SensitiveJsObject.apply)
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
@@ -94,6 +100,22 @@ class SessionRepositorySpec
       val updatedRecord = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
 
       updatedRecord mustEqual expectedResult
+    }
+
+    "must persist the data in encrypted format" in {
+      val setResult = repository.set(userAnswers).futureValue
+
+      setResult mustEqual true
+
+      val retrievedRecord = repository.collection
+        .find[BsonDocument](Filters.and(Filters.equal("_id", userAnswers.id)))
+        .headOption()
+        .futureValue
+        .value
+
+      val rawData       = retrievedRecord.get("data").asString().getValue
+      val decryptedData = crypto.decrypt(Crypted(rawData)).value
+      Json.parse(decryptedData) mustBe userAnswers.data
     }
 
     mustPreserveMdc(repository.set(userAnswers))

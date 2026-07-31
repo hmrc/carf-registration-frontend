@@ -16,13 +16,13 @@
 
 package models
 
+import models.CryptoType.CryptoT
 import models.crypto.{SensitiveJsObject, SensitiveResponse, SensitiveSafeId, SensitiveSubscriptionId}
 import models.responses.DisplaySubscriptionResponse
-import play.api.libs.functional.syntax.unlift
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import uk.gov.hmrc.crypto.json.JsonEncryption
-import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -90,76 +90,34 @@ final case class UserAnswers(
 
 object UserAnswers {
 
-  implicit def format(encryptionEnabled: Boolean)(implicit crypto: Encrypter with Decrypter): OFormat[UserAnswers] =
-    if (encryptionEnabled) UserAnswers.encryptedFormat else UserAnswers.plainFormat
+  def mongoFormat(encryptionEnabled: Boolean)(implicit crypto: CryptoT): OFormat[UserAnswers] = {
+    implicit val sensitiveSafeIdFormat: Format[SensitiveSafeId] =
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSafeId.apply)
+      } else {
+        Json.format[SensitiveSafeId]
+      }
 
-  private def plainFormat: OFormat[UserAnswers] = {
-    val reads: Reads[UserAnswers] = {
-
-      import play.api.libs.functional.syntax.*
-
-      (
-        (__ \ "_id").read[String] and
-          (__ \ "journeyType").readNullable[JourneyType] and
-          (__ \ "changeIsIndividualRegType").readNullable[Boolean] and
-          (__ \ "isCtAutoMatched").read[Boolean] and
-          (__ \ "safeId").readNullable[SafeId] and
-          (__ \ "hasValidMatch").read[Boolean] and
-          (__ \ "subscriptionId").readNullable[SubscriptionId] and
-          (__ \ "displaySubscriptionResponse").readNullable[DisplaySubscriptionResponse] and
-          (__ \ "data").read[JsObject] and
-          (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-      )(UserAnswers.apply _)
-    }
-
-    val writes: OWrites[UserAnswers] = {
-
-      import play.api.libs.functional.syntax.*
-
-      (
-        (__ \ "_id").write[String] and
-          (__ \ "journeyType").writeNullable[JourneyType] and
-          (__ \ "changeIsIndividualRegType").writeNullable[Boolean] and
-          (__ \ "isCtAutoMatched").write[Boolean] and
-          (__ \ "safeId").writeNullable[SafeId] and
-          (__ \ "hasValidMatch").write[Boolean] and
-          (__ \ "subscriptionId").writeNullable[SubscriptionId] and
-          (__ \ "displaySubscriptionResponse").writeNullable[DisplaySubscriptionResponse] and
-          (__ \ "data").write[JsObject] and
-          (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-      )(ua =>
-        (
-          ua.id,
-          ua.journeyType,
-          ua.changeIsIndividualRegType,
-          ua.isCtAutoMatched,
-          ua.safeId,
-          ua.hasValidMatch,
-          ua.subscriptionId,
-          ua.displaySubscriptionResponse,
-          ua.data,
-          ua.lastUpdated
-        )
-      )
-    }
-
-    OFormat(reads, writes)
-  }
-
-  private def encryptedFormat(implicit crypto: Encrypter with Decrypter): OFormat[UserAnswers] = {
-    implicit val sensitiveJsFormat: Format[SensitiveJsObject] =
-      JsonEncryption.sensitiveEncrypterDecrypter(SensitiveJsObject.apply)
+    implicit val sensitiveJsObjectFormat: Format[SensitiveJsObject] =
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveJsObject.apply)
+      } else {
+        Json.format[SensitiveJsObject]
+      }
 
     implicit val sensitiveSubscriptionIdFormat: Format[SensitiveSubscriptionId] =
-      JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSubscriptionId.apply)
-
-    implicit val sensitiveSafeIdFormat: Format[SensitiveSafeId] =
-      JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSafeId.apply)
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSubscriptionId.apply)
+      } else {
+        Json.format[SensitiveSubscriptionId]
+      }
 
     implicit val sensitiveResponseFormat: Format[SensitiveResponse] =
-      JsonEncryption.sensitiveEncrypterDecrypter(SensitiveResponse.apply)
-
-    import play.api.libs.functional.syntax.*
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveResponse.apply)
+      } else {
+        Json.format[SensitiveResponse]
+      }
 
     (
       (__ \ "_id").format[String] and
@@ -211,7 +169,6 @@ object UserAnswers {
           ua.lastUpdated
         )
     )
-
   }
 
 }

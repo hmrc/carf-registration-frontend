@@ -116,13 +116,14 @@ class HaveUTRPageSpec extends SpecBase {
         }
       }
 
-      "must clear match flag and remove safe id when the answer has changed to yes" in {
+      "must keep match flag and keep safe id when the answer has changed to yes" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = true, safeId = Some(SafeId(testSafeId)))
         val result = HaveUTRPage.cleanup(newValue = true, updatedUserAnswers = ua, hasChanged = true).success.value
 
-        result.hasValidMatch mustBe false
-        result.safeId        mustBe None
+        result.hasValidMatch mustBe true
+        result.safeId        mustBe Some(SafeId(testSafeId))
       }
+
       "must keep match flag false and safe id NOT present when the answer has changed to yes" in {
         val ua     = emptyUserAnswers.copy(hasValidMatch = false, safeId = None)
         val result = HaveUTRPage.cleanup(newValue = true, updatedUserAnswers = ua, hasChanged = true).success.value

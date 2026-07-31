@@ -16,17 +16,18 @@
 
 package config
 
+import models.CryptoType.CryptoT
 import play.api.Configuration
-import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
+import uk.gov.hmrc.crypto.SymmetricCryptoFactory
 
 import javax.inject.{Inject, Provider, Singleton}
 
 @Singleton
 class CryptoProvider @Inject() (
     configuration: Configuration
-) extends Provider[Encrypter with Decrypter] {
+) extends Provider[CryptoT] {
 
-  override def get(): Encrypter with Decrypter =
+  override def get(): CryptoT =
     SymmetricCryptoFactory.aesGcmCryptoFromConfig("crypto", configuration.underlying)
 
 }

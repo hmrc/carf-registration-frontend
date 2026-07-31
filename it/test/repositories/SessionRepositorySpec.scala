@@ -16,11 +16,11 @@
 
 package repositories
 
-import config.FrontendAppConfig
+import config.{CryptoProvider, FrontendAppConfig}
+import models.CryptoType.{randomAesKey, CryptoT}
 import models.JourneyType.OrgWithUtr
-import models.{SafeId, SubscriptionId, UserAnswers}
-import models.crypto.{SensitiveJsObject, SensitiveResponse, SensitiveSafeId, SensitiveSubscriptionId}
-import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
+import models.responses.*
+import models.{CryptoType, SafeId, SubscriptionId, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.bson.BsonDocument
@@ -33,16 +33,13 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 import play.api.Configuration
-import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.crypto.json.JsonEncryption
-import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, SymmetricCryptoFactory}
+import play.api.libs.json.Json
+import uk.gov.hmrc.crypto.Crypted
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
-import java.security.SecureRandom
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, LocalDate, ZoneId}
-import java.util.Base64
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -98,29 +95,7 @@ class SessionRepositorySpec
   when(mockAppConfig.cacheTtl) thenReturn 1L
   when(mockAppConfig.mongoEncryptionEnabled) thenReturn true
 
-  private val aesKey = {
-    val keyLength = 32
-    val aesKey    = new Array[Byte](keyLength)
-    new SecureRandom().nextBytes(aesKey)
-    Base64.getEncoder.encodeToString(aesKey)
-  }
-
-  private val configuration = Configuration("crypto.key" -> aesKey)
-
-  implicit private val crypto: Encrypter with Decrypter =
-    SymmetricCryptoFactory.aesGcmCryptoFromConfig("crypto", configuration.underlying)
-
-  implicit val sensitiveJsFormat: Format[SensitiveJsObject] =
-    JsonEncryption.sensitiveEncrypterDecrypter(SensitiveJsObject.apply)
-
-  implicit val sensitiveSubscriptionIdFormat: Format[SensitiveSubscriptionId] =
-    JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSubscriptionId.apply)
-
-  implicit val sensitiveSafeIdFormat: Format[SensitiveSafeId] =
-    JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSafeId.apply)
-
-  implicit val sensitiveResponseFormat: Format[SensitiveResponse] =
-    JsonEncryption.sensitiveEncrypterDecrypter(SensitiveResponse.apply)
+  private implicit val crypto: CryptoT = new CryptoProvider(Configuration("crypto.key" -> randomAesKey)).get()
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,

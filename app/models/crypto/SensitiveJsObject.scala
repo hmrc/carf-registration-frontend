@@ -16,9 +16,16 @@
 
 package models.crypto
 
+import models.{SafeId, SubscriptionId}
+import models.responses.DisplaySubscriptionResponse
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.crypto.Sensitive
 
 case class SensitiveJsObject(override val decryptedValue: JsObject) extends Sensitive[JsObject]
 
-case class SensitiveString(override val decryptedValue: String) extends Sensitive[String]
+case class SensitiveSubscriptionId(override val decryptedValue: SubscriptionId) extends Sensitive[SubscriptionId]
+
+case class SensitiveSafeId(override val decryptedValue: SafeId) extends Sensitive[SafeId]
+
+case class SensitiveResponse(override val decryptedValue: DisplaySubscriptionResponse)
+    extends Sensitive[DisplaySubscriptionResponse]

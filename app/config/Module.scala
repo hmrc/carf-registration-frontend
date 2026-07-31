@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.AbstractModule
 import controllers.actions.*
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import java.time.{Clock, ZoneId}
 
@@ -32,6 +33,8 @@ class Module extends AbstractModule {
     bind(classOf[ChangeDetailsDataRequiredAction]).to(classOf[ChangeDetailsDataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[CarfIdRetrievalAction]).to(classOf[CarfIdRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[BasicAuthAction]).to(classOf[BasicAuthActionImpl]).asEagerSingleton()
+    bind(classOf[Encrypter]).toProvider(classOf[CryptoProvider])
+    bind(classOf[Decrypter]).toProvider(classOf[CryptoProvider])
 
     // For session based storage instead of cred based, change to SessionIdentifierAction
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()

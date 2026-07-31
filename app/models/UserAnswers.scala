@@ -16,9 +16,13 @@
 
 package models
 
+import models.CryptoType.CryptoT
+import models.crypto.{SensitiveJsObject, SensitiveResponse, SensitiveSafeId, SensitiveSubscriptionId}
 import models.responses.DisplaySubscriptionResponse
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
+import uk.gov.hmrc.crypto.json.JsonEncryption
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -86,54 +90,85 @@ final case class UserAnswers(
 
 object UserAnswers {
 
-  val reads: Reads[UserAnswers] = {
+  def mongoFormat(encryptionEnabled: Boolean)(implicit crypto: CryptoT): OFormat[UserAnswers] = {
+    implicit val sensitiveSafeIdFormat: Format[SensitiveSafeId] =
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSafeId.apply)
+      } else {
+        Json.format[SensitiveSafeId]
+      }
 
-    import play.api.libs.functional.syntax.*
+    implicit val sensitiveJsObjectFormat: Format[SensitiveJsObject] =
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveJsObject.apply)
+      } else {
+        Json.format[SensitiveJsObject]
+      }
+
+    implicit val sensitiveSubscriptionIdFormat: Format[SensitiveSubscriptionId] =
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveSubscriptionId.apply)
+      } else {
+        Json.format[SensitiveSubscriptionId]
+      }
+
+    implicit val sensitiveResponseFormat: Format[SensitiveResponse] =
+      if (encryptionEnabled) {
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveResponse.apply)
+      } else {
+        Json.format[SensitiveResponse]
+      }
 
     (
-      (__ \ "_id").read[String] and
-        (__ \ "journeyType").readNullable[JourneyType] and
-        (__ \ "changeIsIndividualRegType").readNullable[Boolean] and
-        (__ \ "isCtAutoMatched").read[Boolean] and
-        (__ \ "safeId").readNullable[SafeId] and
-        (__ \ "hasValidMatch").read[Boolean] and
-        (__ \ "subscriptionId").readNullable[SubscriptionId] and
-        (__ \ "displaySubscriptionResponse").readNullable[DisplaySubscriptionResponse] and
-        (__ \ "data").read[JsObject] and
-        (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-    )(UserAnswers.apply _)
-  }
-
-  val writes: OWrites[UserAnswers] = {
-
-    import play.api.libs.functional.syntax.*
-
-    (
-      (__ \ "_id").write[String] and
-        (__ \ "journeyType").writeNullable[JourneyType] and
-        (__ \ "changeIsIndividualRegType").writeNullable[Boolean] and
-        (__ \ "isCtAutoMatched").write[Boolean] and
-        (__ \ "safeId").writeNullable[SafeId] and
-        (__ \ "hasValidMatch").write[Boolean] and
-        (__ \ "subscriptionId").writeNullable[SubscriptionId] and
-        (__ \ "displaySubscriptionResponse").writeNullable[DisplaySubscriptionResponse] and
-        (__ \ "data").write[JsObject] and
-        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    )(ua =>
+      (__ \ "_id").format[String] and
+        (__ \ "journeyType").formatNullable[JourneyType] and
+        (__ \ "changeIsIndividualRegType").formatNullable[Boolean] and
+        (__ \ "isCtAutoMatched").format[Boolean] and
+        (__ \ "safeId").formatNullable[SensitiveSafeId] and
+        (__ \ "hasValidMatch").format[Boolean] and
+        (__ \ "subscriptionId").formatNullable[SensitiveSubscriptionId] and
+        (__ \ "displaySubscriptionResponse").formatNullable[SensitiveResponse] and
+        (__ \ "data").format[SensitiveJsObject] and
+        (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat)
+    )(
       (
-        ua.id,
-        ua.journeyType,
-        ua.changeIsIndividualRegType,
-        ua.isCtAutoMatched,
-        ua.safeId,
-        ua.hasValidMatch,
-        ua.subscriptionId,
-        ua.displaySubscriptionResponse,
-        ua.data,
-        ua.lastUpdated
-      )
+          id,
+          journeyType,
+          changeIsIndividualRegType,
+          isCtAutoMatched,
+          safeId,
+          hasValidMatch,
+          subscriptionId,
+          displaySubscriptionResponse,
+          data,
+          lastUpdated
+      ) =>
+        UserAnswers(
+          id,
+          journeyType,
+          changeIsIndividualRegType,
+          isCtAutoMatched,
+          safeId.map(_.decryptedValue),
+          hasValidMatch,
+          subscriptionId.map(_.decryptedValue),
+          displaySubscriptionResponse.map(_.decryptedValue),
+          data.decryptedValue,
+          lastUpdated
+        ),
+      ua =>
+        (
+          ua.id,
+          ua.journeyType,
+          ua.changeIsIndividualRegType,
+          ua.isCtAutoMatched,
+          ua.safeId.map(SensitiveSafeId(_)),
+          ua.hasValidMatch,
+          ua.subscriptionId.map(SensitiveSubscriptionId(_)),
+          ua.displaySubscriptionResponse.map(SensitiveResponse(_)),
+          SensitiveJsObject(ua.data),
+          ua.lastUpdated
+        )
     )
   }
 
-  implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)
 }

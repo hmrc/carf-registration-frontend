@@ -21,11 +21,11 @@ import controllers.actions.*
 import controllers.routes
 import models.NormalMode
 import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsYourNamePage}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.ProblemSoleTraderNotIdentifiedView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 
@@ -39,8 +39,7 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     view: ProblemSoleTraderNotIdentifiedView
 ) extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
@@ -56,7 +55,7 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
       pageInfo match {
         case Some(utr, name) => Ok(view(utr, name, indexPageUrl, guidancePageUrl, aeoiEmailAddress))
         case None            =>
-          logger.warn(
+          logWarn(
             "Some information was missing from user answers (utr, business name or both). Redirecting to journey recovery."
           )
           Redirect(routes.JourneyRecoveryController.onPageLoad())

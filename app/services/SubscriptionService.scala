@@ -23,10 +23,10 @@ import models.error.ApiError.MandatoryInformationMissingError
 import models.requests.SubscriptionRequest
 import models.responses.*
 import models.{SubscriptionId, UserAnswers}
-import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SubscriptionHelper
+import utils.LoggerUtil.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionService @Inject() (
     subscriptionConnector: SubscriptionConnector,
     subscriptionHelper: SubscriptionHelper
-) extends Logging {
+) {
 
   def subscribe(userAnswers: UserAnswers)(implicit
       hc: HeaderCarrier,
@@ -46,11 +46,11 @@ class SubscriptionService @Inject() (
         subscriptionConnector
           .createSubscription(request)
           .leftMap { error =>
-            logger.error(s"Failed to create subscription: $error")
+            logError(s"Failed to create subscription: $error")
             error
           }
       case None          =>
-        logger.error("There has been an error building the subscription request from userAnswers")
+        logError("There has been an error building the subscription request from userAnswers")
         EitherT {
           Future.successful(
             Left(
@@ -69,7 +69,7 @@ class SubscriptionService @Inject() (
     subscriptionConnector
       .displaySubscription(subscriptionId.value)
       .leftMap { error =>
-        logger.error(s"Failed to retrieve subscription: $error")
+        logError(s"Failed to retrieve subscription: $error")
         error
       }
 
@@ -82,11 +82,11 @@ class SubscriptionService @Inject() (
         subscriptionConnector
           .updateSubscription(request)
           .leftMap { error =>
-            logger.error(s"Failed to update subscription: $error")
+            logError(s"Failed to update subscription: $error")
             error
           }
       case None          =>
-        logger.error("There has been an error building the subscription request from userAnswers")
+        logError("There has been an error building the subscription request from userAnswers")
         ResultT.fromError(
           MandatoryInformationMissingError(
             s"There has been an error building the subscription request from userAnswers"

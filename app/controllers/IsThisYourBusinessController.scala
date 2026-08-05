@@ -27,7 +27,6 @@ import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails
 import navigation.Navigator
 import pages.IsThisYourBusinessPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
-import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -36,6 +35,7 @@ import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{CountryListFactory, UserAnswersHelper}
 import views.html.IsThisYourBusinessView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,8 +56,7 @@ class IsThisYourBusinessController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
-    with UserAnswersHelper
-    with Logging {
+    with UserAnswersHelper {
 
   val form: Form[Boolean] = formProvider()
 
@@ -83,7 +82,7 @@ class IsThisYourBusinessController @Inject() (
           )
 
         case (_, _) =>
-          logger.warn(
+          logWarn(
             s"No UTR or no JourneyType <$maybeJourneyTypeSoleTrader> found in user answers. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -98,7 +97,7 @@ class IsThisYourBusinessController @Inject() (
             .bindFromRequest()
             .fold(
               formWithErrors => {
-                logger.warn("Form submission contained errors")
+                logWarn("Form submission contained errors")
                 Future.successful(BadRequest(view(formWithErrors, mode, existingPageDetails.businessDetails)))
               },
               value => {
@@ -112,13 +111,13 @@ class IsThisYourBusinessController @Inject() (
                     )
                   _              <- sessionRepository.set(updatedAnswers)
                 } yield {
-                  logger.info(s"User answered '$value' for IsThisYourBusiness with business")
+                  logInfo(s"User answered '$value' for IsThisYourBusiness with business")
                   Redirect(navigator.nextPage(IsThisYourBusinessPage, mode, updatedAnswers))
                 }
               }
             )
         case None                      =>
-          logger.warn("[IsThisYourBusinessPage] No business details found. Redirecting to journey recovery.")
+          logWarn("[IsThisYourBusinessPage] No business details found. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }
@@ -140,14 +139,14 @@ class IsThisYourBusinessController @Inject() (
         )
       case Left(NotFoundError)    =>
         if (isAutoMatch) {
-          logger.warn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
+          logWarn("Auto-match failed for a non-Sole Trader. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {
-          logger.warn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
+          logWarn("Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified.")
           Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
       case Left(error)            =>
-        logger.warn(s"Unexpected error. Error: $error")
+        logWarn(s"Unexpected error. Error: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
 
@@ -167,13 +166,13 @@ class IsThisYourBusinessController @Inject() (
         )
 
       case Left(NotFoundError) =>
-        logger.warn(
+        logWarn(
           "User is a Sole Trader. Redirecting to sole-trader-not-identified."
         )
         Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
 
       case Left(error) =>
-        logger.warn(s"Unexpected error. Error: $error")
+        logWarn(s"Unexpected error. Error: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 
     }
@@ -188,7 +187,7 @@ class IsThisYourBusinessController @Inject() (
     countryListFactory
       .getDescriptionFromCode(address.countryCode)
       .fold {
-        logger.error(s"Failed to convert country code to country name for country code: (${address.countryCode}")
+        logError(s"Failed to convert country code to country name for country code: (${address.countryCode}")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       } { countryDescriptionName =>
 
@@ -214,7 +213,7 @@ class IsThisYourBusinessController @Inject() (
 
           val preparedForm = existingAnswer.fold(form)(form.fill)
 
-          logger.info(s"Sole Trader Business data found and cached for UTR: $utr.")
+          logInfo(s"Sole Trader Business data found and cached for UTR: $utr.")
 
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }

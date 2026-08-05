@@ -20,11 +20,11 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
 import pages.IsThisYourBusinessPage
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.organisation.ProblemDifferentBusinessView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.Future
@@ -39,8 +39,7 @@ class ProblemDifferentBusinessController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     view: ProblemDifferentBusinessView
 ) extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
@@ -52,7 +51,7 @@ class ProblemDifferentBusinessController @Inject() (
 
           Future.successful(Ok(view(businessName, address, signOutUrl)))
         case None                      =>
-          logger.warn("Business details expected but not found. Redirecting to journey recovery.")
+          logWarn("Business details expected but not found. Redirecting to journey recovery.")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
     }

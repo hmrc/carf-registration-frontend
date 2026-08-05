@@ -20,13 +20,13 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.BasicAuthRequest
-import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,8 +54,7 @@ class BasicAuthActionExtractor @Inject() (
 )(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[BasicAuthRequest, AnyContent]
     with ActionFunction[Request, BasicAuthRequest]
-    with AuthorisedFunctions
-    with Logging {
+    with AuthorisedFunctions {
 
   override def invokeBlock[A](
       request: Request[A],
@@ -68,7 +67,7 @@ class BasicAuthActionExtractor @Inject() (
       case Some(internalId) => block(BasicAuthRequest(request, internalId))
       case _                =>
         val msg = "[BasicAuthAction] Unable to retrieve internal id"
-        logger.warn(msg)
+        logWarn(msg)
         throw AuthorisationException.fromString(msg)
     } recover {
       case _: NoActiveSession        =>

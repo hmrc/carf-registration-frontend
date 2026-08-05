@@ -21,12 +21,12 @@ import controllers.routes
 import models.Mode
 import navigation.Navigator
 import pages.individualWithoutId.{AddressLookupPage, IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individualWithoutId.IndReviewConfirmAddressView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,8 +43,7 @@ class IndReviewConfirmAddressController @Inject() (
     view: IndReviewConfirmAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
@@ -58,11 +57,11 @@ class IndReviewConfirmAddressController @Inject() (
         case Some(address :: Nil) =>
           Future.successful(Ok(view(address.address, mode, editAddressLink)))
         case Some(list)           =>
-          logger.warn("One address in user answers expected, multiple were found")
+          logWarn("One address in user answers expected, multiple were found")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
         case None =>
-          logger.warn("No addresses were found in user answers")
+          logWarn("No addresses were found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
     }
@@ -77,7 +76,7 @@ class IndReviewConfirmAddressController @Inject() (
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPageForNavigatorOnly, mode, updatedAnswers))
         case _                                     =>
-          logger.error("No address found in user answers")
+          logError("No address found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
 

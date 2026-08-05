@@ -21,15 +21,15 @@ import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import models.countries.*
-import play.api.Logging
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import utils.PostcodeUtil
+import utils.LoggerUtil.*
 
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
 
-trait Formatters extends Transforms with Logging {
+trait Formatters extends Transforms {
 
   private type EitherFormErrorOrValue = Either[Seq[FormError], String]
   private lazy val notRealError: String => EitherFormErrorOrValue = notRealKey =>
@@ -274,7 +274,7 @@ trait Formatters extends Transforms with Logging {
                 case Success(value)                   => value
                 case Failure(_: NumberParseException) => formErrorInvalidKey
                 case Failure(exception)               =>
-                  logger.error(s"Unexpected phone number form error occurred with message: ${exception.getMessage}")
+                  logError(s"Unexpected phone number form error occurred with message: ${exception.getMessage}")
                   formErrorInvalidKey
               }
             }

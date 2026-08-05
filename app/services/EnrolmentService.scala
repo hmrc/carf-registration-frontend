@@ -20,15 +20,15 @@ import config.Constants.CARFID
 import connectors.EnrolmentConnector
 import models.SubscriptionId
 import models.requests.{EnrolmentRequest, Identifier, Verifier}
-import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.LoggerUtil.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EnrolmentService @Inject() (enrolmentConnector: EnrolmentConnector) extends Logging {
+class EnrolmentService @Inject() (enrolmentConnector: EnrolmentConnector) {
 
   def enrol(carfId: SubscriptionId, postcodeMaybe: Option[String], isAbroad: Boolean)(implicit
       hc: HeaderCarrier,
@@ -43,7 +43,7 @@ class EnrolmentService @Inject() (enrolmentConnector: EnrolmentConnector) extend
     )
 
     enrolmentConnector.createEnrolment(enrolmentRequest).leftMap { error =>
-      logger.error(s"Failed to create enrolment: $error")
+      logError(s"Failed to create enrolment: $error")
       error
     }
   }

@@ -25,7 +25,6 @@ import pages.individualWithoutId.{IndWithoutIdAddressNonUkPage, IndWithoutIdUkAd
 import pages.orgWithoutId.{HaveTradingNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
 import pages.{IsThisYourBusinessPage, RegisteredAddressInUkPage, RegistrationTypePage}
-import play.api.Logging
 import play.api.i18n.Messages
 import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -35,8 +34,9 @@ import viewmodels.checkAnswers.individualWithoutId.*
 import viewmodels.checkAnswers.orgWithoutId.*
 import viewmodels.checkAnswers.organisation.*
 import viewmodels.checkAnswers.{IsThisYourBusinessSummary, RegisteredAddressInUkSummary}
+import utils.LoggerUtil.*
 
-class CheckYourAnswersHelper @Inject() extends Logging {
+class CheckYourAnswersHelper @Inject() {
 
   def getBusinessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     IsThisYourBusinessSummary
@@ -93,7 +93,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
                 } else {
-                  logger.warn("Individual with NINO answers were not as expected")
+                  logWarn("Individual with NINO answers were not as expected")
                   None
                 }
               }
@@ -103,7 +103,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
             None
         }
       } else {
-        logger.warn(s"Individual with NINO requires user to have a nino. When questioned, user answered false")
+        logWarn(s"Individual with NINO requires user to have a nino. When questioned, user answered false")
         None
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
@@ -133,7 +133,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, name, dob, address))
                 } else {
-                  logger.warn("Individual without NINO answers were not as expected")
+                  logWarn("Individual without NINO answers were not as expected")
                   None
                 }
               }
@@ -143,7 +143,7 @@ class CheckYourAnswersHelper @Inject() extends Logging {
             None
         }
       } else {
-        logger.warn(
+        logWarn(
           s"Individual without NINO requires user to NOT have a nino. When questioned, user answered true"
         )
         None

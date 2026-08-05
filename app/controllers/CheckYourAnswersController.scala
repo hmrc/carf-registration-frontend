@@ -26,7 +26,6 @@ import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
 import pages.NavigatorOnlyCheckYourAnswersErrors
-import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -37,6 +36,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
 import viewmodels.Section
 import views.html.CheckYourAnswersView
+import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -57,7 +57,6 @@ class CheckYourAnswersController @Inject() (
     sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with Logging
     with I18nSupport {
 
   private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
@@ -93,7 +92,7 @@ class CheckYourAnswersController @Inject() (
       (sectionsMaybe, isMatchValidOrNotNeeded(userAnswers)) match {
         case (Some(sections), true)                   => Ok(view(sections))
         case (sectionsMaybe, matchIsValidOrNotNeeded) =>
-          logger.warn(
+          logWarn(
             s"[CheckYourAnswersController] Error! Could not load page. " +
               s"< journeyType = ${userAnswers.journeyType} > " +
               s"< matchIsValidOrNotNeeded = $matchIsValidOrNotNeeded > " +
@@ -145,14 +144,14 @@ class CheckYourAnswersController @Inject() (
           case Left(AlreadyRegisteredError) =>
             Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
           case Left(DataError)              =>
-            logger.error(s"[CheckYourAnswersController] Had missing data on submission")
+            logError(s"[CheckYourAnswersController] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error                        =>
-            logger.error(s"[CheckYourAnswersController] Failed to subscribe: $error")
+            logError(s"[CheckYourAnswersController] Failed to subscribe: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
       } else {
-        logger.warn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
+        logWarn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
         Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
       }
     }
@@ -167,7 +166,7 @@ class CheckYourAnswersController @Inject() (
       _                     <-
         journeyTypeMaybe.fold(ResultT.fromValue(())) { journeyType =>
           auditService.auditRegistration(userAnswersWithSafeId, journeyType, request.affinityGroup).recover { case e =>
-            logger.debug(s"Auditing Registration failed due to $e")
+            logDebug(s"Auditing Registration failed due to $e")
             ResultT.fromValue(())
           }
         }

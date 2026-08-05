@@ -18,16 +18,15 @@ package services
 
 import connectors.{EmailConnector, EmailSent}
 import javax.inject.{Inject, Singleton}
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 import config.Constants._
+import utils.LoggerUtil.*
 
 @Singleton
 class EmailService @Inject() (
     emailConnector: EmailConnector
-)(implicit ec: ExecutionContext)
-    extends Logging {
+)(implicit ec: ExecutionContext) {
 
   private val templateId = registrationSuccessfulEmailTemplateId
 
@@ -35,10 +34,10 @@ class EmailService @Inject() (
       implicit hc: HeaderCarrier
   ): Future[Unit] =
     if (haveEmailsSentAlready) {
-      logger.info("Emails already sent — skipping email sending")
+      logInfo("Emails already sent — skipping email sending")
       Future.successful(())
     } else if (contacts.isEmpty) {
-      logger.warn("No contacts to send registration confirmation emails to")
+      logWarn("No contacts to send registration confirmation emails to")
       Future.successful(())
     } else {
       Future
@@ -53,10 +52,10 @@ class EmailService @Inject() (
           val failureCount = statuses.length - successCount
 
           if (failureCount > 0) {
-            logger.warn(s"Failed to send $failureCount out of ${statuses.length} registration confirmation email(s)")
+            logWarn(s"Failed to send $failureCount out of ${statuses.length} registration confirmation email(s)")
           }
 
-          logger.info(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
+          logInfo(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
         }
     }
 }

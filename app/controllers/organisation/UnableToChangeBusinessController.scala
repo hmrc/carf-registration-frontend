@@ -20,11 +20,11 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import models.IsThisYourBusinessPageDetails
 import pages.IsThisYourBusinessPage
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.organisation.UnableToChangeBusinessView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 
@@ -37,8 +37,7 @@ class UnableToChangeBusinessController @Inject() (
     view: UnableToChangeBusinessView,
     appConfig: FrontendAppConfig
 ) extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen requireData) { implicit request =>
     val signOutNoSurveyUrl = appConfig.signOutNoSurveyUrl
@@ -48,7 +47,7 @@ class UnableToChangeBusinessController @Inject() (
       case Some(pageDetails: IsThisYourBusinessPageDetails) =>
         Ok(view(pageDetails.businessDetails, signOutNoSurveyUrl, loginContinueUrl))
       case None                                             =>
-        logger.warn(s"[UnableToChangeBusinessController] Error! Business details are missing from user answers!")
+        logWarn(s"[UnableToChangeBusinessController] Error! Business details are missing from user answers!")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 

@@ -28,13 +28,13 @@ import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage, TradingNamePage}
 import pages.organisation.*
-import play.api.Logging
 import play.api.mvc.Call
 import utils.UserAnswersHelper
+import utils.LoggerUtil.*
 
 import java.time.LocalDate
 
-trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
+trait NormalRoutesNavigator extends UserAnswersHelper {
 
   val normalRoutes: Page => UserAnswers => Call = {
 
@@ -366,7 +366,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper with Logging {
       case OrgWithUtr                  =>
         controllers.organisation.routes.OrganisationAlreadyRegisteredController.onPageLoad()
       case OrgWithoutId | IndWithoutId =>
-        logger.warn(
+        logWarn(
           s"Already registered response has been returned for without id journeys. This should not be possible!"
         )
         routes.JourneyRecoveryController.onPageLoad()

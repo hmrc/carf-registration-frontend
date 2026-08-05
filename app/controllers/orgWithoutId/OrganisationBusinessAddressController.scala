@@ -22,13 +22,13 @@ import models.countries.*
 import models.Mode
 import navigation.Navigator
 import pages.orgWithoutId.OrganisationBusinessAddressPage
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
 import views.html.orgWithoutId.OrganisationBusinessAddressView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,8 +47,7 @@ class OrganisationBusinessAddressController @Inject() (
     view: OrganisationBusinessAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   private def countriesList: Option[Seq[Country]] = countryListFactory.countryList.map { countries =>
     countries.filterNot(_.code == "GB")
@@ -74,7 +73,7 @@ class OrganisationBusinessAddressController @Inject() (
           )
 
         case None =>
-          logger.error("Could not retrieve countries list from JSON file.")
+          logError("Could not retrieve countries list from JSON file.")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
     }
@@ -104,7 +103,7 @@ class OrganisationBusinessAddressController @Inject() (
                 } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
             )
         case None            =>
-          logger.error("Could not retrieve countries list from JSON file.")
+          logError("Could not retrieve countries list from JSON file.")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }

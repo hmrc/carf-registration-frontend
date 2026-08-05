@@ -21,13 +21,13 @@ import forms.individualWithoutId.IndWithoutIdAddressNonUkFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.individualWithoutId.{AddressUPRNUserAnswers, IndWithoutIdAddressNonUkPage}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CountryListFactory
 import views.html.individualWithoutId.IndWithoutIdAddressNonUkView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,8 +47,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
     view: IndWithoutIdAddressNonUkView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
@@ -67,7 +66,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
           )
 
         case None =>
-          logger.error("Could not retrieve countries list from JSON file.")
+          logError("Could not retrieve countries list from JSON file.")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
@@ -98,7 +97,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
                 } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswersWithoutUPRN))
             )
         case None            =>
-          logger.error("Could not retrieve countries list from JSON file.")
+          logError("Could not retrieve countries list from JSON file.")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }

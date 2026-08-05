@@ -22,7 +22,6 @@ import controllers.routes
 import models.error.DataError
 import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
-import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
@@ -30,6 +29,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeIndividualDetailsHelper
 import views.html.ChangeIndividualContactDetailsView
+import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,8 +42,7 @@ class ChangeIndividualContactDetailsController @Inject() (
     view: ChangeIndividualContactDetailsView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
@@ -91,10 +90,10 @@ class ChangeIndividualContactDetailsController @Inject() (
           case Right(value)    =>
             Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logger.error(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
+            logError(s"[ChangeIndividualContactDetailsController] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error           =>
-            logger.error(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+            logError(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
   }

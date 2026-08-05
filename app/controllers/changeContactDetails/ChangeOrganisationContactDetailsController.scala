@@ -116,7 +116,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
           case Right(value)    =>
             Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logError(s"[ChangeOrganisationContactDetailsController] Had missing data on submission")
+            logError("[ChangeOrganisationContactDetailsController] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error           =>
             logError(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")

@@ -93,7 +93,7 @@ class CheckYourAnswersController @Inject() (
         case (Some(sections), true)                   => Ok(view(sections))
         case (sectionsMaybe, matchIsValidOrNotNeeded) =>
           logWarn(
-            s"[CheckYourAnswersController] Error! Could not load page. " +
+            "[CheckYourAnswersController] Error! Could not load page. " +
               s"< journeyType = ${userAnswers.journeyType} > " +
               s"< matchIsValidOrNotNeeded = $matchIsValidOrNotNeeded > " +
               s"< is sectionsMaybe empty = ${sectionsMaybe.isEmpty} >"
@@ -144,14 +144,14 @@ class CheckYourAnswersController @Inject() (
           case Left(AlreadyRegisteredError) =>
             Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
           case Left(DataError)              =>
-            logError(s"[CheckYourAnswersController] Had missing data on submission")
+            logError("[CheckYourAnswersController] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error                        =>
             logError(s"[CheckYourAnswersController] Failed to subscribe: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
       } else {
-        logWarn(s"[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
+        logWarn("[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
         Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
       }
     }

@@ -62,7 +62,7 @@ class EmailConnector @Inject() (
       .map { response =>
         response.status match {
           case ACCEPTED =>
-            logInfo(s"Email sent successfully")
+            logInfo("Email sent successfully")
             EmailSent
           case status   =>
             logWarn(s"Sending Email failed with response status $status")
@@ -70,7 +70,7 @@ class EmailConnector @Inject() (
         }
       }
       .recoverWith { case t: Throwable =>
-        logWarnThrow(s"Unable to connect to Email Service", t)
+        logWarnThrow("Unable to connect to Email Service", t)
         Future.successful(EmailNotSent)
       }
   }

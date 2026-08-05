@@ -122,14 +122,14 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   def registerIndividualWithoutId(
       request: RegisterIndividualWithoutIdRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] = {
-    logInfo(s"Registering for an individual without id")
+    logInfo("Registering for an individual without id")
     registerWithoutId(request, url"$backendBaseUrl/individual-without-id")
   }
 
   def registerOrganisationWithoutId(
       request: RegisterOrganisationWithoutIdRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] =
-    logInfo(s"Registering for an organisation without id")
+    logInfo("Registering for an organisation without id")
     registerWithoutId(request, url"$backendBaseUrl/organisation-without-id")
 
   private def registerWithoutId(

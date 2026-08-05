@@ -48,11 +48,11 @@ class ChangeContactDetailsIndexController @Inject() (
           case Some(true)  => processIndividualChangeDetails(subscriptionDetails)
           case Some(false) => processOrganisationChangeDetails(subscriptionDetails)
           case None        =>
-            logWarn(s"[ChangeContactDetailsIndexController] User answers could not be found for request.")
+            logWarn("[ChangeContactDetailsIndexController] User answers could not be found for request.")
             Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
       case _                          =>
-        logWarn(s"[ChangeContactDetailsIndexController] User answers could not be found for request.")
+        logWarn("[ChangeContactDetailsIndexController] User answers could not be found for request.")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }

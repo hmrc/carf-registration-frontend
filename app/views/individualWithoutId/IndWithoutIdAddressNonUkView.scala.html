@@ -15,7 +15,8 @@
  *@
 
 @import models.Mode
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 @import views.html.templates.Layout
 
@@ -56,7 +57,7 @@
                     field = form("country"),
                     label = LabelViewModel(messages("indWithoutIdAddressNonUk.country")),
                     items = countries
-                )
+                ).asAccessibleAutocomplete()
             )
             </div>
 

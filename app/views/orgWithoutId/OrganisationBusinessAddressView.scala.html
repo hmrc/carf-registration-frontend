@@ -15,10 +15,11 @@
  *@
 
 @import models.Mode
+@import models.responses.renderHTML
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 @import views.html.templates.Layout
-@import models.responses.renderHTML
 
 @this(
     layout: Layout,
@@ -58,7 +59,7 @@
                         field = form("country"),
                         label = LabelViewModel(messages("organisationBusinessAddress.country")),
                         items = countries
-                    )
+                    ).asAccessibleAutocomplete()
                 )
             </div>
 

@@ -29,7 +29,7 @@
 
 @layout(pageTitle = title(form, messages("firstContactName.title"))) {
 
-    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onSubmit(mode)) {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrgFirstContactNameController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

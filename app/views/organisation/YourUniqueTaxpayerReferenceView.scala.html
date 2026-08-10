@@ -32,7 +32,7 @@
 
 @layout(pageTitle = title(form, messages(s"$taxTypeMessageKey.title"))) {
 
-    @formHelper(action = controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onSubmit(mode)) {
+    @formHelper(action = controllers.organisation.routes.YourUniqueTaxpayerReferenceController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -54,11 +54,8 @@
                 label = LabelViewModel(messages(s"$taxTypeMessageKey.subtitle")).withCssClass("govuk-label--m")
             )
             .withWidth(Fixed10)
-            .withHint(
-                HintViewModel(
-                    HtmlContent(Html(messages("yourUniqueTaxpayerReference.hint")))
-                )
-            )
+            .withHint(HintViewModel(HtmlContent(Html(messages("yourUniqueTaxpayerReference.hint")))))
+            .withAutocomplete("utr")
         )
 
         @govukButton(

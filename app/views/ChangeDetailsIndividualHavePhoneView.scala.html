@@ -26,7 +26,7 @@
 
 @layout(pageTitle = title(form, messages("changeDetailsIndividualHavePhone.title"))) {
 
-    @formHelper(action = controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController.onSubmit(mode)) {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeDetailsIndividualHavePhoneController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

@@ -27,9 +27,9 @@ import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, Individua
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
-import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.LoggerUtil.*
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -37,7 +37,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
@@ -72,7 +72,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         )
         handleIndividualRegistrationResponse(connector.individualWithUtr(request))
       case None              =>
-        logger.warn("Required Individual data was missing from UserAnswers.")
+        logWarn("Required Individual data was missing from UserAnswers.")
         Future.successful(Left(DataError))
     }
   }
@@ -98,7 +98,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           )
           handleOrganisationRegistrationResponse(connector.organisationWithUtrNonAutoMatch(request))
         case None                          =>
-          logger.warn("Required data was missing from UserAnswers.")
+          logWarn("Required data was missing from UserAnswers.")
           Future.successful(Left(DataError))
       }
     } else {
@@ -115,12 +115,12 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   ): Future[Either[CarfError, BusinessDetails]] =
     responseFuture.value.flatMap {
       case Right(response) =>
-        logger.info("Successfully retrieved organisation details.")
+        logInfo("Successfully retrieved organisation details.")
         Future.successful(
           Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
         )
       case Left(error)     =>
-        logger.error(s"Failed to retrieve organisation details: $error")
+        logError(s"Failed to retrieve organisation details: $error")
         Future.successful(Left(error))
     }
 
@@ -129,7 +129,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   ): Future[Either[CarfError, IndividualDetails]] =
     responseFuture.value.flatMap {
       case Right(response) =>
-        logger.info("Successfully retrieved Individual details.")
+        logInfo("Successfully retrieved Individual details.")
         Future.successful(
           Right(
             IndividualDetails(
@@ -142,7 +142,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           )
         )
       case Left(error)     =>
-        logger.error(s"Failed to retrieve Individual details: $error")
+        logError(s"Failed to retrieve Individual details: $error")
         Future.successful(Left(error))
     }
 
@@ -157,13 +157,13 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
         result.bimap(
           err =>
-            logger.error(
+            logError(
               s"[RegistrationService] Failed to register without id. JourneyType: ${userAnswers.journeyType}. Error: $err"
             )
             err
           ,
           success =>
-            logger.info(
+            logInfo(
               s"[RegistrationService] Successfully registered user without id. JourneyType: ${userAnswers.journeyType}"
             )
             userAnswers.copy(safeId = Some(success))

@@ -22,12 +22,12 @@ import models.responses.{DisplaySubscriptionDetails, DisplaySubscriptionResponse
 import models.{IdentifierRequestWithSubscriptionId, UserAnswers}
 import pages.QuestionPage
 import pages.changeContactDetails.*
-import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,8 +39,7 @@ class ChangeContactDetailsIndexController @Inject() (
     val subscriptionService: SubscriptionService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = carfIdRetrieval().async { implicit request =>
     subscriptionService.displaySubscription(request.subscriptionId).value flatMap {
@@ -49,11 +48,11 @@ class ChangeContactDetailsIndexController @Inject() (
           case Some(true)  => processIndividualChangeDetails(subscriptionDetails)
           case Some(false) => processOrganisationChangeDetails(subscriptionDetails)
           case None        =>
-            logger.warn(s"[ChangeContactDetailsIndexController] User answers could not be found for request.")
+            logWarn("[ChangeContactDetailsIndexController] User answers could not be found for request.")
             Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
       case _                          =>
-        logger.warn(s"[ChangeContactDetailsIndexController] User answers could not be found for request.")
+        logWarn("[ChangeContactDetailsIndexController] User answers could not be found for request.")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }

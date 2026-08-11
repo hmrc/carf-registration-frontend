@@ -22,7 +22,6 @@ import models.error.ApiError
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, UnableToProcessSubscriptionError}
 import models.requests.SubscriptionRequest
 import models.responses.{DisplaySubscriptionResponse, SubscriptionResponse}
-import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -30,6 +29,7 @@ import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import utils.LoggerUtil.*
 
 import java.net.URL
 import javax.inject.Inject
@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) extends Logging {
+class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) {
 
   def createSubscription(
       createSubscriptionRequest: SubscriptionRequest
@@ -78,15 +78,15 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
             Try(response.json.as[SubscriptionResponse]) match {
               case Success(data)      => Right(data.subscriptionId)
               case Failure(exception) =>
-                logger.warn(s"Error parsing SubscriptionResponse with endpoint: $submissionUrl")
+                logWarn(s"Error parsing SubscriptionResponse with endpoint: $submissionUrl")
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
-            logger.warn(s"Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl")
+            logWarn(s"Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl")
             Left(handleErrorResponse(response))
         }
         .recover { case NonFatal(e) =>
-          logger.error(s"Future Failed to complete due to: ${e.getMessage}")
+          logError(s"Future Failed to complete due to: ${e.getMessage}")
           Left(InternalServerError)
         }
     )
@@ -97,7 +97,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[DisplaySubscriptionResponse] = {
     val baseUrl = url"${config.carfRegistrationBaseUrl}/subscription/display/$carfId"
 
-    logger.debug(
+    logDebug(
       s"[SubscriptionConnector] Displaying subscription with ID: $carfId"
     )
 
@@ -111,16 +111,16 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
               Try(httpResponse.json.as[DisplaySubscriptionResponse]) match {
                 case Success(data)      => Right(data)
                 case Failure(exception) =>
-                  logger.warn(s"Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}")
+                  logWarn(s"Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}")
                   Left(ApiError.JsonValidationError)
               }
             case NOT_FOUND =>
-              logger.warn(
+              logWarn(
                 s"No match could be found for this user: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
               )
               Left(ApiError.NotFoundError)
             case _         =>
-              logger.warn(s"Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}")
+              logWarn(s"Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}")
               Left(InternalServerError)
           }
         }
@@ -131,11 +131,11 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
     val jsonBody = Try(Json.parse(response.body)).toOption.getOrElse(Json.obj())
     (jsonBody \ "status").asOpt[String] match {
       case Some("already_registered") =>
-        logger.warn("Subscription already exists.")
+        logWarn("Subscription already exists.")
         AlreadyRegisteredError
 
       case _ =>
-        logger.warn(s"Received error response from backend: ${response.status}")
+        logWarn(s"Received error response from backend: ${response.status}")
         UnableToProcessSubscriptionError
     }
   }

@@ -21,13 +21,13 @@ import forms.WhereDoYouLiveFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.individualWithoutId.WhereDoYouLivePage
-import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.WhereDoYouLiveView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,8 +45,7 @@ class WhereDoYouLiveController @Inject() (
     view: WhereDoYouLiveView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
@@ -65,7 +64,7 @@ class WhereDoYouLiveController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            logger.debug("Where do you live form submission contained errors")
+            logDebug("Where do you live form submission contained errors")
             Future.successful(BadRequest(view(formWithErrors, mode)))
           },
           value =>

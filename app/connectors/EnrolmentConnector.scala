@@ -23,7 +23,6 @@ import models.error.ApiError
 import models.error.ApiError.InternalServerError
 import models.requests.EnrolmentRequest
 import models.requests.EnrolmentRequest.*
-import play.api.Logging
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -31,13 +30,14 @@ import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import utils.LoggerUtil.*
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
 class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
-) extends Logging {
+) {
 
   private val enrolmentUrl = config.taxEnrolmentBaseUrl
 
@@ -50,14 +50,14 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
         .map {
           case response if response.status == NO_CONTENT  => Right(())
           case response if response.status == BAD_REQUEST =>
-            logger.error(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
+            logError(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
             Left(ApiError.BadRequestError)
           case response                                   =>
-            logger.error(s"Failed to create enrolment due to ${response.body}")
+            logError(s"Failed to create enrolment due to ${response.body}")
             Left(ApiError.InternalServerError)
         }
         .recover { case NonFatal(e) =>
-          logger.error(s"Future Failed to complete due to: ${e.getMessage}")
+          logError(s"Future Failed to complete due to: ${e.getMessage}")
           Left(InternalServerError)
         }
     }

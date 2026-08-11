@@ -22,13 +22,13 @@ import controllers.routes
 import models.error.DataError
 import models.responses.hasOrganisationChangedData
 import pages.changeContactDetails.*
-import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
 import views.html.ChangeOrganisationContactDetailsView
+import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,8 +41,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
     view: ChangeOrganisationContactDetailsView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
     implicit request =>
@@ -117,10 +116,10 @@ class ChangeOrganisationContactDetailsController @Inject() (
           case Right(value)    =>
             Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logger.error(s"[ChangeOrganisationContactDetailsController] Had missing data on submission")
+            logError("[ChangeOrganisationContactDetailsController] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error           =>
-            logger.error(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
+            logError(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
   }

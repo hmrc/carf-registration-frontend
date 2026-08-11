@@ -23,11 +23,11 @@ import models.{NormalMode, OrganisationRegistrationType}
 import models.RegistrationType.SoleTrader
 import pages.RegistrationTypePage
 import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, WhatIsTheNameOfYourBusinessPage}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.organisation.BusinessNotIdentifiedView
+import utils.LoggerUtil.*
 
 import javax.inject.Inject
 
@@ -41,8 +41,7 @@ class BusinessNotIdentifiedController @Inject() (
     view: BusinessNotIdentifiedView,
     appConfig: FrontendAppConfig
 ) extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>
@@ -74,7 +73,7 @@ class BusinessNotIdentifiedController @Inject() (
           )
         case _                                                                                                   =>
           val orgType = request.userAnswers.get(RegistrationTypePage)
-          logger.warn(
+          logWarn(
             s"Utr, business name or valid registration was missing from user answers <registration type: $orgType>. Redirecting to journey recovery."
           )
           Redirect(routes.JourneyRecoveryController.onPageLoad())

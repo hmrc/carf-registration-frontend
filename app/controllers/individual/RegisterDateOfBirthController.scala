@@ -25,13 +25,13 @@ import models.requests.DataRequest
 import models.{Mode, SafeId, UserAnswers}
 import navigation.Navigator
 import pages.individual.{NiNumberPage, RegisterDateOfBirthPage, WhatIsYourNameIndividualPage}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.individual.RegisterDateOfBirthView
+import utils.LoggerUtil.*
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -51,8 +51,7 @@ class RegisterDateOfBirthController @Inject() (
     service: RegistrationService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
@@ -104,7 +103,7 @@ class RegisterDateOfBirthController @Inject() (
                 )
               )
             case Left(error)              =>
-              logger.warn(s"Unexpected error. Error: $error")
+              logWarn(s"Unexpected error. Error: $error")
               Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           }
       case _                                   =>

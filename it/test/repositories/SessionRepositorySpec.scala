@@ -16,11 +16,14 @@
 
 package repositories
 
-import config.FrontendAppConfig
+import config.{CryptoProvider, FrontendAppConfig}
+import models.CryptoType.{randomAesKey, CryptoT}
 import models.JourneyType.OrgWithUtr
-import models.UserAnswers
+import models.responses.*
+import models.{CryptoType, SafeId, SubscriptionId, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.SingleObservableFuture
+import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
 import org.scalatest.OptionValues
@@ -29,12 +32,14 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
+import play.api.Configuration
 import play.api.libs.json.Json
+import uk.gov.hmrc.crypto.Crypted
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
 import java.time.temporal.ChronoUnit
-import java.time.{Clock, Instant, ZoneId}
+import java.time.{Clock, Instant, LocalDate, ZoneId}
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,15 +56,46 @@ class SessionRepositorySpec
   private val instant          = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
+  private val testSafeId: SafeId                 = SafeId("XE0000123456789")
+  private val testSubscriptionId: SubscriptionId = SubscriptionId("CARF0000000001")
+  private val testEmail                          = "hi@example.com"
+  private val testPhone                          = "07123456789"
+
   private val userAnswers = UserAnswers(
     id = "id",
     data = Json.obj("foo" -> "bar"),
     journeyType = Some(OrgWithUtr),
-    lastUpdated = Instant.ofEpochSecond(1)
+    lastUpdated = Instant.ofEpochSecond(1),
+    safeId = Some(testSafeId),
+    subscriptionId = Some(testSubscriptionId),
+    displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(false))
+  )
+
+  def testIndividualDisplaySubscriptionResponse(hasPhone: Boolean) = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = DisplaySubscriptionContact(
+          individual =
+            Some(DisplaySubscriptionIndividual(firstName = "Timmy", middleName = Some("Tim"), lastName = "Timothy")),
+          organisation = None,
+          email = testEmail,
+          phone = if (hasPhone) Some(testPhone) else None,
+          mobile = None
+        ),
+        secondaryContact = None
+      )
+    )
   )
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L
+  when(mockAppConfig.mongoEncryptionEnabled) thenReturn true
+
+  private implicit val crypto: CryptoT = new CryptoProvider(Configuration("crypto.key" -> randomAesKey)).get()
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
@@ -77,6 +113,35 @@ class SessionRepositorySpec
       val updatedRecord = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
 
       updatedRecord mustEqual expectedResult
+    }
+
+    "must persist the data in encrypted format" in {
+      val setResult = repository.set(userAnswers).futureValue
+
+      setResult mustEqual true
+
+      val retrievedRecord = repository.collection
+        .find[BsonDocument](Filters.and(Filters.equal("_id", userAnswers.id)))
+        .headOption()
+        .futureValue
+        .value
+
+      val rawData                        = retrievedRecord.get("data").asString().getValue
+      val rawSafeId                      = retrievedRecord.get("safeId").asString().getValue
+      val rawSubscriptionId              = retrievedRecord.get("subscriptionId").asString().getValue
+      val rawDisplaySubscriptionResponse = retrievedRecord.get("displaySubscriptionResponse").asString().getValue
+
+      val decryptedData                        = crypto.decrypt(Crypted(rawData)).value
+      val decryptedSafeId                      = crypto.decrypt(Crypted(rawSafeId)).value
+      val decryptedSubscriptionId              = crypto.decrypt(Crypted(rawSubscriptionId)).value
+      val decryptedDisplaySubscriptionResponse = crypto.decrypt(Crypted(rawDisplaySubscriptionResponse)).value
+
+      Json.parse(decryptedData)                        mustBe userAnswers.data
+      Json.parse(decryptedSafeId)                      mustBe Json.toJson(testSafeId)
+      Json.parse(decryptedSubscriptionId)              mustBe Json.toJson(testSubscriptionId)
+      Json.parse(decryptedDisplaySubscriptionResponse) mustBe Json.toJson(
+        testIndividualDisplaySubscriptionResponse(false)
+      )
     }
 
     mustPreserveMdc(repository.set(userAnswers))

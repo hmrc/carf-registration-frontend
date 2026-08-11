@@ -17,10 +17,12 @@
 package repositories
 
 import config.FrontendAppConfig
+import models.CryptoType.CryptoT
 import models.UserAnswers
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import play.api.libs.json.Format
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.mdc.Mdc
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -36,11 +38,11 @@ class SessionRepository @Inject() (
     mongoComponent: MongoComponent,
     appConfig: FrontendAppConfig,
     clock: Clock
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, crypto: CryptoT)
     extends PlayMongoRepository[UserAnswers](
       collectionName = "user-answers",
       mongoComponent = mongoComponent,
-      domainFormat = UserAnswers.format,
+      domainFormat = UserAnswers.mongoFormat(appConfig.mongoEncryptionEnabled),
       indexes = Seq(
         IndexModel(
           Indexes.ascending("lastUpdated"),

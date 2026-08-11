@@ -63,7 +63,7 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
       _ => CheckYourAnswersController.onPageLoad()
 
     case OrganisationBusinessAddressPage =>
-      userAnswers => navigateFromOrganisationBusinessAddress(userAnswers)
+      userAnswers => ifOrganisationContactDetailsAreCompleteNavigation(userAnswers)
 
     case HaveNiNumberPage =>
       userAnswers => navigateFromHaveNiNumber(userAnswers)
@@ -116,11 +116,12 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     case IndWithoutIdDateOfBirthPage                 => _ => CheckYourAnswersController.onPageLoad()
     case WhereDoYouLivePage                          => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
     case IndFindAddressPage                          => userAnswers => navigateFromIndFindAddressPage(userAnswers)
-    case IndWithoutIdAddressNonUkPage                => userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
+    case IndWithoutIdAddressNonUkPage                => userAnswers => ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
     case IndWithoutIdChooseAddressPage               => userAnswers => navigateFromChooseAddressPage(userAnswers)
     case IndReviewConfirmAddressPageForNavigatorOnly =>
-      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
-    case IndWithoutIdAddressPageForNavigatorOnly     => userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
+      userAnswers => ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
+    case IndWithoutIdAddressPageForNavigatorOnly     =>
+      userAnswers => ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
     case _                                           => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -134,12 +135,19 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def ifIndividualEmailIsPresentNavigation(userAnswers: UserAnswers) =
-    userAnswers
-      .get(IndividualEmailPage)
-      .fold(
-        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      )(_ => CheckYourAnswersController.onPageLoad())
+  private def ifIndividualContactDetailsAreCompleteNavigation(userAnswers: UserAnswers) =
+    if (userAnswers.hasCompleteIndividualContactDetails) {
+      routes.CheckYourAnswersController.onPageLoad()
+    } else {
+      controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+    }
+
+  private def ifOrganisationContactDetailsAreCompleteNavigation(userAnswers: UserAnswers) =
+    if (userAnswers.hasCompleteOrganisationContactDetails) {
+      routes.CheckYourAnswersController.onPageLoad()
+    } else {
+      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+    }
 
   private def navigateFromHaveTradingName(userAnswers: UserAnswers): Call =
     userAnswers.get(HaveTradingNamePage) match {
@@ -153,13 +161,6 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
         )
       case None        =>
         routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  private def navigateFromOrganisationBusinessAddress(userAnswers: UserAnswers): Call =
-    if (userAnswers.get(FirstContactNamePage).isDefined) {
-      CheckYourAnswersController.onPageLoad()
-    } else {
-      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
     }
 
   private def navigateFromHaveNiNumber(userAnswers: UserAnswers): Call =
@@ -200,7 +201,7 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
         if (answer == noneOfTheseValue) {
           controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(ChangeMode)
         } else {
-          ifIndividualEmailIsPresentNavigation(userAnswers)
+          ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
         }
       }
 
@@ -307,17 +308,9 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          checkNextPageForValueThenRoute(
-            userAnswers = userAnswers,
-            page = IndividualEmailPage,
-            callWhenNotAnswered = controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-          )
+          ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
         } else {
-          checkNextPageForValueThenRoute(
-            userAnswers = userAnswers,
-            page = FirstContactNamePage,
-            callWhenNotAnswered = controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
-          )
+          ifOrganisationContactDetailsAreCompleteNavigation(userAnswers)
         }
 
       case Some(false) =>

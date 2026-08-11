@@ -19,6 +19,8 @@ package models
 import models.CryptoType.CryptoT
 import models.crypto.{SensitiveJsObject, SensitiveResponse, SensitiveSafeId, SensitiveSubscriptionId}
 import models.responses.DisplaySubscriptionResponse
+import pages.individual.*
+import pages.organisation.*
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
@@ -86,6 +88,36 @@ final case class UserAnswers(
 
   def clearMatchFlagAndSafeId: UserAnswers =
     this.copy(safeId = None, hasValidMatch = false)
+
+  def hasCompleteIndividualContactDetails: Boolean = {
+    val emailAnswered = this.get(IndividualEmailPage).isDefined
+    val phoneAnswered = this.get(IndividualHavePhonePage).contains(false) ||
+      (this.get(IndividualHavePhonePage).contains(true) && this.get(IndividualPhoneNumberPage).isDefined)
+
+    emailAnswered && phoneAnswered
+  }
+
+  def hasCompleteOrganisationContactDetails: Boolean = {
+    val firstContactNameAndEmailAnswered =
+      this.get(FirstContactNamePage).isDefined && this.get(FirstContactEmailPage).isDefined
+    val firstContactPhoneAnswered        = this.get(FirstContactPhonePage).contains(false) ||
+      (this.get(FirstContactPhonePage).contains(true) && this.get(FirstContactPhoneNumberPage).isDefined)
+
+    val secondContactNameAndEmailAnswered =
+      this.get(OrganisationSecondContactNamePage).isDefined && this.get(OrganisationSecondContactEmailPage).isDefined
+    val secondContactPhoneAnswered        = this.get(OrganisationSecondContactHavePhonePage).contains(false) ||
+      (this.get(OrganisationSecondContactHavePhonePage).contains(true) &&
+        this.get(OrganisationSecondContactPhoneNumberPage).isDefined)
+
+    val completeWithSecondContact = firstContactNameAndEmailAnswered && firstContactPhoneAnswered &&
+      this.get(OrganisationHaveSecondContactPage).contains(true) &&
+      secondContactNameAndEmailAnswered && secondContactPhoneAnswered
+
+    val completeWithoutSecondContact = firstContactNameAndEmailAnswered && firstContactPhoneAnswered &&
+      this.get(OrganisationHaveSecondContactPage).contains(false)
+
+    completeWithSecondContact || completeWithoutSecondContact
+  }
 }
 
 object UserAnswers {

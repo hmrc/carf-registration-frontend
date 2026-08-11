@@ -18,7 +18,6 @@ package controllers.individual
 
 import controllers.actions.*
 import models.{Mode, NormalMode}
-import pages.individual.IndividualEmailPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,7 +41,7 @@ class RegisterIdentityConfirmedController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       val continueUrl =
-        if (request.userAnswers.get(IndividualEmailPage).isDefined)
+        if (request.userAnswers.hasCompleteIndividualContactDetails)
           controllers.routes.CheckYourAnswersController.onPageLoad().url
         else
           controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode).url

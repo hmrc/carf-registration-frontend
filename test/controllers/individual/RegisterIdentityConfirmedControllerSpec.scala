@@ -18,7 +18,7 @@ package controllers.individual
 
 import base.SpecBase
 import models.{ChangeMode, NormalMode}
-import pages.individual.IndividualEmailPage
+import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -34,13 +34,12 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase {
 
   "RegisterIdentityConfirmed Controller" - {
     "Normal mode" - {
-      "must return OK and the correct continue url when individual email is populated" in {
-        val application = applicationBuilder(userAnswers =
-          Some(
-            emptyUserAnswers
-              .withPage(IndividualEmailPage, testEmail)
-          )
-        ).build()
+      "must return OK and the correct continue url when all individual contact details are populated" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, false)
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request     = FakeRequest(GET, registerIdentityConfirmedRoute)
@@ -54,7 +53,7 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase {
         }
       }
 
-      "must return OK and the correct continue url when individual email is NOT populated" in {
+      "must return OK and the correct continue url when individual contact details are missing" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -71,13 +70,13 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase {
     }
 
     "Change mode" - {
-      "must return OK and the correct continue url when individual email is populated" in {
-        val application = applicationBuilder(userAnswers =
-          Some(
-            emptyUserAnswers
-              .withPage(IndividualEmailPage, testEmail)
-          )
-        ).build()
+      "must return OK and the correct continue url when all individual contact details are populated" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+          .withPage(IndividualPhoneNumberPage, testPhone)
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request     = FakeRequest(GET, changeRegisterIdentityConfirmedRoute)
@@ -91,8 +90,10 @@ class RegisterIdentityConfirmedControllerSpec extends SpecBase {
         }
       }
 
-      "must return OK and the correct continue url when individual email is NOT populated" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return OK and the correct continue url when individual contact details are missin" in {
+        val userAnswers = emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request     = FakeRequest(GET, changeRegisterIdentityConfirmedRoute)

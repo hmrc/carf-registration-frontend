@@ -81,7 +81,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.orgWithoutId.routes.OrganisationBusinessAddressController.onPageLoad(NormalMode)
 
     case OrganisationBusinessAddressPage =>
-      userAnswers => navigateFromOrganisationBusinessAddress(userAnswers)
+      userAnswers => ifOrganisationContactDetailsAreCompleteNavigation(userAnswers)
 
     case RegisterDateOfBirthPage =>
       userAnswers => navigateFromRegisterDateOfBirth(userAnswers)
@@ -107,7 +107,8 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case IndividualEmailPage =>
       _ => controllers.individual.routes.IndividualHavePhoneController.onPageLoad(NormalMode)
 
-    case IndividualPhoneNumberPage         => _ => routes.CheckYourAnswersController.onPageLoad()
+    case IndividualPhoneNumberPage => _ => routes.CheckYourAnswersController.onPageLoad()
+
     case OrganisationSecondContactNamePage =>
       _ => controllers.organisation.routes.OrganisationSecondContactEmailController.onPageLoad(NormalMode)
 
@@ -121,7 +122,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => controllers.individualWithoutId.routes.IndWithoutIdDateOfBirthController.onPageLoad(NormalMode)
 
     case IndWithoutIdAddressNonUkPage =>
-      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
+      userAnswers => ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
 
     case IndWithoutIdDateOfBirthPage =>
       _ => controllers.individualWithoutId.routes.WhereDoYouLiveController.onPageLoad(NormalMode)
@@ -130,7 +131,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       userAnswers => navigateFromIndFindAddressPage(userAnswers)
 
     case IndReviewConfirmAddressPageForNavigatorOnly =>
-      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
+      userAnswers => ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
 
     case OrganisationSecondContactPhoneNumberPage =>
       _ => routes.CheckYourAnswersController.onPageLoad()
@@ -138,7 +139,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     case WhereDoYouLivePage => userAnswers => navigateFromWhereDoYouLivePage(userAnswers)
 
     case IndWithoutIdAddressPageForNavigatorOnly =>
-      userAnswers => ifIndividualEmailIsPresentNavigation(userAnswers)
+      userAnswers => ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
 
     case IndWithoutIdChooseAddressPage => userAnswers => navigateFromChooseAddressPage(userAnswers)
 
@@ -184,13 +185,6 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
       _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def navigateFromOrganisationBusinessAddress(userAnswers: UserAnswers): Call =
-    if (userAnswers.get(FirstContactNamePage).isDefined) {
-      controllers.routes.CheckYourAnswersController.onPageLoad()
-    } else {
-      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
-    }
-
   private def navigateFromChooseAddressPage(userAnswers: UserAnswers): Call =
     userAnswers
       .get(IndWithoutIdChooseAddressPage)
@@ -200,7 +194,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         if (answer == noneOfTheseValue) {
           controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode)
         } else {
-          ifIndividualEmailIsPresentNavigation(userAnswers)
+          ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
         }
       }
 
@@ -261,9 +255,9 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
     userAnswers.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) match {
       case Some(true) =>
         if (isSoleTrader(userAnswers)) {
-          ifIndividualEmailIsPresentNavigation(userAnswers)
+          ifIndividualContactDetailsAreCompleteNavigation(userAnswers)
         } else {
-          controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+          ifOrganisationContactDetailsAreCompleteNavigation(userAnswers)
         }
 
       case Some(false) =>
@@ -342,12 +336,19 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def ifIndividualEmailIsPresentNavigation(userAnswers: UserAnswers) =
-    userAnswers
-      .get(IndividualEmailPage)
-      .fold(
-        controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-      )(_ => routes.CheckYourAnswersController.onPageLoad())
+  private def ifIndividualContactDetailsAreCompleteNavigation(userAnswers: UserAnswers) =
+    if (userAnswers.hasCompleteIndividualContactDetails) {
+      routes.CheckYourAnswersController.onPageLoad()
+    } else {
+      controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+    }
+
+  private def ifOrganisationContactDetailsAreCompleteNavigation(userAnswers: UserAnswers) =
+    if (userAnswers.hasCompleteOrganisationContactDetails) {
+      routes.CheckYourAnswersController.onPageLoad()
+    } else {
+      controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+    }
 
   private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
     userAnswers.get(AddressLookupPage) match {

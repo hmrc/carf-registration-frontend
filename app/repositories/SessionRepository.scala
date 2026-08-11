@@ -22,7 +22,6 @@ import models.UserAnswers
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import play.api.libs.json.Format
-import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.mdc.Mdc
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository

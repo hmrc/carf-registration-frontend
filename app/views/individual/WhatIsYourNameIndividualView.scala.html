@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("whatIsYourNameIndividual.title"))) {
 
-    @formHelper(action = controllers.individual.routes.WhatIsYourNameIndividualController.onSubmit(mode), Symbol("autoComplete") -> "on") {
+    @formHelper(action = controllers.individual.routes.WhatIsYourNameIndividualController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -58,11 +58,10 @@
                 .withWidth(TwoThirds)
                 .withAutocomplete("family-name")
             )
-
-            @govukButton(
-                ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
-            )
-
         </fieldset>
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
+        )
     }
 }

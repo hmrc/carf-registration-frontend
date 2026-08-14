@@ -45,7 +45,7 @@
 }
 
 @layout(pageTitle = titleNoForm(getTitle)) {
-    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrganisationContactDetailsController.onSubmit(), Symbol("autoComplete") -> "on") {
+    @formHelper(action = controllers.changeContactDetails.routes.ChangeOrganisationContactDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         <h1 class="govuk-heading-l">@getHeading</h1>
 

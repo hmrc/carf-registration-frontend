@@ -29,7 +29,7 @@
 
 @layout(pageTitle = title(form, messages("indFindAddress.title"))) {
 
-    @formHelper(action = controllers.individualWithoutId.routes.IndFindAddressController.onSubmit(mode)) {
+    @formHelper(action = controllers.individualWithoutId.routes.IndFindAddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -53,6 +53,7 @@
             )
             .withHint(HintViewModel(messages("indFindAddress.propertyNameOrNumber.hint")))
             .withWidth(ThreeQuarters)
+            .withAutocomplete("address-line1")
         )
 
         <p class="govuk-body">@link(

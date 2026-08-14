@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("indWithoutNinoName.title"))) {
 
-    @formHelper(action = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onSubmit(mode), Symbol("autoComplete") -> "on") {
+    @formHelper(action = controllers.individualWithoutId.routes.IndWithoutNinoNameController.onSubmit(mode), Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
@@ -57,10 +57,10 @@
                 .withWidth(TwoThirds)
                 .withAutocomplete("family-name")
             )
-
-            @govukButton(
-                ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
-            )
         </fieldset>
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue")
+        )
     }
 }

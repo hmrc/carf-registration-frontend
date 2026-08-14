@@ -26,7 +26,7 @@
 @(sections: Seq[Section])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
-    @formHelper(action = controllers.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "on") {
+    @formHelper(action = controllers.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         <h1 class="govuk-heading-l">@messages("checkYourAnswers.heading")</h1>
 

@@ -16,7 +16,7 @@
 
 package forms.individualWithoutId
 
-import config.Constants.{addressRegex, postCodeAllowedChars, regexPostcode}
+import config.Constants.{addressMaxLength, addressRegex, postCodeAllowedChars, regexPostcode}
 import forms.mappings.Mappings
 import models.AddressUk
 import models.countries.{Country, CountryUk}
@@ -27,37 +27,29 @@ import javax.inject.Inject
 
 class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
 
-  inline val maxLength = 35
-
   def apply(countryList: Seq[Country]): Form[AddressUk] = Form(
     mapping(
       "addressLine1" -> text("address.addressLine1.error.required").verifying(
         firstError(
-          maxLength(maxLength, "address.addressLine1.error.length"),
+          maxLength(addressMaxLength, "address.addressLine1.error.length"),
           regexp(addressRegex, "address.addressLine1.error.invalid")
         )
       ),
-      "addressLine2" -> optional(
-        text("address.addressLine2.error.required")
-          .verifying(
-            firstError(
-              maxLength(maxLength, "address.addressLine2.error.length"),
-              regexp(addressRegex, "address.addressLine2.error.invalid")
-            )
-          )
+      "addressLine2" -> validatedOptionalText(
+        lengthKey = "address.addressLine2.error.length",
+        invalidKey = "address.addressLine2.error.invalid",
+        maxLength = addressMaxLength,
+        regex = addressRegex
       ),
-      "addressLine3" -> optional(
-        text("address.addressLine3.error.required")
-          .verifying(
-            firstError(
-              maxLength(maxLength, "address.addressLine3.error.length"),
-              regexp(addressRegex, "address.addressLine3.error.invalid")
-            )
-          )
+      "addressLine3" -> validatedOptionalText(
+        lengthKey = "address.addressLine3.error.length",
+        invalidKey = "address.addressLine3.error.invalid",
+        maxLength = addressMaxLength,
+        regex = addressRegex
       ),
       "townOrCity"   -> text("address.townOrCity.error.required").verifying(
         firstError(
-          maxLength(maxLength, "address.townOrCity.error.length"),
+          maxLength(addressMaxLength, "address.townOrCity.error.length"),
           regexp(addressRegex, "address.townOrCity.error.invalid")
         )
       ),

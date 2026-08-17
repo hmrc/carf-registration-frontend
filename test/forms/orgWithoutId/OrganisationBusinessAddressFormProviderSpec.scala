@@ -18,8 +18,8 @@ package forms.orgWithoutId
 
 import config.Constants.*
 import forms.behaviours.StringFieldBehaviours
-import models.countries.*
 import models.OrganisationBusinessAddress
+import models.countries.*
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
@@ -74,16 +74,23 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
     "must not bind strings longer than the max length" in {
       val longString = "a" * (addressMaxLength + 1)
       val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
+      result.errors must contain(FormError(fieldName, lengthKey, Seq.empty))
     }
+
     "must bind an empty string as valid" in {
       val result = form.bind(Map(fieldName -> "")).apply(fieldName)
       result.errors mustBe empty
     }
+
+    "must bind a whitespace string as None" in {
+      val result = form.bind(Map(fieldName -> " ")).apply(fieldName)
+      result.errors mustBe empty
+    }
+
     "must not bind strings with invalid characters" in {
       val invalidString = "Apt 4!"
       val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
+      result.errors must contain(FormError(fieldName, invalidKey, Seq.empty))
     }
   }
 
@@ -114,16 +121,23 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
     "must not bind strings longer than the max length" in {
       val longString = "a" * (addressMaxLength + 1)
       val result     = form.bind(Map(fieldName -> longString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, lengthKey, Seq(addressMaxLength)))
+      result.errors must contain(FormError(fieldName, lengthKey, Seq.empty))
     }
+
     "must bind an empty string as valid" in {
       val result = form.bind(Map(fieldName -> "")).apply(fieldName)
       result.errors mustBe empty
     }
+
+    "must bind a whitespace string as None" in {
+      val result = form.bind(Map(fieldName -> " ")).apply(fieldName)
+      result.errors mustBe empty
+    }
+
     "must not bind strings with invalid characters" in {
       val invalidString = "California*"
       val result        = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
-      result.errors must contain(FormError(fieldName, invalidKey, Seq(addressRegex)))
+      result.errors must contain(FormError(fieldName, invalidKey, Seq.empty))
     }
   }
 

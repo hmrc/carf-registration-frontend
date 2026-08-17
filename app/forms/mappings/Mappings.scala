@@ -117,10 +117,15 @@ trait Mappings extends Formatters with Constraints {
       lengthKey: String,
       invalidKey: String,
       regex: String,
-      maxLength: Int,
-      msgArg: String = ""
+      maxLength: Int
   ): FieldMapping[Option[String]] =
-    of(validatedOptionalTextFormatter(lengthKey, invalidKey, regex, maxLength, msgArg))
+    of(validatedOptionalTextFormatter(lengthKey, invalidKey, regex, maxLength))
+
+  protected def validatedOptionalTextNoRegex(
+      lengthKey: String,
+      maxLength: Int
+  ): FieldMapping[Option[String]] =
+    of(validatedOptionalTextNoRegexFormatter(lengthKey, maxLength))
 
   protected def nationalInsuranceNumber(
       requiredKey: String,

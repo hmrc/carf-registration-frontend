@@ -14,14 +14,10 @@
  * limitations under the License.
  *@
 
-@import components._
-@import config.FrontendAppConfig
-
 @this(
         layout: templates.Layout,
         govukPanel: GovukPanel,
-        link: components.Link,
-        appConfig: FrontendAppConfig
+        link: components.Link
 )
 
 @(carfHomeUrl: String)(implicit request: Request[_], messages: Messages)
@@ -36,7 +32,7 @@
         @messages("changeDetails.detail.updated.p1")
     </p>
 
-    <p class="govuk-body">
+    <p class="govuk-body govuk-!-padding-top-2">
         @link(
             carfHomeUrl,
             "changeDetails.detail.updated.linkText",

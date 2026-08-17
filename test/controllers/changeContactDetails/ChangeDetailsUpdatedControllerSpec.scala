@@ -17,8 +17,11 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
-import controllers.routes
+import config.FrontendAppConfig
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Application
+import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -28,30 +31,28 @@ import scala.concurrent.Future
 
 class ChangeDetailsUpdatedControllerSpec extends SpecBase {
 
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+
   lazy val pageRoute: String =
     controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad().url
 
   "Change Details Updated Controller" - {
     "onPageLoad" - {
       "must return ok with the view" in {
+        when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("managementUrl")
+        when(mockAppConfig.feedbackUrl(any())).thenReturn("feedbackUrl")
+
         val application: Application =
-          applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+          applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(bind[FrontendAppConfig].toInstance(mockAppConfig))
+            .build()
 
         val request                = FakeRequest(GET, pageRoute)
         val view                   = application.injector.instanceOf[ChangeDetailsUpdatedView]
         val result: Future[Result] = route(application, request).value
 
-        val expectedHomeUrl = routes.PlaceholderController
-          .onPageLoad(
-            "redirect to /home-url-not-available (CARF-411)"
-          )
-          .url
-
         status(result)          mustBe OK
-        contentAsString(result) mustBe view(expectedHomeUrl)(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustBe view("managementUrl")(request, messages(application)).toString
       }
     }
   }

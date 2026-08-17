@@ -49,7 +49,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
+  private lazy val countriesList: Option[Seq[Country]] = countryListFactory.countryListWithoutUKCountries
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>

@@ -17,15 +17,15 @@
 package controllers.changeContactDetails
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.error.ApiError.InternalServerError
 import models.{ChangeMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.{Call, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.SubscriptionService
@@ -36,12 +36,9 @@ import utils.ChangeIndividualDetailsHelper
 import viewmodels.govuk.summarylist.*
 import views.html.ChangeIndividualContactDetailsView
 
-import java.time.Clock
 import scala.concurrent.Future
 
 class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
-
-  def onwardRoute = Call("GET", "/foo")
 
   lazy val pageRoute: String =
     controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad().url
@@ -82,14 +79,14 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
     .withPage(ChangeDetailsIndividualHavePhonePage, true)
     .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
 
-  val testBackToManageLink: String =
-    "/register-for-cryptoasset-reporting/placeholder?message=Must+redirect+to+service+home+page+%28CARF-411%29"
-
   "Change Individual Contact Details Controller" - {
     "onPageLoad" - {
       "must return ok with the view when all information is present" in new Setup(
         fullUserAnswers
       ) {
+        when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("managementUrl")
+        when(mockAppConfig.feedbackUrl(any())).thenReturn("feedbackUrl")
+
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(Some(Seq(testRow)))
 
@@ -98,7 +95,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
         val result: Future[Result] = route(application, request).value
 
         status(result)          mustBe OK
-        contentAsString(result) mustBe view(Seq(testRow), false, testBackToManageLink)(
+        contentAsString(result) mustBe view(Seq(testRow), false, "managementUrl")(
           request,
           messages(application)
         ).toString
@@ -228,14 +225,14 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
   class Setup(userAnswers: UserAnswers) {
     final val mockSubscriptionService = mock[SubscriptionService]
     final val mockChangeDetailsHelper = mock[ChangeIndividualDetailsHelper]
+    final val mockAppConfig           = mock[FrontendAppConfig]
 
     val application: Application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           bind[SubscriptionService].toInstance(mockSubscriptionService),
           bind[ChangeIndividualDetailsHelper].toInstance(mockChangeDetailsHelper),
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[Clock].toInstance(clock)
+          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
   }

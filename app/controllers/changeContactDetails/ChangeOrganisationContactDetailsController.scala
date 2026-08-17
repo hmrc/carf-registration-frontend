@@ -17,8 +17,8 @@
 package controllers.changeContactDetails
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import controllers.routes
 import models.error.DataError
 import models.responses.hasOrganisationChangedData
 import pages.changeContactDetails.*
@@ -27,10 +27,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SubscriptionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
-import views.html.ChangeOrganisationContactDetailsView
 import utils.LoggerUtil.*
+import views.html.ChangeOrganisationContactDetailsView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class ChangeOrganisationContactDetailsController @Inject() (
     val controllerComponents: MessagesControllerComponents,
@@ -38,21 +38,18 @@ class ChangeOrganisationContactDetailsController @Inject() (
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeOrganisationDetailsHelper,
-    view: ChangeOrganisationContactDetailsView
+    view: ChangeOrganisationContactDetailsView,
+    appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
+  def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
     implicit request =>
-
-      val backToManageLink =
-        routes.PlaceholderController.onPageLoad("Must redirect to service home page (CARF-411)").url
-
       val userAnswers = request.userAnswers
 
       userAnswers.displaySubscriptionResponse.fold(
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       ) { displaySubscriptionResponse =>
         val pageDetails = for {
           maybeSummaryListRows       <- changeDetailsHelper.getFirstContactDetailsSectionMaybe(userAnswers)
@@ -95,13 +92,9 @@ class ChangeOrganisationContactDetailsController @Inject() (
 
         pageDetails match {
           case Some((summaryListRows, secondSummaryListRows, hasChanged)) =>
-            Future.successful(Ok(view(summaryListRows, secondSummaryListRows, hasChanged, backToManageLink)))
+            Ok(view(summaryListRows, secondSummaryListRows, hasChanged, appConfig.carfManagementFrontendHomePageUrl))
           case None                                                       =>
-            Future.successful(
-              Redirect(
-                controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()
-              )
-            )
+            Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
         }
 
       }

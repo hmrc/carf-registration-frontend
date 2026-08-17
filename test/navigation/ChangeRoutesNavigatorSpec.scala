@@ -148,7 +148,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
     }
 
     "when on IsThisYourBusinessPage" - {
-      "must navigate to IndividualEmailController when answer is yes, user is sole trader and contact details have not been answered" in {
+      "must navigate to IndividualEmailController when answer is yes, user is sole trader and individual contact details have not been answered" in {
         val userAnswers = emptyUserAnswers
           .withPage(RegistrationTypePage, SoleTrader)
           .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
@@ -160,11 +160,12 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
       }
 
-      "must navigate to Check your answers page when answer is yes, user is sole trader and contact details have been answered" in {
+      "must navigate to Check your answers page when answer is yes, user is sole trader and all individual contact details have been answered" in {
         val userAnswers = emptyUserAnswers
           .withPage(RegistrationTypePage, SoleTrader)
           .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
-          .withPage(IndividualEmailPage, "testEmail")
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, false)
 
         navigator.nextPage(
           IsThisYourBusinessPage,
@@ -173,11 +174,14 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "must navigate to Check your answers page when answer is yes, user is not sole trader and contact details have been answered" in {
+      "must navigate to Check your answers page when answer is yes, user is not sole trader and all organisation contact details have been answered" in {
         val userAnswers = emptyUserAnswers
           .withPage(RegistrationTypePage, LimitedCompany)
           .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
-          .withPage(FirstContactNamePage, "Timmy")
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, false)
+          .withPage(OrganisationHaveSecondContactPage, false)
 
         navigator.nextPage(
           IsThisYourBusinessPage,
@@ -186,7 +190,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "must navigate to OrgYourContactDetailsController when answer is yes, user is not sole trader and contact details have not been answered" in {
+      "must navigate to OrgYourContactDetailsController when answer is yes, user is not sole trader and organisation contact details have not been answered" in {
         val userAnswers = emptyUserAnswers
           .withPage(RegistrationTypePage, LimitedCompany)
           .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
@@ -539,9 +543,16 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
     }
 
     "when on OrganisationBusinessAddressPage" - {
-      "must navigate to CheckYourAnswersController when FirstContactName has been answered" in {
+      "must navigate to CheckYourAnswersController when all organisation contact details have been answered" in {
         val userAnswers = emptyUserAnswers
-          .withPage(FirstContactNamePage, "John Doe")
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, true)
+          .withPage(FirstContactPhoneNumberPage, testPhone)
+          .withPage(OrganisationHaveSecondContactPage, true)
+          .withPage(OrganisationSecondContactNamePage, testName)
+          .withPage(OrganisationSecondContactEmailPage, testEmail)
+          .withPage(OrganisationSecondContactHavePhonePage, false)
 
         navigator.nextPage(
           OrganisationBusinessAddressPage,
@@ -551,7 +562,19 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
       }
 
       "must navigate to OrgYourContactDetailsController when FirstContactName has not been answered" in {
+        navigator.nextPage(
+          OrganisationBusinessAddressPage,
+          ChangeMode,
+          emptyUserAnswers
+        ) mustBe controllers.organisation.routes.OrgYourContactDetailsController.onPageLoad()
+      }
+
+      "must navigate to OrgYourContactDetailsController when some organisation contact details are missing" in {
         val userAnswers = emptyUserAnswers
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, true)
+          .withPage(OrganisationHaveSecondContactPage, true)
 
         navigator.nextPage(
           OrganisationBusinessAddressPage,
@@ -734,11 +757,16 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
     }
 
     "when on IndWithoutIdAddressNonUkPage" - {
-      "must navigate to CheckYourAnswersController if individual email is populated" in {
+      "must navigate to CheckYourAnswersController if all individual contact details are populated" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+          .withPage(IndividualPhoneNumberPage, testPhone)
+
         navigator.nextPage(
           IndWithoutIdAddressNonUkPage,
           ChangeMode,
-          emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+          userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
@@ -749,16 +777,31 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           emptyUserAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
       }
+
+      "must navigate to IndividualEmailController if some individual contact details are missing" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+
+        navigator.nextPage(
+          IndWithoutIdAddressNonUkPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
     }
 
     "when on IndWithoutIdChooseAddressPage" - {
-      "must navigate to CheckYourAnswersController if individual email is populated and an address has been chosen" in {
+      "must navigate to CheckYourAnswersController if individual contact details are complete and an address has been chosen" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndWithoutIdChooseAddressPage, testAddressUk.format)
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, false)
+
         navigator.nextPage(
           IndWithoutIdChooseAddressPage,
           ChangeMode,
-          emptyUserAnswers
-            .withPage(IndWithoutIdChooseAddressPage, testAddressUk.format)
-            .withPage(IndividualEmailPage, testEmail)
+          userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
@@ -770,6 +813,19 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
       }
 
+      "must navigate to IndividualEmailController if some individual contact details are missing and an address has been chosen" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndWithoutIdChooseAddressPage, testAddressUk.format)
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+
+        navigator.nextPage(
+          IndWithoutIdChooseAddressPage,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+
       "must navigate to IndWithoutIdAddressController if no address has been chosen" in {
         navigator.nextPage(
           IndWithoutIdChooseAddressPage,
@@ -778,7 +834,7 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(ChangeMode)
       }
 
-      "must navigate to Journey Recover if user answers is empty" in {
+      "must navigate to Journey Recovery if user answers is empty" in {
         navigator.nextPage(
           IndWithoutIdChooseAddressPage,
           ChangeMode,
@@ -788,11 +844,15 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
     }
 
     "when on IndReviewConfirmAddressPage" - {
-      "must navigate to CheckYourAnswersController if individual email is populated" in {
+      "must navigate to CheckYourAnswersController if all individual contact details are populated" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, false)
+
         navigator.nextPage(
           IndReviewConfirmAddressPageForNavigatorOnly,
           ChangeMode,
-          emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+          userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
@@ -803,14 +863,30 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           emptyUserAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
       }
+
+      "must navigate to IndividualEmailController if some individual contact details are missing" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+
+        navigator.nextPage(
+          IndReviewConfirmAddressPageForNavigatorOnly,
+          ChangeMode,
+          userAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
     }
 
     "when on IndWithoutIdAddressPage" - {
-      "must navigate to CheckYourAnswersController if individual email is populated" in {
+      "must navigate to CheckYourAnswersController if all individual contact details are populated" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, false)
+
         navigator.nextPage(
           IndWithoutIdAddressPageForNavigatorOnly,
           ChangeMode,
-          emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+          userAnswers
         ) mustBe controllers.routes.CheckYourAnswersController.onPageLoad()
       }
 
@@ -819,6 +895,18 @@ class ChangeRoutesNavigatorSpec extends SpecBase {
           IndWithoutIdAddressPageForNavigatorOnly,
           ChangeMode,
           emptyUserAnswers
+        ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+      }
+
+      "must navigate to IndividualEmailController if some individual contact details are missing" in {
+        val userAnswers = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+
+        navigator.nextPage(
+          IndWithoutIdAddressPageForNavigatorOnly,
+          ChangeMode,
+          userAnswers
         ) mustBe controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
       }
     }

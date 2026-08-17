@@ -17,6 +17,8 @@
 package models
 
 import base.SpecBase
+import pages.individual.*
+import pages.organisation.*
 
 class UserAnswersSpec extends SpecBase {
 
@@ -35,6 +37,188 @@ class UserAnswersSpec extends SpecBase {
 
         result.safeId        mustBe None
         result.hasValidMatch mustBe false
+      }
+    }
+
+    ".hasCompleteIndividualContactDetails" - {
+      "when no individual contact details are provided" in {
+        val ua = emptyUserAnswers
+
+        ua.hasCompleteIndividualContactDetails mustBe false
+      }
+
+      "when only individual email has been provided" in {
+        val ua = emptyUserAnswers.withPage(IndividualEmailPage, testEmail)
+
+        ua.hasCompleteIndividualContactDetails mustBe false
+      }
+
+      "when only individual email has been provided and havePhone is false" in {
+        val ua = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, false)
+
+        ua.hasCompleteIndividualContactDetails mustBe true
+      }
+
+      "when only individual email has been provided and havePhone is true but phone number is not provided" in {
+        val ua = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+
+        ua.hasCompleteIndividualContactDetails mustBe false
+      }
+
+      "when only individual email has been provided and havePhone is true and phone number is provided" in {
+        val ua = emptyUserAnswers
+          .withPage(IndividualEmailPage, testEmail)
+          .withPage(IndividualHavePhonePage, true)
+          .withPage(IndividualPhoneNumberPage, testPhone)
+
+        ua.hasCompleteIndividualContactDetails mustBe true
+      }
+    }
+
+    ".hasCompleteOrganisationContactDetails" - {
+      "when no organisation contact details are provided" in {
+        val ua = emptyUserAnswers
+
+        ua.hasCompleteOrganisationContactDetails mustBe false
+      }
+
+      "when only first contact name is provided" in {
+        val ua = emptyUserAnswers.withPage(FirstContactNamePage, testName)
+
+        ua.hasCompleteOrganisationContactDetails mustBe false
+      }
+
+      "when only first contact name and email are provided" in {
+        val ua = emptyUserAnswers
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+
+        ua.hasCompleteOrganisationContactDetails mustBe false
+      }
+
+      "when first contact details are complete but haveSecondContact is not answered" in {
+        val ua = emptyUserAnswers
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, false)
+
+        ua.hasCompleteOrganisationContactDetails mustBe false
+      }
+
+      "when first contact details are missing phone number and haveSecondContact is false" in {
+        val ua = emptyUserAnswers
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, true)
+          .withPage(OrganisationHaveSecondContactPage, false)
+
+        ua.hasCompleteOrganisationContactDetails mustBe false
+      }
+
+      "when first contact details are complete (firstContactHavePhone is false) and haveSecondContact is false" in {
+        val ua = emptyUserAnswers
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, false)
+          .withPage(OrganisationHaveSecondContactPage, false)
+
+        ua.hasCompleteOrganisationContactDetails mustBe true
+      }
+
+      "when first contact details are complete (firstContactHavePhone is true) and haveSecondContact is false" in {
+        val ua = emptyUserAnswers
+          .withPage(FirstContactNamePage, testName)
+          .withPage(FirstContactEmailPage, testEmail)
+          .withPage(FirstContactPhonePage, true)
+          .withPage(FirstContactPhoneNumberPage, testPhone)
+          .withPage(OrganisationHaveSecondContactPage, false)
+
+        ua.hasCompleteOrganisationContactDetails mustBe true
+      }
+
+      "when first contact details are complete and haveSecondContact is true" - {
+        "when no second contact details are provided" in {
+          val ua = emptyUserAnswers
+            .withPage(FirstContactNamePage, testName)
+            .withPage(FirstContactEmailPage, testEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+
+          ua.hasCompleteOrganisationContactDetails mustBe false
+        }
+
+        "when only second contact name is provided" in {
+          val ua = emptyUserAnswers
+            .withPage(FirstContactNamePage, testName)
+            .withPage(FirstContactEmailPage, testEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testName)
+
+          ua.hasCompleteOrganisationContactDetails mustBe false
+        }
+
+        "when only second contact name and email are provided" in {
+          val ua = emptyUserAnswers
+            .withPage(FirstContactNamePage, testName)
+            .withPage(FirstContactEmailPage, testEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testName)
+            .withPage(OrganisationSecondContactEmailPage, testEmail)
+
+          ua.hasCompleteOrganisationContactDetails mustBe false
+        }
+
+        "when second contact details are complete (secondContactHavePhone is false)" in {
+          val ua = emptyUserAnswers
+            .withPage(FirstContactNamePage, testName)
+            .withPage(FirstContactEmailPage, testEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testName)
+            .withPage(OrganisationSecondContactEmailPage, testEmail)
+            .withPage(OrganisationSecondContactHavePhonePage, false)
+
+          ua.hasCompleteOrganisationContactDetails mustBe true
+        }
+
+        "when second contact details are complete (secondContactHavePhone is true)" in {
+          val ua = emptyUserAnswers
+            .withPage(FirstContactNamePage, testName)
+            .withPage(FirstContactEmailPage, testEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testName)
+            .withPage(OrganisationSecondContactEmailPage, testEmail)
+            .withPage(OrganisationSecondContactHavePhonePage, true)
+            .withPage(OrganisationSecondContactPhoneNumberPage, testPhone)
+
+          ua.hasCompleteOrganisationContactDetails mustBe true
+        }
+
+        "when secondContactHavePhone is true but phone number is missing" in {
+          val ua = emptyUserAnswers
+            .withPage(FirstContactNamePage, testName)
+            .withPage(FirstContactEmailPage, testEmail)
+            .withPage(FirstContactPhonePage, true)
+            .withPage(FirstContactPhoneNumberPage, testPhone)
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, testName)
+            .withPage(OrganisationSecondContactEmailPage, testEmail)
+            .withPage(OrganisationSecondContactHavePhonePage, true)
+
+          ua.hasCompleteOrganisationContactDetails mustBe false
+        }
       }
     }
   }

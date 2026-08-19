@@ -36,7 +36,6 @@ import pages.organisation.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.*
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
@@ -48,8 +47,6 @@ class AuditServiceSpec extends SpecBase {
 
   private val mockAuditConnector = mock[AuditConnector]
   private val service            = new AuditService(mockAuditConnector)
-
-  override implicit val hc: HeaderCarrier = HeaderCarrier()
 
   override def beforeEach(): Unit = {
     reset(mockAuditConnector)
@@ -143,7 +140,7 @@ class AuditServiceSpec extends SpecBase {
           .withPage(RegistrationTypePage, regType)
 
         when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
-          .thenReturn(Future.successful(Failure))
+          .thenReturn(Future.successful(Failure("uh oh")))
 
         val result = service.auditRegistration(userAnswers, IndWithUtr, indAffinityGroup).value.futureValue
 
@@ -639,7 +636,7 @@ class AuditServiceSpec extends SpecBase {
 
       "should return Internal server error when Failure is returned by audit connector" in {
         when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
-          .thenReturn(Future.successful(Failure))
+          .thenReturn(Future.successful(Failure("uh oh")))
 
         val result = service.auditChangeContactDetails(emptyUserAnswers, true).value.futureValue
 

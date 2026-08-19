@@ -17,7 +17,6 @@
 package services
 
 import cats.syntax.all.*
-import controllers.changeContactDetails.ChangeOrgFirstContactNameController
 import models.JourneyType.*
 import models.audit.*
 import models.error.ApiError.InternalServerError
@@ -108,21 +107,21 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
   )(implicit hc: HeaderCarrier): ResultT[Unit] =
     for {
       changeContactDetailsEvent <- ResultT.fromValue(
-        if (isIndividual) {
-          ChangeContactDetailsAuditEvent(
-            individualUpdatedValues = getIndividualUpdatedValues(userAnswers),
-            individualOriginalValues = getIndividualOriginalValues(userAnswers),
-            organisationOriginalValues = None,
-            organisationUpdatedValues = None
-          )
-        } else {
-          ChangeContactDetailsAuditEvent(
-            individualUpdatedValues = None,
-            individualOriginalValues = None,
-            organisationOriginalValues = getOrganisationOriginalValues(userAnswers),
-            organisationUpdatedValues = getOrganisationUpdatedValues(userAnswers)
-          )
-        }
+                                     if (isIndividual) {
+                                       ChangeContactDetailsAuditEvent(
+                                         individualUpdatedValues = getIndividualUpdatedValues(userAnswers),
+                                         individualOriginalValues = getIndividualOriginalValues(userAnswers),
+                                         organisationOriginalValues = None,
+                                         organisationUpdatedValues = None
+                                       )
+                                     } else {
+                                       ChangeContactDetailsAuditEvent(
+                                         individualUpdatedValues = None,
+                                         individualOriginalValues = None,
+                                         organisationOriginalValues = getOrganisationOriginalValues(userAnswers),
+                                         organisationUpdatedValues = getOrganisationUpdatedValues(userAnswers)
+                                       )
+                                     }
                                    )
       extendedEvent              = convertToExtendedEvent(Json.toJson(changeContactDetailsEvent), "ChangeContactDetails")
       _                         <- sendEvent(extendedEvent, "ChangeContactDetails", "Individual")

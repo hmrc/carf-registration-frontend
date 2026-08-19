@@ -219,6 +219,19 @@ trait SpecBase
     )
   )
 
+  lazy val testOrganisationDisplaySubscriptionResponseSecondContact = DisplaySubscriptionResponse(success =
+    DisplaySubscriptionSuccess(
+      processingDate = LocalDate.now().toString,
+      carfSubscriptionDetails = DisplaySubscriptionDetails(
+        carfReference = testSubscriptionId.value,
+        tradingName = Some("testTradingName"),
+        gbUser = true,
+        primaryContact = testOrganisationContact,
+        secondaryContact = Some(testOrganisationContact)
+      )
+    )
+  )
+
   lazy val testOrganisationDisplaySubscriptionResponseWithNoPhone = DisplaySubscriptionResponse(success =
     DisplaySubscriptionSuccess(
       processingDate = LocalDate.now().toString,

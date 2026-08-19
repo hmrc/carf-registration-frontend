@@ -24,7 +24,7 @@ import models.responses.hasOrganisationChangedData
 import pages.changeContactDetails.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SubscriptionService
+import services.{AuditService, SubscriptionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
 import views.html.ChangeOrganisationContactDetailsView
@@ -38,7 +38,8 @@ class ChangeOrganisationContactDetailsController @Inject() (
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeOrganisationDetailsHelper,
-    view: ChangeOrganisationContactDetailsView
+    view: ChangeOrganisationContactDetailsView,
+    auditService: AuditService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -114,6 +115,10 @@ class ChangeOrganisationContactDetailsController @Inject() (
         .value
         .map {
           case Right(value)    =>
+            auditService.auditChangeContactDetails(request.userAnswers, isIndividual = false).recover { case e =>
+              logDebug(s"Auditing ChangeContactDetails failed due to $e")
+              ()
+            }
             Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
             logError("[ChangeOrganisationContactDetailsController] Had missing data on submission")

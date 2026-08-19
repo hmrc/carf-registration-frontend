@@ -28,7 +28,7 @@ import play.api.inject.bind
 import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.SubscriptionService
+import services.{AuditService, SubscriptionService}
 import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow}
@@ -189,6 +189,7 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
       "must redirect to success page if update subscription is successful" in new Setup(emptyUserAnswers) {
         when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
           .thenReturn(ResultT.fromValue(testSubscriptionId))
+        when(mockAuditService.auditChangeContactDetails(any(), any())(any())).thenReturn(ResultT.fromValue(()))
 
         val request                = FakeRequest(POST, pageRoute)
         val result: Future[Result] = route(application, request).value
@@ -200,6 +201,27 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
           .url
 
         verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers], any[String])(any(), any())
+        verify(mockAuditService, times(1)).auditChangeContactDetails(any(), any())(any())
+      }
+      "when the audit service call returns an error the request should still be successful" in new Setup(
+        emptyUserAnswers
+      ) {
+        when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
+          .thenReturn(ResultT.fromValue(testSubscriptionId))
+        when(mockAuditService.auditChangeContactDetails(any(), any())(any()))
+          .thenReturn(ResultT.fromError(InternalServerError))
+
+        val request                = FakeRequest(POST, pageRoute)
+        val result: Future[Result] = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ChangeDetailsUpdatedController
+          .onPageLoad()
+          .url
+
+        verify(mockSubscriptionService, times(1)).updateSubscription(any[UserAnswers], any[String])(any(), any())
+        verify(mockAuditService, times(1)).auditChangeContactDetails(any(), any())(any())
       }
       "must redirect to journey recovery if update subscription is unsuccessful" in new Setup(emptyUserAnswers) {
         when(mockSubscriptionService.updateSubscription(any[UserAnswers], any[String])(any(), any()))
@@ -228,12 +250,14 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
   class Setup(userAnswers: UserAnswers) {
     final val mockSubscriptionService = mock[SubscriptionService]
     final val mockChangeDetailsHelper = mock[ChangeIndividualDetailsHelper]
+    final val mockAuditService        = mock[AuditService]
 
     val application: Application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           bind[SubscriptionService].toInstance(mockSubscriptionService),
           bind[ChangeIndividualDetailsHelper].toInstance(mockChangeDetailsHelper),
+          bind[AuditService].toInstance(mockAuditService),
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[Clock].toInstance(clock)
         )

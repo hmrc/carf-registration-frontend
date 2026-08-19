@@ -124,7 +124,9 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                                      }
                                    )
       extendedEvent              = convertToExtendedEvent(Json.toJson(changeContactDetailsEvent), "ChangeContactDetails")
-      _                         <- sendEvent(extendedEvent, "ChangeContactDetails", "Individual")
+      _                         <- if (isIndividual) { sendEvent(extendedEvent, "ChangeContactDetails", "Individual") }
+                                   else sendEvent(extendedEvent, "ChangeContactDetails", "Organisation")
+
     } yield ()
 
   private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) =
@@ -299,7 +301,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
           contact1EmailAddress = response.success.carfSubscriptionDetails.primaryContact.email,
           contact1ByPhone = response.success.carfSubscriptionDetails.primaryContact.phone.isDefined,
           contact1PhoneNumber = response.success.carfSubscriptionDetails.primaryContact.phone,
-          contact2 = Some(response.success.carfSubscriptionDetails.secondaryContact.isDefined),
+          contact2 = response.success.carfSubscriptionDetails.secondaryContact.isDefined,
           contact2Name = response.success.carfSubscriptionDetails.secondaryContact.flatMap(_.organisation.map(_.name)),
           contact2EmailAddress = response.success.carfSubscriptionDetails.secondaryContact.map(_.email),
           contact2ByPhone = if (response.success.carfSubscriptionDetails.secondaryContact.isDefined) {
@@ -324,7 +326,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
         contact1PhoneNumber = if (havePhone) {
           userAnswers.get(ChangeDetailsOrgFirstPhoneNumberPage)
         } else None,
-        contact2 = Some(secondContact),
+        contact2 = secondContact,
         contact2Name = if (secondContact) {
           userAnswers.get(ChangeDetailsOrgSecondNamePage)
         } else None,

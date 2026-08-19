@@ -44,7 +44,7 @@ case class OrganisationValues(
     contact1EmailAddress: String,
     contact1ByPhone: Boolean,
     contact1PhoneNumber: Option[String],
-    contact2: Option[Boolean],
+    contact2: Boolean,
     contact2Name: Option[String],
     contact2EmailAddress: Option[String],
     contact2ByPhone: Option[Boolean],

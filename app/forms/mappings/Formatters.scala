@@ -339,8 +339,7 @@ trait Formatters extends Transforms {
       lengthKey: String,
       invalidKey: String,
       regex: String,
-      maxLength: Int,
-      msgArg: String = ""
+      maxLength: Int
   ): Formatter[Option[String]] =
     new Formatter[Option[String]] {
 
@@ -349,6 +348,21 @@ trait Formatters extends Transforms {
           case Some(str) if str.trim.isEmpty            => Right(None)
           case Some(str) if str.trim.length > maxLength => Left(Seq(FormError(key, lengthKey)))
           case Some(str) if !str.trim.matches(regex)    => Left(Seq(FormError(key, invalidKey)))
+          case Some(str)                                => Right(Some(str.trim))
+          case _                                        => Right(None)
+        }
+
+      override def unbind(key: String, value: Option[String]): Map[String, String] =
+        value.map(key -> _).toMap
+    }
+
+  protected def validatedOptionalTextNoRegexFormatter(lengthKey: String, maxLength: Int): Formatter[Option[String]] =
+    new Formatter[Option[String]] {
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] =
+        data.get(key) match {
+          case Some(str) if str.trim.isEmpty            => Right(None)
+          case Some(str) if str.trim.length > maxLength => Left(Seq(FormError(key, lengthKey)))
           case Some(str)                                => Right(Some(str.trim))
           case _                                        => Right(None)
         }

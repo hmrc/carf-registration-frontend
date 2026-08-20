@@ -17,6 +17,7 @@
 package forms.individualWithoutId
 
 import forms.behaviours.StringFieldBehaviours
+import models.IndFindAddress
 import play.api.data.FormError
 
 class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
@@ -88,6 +89,13 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       result.value.flatMap(_.propertyNameOrNumber) mustBe None
     }
 
+    "must bind a whitespace string as None" in {
+      val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> " "))
+      result.value mustBe Some(IndFindAddress("SW1A 1AA", None))
+
+      result.errors mustBe empty
+    }
+
     "must not bind when field is missing" in {
       val result = form.bind(Map("postcode" -> "SW1A 1AA"))
       result.value.flatMap(_.propertyNameOrNumber) mustBe None
@@ -96,7 +104,7 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
     "must not bind strings longer than 35 characters" in {
       forAll(stringsLongerThan(maxLength) -> "longString") { string =>
         val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> string))
-        result.errors must contain only FormError(fieldName, lengthKey, Seq(maxLength))
+        result.errors must contain only FormError(fieldName, lengthKey, Seq.empty)
       }
     }
 
@@ -110,7 +118,7 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq.empty)
     )
 
   }

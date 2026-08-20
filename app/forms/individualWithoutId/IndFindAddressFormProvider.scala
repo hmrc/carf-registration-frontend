@@ -17,7 +17,7 @@
 package forms.individualWithoutId
 
 import config.Constants
-import config.Constants.{postCodeAllowedChars, regexPostcode}
+import config.Constants.{addressMaxLength, postCodeAllowedChars, regexPostcode}
 import forms.mappings.Mappings
 import models.IndFindAddress
 import play.api.data.Form
@@ -26,8 +26,6 @@ import play.api.data.Forms.*
 import javax.inject.Inject
 
 class IndFindAddressFormProvider @Inject() extends Mappings {
-
-  private val propertyNameOrNumberLength = 35
 
   def apply(): Form[IndFindAddress] =
     Form(
@@ -43,10 +41,9 @@ class IndFindAddressFormProvider @Inject() extends Mappings {
             None
           ),
         "propertyNameOrNumber" ->
-          optional(
-            text().verifying(
-              maxLength(propertyNameOrNumberLength, "indFindAddress.error.propertyNameOrNumber.length")
-            )
+          validatedOptionalTextNoRegex(
+            lengthKey = "indFindAddress.error.propertyNameOrNumber.length",
+            maxLength = addressMaxLength
           )
       )(IndFindAddress.apply)(x => Some((x.postcode, x.propertyNameOrNumber)))
     )

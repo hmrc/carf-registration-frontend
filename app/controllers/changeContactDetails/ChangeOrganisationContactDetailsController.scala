@@ -25,6 +25,7 @@ import pages.changeContactDetails.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{AuditService, SubscriptionService}
+import types.ResultT
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
 import views.html.ChangeOrganisationContactDetailsView
@@ -113,19 +114,24 @@ class ChangeOrganisationContactDetailsController @Inject() (
       subscriptionService
         .updateSubscription(request.userAnswers, request.subscriptionId.value)
         .value
-        .map {
+        .flatMap {
           case Right(value)    =>
-            auditService.auditChangeContactDetails(request.userAnswers, isIndividual = false).recover { case e =>
-              logDebug(s"Auditing ChangeContactDetails failed due to $e")
-              ()
-            }
-            Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
+            for {
+              _ <-
+                auditService
+                  .auditChangeContactDetails(request.userAnswers, isIndividual = true)
+                  .recover { case e =>
+                    logDebug(s"Auditing ChangeContactDetails failed due to $e")
+                    ()
+                  }
+                  .value
+            } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
             logError("[ChangeOrganisationContactDetailsController] Had missing data on submission")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
             logError(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }
 

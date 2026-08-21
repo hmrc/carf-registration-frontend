@@ -73,12 +73,12 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
     authorised().retrieve(
       internalId and allEnrolments and affinityGroup and credentialRole
     ) {
+      case _ ~ _ ~ Some(Agent) ~ _                                                                   =>
+        Future.successful(Redirect(routes.AgentSignInProblemController.onPageLoad()))
       case _ ~ enrolments ~ _ ~ _ if enrolments.enrolments.exists(_.key == enrolmentKey) && redirect =>
         Future.successful(Redirect(config.carfManagementFrontendHomePageUrl))
       case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
         Future.successful(Redirect(routes.AssistantSignInProblemController.onPageLoad()))
-      case _ ~ _ ~ Some(Agent) ~ _                                                                   =>
-        Future.successful(Redirect(routes.AgentSignInProblemController.onPageLoad()))
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
         block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
       case _                                                                                         =>

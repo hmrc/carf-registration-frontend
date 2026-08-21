@@ -24,7 +24,8 @@ import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SubscriptionService
+import services.{AuditService, SubscriptionService}
+import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeIndividualDetailsHelper
@@ -39,7 +40,8 @@ class ChangeIndividualContactDetailsController @Inject() (
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeIndividualDetailsHelper,
-    view: ChangeIndividualContactDetailsView
+    view: ChangeIndividualContactDetailsView,
+    auditService: AuditService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -86,15 +88,25 @@ class ChangeIndividualContactDetailsController @Inject() (
       subscriptionService
         .updateSubscription(request.userAnswers, request.subscriptionId.value)
         .value
-        .map {
+        .flatMap {
           case Right(value)    =>
-            Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
+            for {
+              _ <-
+                auditService
+                  .auditChangeContactDetails(request.userAnswers, isIndividual = true)
+                  .recover { case e =>
+                    logDebug(s"Auditing ChangeContactDetails failed due to $e")
+                    ()
+                  }
+                  .value
+
+            } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
             logError("[ChangeIndividualContactDetailsController] Had missing data on submission")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
             logError(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }
 }

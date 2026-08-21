@@ -39,7 +39,7 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
     ec: ExecutionContext
 ) {
 
-  private val enrolmentUrl = config.taxEnrolmentBaseUrl
+  private lazy val enrolmentUrl = config.taxEnrolmentBaseUrl
 
   def createEnrolment(requestBody: EnrolmentRequest)(implicit hc: HeaderCarrier): ResultT[Unit] =
     EitherT {

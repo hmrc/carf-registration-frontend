@@ -60,14 +60,10 @@
 
         @govukSummaryList(SummaryList(
             rows = secondContactSummaryListRows,
-            classes = "govuk-!-margin-bottom-0"
+            classes = "govuk-!-margin-bottom-9"
         ))
 
-        <br>
-        <br>
-
         @if(hasChanged) {
-            <br>
             <h2 class="govuk-heading-m">@messages("changeDetails.subtitle.dynamic")</h2>
 
             <p class="govuk-body">@messages("changeDetails.p1.dynamic")</p>
@@ -77,11 +73,7 @@
             )
         }
 
-        <br>
-        <br>
-
-        <p class="govuk-body">@link(s"$backToManageLink", "changeDetails.linkText")</p>
-
-
+        <p class="govuk-body govuk-!-padding-top-3">@link(backToManageLink, "changeDetails.linkText")</p>
+      
     }
 }

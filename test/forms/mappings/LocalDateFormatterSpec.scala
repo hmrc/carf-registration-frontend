@@ -104,7 +104,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
       "must fail with a 'required' error (Priority 1)" - {
         "when all fields are empty" in {
           val result = formatter.bind("date", Map.empty[String, String])
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.required.all"),
               FormError("date.month", "error.required.all"),
@@ -115,7 +115,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "when year is missing" in {
           val result = formatter.bind("date", validData - "date.year")
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.year", "error.required.year")
             )
@@ -124,7 +124,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "when day and year are missing" in {
           val result = formatter.bind("date", Map("date.month" -> "3"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.required.dayAndYear"),
               FormError("date.year", "error.required.dayAndYear")
@@ -134,7 +134,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "when day is missing" in {
           val result = formatter.bind("date", validData - "date.day")
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.required.day")
             )
@@ -143,7 +143,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "when month and year are missing" in {
           val result = formatter.bind("date", Map("date.day" -> "21"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.month", "error.required.monthAndYear"),
               FormError("date.year", "error.required.monthAndYear")
@@ -155,7 +155,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
       "must fail with an 'invalid' error (Priority 2)" - {
         "when day is not a number" in {
           val result = formatter.bind("date", validData.updated("date.day", "invalid"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.invalid")
             )
@@ -163,7 +163,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
         }
         "when month is not a valid number or text" in {
           val result = formatter.bind("date", validData.updated("date.month", "invalid"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.month", "error.invalid")
             )
@@ -171,7 +171,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
         }
         "when multiple fields are invalid (should highlight all)" in {
           val result = formatter.bind("date", Map("date.day" -> "x", "date.month" -> "y", "date.year" -> "2020"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.invalid"),
               FormError("date.month", "error.invalid")
@@ -183,7 +183,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
       "must fail with a 'notReal' error (Priority 3)" - {
         "when the date does not exist (e.g. 31st Feb)" in {
           val result = formatter.bind("date", validData.updated("date.day", "31").updated("date.month", "2"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),
@@ -193,7 +193,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
         }
         "when only one input is out of bounds (e.g. day=32)" in {
           val result = formatter.bind("date", validData.updated("date.day", "32"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal")
             )
@@ -202,7 +202,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "when multiple inputs are out of bounds (e.g. day=32, month=13)" in {
           val result = formatter.bind("date", validData.updated("date.day", "32").updated("date.month", "13"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),
@@ -214,7 +214,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
           val notLeapYearData =
             Map("date.day" -> "29", "date.month" -> "2", "date.year" -> "2023")
           val result          = formatter.bind("date", notLeapYearData)
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),
@@ -234,7 +234,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
           )
           val result      = formatter.bind("date", data)
           val displayDate = futureDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.future", Seq(displayDate)),
               FormError("date.month", "error.future", Seq(displayDate)),
@@ -251,7 +251,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
             "date.year"  -> pastDate.getYear.toString
           )
           val result   = formatter.bind("date", data)
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.past"),
               FormError("date.month", "error.past"),
@@ -262,17 +262,17 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "must fail with notReal error when only month is out of range" in {
           val result = formatter.bind("date", validData.updated("date.month", "13"))
-          result mustEqual Left(Seq(FormError("date.month", "error.notReal")))
+          result mustBe Left(Seq(FormError("date.month", "error.notReal")))
         }
 
         "must fail with notReal error when only year is out of range" in {
           val result = formatter.bind("date", validData.updated("date.year", "999"))
-          result mustEqual Left(Seq(FormError("date.year", "error.notReal")))
+          result mustBe Left(Seq(FormError("date.year", "error.notReal")))
         }
 
         "must fail with notReal error when day and year are out of range" in {
           val result = formatter.bind("date", validData.updated("date.day", "32").updated("date.year", "999"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),
@@ -283,7 +283,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "must fail with notReal error when month and year are out of range" in {
           val result = formatter.bind("date", validData.updated("date.month", "13").updated("date.year", "999"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),
@@ -294,7 +294,7 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "must fail with notReal error when all fields are out of range" in {
           val result = formatter.bind("date", Map("date.day" -> "32", "date.month" -> "13", "date.year" -> "999"))
-          result mustEqual Left(
+          result mustBe Left(
             Seq(
               FormError("date.day", "error.notReal"),
               FormError("date.month", "error.notReal"),

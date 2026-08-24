@@ -32,7 +32,7 @@ class SubmissionLockActionSpec extends SpecBase {
 
   class TestableSubmissionLockAction(parsers: BodyParsers.Default) extends SubmissionLockAction(parsers) {
 
-    def callFilter[A](request: OptionalDataRequest[A]) =
+    def callFilter[A](request: OptionalDataRequest[A]): Future[Option[Result]] =
       super.filter(request)
   }
   private val action = new TestableSubmissionLockAction(parsers)

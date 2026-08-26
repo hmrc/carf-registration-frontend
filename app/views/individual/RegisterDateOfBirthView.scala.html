@@ -27,7 +27,7 @@
 @layout(pageTitle = title(form, messages("registerDateOfBirth.title"))) {
     @formHelper(action = controllers.individual.routes.RegisterDateOfBirthController.onSubmit(mode), Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+            @govukErrorSummary(ErrorSummaryViewModel.grouped(form))
         }
 
         @govukDateInput(

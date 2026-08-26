@@ -256,7 +256,6 @@ class ChangeIndividualContactDetailsControllerSpec extends SpecBase {
           bind[SubscriptionService].toInstance(mockSubscriptionService),
           bind[ChangeIndividualDetailsHelper].toInstance(mockChangeDetailsHelper),
           bind[AuditService].toInstance(mockAuditService),
-          bind[Clock].toInstance(clock),
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()

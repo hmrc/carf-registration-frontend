@@ -25,7 +25,6 @@ import pages.changeContactDetails.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{AuditService, SubscriptionService}
-import types.ResultT
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
 import utils.LoggerUtil.*

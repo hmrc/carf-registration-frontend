@@ -16,13 +16,14 @@
 
 package controllers.changeContactDetails
 
+import config.FrontendAppConfig
 import models.error.ApiError.InternalServerError
 import models.{ChangeMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, times, verify, when}
 import play.api.Application
-import play.api.mvc.{Call, Result}
+import play.api.inject.bind
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.{AuditService, SubscriptionService}
@@ -34,12 +35,9 @@ import utils.ChangeOrganisationDetailsHelper
 import viewmodels.govuk.summarylist.*
 import views.html.ChangeOrganisationContactDetailsView
 
-import java.time.Clock
 import scala.concurrent.Future
 
 class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestData {
-
-  def onwardRoute = Call("GET", "/foo")
 
   lazy val pageRoute: String =
     controllers.changeContactDetails.routes.ChangeOrganisationContactDetailsController.onPageLoad().url
@@ -57,12 +55,12 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
       )
     )
 
-  val testBackToManageLink: String =
-    "/register-for-cryptoasset-reporting/placeholder?message=Must+redirect+to+service+home+page+%28CARF-411%29"
-
   "Change Organisation Contact Details Controller" - {
     "onPageLoad" - {
       "must return ok with the view when all information is present" in new Setup(fullUserAnswers) {
+        when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("managementUrl")
+        when(mockAppConfig.feedbackUrl(any())).thenReturn("feedbackUrl")
+
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(Some(Seq(testRow)))
 
@@ -74,7 +72,7 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
         val result: Future[Result] = route(application, request).value
 
         status(result)          mustBe OK
-        contentAsString(result) mustBe view(Seq(testRow), Seq(testRow), true, testBackToManageLink)(
+        contentAsString(result) mustBe view(Seq(testRow), Seq(testRow), true, "managementUrl")(
           request,
           messages(application)
         ).toString
@@ -86,6 +84,9 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
       "must return ok with the view when all information is present when have phone is false" in new Setup(
         userAnswersNoPhone
       ) {
+        when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("managementUrl")
+        when(mockAppConfig.feedbackUrl(any())).thenReturn("feedbackUrl")
+
         when(mockChangeDetailsHelper.getFirstContactDetailsSectionMaybe(any())(any()))
           .thenReturn(Some(Seq(testRow)))
 
@@ -97,7 +98,7 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
         val result: Future[Result] = route(application, request).value
 
         status(result)          mustBe OK
-        contentAsString(result) mustBe view(Seq(testRow), Seq(testRow), true, testBackToManageLink)(
+        contentAsString(result) mustBe view(Seq(testRow), Seq(testRow), true, "managementUrl")(
           request,
           messages(application)
         ).toString
@@ -339,10 +340,9 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
   }
 
   class Setup(userAnswers: UserAnswers) {
-    import play.api.inject.bind
-
     final val mockSubscriptionService = mock[SubscriptionService]
     final val mockChangeDetailsHelper = mock[ChangeOrganisationDetailsHelper]
+    final val mockAppConfig           = mock[FrontendAppConfig]
     final val mockAuditService        = mock[AuditService]
 
     val application: Application =
@@ -350,9 +350,8 @@ class ChangeOrganisationContactDetailsControllerSpec extends ChangeDetailsTestDa
         .overrides(
           bind[SubscriptionService].toInstance(mockSubscriptionService),
           bind[ChangeOrganisationDetailsHelper].toInstance(mockChangeDetailsHelper),
-          bind[AuditService].toInstance(mockAuditService),
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[Clock].toInstance(clock)
+          bind[FrontendAppConfig].toInstance(mockAppConfig),
+          bind[AuditService].toInstance(mockAuditService)
         )
         .build()
   }

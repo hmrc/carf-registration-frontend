@@ -38,7 +38,7 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
     ec: ExecutionContext
 ) {
 
-  private val searchByPostcodeUrl = url"${config.addressLookupBaseUrl}/lookup"
+  private lazy val searchByPostcodeUrl = url"${config.addressLookupBaseUrl}/lookup"
 
   def searchByPostcode(
       request: SearchByPostcodeRequest

@@ -16,8 +16,8 @@
 
 package controllers.changeContactDetails
 
+import config.FrontendAppConfig
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import controllers.routes
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -30,19 +30,13 @@ class ChangeDetailsUpdatedController @Inject() (
     carfIdRetrieval: CarfIdRetrievalAction,
     changeDetailsDataRequiredAction: ChangeDetailsDataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
-    view: ChangeDetailsUpdatedView
+    view: ChangeDetailsUpdatedView,
+    appConfig: FrontendAppConfig
 ) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] =
     (carfIdRetrieval() andThen changeDetailsDataRequiredAction) { implicit request =>
-
-      val linkToHomePage = routes.PlaceholderController
-        .onPageLoad(
-          "redirect to /home-url-not-available (CARF-411)"
-        )
-        .url
-
-      Ok(view(linkToHomePage))
+      Ok(view(appConfig.carfManagementFrontendHomePageUrl))
     }
 }

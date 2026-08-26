@@ -18,8 +18,8 @@ package forms.orgWithoutId
 
 import config.Constants.{addressMaxLength, addressRegex}
 import forms.mappings.Mappings
-import models.countries.*
 import models.OrganisationBusinessAddress
+import models.countries.*
 import play.api.data.Form
 import play.api.data.Forms.*
 
@@ -36,15 +36,13 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "addressLine2" -> optional(
-        text()
-          .verifying(
-            firstError(
-              maxLength(addressMaxLength, "organisationBusinessAddress.addressLine2.error.length"),
-              regexp(addressRegex, "organisationBusinessAddress.addressLine2.error.invalid")
-            )
-          )
-      ),
+      "addressLine2" ->
+        validatedOptionalText(
+          lengthKey = "organisationBusinessAddress.addressLine2.error.length",
+          invalidKey = "organisationBusinessAddress.addressLine2.error.invalid",
+          maxLength = addressMaxLength,
+          regex = addressRegex
+        ),
       "townOrCity"   -> validatedText(
         requiredKey = "organisationBusinessAddress.townOrCity.error.required",
         lengthKey = "organisationBusinessAddress.townOrCity.error.length",
@@ -52,15 +50,13 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
         maxLength = addressMaxLength,
         regex = addressRegex
       ),
-      "region"       -> optional(
-        text()
-          .verifying(
-            firstError(
-              maxLength(addressMaxLength, "organisationBusinessAddress.region.error.length"),
-              regexp(addressRegex, "organisationBusinessAddress.region.error.invalid")
-            )
-          )
-      ),
+      "region"       ->
+        validatedOptionalText(
+          lengthKey = "organisationBusinessAddress.region.error.length",
+          invalidKey = "organisationBusinessAddress.region.error.invalid",
+          maxLength = addressMaxLength,
+          regex = addressRegex
+        ),
       "postcode"     -> postcode(
         countryList = countryList,
         lengthKey = "organisationBusinessAddress.postcode.error.length",

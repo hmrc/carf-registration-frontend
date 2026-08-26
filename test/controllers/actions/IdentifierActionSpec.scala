@@ -104,7 +104,7 @@ class IdentifierActionSpec extends SpecBase {
       redirectLocation(result) mustBe Some(routes.AssistantSignInProblemController.onPageLoad().url)
     }
 
-    "redirect to AgentSignInProblem page when affinity group is Agent" in {
+    "redirect to AgentSignInProblem page when affinity group is Agent with no enrolments" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(
         mockAuthConnector.authorise(
@@ -122,7 +122,25 @@ class IdentifierActionSpec extends SpecBase {
       redirectLocation(result) mustBe Some(routes.AgentSignInProblemController.onPageLoad().url)
     }
 
-    "return ok with a message if the user is already registered for this service" in {
+    "redirect to AgentSignInProblem page when affinity group is Agent with a CARF enrolment" in {
+      when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
+      when(
+        mockAuthConnector.authorise(
+          ArgumentMatchers.eq(EmptyPredicate),
+          ArgumentMatchers.eq(
+            internalId and allEnrolments and affinityGroup and credentialRole
+          )
+        )(any(), any())
+      )
+        .thenReturn(Future(new ~(new ~(new ~(Some(testInternalId), carfEnrolment), Some(Agent)), Some(User))))
+
+      val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
+
+      status(result)           mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.AgentSignInProblemController.onPageLoad().url)
+    }
+
+    "redirect to the management home page if the user is already registered for this service" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("www.carf-management.co.uk")
       when(

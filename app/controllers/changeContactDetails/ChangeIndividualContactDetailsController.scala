@@ -17,8 +17,8 @@
 package controllers.changeContactDetails
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredAction}
-import controllers.routes
 import models.error.DataError
 import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
@@ -29,8 +29,8 @@ import types.ResultT
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeIndividualDetailsHelper
-import views.html.ChangeIndividualContactDetailsView
 import utils.LoggerUtil.*
+import views.html.ChangeIndividualContactDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,19 +41,16 @@ class ChangeIndividualContactDetailsController @Inject() (
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeIndividualDetailsHelper,
     view: ChangeIndividualContactDetailsView,
+    appConfig: FrontendAppConfig,
     auditService: AuditService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction).async {
+  def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
     implicit request =>
-
-      val backToManageLink =
-        routes.PlaceholderController.onPageLoad("Must redirect to service home page (CARF-411)").url
-
       request.userAnswers.displaySubscriptionResponse.fold(
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       ) { displaySubscriptionResponse =>
 
         val pageDetails = for {
@@ -72,13 +69,9 @@ class ChangeIndividualContactDetailsController @Inject() (
 
         pageDetails match {
           case Some((summaryListRows, hasChanged)) =>
-            Future.successful(Ok(view(summaryListRows, hasChanged, backToManageLink)))
+            Ok(view(summaryListRows, hasChanged, appConfig.carfManagementFrontendHomePageUrl))
           case None                                =>
-            Future.successful(
-              Redirect(
-                controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad()
-              )
-            )
+            Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
         }
       }
   }

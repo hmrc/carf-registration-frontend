@@ -111,7 +111,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
             for {
               _ <-
                 auditService
-                  .auditChangeContactDetails(request.userAnswers, isIndividual = true)
+                  .auditChangeContactDetails(request.userAnswers, isIndividual = false)
                   .recover { case e =>
                     logDebug(s"Auditing ChangeContactDetails failed due to $e")
                     ()

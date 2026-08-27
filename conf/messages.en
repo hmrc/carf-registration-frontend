@@ -265,7 +265,7 @@ registerDateOfBirth.error.invalid = Date of birth must only include numbers 0 to
 registerDateOfBirth.error.not.real.date = Enter a real date of birth
 registerDateOfBirth.error.future.date = Date of birth must be before {0}
 registerDateOfBirth.error.past.date = Date of birth must be after 1900
-registerDateOfBirth.change.hidden = Change your National Insurance number, name and date of birth
+registerDateOfBirth.change.hidden = Change details of your national insurance number, name and date of birth
 
 firstContactPhone.title = Can we contact your first contact by phone?
 firstContactPhone.heading = Can we contact {0} by phone?

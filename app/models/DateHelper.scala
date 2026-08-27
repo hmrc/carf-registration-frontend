@@ -23,7 +23,7 @@ object DateHelper {
 
   def today: LocalDate = LocalDate.now()
 
-  val dateFormatterDMY: DateTimeFormatter         = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val dateFormatterDMY: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
   def formatDateToString(date: LocalDate): String = date.format(dateFormatterDMY)
 
 }

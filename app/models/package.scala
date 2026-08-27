@@ -142,6 +142,7 @@ package object models {
                   }
                 }
             }
+        case _                                                                         => throw new RuntimeException("Error! Unknown case!")
       }
   }
 }

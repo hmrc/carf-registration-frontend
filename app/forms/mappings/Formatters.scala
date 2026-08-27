@@ -67,7 +67,7 @@ trait Formatters extends Transforms {
             case _       => Left(Seq(FormError(key, invalidKey, args)))
           }
 
-      def unbind(key: String, value: Boolean) = Map(key -> value.toString)
+      def unbind(key: String, value: Boolean): Map[String, String] = Map(key -> value.toString)
     }
 
   private[mappings] def intFormatter(
@@ -292,7 +292,7 @@ trait Formatters extends Transforms {
     * 960 001 & 07700 900 982 as not Real numbers.
     */
 
-  protected def validateNot0808Number(
+  private def validateNot0808Number(
       phoneUtil: PhoneNumberUtil,
       key: String,
       value: String,

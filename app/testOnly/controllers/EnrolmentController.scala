@@ -48,9 +48,9 @@ class EnrolmentController @Inject() (
       )
       .value
       .map {
-        case Right(_)                           => Ok("No Content")
-        case Left(ApiError.BadRequestError)     => Ok("Bad Request")
-        case Left(ApiError.InternalServerError) => Ok("Internal Server Error")
+        case Right(_)                       => Ok("No Content")
+        case Left(ApiError.BadRequestError) => Ok("Bad Request")
+        case Left(_)                        => Ok("Internal Server Error")
       }
 
   }

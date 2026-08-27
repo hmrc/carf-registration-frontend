@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 class AuthControllerSpec extends SpecBase with MockitoSugar {
 
-  override def afterEach() =
+  override def afterEach(): Unit =
     reset(mockSessionRepository)
 
   "signOut" - {

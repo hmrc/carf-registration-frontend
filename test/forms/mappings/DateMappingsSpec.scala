@@ -24,8 +24,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.{Form, FormError}
-import play.api.i18n.Messages
-import play.api.test.Helpers.stubMessages
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,9 +37,8 @@ class DateMappingsSpec
     with EitherValues
     with Mappings {
 
-  private implicit val messages: Messages = stubMessages()
-  val minDate: LocalDate                  = LocalDate.of(1901, 1, 1)
-  val form                                = Form(
+  val minDate: LocalDate = LocalDate.of(1901, 1, 1)
+  val form               = Form(
     "value" -> localDate(
       invalidKey = "error.invalid",
       notRealDateKey = "error.notRealDate",
@@ -59,7 +56,6 @@ class DateMappingsSpec
     )
   )
 
-  private val allFields                 = List("date.error.day", "date.error.month", "date.error.year")
   private val validData                 = datesBetween(min = minDate, max = today.minusDays(1))
   val invalidField: Gen[String]         = Gen.alphaStr.suchThat(_.nonEmpty)
   val missingField: Gen[Option[String]] = Gen.option(Gen.const(""))

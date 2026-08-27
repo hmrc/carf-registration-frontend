@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class PlaceholderController @Inject() (
@@ -27,7 +27,7 @@ class PlaceholderController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(message: String) = Action {
+  def onPageLoad(message: String): Action[AnyContent] = Action {
     Ok(message)
   }
 

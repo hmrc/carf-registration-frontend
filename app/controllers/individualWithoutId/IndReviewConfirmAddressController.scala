@@ -20,13 +20,13 @@ import controllers.actions.*
 import controllers.routes
 import models.Mode
 import navigation.Navigator
-import pages.individualWithoutId.{AddressLookupPage, IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdUkAddressInUserAnswers}
+import pages.individualWithoutId.{IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdAddressPagePrePop, IndWithoutIdUkAddressInUserAnswers}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.individualWithoutId.IndReviewConfirmAddressView
 import utils.LoggerUtil.*
+import views.html.individualWithoutId.IndReviewConfirmAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,40 +46,34 @@ class IndReviewConfirmAddressController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
       val editAddressLink: String =
         controllers.individualWithoutId.routes.IndWithoutIdAddressController
           .onPageLoad(mode)
           .url
 
-      request.userAnswers.get(AddressLookupPage) match {
-        case Some(address :: Nil) =>
-          Future.successful(Ok(view(address.address, mode, editAddressLink)))
-        case Some(list)           =>
-          logWarn("One address in user answers expected, multiple were found")
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-
-        case None =>
-          logWarn("No addresses were found in user answers")
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      request.userAnswers.get(IndWithoutIdAddressPagePrePop) match {
+        case Some(address) =>
+          Ok(view(address, mode, editAddressLink))
+        case None          =>
+          logWarn("[IndReviewConfirmAddressController][onPageLoad] No address found in user answers")
+          Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-      request.userAnswers.get(AddressLookupPage) match {
-        case Some(addresses) if addresses.nonEmpty =>
+      request.userAnswers.get(IndWithoutIdAddressPagePrePop) match {
+        case Some(address) =>
           for {
-            updatedAnswers <-
-              Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, addresses.head.address))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IndWithoutIdUkAddressInUserAnswers, address))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPageForNavigatorOnly, mode, updatedAnswers))
-        case _                                     =>
-          logError("No address found in user answers")
+        case None          =>
+          logError("[IndReviewConfirmAddressController][onSubmit] No address found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
-
   }
 
 }

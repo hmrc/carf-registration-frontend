@@ -19,24 +19,19 @@ package controllers.individualWithoutId
 import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
-import models.JourneyType.IndWithoutId
 import models.error.ApiError
-import models.responses.{AddressRecord, AddressResponse, CountryRecord}
 import models.{AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
-import pages.individualWithoutId.{AddressUPRNUserAnswers, IndFindAddressAdditionalCallUa, IndFindAddressPage, IndWithoutIdAddressPagePrePop}
+import pages.individualWithoutId.*
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import services.AddressLookupService
 import views.html.individualWithoutId.IndFindAddressView
 
 import scala.concurrent.Future
-import scala.util.Right
 
 class IndFindAddressControllerSpec extends SpecBase {
 
@@ -49,33 +44,8 @@ class IndFindAddressControllerSpec extends SpecBase {
 
   override def beforeEach(): Unit = {
     reset(mockAddressLookupService)
-    reset(mockSessionRepository)
     super.beforeEach()
   }
-
-  val searchByPostcodeValidResponse: Seq[AddressResponse] = Seq(
-    AddressResponse(
-      id = "Test-Id",
-      uprn = 123456,
-      address = AddressRecord(
-        lines = List("Address-Line1", "Address-Line2"),
-        town = "Bristol",
-        postcode = validPostcodes.sample.value,
-        country = CountryRecord(code = "UK", name = "United Kingdom")
-      )
-    )
-  )
-
-  val userAnswers = UserAnswers(
-    id = userAnswersId,
-    journeyType = Some(IndWithoutId),
-    data = Json.obj(
-      IndFindAddressPage.toString -> Json.obj(
-        "postcode"             -> "AA1 1AA",
-        "propertyNameOrNumber" -> "value 2"
-      )
-    )
-  )
 
   private def expectedManualUrl: String =
     controllers.individualWithoutId.routes.IndWithoutIdAddressController.onPageLoad(NormalMode).url
@@ -156,6 +126,8 @@ class IndFindAddressControllerSpec extends SpecBase {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
+      val userAnswers = emptyUserAnswers
+        .withPage(IndFindAddressPage, IndFindAddress(postcode = "AA1 1AA", propertyNameOrNumber = Some("value 2")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -180,7 +152,10 @@ class IndFindAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the next page when postcode has returned one address" in {
+    "must redirect to the next page and clear IndFindAddressAdditionalCallUa and AddressLookupPage on submit when postcode has returned one address" in {
+      val userAnswers = emptyUserAnswers
+        .withPage(IndFindAddressAdditionalCallUa, true)
+        .withPage(AddressLookupPage, testAddressAndUprns)
 
       val onwardRouteOneAddress =
         controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
@@ -194,7 +169,7 @@ class IndFindAddressControllerSpec extends SpecBase {
         )
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[AddressLookupService].toInstance(mockAddressLookupService)
           )
@@ -211,30 +186,24 @@ class IndFindAddressControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual onwardRouteOneAddress.url
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(Some("value 2")))(any(), any())
         verify(mockSessionRepository, times(1)).set(
-          argThat(_.get(AddressUPRNUserAnswers).get == testUPRN)
+          argThat(ua =>
+            ua.get(AddressUPRNUserAnswers).contains(testUPRN) &&
+              ua.get(IndWithoutIdAddressPagePrePop).contains(testAddressUk) &&
+              ua.get(IndFindAddressAdditionalCallUa).isEmpty &&
+              ua.get(AddressLookupPage).isEmpty
+          )
         )
       }
     }
 
-    "must redirect to the next page when postcode has returned more than one address" in {
+    "must redirect to the next page on submit when postcode has returned more than one address" in {
 
       val onwardRouteMultipleAddresses =
-        controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
+        controllers.individualWithoutId.routes.IndWithoutIdChooseAddressController.onPageLoad(NormalMode)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(
-          Future.successful(
-            Right(
-              Seq(
-                AddressAndUPRN(testAddressUk, testUPRN),
-                AddressAndUPRN(testAddressUk, testUPRN),
-                AddressAndUPRN(testAddressUk, testUPRN)
-              ),
-              false
-            )
-          )
-        )
+        .thenReturn(Future.successful(Right(testAddressAndUprns, false)))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -256,25 +225,14 @@ class IndFindAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the next page when postcode has returned more than one address and retry has happened" in {
+    "must redirect to the next page on submit when postcode has returned more than one address and retry has happened" in {
 
       val onwardRouteMultipleAddresses =
-        controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
+        controllers.individualWithoutId.routes.IndWithoutIdChooseAddressController.onPageLoad(NormalMode)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
-        .thenReturn(
-          Future.successful(
-            Right(
-              Seq(
-                AddressAndUPRN(testAddressUk, testUPRN),
-                AddressAndUPRN(testAddressUk, testUPRN),
-                AddressAndUPRN(testAddressUk, testUPRN)
-              ),
-              true
-            )
-          )
-        )
+        .thenReturn(Future.successful(Right(testAddressAndUprns, true)))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -295,6 +253,42 @@ class IndFindAddressControllerSpec extends SpecBase {
         verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
         verify(mockSessionRepository, times(1)).set(any())
         verify(mockSessionRepository).set(argThat(_.get(IndFindAddressAdditionalCallUa).isDefined))
+      }
+    }
+
+    "must clear UPRN and IndWithoutIdAddressPagePrePop from user answers on submit when multiple addresses are returned" in {
+      val userAnswersWithUprn = emptyUserAnswers
+        .withPage(AddressUPRNUserAnswers, testUPRN)
+        .withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockAddressLookupService.postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any()))
+        .thenReturn(Future.successful(Right(testAddressAndUprns, true)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswersWithUprn))
+          .overrides(
+            bind[AddressLookupService].toInstance(mockAddressLookupService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, indFindAddressRoute)
+            .withFormUrlEncodedBody(("postcode", "TE1 1ST"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(mockAddressLookupService, times(1)).postcodeSearch(eqTo("TE1 1ST"), eqTo(None))(any(), any())
+        verify(mockSessionRepository, times(1)).set(any())
+        verify(mockSessionRepository).set(
+          argThat(ua =>
+            ua.get(AddressLookupPage).contains(testAddressAndUprns) &&
+              ua.get(AddressUPRNUserAnswers).isEmpty &&
+              ua.get(IndWithoutIdAddressPagePrePop).isEmpty
+          )
+        )
       }
     }
 

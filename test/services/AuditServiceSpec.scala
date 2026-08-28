@@ -28,6 +28,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{reset, times, verify, when}
 import pages.*
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.*
@@ -35,7 +36,6 @@ import pages.organisation.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.*
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
@@ -47,8 +47,6 @@ class AuditServiceSpec extends SpecBase {
 
   private val mockAuditConnector = mock[AuditConnector]
   private val service            = new AuditService(mockAuditConnector)
-
-  override implicit val hc: HeaderCarrier = HeaderCarrier()
 
   override def beforeEach(): Unit = {
     reset(mockAuditConnector)
@@ -142,7 +140,7 @@ class AuditServiceSpec extends SpecBase {
           .withPage(RegistrationTypePage, regType)
 
         when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
-          .thenReturn(Future.successful(Failure))
+          .thenReturn(Future.successful(Failure("uh oh")))
 
         val result = service.auditRegistration(userAnswers, IndWithUtr, indAffinityGroup).value.futureValue
 
@@ -520,6 +518,140 @@ class AuditServiceSpec extends SpecBase {
               && event.detail == Json.toJson(expectedExtendedAudit)
           )
         )(any(), any())
+      }
+    }
+
+    "change contact details audit event" - {
+      "should return success for individual" in {
+
+        val userAnswers = emptyUserAnswers
+          .withPage(ChangeDetailsIndividualEmailPage, testEmail)
+          .withPage(ChangeDetailsIndividualHavePhonePage, true)
+          .withPage(ChangeDetailsIndividualPhoneNumberPage, testPhone)
+          .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(true)))
+
+        val expectedExtendedAudit = ChangeContactDetailsAuditEvent(
+          individualUpdatedValues = Some(
+            IndividualValues(
+              emailAddress = testEmail,
+              contactByPhone = true,
+              phoneNumber = Some(testPhone)
+            )
+          ),
+          individualOriginalValues = Some(
+            IndividualValues(
+              emailAddress = testEmail,
+              contactByPhone = true,
+              phoneNumber = Some(testPhone)
+            )
+          ),
+          organisationOriginalValues = None,
+          organisationUpdatedValues = None
+        )
+
+        when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
+          .thenReturn(Future.successful(Success))
+
+        val result = service.auditChangeContactDetails(userAnswers, true).value.futureValue
+
+        result mustBe Right(())
+
+        verify(mockAuditConnector, times(1)).sendExtendedEvent(
+          argThat(event =>
+            event.auditSource == "carf-registration-frontend" && event.auditType == "ChangeContactDetails"
+              && event.detail == Json.toJson(expectedExtendedAudit)
+          )
+        )(any(), any())
+      }
+
+      "should return success for organisation" in {
+
+        val userAnswers = emptyUserAnswers
+          .withPage(ChangeDetailsOrgFirstNamePage, testName)
+          .withPage(ChangeDetailsOrgFirstEmailPage, testEmail)
+          .withPage(ChangeDetailsOrgFirstHavePhonePage, true)
+          .withPage(ChangeDetailsOrgFirstPhoneNumberPage, testPhone)
+          .withPage(ChangeDetailsOrgHaveSecondContactPage, true)
+          .withPage(ChangeDetailsOrgSecondNamePage, testName)
+          .withPage(ChangeDetailsOrgSecondEmailPage, testEmail)
+          .withPage(ChangeDetailsOrgSecondHavePhonePage, true)
+          .withPage(ChangeDetailsOrgSecondPhoneNumberPage, testPhone)
+          .copy(displaySubscriptionResponse = Some(testOrganisationDisplaySubscriptionResponseSecondContact))
+
+        val expectedExtendedAudit = ChangeContactDetailsAuditEvent(
+          individualUpdatedValues = None,
+          individualOriginalValues = None,
+          organisationOriginalValues = Some(
+            OrganisationValues(
+              contact1Name = "Bobby",
+              contact1EmailAddress = testEmail,
+              contact1ByPhone = true,
+              contact1PhoneNumber = Some(testPhone),
+              contact2 = true,
+              contact2Name = Some("Bobby"),
+              contact2EmailAddress = Some(testEmail),
+              contact2ByPhone = Some(true),
+              contact2PhoneNumber = Some(testPhone)
+            )
+          ),
+          organisationUpdatedValues = Some(
+            OrganisationValues(
+              contact1Name = testName,
+              contact1EmailAddress = testEmail,
+              contact1ByPhone = true,
+              contact1PhoneNumber = Some(testPhone),
+              contact2 = true,
+              contact2Name = Some(testName),
+              contact2EmailAddress = Some(testEmail),
+              contact2ByPhone = Some(true),
+              contact2PhoneNumber = Some(testPhone)
+            )
+          )
+        )
+
+        when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
+          .thenReturn(Future.successful(Success))
+
+        val result = service.auditChangeContactDetails(userAnswers, false).value.futureValue
+
+        result mustBe Right(())
+
+        verify(mockAuditConnector, times(1)).sendExtendedEvent(
+          argThat(event =>
+            event.auditSource == "carf-registration-frontend" && event.auditType == "ChangeContactDetails"
+              && event.detail == Json.toJson(expectedExtendedAudit)
+          )
+        )(any(), any())
+      }
+
+      "should return Internal server error when Disabled is returned by audit connector" in {
+        when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
+          .thenReturn(Future.successful(Disabled))
+
+        val result = service.auditChangeContactDetails(emptyUserAnswers, true).value.futureValue
+
+        result mustBe Left(InternalServerError)
+
+      }
+
+      "should return Internal server error when Failure is returned by audit connector" in {
+        when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
+          .thenReturn(Future.successful(Failure("uh oh")))
+
+        val result = service.auditChangeContactDetails(emptyUserAnswers, true).value.futureValue
+
+        result mustBe Left(InternalServerError)
+
+      }
+
+      "should return Internal server error when call to audit connector's future fails" in {
+        when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
+          .thenReturn(Future.failed(new Exception("whoops")))
+
+        val result = service.auditChangeContactDetails(emptyUserAnswers, true).value.futureValue
+
+        result mustBe Left(InternalServerError)
+
       }
     }
   }

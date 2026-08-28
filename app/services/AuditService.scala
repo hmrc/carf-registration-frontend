@@ -23,11 +23,12 @@ import models.error.ApiError.InternalServerError
 import models.error.CarfError
 import models.{JourneyType, RegistrationType, UserAnswers}
 import pages.*
+import pages.changeContactDetails.*
 import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.*
 import pages.organisation.*
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import types.ResultT
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
@@ -97,23 +98,35 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                              )
                            )
       extendedEvent      = convertToExtendedEvent(registrationEvent.toJson, "Registration")
-      _                 <- ResultT.fromFuture(
-                             auditConnector.sendExtendedEvent(extendedEvent).map {
-                               case Success         =>
-                                 logDebug(s"Successfully sent Registration audit event for ${journeyType.toString}")
-                                 Right[CarfError, Unit](())
-                               case Disabled        =>
-                                 logError(s"Failed to audit Registration for ${journeyType.toString} Disabled result returned")
-                                 Left[CarfError, Unit](InternalServerError)
-                               case Failure(msg, _) =>
-                                 logError(s"Failed to audit Registration for ${journeyType.toString} with message $msg")
-                                 Left[CarfError, Unit](InternalServerError)
-                             } recover {
-                               case e if NonFatal(e) =>
-                                 logError(s"Failed to audit Registration for ${journeyType.toString}")
-                                 Left[CarfError, Unit](InternalServerError)
-                             }
-                           )
+      _                 <- sendEvent(extendedEvent, "Registration", journeyType.toString)
+    } yield ()
+
+  def auditChangeContactDetails(
+      userAnswers: UserAnswers,
+      isIndividual: Boolean
+  )(implicit hc: HeaderCarrier): ResultT[Unit] =
+    for {
+      changeContactDetailsEvent <- ResultT.fromValue(
+                                     if (isIndividual) {
+                                       ChangeContactDetailsAuditEvent(
+                                         individualUpdatedValues = getIndividualUpdatedValues(userAnswers),
+                                         individualOriginalValues = getIndividualOriginalValues(userAnswers),
+                                         organisationOriginalValues = None,
+                                         organisationUpdatedValues = None
+                                       )
+                                     } else {
+                                       ChangeContactDetailsAuditEvent(
+                                         individualUpdatedValues = None,
+                                         individualOriginalValues = None,
+                                         organisationOriginalValues = getOrganisationOriginalValues(userAnswers),
+                                         organisationUpdatedValues = getOrganisationUpdatedValues(userAnswers)
+                                       )
+                                     }
+                                   )
+      extendedEvent              = convertToExtendedEvent(Json.toJson(changeContactDetailsEvent), "ChangeContactDetails")
+      _                         <- if (isIndividual) { sendEvent(extendedEvent, "ChangeContactDetails", "Individual") }
+                                   else sendEvent(extendedEvent, "ChangeContactDetails", "Organisation")
+
     } yield ()
 
   private def convertToExtendedEvent(eventJsValue: JsValue, auditType: String) =
@@ -122,6 +135,23 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       auditType = auditType,
       detail = eventJsValue
     )
+
+  private def sendEvent(extendedEvent: ExtendedDataEvent, auditType: String, journeyType: String): ResultT[Unit] =
+    ResultT.fromFuture(auditConnector.sendExtendedEvent(extendedEvent).map {
+      case Success         =>
+        logDebug(s"Successfully sent $auditType audit event for $journeyType")
+        Right[CarfError, Unit](())
+      case Disabled        =>
+        logError(s"Failed to audit $auditType for $journeyType Disabled result returned")
+        Left[CarfError, Unit](InternalServerError)
+      case Failure(msg, _) =>
+        logError(s"Failed to audit $auditType for $journeyType with message $msg")
+        Left[CarfError, Unit](InternalServerError)
+    } recover {
+      case e if NonFatal(e) =>
+        logError(s"Failed to audit $auditType for $journeyType")
+        Left[CarfError, Unit](InternalServerError)
+    })
 
   private def getUtrJourneyType(userAnswers: UserAnswers): Option[UtrJourneyAuditEvent] =
     (
@@ -262,4 +292,75 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
         userAnswers.get(OrganisationSecondContactPhoneNumberPage)
       )
     }
+
+  private def getOrganisationOriginalValues(userAnswers: UserAnswers): Option[OrganisationValues] =
+    userAnswers.displaySubscriptionResponse.flatMap(response =>
+      response.success.carfSubscriptionDetails.primaryContact.organisation.map(primaryContact =>
+        OrganisationValues(
+          contact1Name = primaryContact.name,
+          contact1EmailAddress = response.success.carfSubscriptionDetails.primaryContact.email,
+          contact1ByPhone = response.success.carfSubscriptionDetails.primaryContact.phone.isDefined,
+          contact1PhoneNumber = response.success.carfSubscriptionDetails.primaryContact.phone,
+          contact2 = response.success.carfSubscriptionDetails.secondaryContact.isDefined,
+          contact2Name = response.success.carfSubscriptionDetails.secondaryContact.flatMap(_.organisation.map(_.name)),
+          contact2EmailAddress = response.success.carfSubscriptionDetails.secondaryContact.map(_.email),
+          contact2ByPhone = if (response.success.carfSubscriptionDetails.secondaryContact.isDefined) {
+            response.success.carfSubscriptionDetails.secondaryContact.map(_.phone.isDefined)
+          } else None,
+          contact2PhoneNumber = response.success.carfSubscriptionDetails.secondaryContact.flatMap(_.phone)
+        )
+      )
+    )
+
+  private def getOrganisationUpdatedValues(userAnswers: UserAnswers): Option[OrganisationValues] =
+    (
+      userAnswers.get(ChangeDetailsOrgFirstNamePage),
+      userAnswers.get(ChangeDetailsOrgFirstEmailPage),
+      userAnswers.get(ChangeDetailsOrgFirstHavePhonePage),
+      userAnswers.get(ChangeDetailsOrgHaveSecondContactPage)
+    ).mapN { (name, email, havePhone, secondContact) =>
+      OrganisationValues(
+        contact1Name = name,
+        contact1EmailAddress = email,
+        contact1ByPhone = havePhone,
+        contact1PhoneNumber = if (havePhone) {
+          userAnswers.get(ChangeDetailsOrgFirstPhoneNumberPage)
+        } else None,
+        contact2 = secondContact,
+        contact2Name = if (secondContact) {
+          userAnswers.get(ChangeDetailsOrgSecondNamePage)
+        } else None,
+        contact2EmailAddress = if (secondContact) {
+          userAnswers.get(ChangeDetailsOrgSecondEmailPage)
+        } else None,
+        contact2ByPhone = if (secondContact) {
+          userAnswers.get(ChangeDetailsOrgSecondHavePhonePage)
+        } else None,
+        contact2PhoneNumber = if (secondContact & userAnswers.get(ChangeDetailsOrgSecondHavePhonePage).contains(true)) {
+          userAnswers.get(ChangeDetailsOrgSecondPhoneNumberPage)
+        } else None
+      )
+    }
+
+  private def getIndividualOriginalValues(userAnswers: UserAnswers): Option[IndividualValues] =
+    userAnswers.displaySubscriptionResponse.map(response =>
+      IndividualValues(
+        emailAddress = response.success.carfSubscriptionDetails.primaryContact.email,
+        contactByPhone = response.success.carfSubscriptionDetails.primaryContact.phone.isDefined,
+        phoneNumber = response.success.carfSubscriptionDetails.primaryContact.phone
+      )
+    )
+
+  private def getIndividualUpdatedValues(userAnswers: UserAnswers): Option[IndividualValues] =
+    (userAnswers.get(ChangeDetailsIndividualEmailPage), userAnswers.get(ChangeDetailsIndividualHavePhonePage)).mapN {
+      (email, havePhone) =>
+        IndividualValues(
+          emailAddress = email,
+          contactByPhone = havePhone,
+          phoneNumber = if (havePhone) {
+            userAnswers.get(ChangeDetailsIndividualPhoneNumberPage)
+          } else None
+        )
+    }
+
 }

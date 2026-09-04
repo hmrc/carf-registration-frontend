@@ -1121,10 +1121,8 @@ class NormalRoutesNavigatorSpec extends SpecBase {
     }
 
     "IndFindAddressPage navigation" - {
-      "must navigate from IndFindAddressPage to 'Review address' when only one address is returned from address-lookup " in {
-        val userAnswers =
-          emptyUserAnswers
-            .withPage(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN)))
+      "must navigate from IndFindAddressPage to 'Review address' when only one address is returned (IndWithoutIdAddressPagePrePop is populated)" in {
+        val userAnswers = emptyUserAnswers.withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
 
         navigator.nextPage(
           IndFindAddressPage,
@@ -1133,26 +1131,28 @@ class NormalRoutesNavigatorSpec extends SpecBase {
         ) mustBe controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
       }
 
-      "must navigate from IndFindAddressPage to Choose address' when multiple addresses are returned from address-lookup" in {
-        val userAnswers =
-          emptyUserAnswers
-            .withPage(
-              AddressLookupPage,
-              Seq(
-                AddressAndUPRN(testAddressUk, testUPRN),
-                AddressAndUPRN(testAddressUk, testUPRN)
-              )
-            )
+      "must navigate from IndFindAddressPage to 'Choose address' when multiple addresses are returned (AddressLookupPage is populated)" in {
+        val userAnswers = emptyUserAnswers.withPage(AddressLookupPage, testAddressAndUprns)
 
         navigator.nextPage(
           IndFindAddressPage,
           NormalMode,
           userAnswers
-        ) mustBe controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode)
+        ) mustBe controllers.individualWithoutId.routes.IndWithoutIdChooseAddressController.onPageLoad(NormalMode)
       }
 
       "must navigate to Journey Recovery when no addresses are found in UserAnswers" in {
+        navigator.nextPage(
+          IndFindAddressPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must navigate to Journey Recovery when both IndWithoutIdAddressPagePrePop and AddressLookupPage are present in UserAnswers" in {
         val userAnswers = emptyUserAnswers
+          .withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
+          .withPage(AddressLookupPage, testAddressAndUprns)
 
         navigator.nextPage(
           IndFindAddressPage,

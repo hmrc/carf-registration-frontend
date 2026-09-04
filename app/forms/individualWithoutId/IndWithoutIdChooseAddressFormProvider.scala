@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individualWithoutId
 
-import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
-class IndWithoutChooseAddressFormProvider @Inject() extends Mappings {
+import javax.inject.Inject
+
+class IndWithoutIdChooseAddressFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(

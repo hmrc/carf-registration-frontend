@@ -17,14 +17,13 @@
 package forms.individualWithoutId
 
 import config.Constants.addressMaxLength
-import forms.IndWithoutChooseAddressFormProvider
 import forms.behaviours.OptionFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 
-class IndWithoutChooseAddressFormProviderSpec extends OptionFieldBehaviours {
+class IndWithoutIdChooseAddressFormProviderSpec extends OptionFieldBehaviours {
 
-  val form: Form[String] = new IndWithoutChooseAddressFormProvider()()
+  val form: Form[String] = new IndWithoutIdChooseAddressFormProvider()()
 
   val validAddressStringGen: Gen[String] = {
     val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 &.,'-"

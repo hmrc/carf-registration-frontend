@@ -28,8 +28,8 @@ import types.ResultT
 
 class EnrolmentServiceSpec extends SpecBase {
 
-  val mockConnector    = mock[EnrolmentConnector]
-  val enrolmentService = new EnrolmentService(mockConnector)
+  val mockConnector: EnrolmentConnector = mock[EnrolmentConnector]
+  val enrolmentService                  = new EnrolmentService(mockConnector)
 
   "EnrolmentService" - {
     "createEnrolment" - {

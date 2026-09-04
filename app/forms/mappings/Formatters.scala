@@ -295,7 +295,7 @@ trait Formatters extends Transforms {
     * 960 001 & 07700 900 982 as not Real numbers.
     */
 
-  protected def validateNot0808Number(
+  private def validateNot0808Number(
       phoneUtil: PhoneNumberUtil,
       key: String,
       value: String,

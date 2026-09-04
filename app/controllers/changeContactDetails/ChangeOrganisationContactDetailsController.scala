@@ -24,13 +24,13 @@ import models.responses.hasOrganisationChangedData
 import pages.changeContactDetails.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SubscriptionService
+import services.{AuditService, SubscriptionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeOrganisationDetailsHelper
 import utils.LoggerUtil.*
 import views.html.ChangeOrganisationContactDetailsView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ChangeOrganisationContactDetailsController @Inject() (
     val controllerComponents: MessagesControllerComponents,
@@ -39,6 +39,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
     subscriptionService: SubscriptionService,
     changeDetailsHelper: ChangeOrganisationDetailsHelper,
     view: ChangeOrganisationContactDetailsView,
+    auditService: AuditService,
     appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -105,15 +106,24 @@ class ChangeOrganisationContactDetailsController @Inject() (
       subscriptionService
         .updateSubscription(request.userAnswers, request.subscriptionId.value)
         .value
-        .map {
+        .flatMap {
           case Right(value)    =>
-            Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
+            for {
+              _ <-
+                auditService
+                  .auditChangeContactDetails(request.userAnswers, isIndividual = false)
+                  .recover { case e =>
+                    logDebug(s"Auditing ChangeContactDetails failed due to $e")
+                    ()
+                  }
+                  .value
+            } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
             logError("[ChangeOrganisationContactDetailsController] Had missing data on submission")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
             logError(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }
 

@@ -27,7 +27,7 @@ import scala.concurrent.Future
 
 class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
-  override def afterEach() =
+  override def afterEach(): Unit =
     reset(mockSessionRepository)
 
   "keepAlive" - {

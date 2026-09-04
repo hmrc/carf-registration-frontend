@@ -21,7 +21,7 @@ import generators.Generators
 import models.JourneyType.*
 import models.RegistrationType.{Individual, LLP, SoleTrader}
 import models.countries.Country
-import models.error.DataError
+import models.error.{CarfError, DataError}
 import models.responses.AddressRegistrationResponse
 import models.{AddressUk, BusinessDetails, IndWithoutIdAddressNonUk, IsThisYourBusinessPageDetails, JourneyType, Name, OrganisationBusinessAddress, UserAnswers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -688,10 +688,10 @@ class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks 
 
       "should fail when where do you live is not supplied for the IndWithoutId Journey" in new TestData {
 
-        val userAnswers = emptyUserAnswers
+        val userAnswers: UserAnswers = emptyUserAnswers
           .copy(journeyType = Some(JourneyType.IndWithoutId))
 
-        val result = testHelper.getUserPostcode(userAnswers).value.futureValue
+        val result: Either[CarfError, Option[String]] = testHelper.getUserPostcode(userAnswers).value.futureValue
         result mustBe Left(DataError)
       }
     }
@@ -744,18 +744,18 @@ class CheckYourAnswersHelperSpec extends SpecBase with ScalaCheckPropertyChecks 
 
       "should fail if journey type is not supplied" in new TestData {
 
-        val userAnswers = emptyUserAnswers
+        val userAnswers: UserAnswers = emptyUserAnswers
 
-        val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+        val result: Either[CarfError, Boolean] = testHelper.getUserIsAbroad(userAnswers).value.futureValue
         result mustBe Left(DataError)
 
       }
 
       "should fail if Where do you live page is not supplied" in new TestData {
-        val userAnswers = emptyUserAnswers
+        val userAnswers: UserAnswers = emptyUserAnswers
           .copy(journeyType = Some(JourneyType.IndWithoutId))
 
-        val result = testHelper.getUserIsAbroad(userAnswers).value.futureValue
+        val result: Either[CarfError, Boolean] = testHelper.getUserIsAbroad(userAnswers).value.futureValue
         result mustBe Left(DataError)
 
       }

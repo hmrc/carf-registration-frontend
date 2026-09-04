@@ -46,11 +46,11 @@ object ApiError {
 
   case object NotFoundError extends ApiError
 
-  case object UnprocessableEntityError extends ApiError
+  private case object UnprocessableEntityError extends ApiError
 
   case object AlreadyRegisteredError extends ApiError
 
-  case object ServiceUnavailableError extends ApiError
+  private case object ServiceUnavailableError extends ApiError
 
   case object InternalServerError extends ApiError
 

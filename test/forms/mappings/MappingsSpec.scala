@@ -17,7 +17,7 @@
 package forms.mappings
 
 import base.TestConstants.{invalidBusinessNameExceeds105Chars, invalidPhoneNumber25Chars, validBusinessName105Chars, validPhoneNumber24Chars}
-import config.Constants.{businessNameRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
+import config.Constants.{businessNameRegex, phoneNumberRegex, validBusinessNameMaxLength, validBusinessNameMinLength}
 import models.countries.{Country, CountryUk}
 import models.{Enumerable, UniqueTaxpayerReference}
 import org.scalatest.OptionValues
@@ -459,7 +459,8 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
         requiredKey = testRequiredKey,
         invalidKey = testInvalidKey,
         lengthKey = testLengthKey,
-        notRealPhoneNumberKey = testNotRealPhoneNumberKey
+        notRealPhoneNumberKey = testNotRealPhoneNumberKey,
+        regex = phoneNumberRegex
       )
     )
 

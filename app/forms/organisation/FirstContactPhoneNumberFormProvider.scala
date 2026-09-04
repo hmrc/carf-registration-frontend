@@ -16,6 +16,7 @@
 
 package forms.organisation
 
+import config.Constants.phoneNumberRegex
 import forms.mappings.Mappings
 import play.api.data.Form
 
@@ -29,7 +30,8 @@ class FirstContactPhoneNumberFormProvider @Inject() extends Mappings {
         requiredKey = "firstContactPhoneNumber.error.required",
         invalidKey = "firstContactPhoneNumber.error.invalid",
         lengthKey = "firstContactPhoneNumber.error.length",
-        notRealPhoneNumberKey = "firstContactPhoneNumber.error.notRealNumber"
+        notRealPhoneNumberKey = "firstContactPhoneNumber.error.notRealNumber",
+        regex = phoneNumberRegex
       )
     )
 }

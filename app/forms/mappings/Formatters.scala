@@ -67,7 +67,7 @@ trait Formatters extends Transforms {
             case _       => Left(Seq(FormError(key, invalidKey, args)))
           }
 
-      def unbind(key: String, value: Boolean) = Map(key -> value.toString)
+      def unbind(key: String, value: Boolean): Map[String, String] = Map(key -> value.toString)
     }
 
   private[mappings] def intFormatter(
@@ -247,6 +247,7 @@ trait Formatters extends Transforms {
       invalidKey: String,
       lengthKey: String,
       notRealPhoneNumberKey: String,
+      regex: String,
       args: Seq[Any] = Seq.empty
   ): Formatter[String] =
     new Formatter[String] {
@@ -257,9 +258,10 @@ trait Formatters extends Transforms {
         lazy val formErrorInvalidKey = Left(Seq(FormError(key, invalidKey, args)))
 
         data.get(key).map(_.trim) match {
-          case None                         => Left(Seq(FormError(key, requiredKey, args)))
-          case Some(value) if value.isEmpty => Left(Seq(FormError(key, requiredKey, args)))
-          case Some(value)                  =>
+          case None                                 => Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if value.isEmpty         => Left(Seq(FormError(key, requiredKey, args)))
+          case Some(value) if !value.matches(regex) => formErrorInvalidKey
+          case Some(value)                          =>
             if (value.length > maxPhoneLength) {
               Left(Seq(FormError(key, lengthKey, args)))
             } else {
@@ -278,6 +280,7 @@ trait Formatters extends Transforms {
                   formErrorInvalidKey
               }
             }
+
         }
       }
 

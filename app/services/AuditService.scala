@@ -136,7 +136,9 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       detail = eventJsValue
     )
 
-  private def sendEvent(extendedEvent: ExtendedDataEvent, auditType: String, journeyType: String): ResultT[Unit] =
+  private def sendEvent(extendedEvent: ExtendedDataEvent, auditType: String, journeyType: String)(implicit
+      hc: HeaderCarrier
+  ): ResultT[Unit] =
     ResultT.fromFuture(auditConnector.sendExtendedEvent(extendedEvent).map {
       case Success         =>
         logDebug(s"Successfully sent $auditType audit event for $journeyType")

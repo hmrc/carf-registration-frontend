@@ -109,8 +109,8 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       changeContactDetailsEvent <- ResultT.fromValue(
                                      if (isIndividual) {
                                        ChangeContactDetailsAuditEvent(
-                                         individualUpdatedInformation = getIndividualUpdatedValues(userAnswers),
-                                         individualOriginalInformation = getIndividualOriginalValues(userAnswers),
+                                         individualUpdatedInformation = getIndividualUpdatedInformation(userAnswers),
+                                         individualOriginalInformation = getIndividualOriginalInformation(userAnswers),
                                          organisationOriginalInformation = None,
                                          organisationUpdatedInformation = None
                                        )
@@ -118,8 +118,9 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
                                        ChangeContactDetailsAuditEvent(
                                          individualUpdatedInformation = None,
                                          individualOriginalInformation = None,
-                                         organisationOriginalInformation = getOrganisationOriginalValues(userAnswers),
-                                         organisationUpdatedInformation = getOrganisationUpdatedValues(userAnswers)
+                                         organisationOriginalInformation =
+                                           getOrganisationOriginalInformation(userAnswers),
+                                         organisationUpdatedInformation = getOrganisationUpdatedInformation(userAnswers)
                                        )
                                      }
                                    )
@@ -295,7 +296,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     }
 
-  private def getOrganisationOriginalValues(userAnswers: UserAnswers): Option[OrganisationInformation] =
+  private def getOrganisationOriginalInformation(userAnswers: UserAnswers): Option[OrganisationInformation] =
     userAnswers.displaySubscriptionResponse.flatMap(response =>
       response.success.carfSubscriptionDetails.primaryContact.organisation.map(primaryContact =>
         OrganisationInformation(
@@ -314,7 +315,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     )
 
-  private def getOrganisationUpdatedValues(userAnswers: UserAnswers): Option[OrganisationInformation] =
+  private def getOrganisationUpdatedInformation(userAnswers: UserAnswers): Option[OrganisationInformation] =
     (
       userAnswers.get(ChangeDetailsOrgFirstNamePage),
       userAnswers.get(ChangeDetailsOrgFirstEmailPage),
@@ -344,7 +345,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     }
 
-  private def getIndividualOriginalValues(userAnswers: UserAnswers): Option[IndividualInformation] =
+  private def getIndividualOriginalInformation(userAnswers: UserAnswers): Option[IndividualInformation] =
     userAnswers.displaySubscriptionResponse.map(response =>
       IndividualInformation(
         emailAddress = response.success.carfSubscriptionDetails.primaryContact.email,
@@ -353,7 +354,7 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     )
 
-  private def getIndividualUpdatedValues(userAnswers: UserAnswers): Option[IndividualInformation] =
+  private def getIndividualUpdatedInformation(userAnswers: UserAnswers): Option[IndividualInformation] =
     (userAnswers.get(ChangeDetailsIndividualEmailPage), userAnswers.get(ChangeDetailsIndividualHavePhonePage)).mapN {
       (email, havePhone) =>
         IndividualInformation(

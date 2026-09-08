@@ -531,22 +531,22 @@ class AuditServiceSpec extends SpecBase {
           .copy(displaySubscriptionResponse = Some(testIndividualDisplaySubscriptionResponse(true)))
 
         val expectedExtendedAudit = ChangeContactDetailsAuditEvent(
-          individualUpdatedValues = Some(
-            IndividualValues(
+          individualUpdatedInformation = Some(
+            IndividualInformation(
               emailAddress = testEmail,
               contactByPhone = true,
               phoneNumber = Some(testPhone)
             )
           ),
-          individualOriginalValues = Some(
-            IndividualValues(
+          individualOriginalInformation = Some(
+            IndividualInformation(
               emailAddress = testEmail,
               contactByPhone = true,
               phoneNumber = Some(testPhone)
             )
           ),
-          organisationOriginalValues = None,
-          organisationUpdatedValues = None
+          organisationOriginalInformation = None,
+          organisationUpdatedInformation = None
         )
 
         when(mockAuditConnector.sendExtendedEvent(any())(any(), any()))
@@ -579,10 +579,10 @@ class AuditServiceSpec extends SpecBase {
           .copy(displaySubscriptionResponse = Some(testOrganisationDisplaySubscriptionResponseSecondContact))
 
         val expectedExtendedAudit = ChangeContactDetailsAuditEvent(
-          individualUpdatedValues = None,
-          individualOriginalValues = None,
-          organisationOriginalValues = Some(
-            OrganisationValues(
+          individualUpdatedInformation = None,
+          individualOriginalInformation = None,
+          organisationOriginalInformation = Some(
+            OrganisationInformation(
               contact1Name = "Bobby",
               contact1EmailAddress = testEmail,
               contact1ByPhone = true,
@@ -594,8 +594,8 @@ class AuditServiceSpec extends SpecBase {
               contact2PhoneNumber = Some(testPhone)
             )
           ),
-          organisationUpdatedValues = Some(
-            OrganisationValues(
+          organisationUpdatedInformation = Some(
+            OrganisationInformation(
               contact1Name = testName,
               contact1EmailAddress = testEmail,
               contact1ByPhone = true,

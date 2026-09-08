@@ -52,7 +52,7 @@ class OrganisationSecondContactPhoneNumberFormProviderSpec extends StringFieldBe
     }
 
     "not bind strings longer than the max length" in {
-      val longString = "a" * (maxLength + 1)
+      val longString = "1" * (maxLength + 1)
 
       val result = form.bind(Map(fieldName -> longString))
       result.errors must contain only FormError(fieldName, lengthKey, Seq.empty)

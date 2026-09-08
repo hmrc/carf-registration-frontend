@@ -451,7 +451,10 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       "+999999999",
       "+44",
       "071234567890", // too long
-      "+44 123"
+      "+44 123",
+      "++44123456789",
+      "abc44123456789",
+      "*-#07123456789"
     )
 
     val testPhoneNumberForm: Form[String] = Form(

@@ -17,7 +17,7 @@
 package controllers.auth
 
 import config.FrontendAppConfig
-import controllers.actions.IdentifierAction
+import controllers.actions.BasicAuthAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -30,12 +30,12 @@ class AuthController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     config: FrontendAppConfig,
     sessionRepository: SessionRepository,
-    identify: IdentifierAction
+    basicAuth: BasicAuthAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def signOut(): Action[AnyContent] = identify(false).async { implicit request =>
+  def signOut(): Action[AnyContent] = basicAuth().async { implicit request =>
     sessionRepository
       .clear(request.userId)
       .map { _ =>
@@ -43,7 +43,7 @@ class AuthController @Inject() (
       }
   }
 
-  def signOutNoSurvey(): Action[AnyContent] = identify(false).async { implicit request =>
+  def signOutNoSurvey(): Action[AnyContent] = basicAuth().async { implicit request =>
     sessionRepository
       .clear(request.userId)
       .map { _ =>

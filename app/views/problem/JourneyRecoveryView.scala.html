@@ -15,23 +15,18 @@
  *@
 
 @this(
-    layout: templates.Layout,
-    govukButton: GovukButton
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        link: components.Link
 )
 
-@(continueUrl: String)(implicit request: Request[_], messages: Messages)
+@(emailLink: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("journeyRecovery.continue.title"))) {
+@layout(pageTitle = titleNoForm(messages("journeyRecovery.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("journeyRecovery.continue.heading")</h1>
+    <h1 class="govuk-heading-xl">@messages("journeyRecovery.heading")</h1>
 
-    <p class="govuk-body">@messages("journeyRecovery.continue.guidance")</p>
+    <p class="govuk-body">@messages("journeyRecovery.guidance")</p>
 
-    <p class="govuk-body">
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-                .asLink(continueUrl)
-                .withAttribute("id" -> "continue")
-        )
-    </p>
+    <p class="govuk-body">@Html(messages("journeyRecovery.link", link(s"mailto:$emailLink", s"$emailLink")))</p>
 }

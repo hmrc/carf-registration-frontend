@@ -30,6 +30,12 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
+pageNotFound.title = Page not found
+pageNotFound.heading = Page not found
+pageNotFound.p1 = If you typed the web address, check it is correct.
+pageNotFound.p2 = If you pasted the web address, check you copied the entire address.
+pageNotFound.link = You can email {0} if you have any questions about this service.
+
 checkYourAnswers.title = Check your answers before you register for cryptoasset reporting
 checkYourAnswers.heading = Check your answers before you register for cryptoasset reporting
 checkYourAnswers.summaryListTitle.businessDetails = Business details
@@ -46,19 +52,19 @@ checkYourAnswers.registrationType.trust = Unincorporated association or trust
 checkYourAnswers.registrationType.soleTrader = Sole trader
 checkYourAnswers.registrationType.individual = An individual not connected to a business
 
-journeyRecovery.continue.title = Sorry, there is a problem with the service
-journeyRecovery.continue.heading = Sorry, there is a problem with the service
-journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
-journeyRecovery.startAgain.title = Sorry, there is a problem with the service
-journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
-journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
+journeyRecovery.title = Sorry, there is a problem with the service
+journeyRecovery.heading = Sorry, there is a problem with the service
+journeyRecovery.guidance = Try again later.
+journeyRecovery.link = You can email {0} if you need to contact someone about your cryptoasset reporting.
 
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 signedOut.guidance = We did not save your answers.
 
-unauthorised.title = You can’t access this service with this account
-unauthorised.heading = You can’t access this service with this account
+unauthorised.title = You cannot access this page
+unauthorised.heading = You cannot access this page
+unauthorised.guidance = You can email {0} if you need support with using the service.
+unauthorised.link = Refer to the cryptoasset reporting guidance
 
 organisationRegistrationType.title = What are you registering as?
 organisationRegistrationType.heading = What are you registering as?
@@ -658,3 +664,7 @@ changeFirstContactHavePhone.title = Can we contact your first contact by phone?
 changeFirstContactHavePhone.heading = Can we contact {0} by phone?
 changeFirstContactHavePhone.hint = We will call if we have any questions about your reports.
 changeFirstContactHavePhone.error.required = Select yes if the first contact can be contacted by phone
+
+pageUnavailable.title = This page is no longer available
+pageUnavailable.heading = This page is no longer available
+pageUnavailable.link.text = Back to manage your cryptoasset reports

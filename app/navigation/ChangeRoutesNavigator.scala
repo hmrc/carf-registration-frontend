@@ -126,12 +126,12 @@ trait ChangeRoutesNavigator extends UserAnswersHelper {
   }
 
   private def navigateFromIndFindAddressPage(userAnswers: UserAnswers): Call =
-    userAnswers.get(AddressLookupPage) match {
-      case Some(addresses) if addresses.size == 1 =>
+    (userAnswers.get(AddressLookupPage), userAnswers.get(IndWithoutIdAddressPagePrePop)) match {
+      case (None, Some(_)) =>
         controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(ChangeMode)
-      case Some(addresses) if addresses.size > 1  =>
-        controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(ChangeMode)
-      case _                                      =>
+      case (Some(_), None) =>
+        controllers.individualWithoutId.routes.IndWithoutIdChooseAddressController.onPageLoad(ChangeMode)
+      case _               =>
         routes.JourneyRecoveryController.onPageLoad()
     }
 

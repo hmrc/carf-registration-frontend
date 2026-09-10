@@ -220,10 +220,10 @@ POST        /register/individual-without-id/change-address                      
 
 GET         /register/problem/unable-to-change-business                         controllers.organisation.UnableToChangeBusinessController.onPageLoad()
 
-GET         /register/individual-without-id/choose-address                      controllers.individualWithoutId.IndWithoutChooseAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /register/individual-without-id/choose-address                      controllers.individualWithoutId.IndWithoutChooseAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutChooseAddressController.onPageLoad(mode: Mode = ChangeMode)
-POST        /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutChooseAddressController.onSubmit(mode: Mode = ChangeMode)
+GET         /register/individual-without-id/choose-address                      controllers.individualWithoutId.IndWithoutIdChooseAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /register/individual-without-id/choose-address                      controllers.individualWithoutId.IndWithoutIdChooseAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutIdChooseAddressController.onPageLoad(mode: Mode = ChangeMode)
+POST        /register/individual-without-id/change-choose-address               controllers.individualWithoutId.IndWithoutIdChooseAddressController.onSubmit(mode: Mode = ChangeMode)
 
 GET         /register/problem/individual-already-registered                     controllers.individual.IndividualAlreadyRegisteredController.onPageLoad()
 

@@ -18,7 +18,6 @@ package controllers.individualWithoutId
 
 import controllers.actions.*
 import forms.individualWithoutId.IndFindAddressFormProvider
-import models.countries.CountryUk
 import models.requests.DataRequest
 import models.{AddressAndUPRN, AddressUk, IndFindAddress, Mode, NormalMode}
 import navigation.Navigator
@@ -29,8 +28,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.AddressLookupService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.individualWithoutId.IndFindAddressView
 import utils.LoggerUtil.*
+import views.html.individualWithoutId.IndFindAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -74,7 +73,6 @@ class IndFindAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
-
       val formReturned = form.bindFromRequest()
       formReturned
         .fold(
@@ -84,7 +82,7 @@ class IndFindAddressController @Inject() (
               .postcodeSearch(value.postcode, value.propertyNameOrNumber)
               .flatMap {
                 case Left(error)                                    =>
-                  logError(s"Address lookup service failed: $error")
+                  logError(s"[IndFindAddressController][onSubmit] Address lookup service failed: $error")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
                 case Right((Nil, _))                                =>
                   val formError =
@@ -92,41 +90,45 @@ class IndFindAddressController @Inject() (
                   Future.successful(BadRequest(view(formError, mode, manualLink(mode))))
                 case Right((addressesAndUPRNs, additionalCallMade)) =>
                   for {
-                    updatedAnswersWithFlag <- save(value, addressesAndUPRNs, additionalCallMade)
-                  } yield Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswersWithFlag))
+                    updatedAnswers <-
+                      if (addressesAndUPRNs.length == 1) { saveSingleAddress(value, addressesAndUPRNs.head) }
+                      else { saveMultipleAddresses(value, addressesAndUPRNs, additionalCallMade) }
+                  } yield Redirect(navigator.nextPage(IndFindAddressPage, mode, updatedAnswers))
               }
         )
   }
 
-  private def save(
+  private def saveMultipleAddresses(
       indFindAddress: IndFindAddress,
       addressesAndUPRNs: Seq[AddressAndUPRN],
       additionalCallMade: Boolean
-  )(implicit
-      request: DataRequest[AnyContent]
-  ) =
+  )(implicit request: DataRequest[AnyContent]) =
     for {
-      updatedAnswers            <- Future.fromTry(request.userAnswers.set(IndFindAddressPage, indFindAddress))
-      (filledAddress, maybeUPRN) =
-        addressesAndUPRNs.headOption.fold(
-          (AddressUk("", None, None, "", indFindAddress.postcode, CountryUk("", "")), Option.empty[Long])
-        )(addressAndUPRN => (addressAndUPRN.address, Some(addressAndUPRN.UPRN)))
+      uaWithSingleAddressDataCleared <-
+        Future.fromTry(request.userAnswers.remove(List(AddressUPRNUserAnswers, IndWithoutIdAddressPagePrePop)))
+      uaWithPageAnswer               <-
+        Future.fromTry(uaWithSingleAddressDataCleared.set(IndFindAddressPage, indFindAddress))
+      uaWithAddresses                <-
+        Future.fromTry(uaWithPageAnswer.set(AddressLookupPage, addressesAndUPRNs))
+      uaWithAdditionalCallFlag       <-
+        Future.fromTry(uaWithAddresses.set(IndFindAddressAdditionalCallUa, additionalCallMade))
+      _                              <- sessionRepository.set(uaWithAdditionalCallFlag)
+    } yield uaWithAdditionalCallFlag
 
-      updatedAnswersWithPrePop <-
-        Future.fromTry(updatedAnswers.set(IndWithoutIdAddressPagePrePop, filledAddress))
+  private def saveSingleAddress(
+      indFindAddress: IndFindAddress,
+      addressAndUPRN: AddressAndUPRN
+  )(implicit request: DataRequest[AnyContent]) =
+    for {
+      uaWithMultipleAddressDataCleared <-
+        Future.fromTry(request.userAnswers.remove(List(IndFindAddressAdditionalCallUa, AddressLookupPage)))
+      uaWithPageAnswer                 <-
+        Future.fromTry(uaWithMultipleAddressDataCleared.set(IndFindAddressPage, indFindAddress))
+      uaWithPrePop                     <-
+        Future.fromTry(uaWithPageAnswer.set(IndWithoutIdAddressPagePrePop, addressAndUPRN.address))
+      uaWithUprn                       <-
+        Future.fromTry(uaWithPrePop.set(AddressUPRNUserAnswers, addressAndUPRN.UPRN))
+      _                                <- sessionRepository.set(uaWithUprn)
+    } yield uaWithUprn
 
-      updatedAnswersWithAddress <- Future.fromTry(
-                                     updatedAnswersWithPrePop.set(
-                                       AddressLookupPage,
-                                       addressesAndUPRNs
-                                     )
-                                   )
-      updatedAnswersWithFlag    <- Future.fromTry(
-                                     updatedAnswersWithAddress.set(IndFindAddressAdditionalCallUa, additionalCallMade)
-                                   )
-      resultingUserAnswer       <- maybeUPRN.fold(Future.successful(updatedAnswersWithFlag)) { uprn =>
-                                     Future.fromTry(updatedAnswersWithFlag.set(AddressUPRNUserAnswers, uprn))
-                                   }
-      _                         <- sessionRepository.set(resultingUserAnswer)
-    } yield resultingUserAnswer
 }

@@ -17,7 +17,7 @@
 package controllers.individualWithoutId
 
 import base.SpecBase
-import forms.IndWithoutChooseAddressFormProvider
+import forms.individualWithoutId.IndWithoutIdChooseAddressFormProvider
 import models.countries.CountryUk
 import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -31,18 +31,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import views.html.IndWithoutChooseAddressView
+import views.html.individualWithoutId.IndWithoutIdChooseAddressView
 
 import scala.concurrent.Future
 
-class IndWithoutChooseAddressControllerSpec extends SpecBase {
+class IndWithoutIdChooseAddressControllerSpec extends SpecBase {
 
   def onwardRoute = Call("GET", "/foo")
 
-  private val chooseAddressRoute =
-    controllers.individualWithoutId.routes.IndWithoutChooseAddressController.onPageLoad(NormalMode).url
+  lazy val chooseAddressRoute: String =
+    controllers.individualWithoutId.routes.IndWithoutIdChooseAddressController.onPageLoad(NormalMode).url
 
-  val formProvider       = new IndWithoutChooseAddressFormProvider()
+  val formProvider       = new IndWithoutIdChooseAddressFormProvider()
   val form: Form[String] = formProvider()
 
   val address = AddressUk(
@@ -54,7 +54,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase {
     CountryUk("GB", "United Kingdom")
   )
 
-  "IndWithoutChooseAddress Controller" - {
+  "IndWithoutIdChooseAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
@@ -78,7 +78,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+        val view = application.injector.instanceOf[IndWithoutIdChooseAddressView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, createAddressRadios(Seq(address)), None)(
@@ -112,7 +112,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+        val view = application.injector.instanceOf[IndWithoutIdChooseAddressView]
 
         status(result)          mustEqual OK
         contentAsString(result) mustEqual view(
@@ -149,7 +149,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(GET, chooseAddressRoute)
 
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+        val view = application.injector.instanceOf[IndWithoutIdChooseAddressView]
 
         val result = route(application, request).value
 
@@ -300,7 +300,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase {
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+        val view = application.injector.instanceOf[IndWithoutIdChooseAddressView]
 
         val result = route(application, request).value
 
@@ -331,7 +331,7 @@ class IndWithoutChooseAddressControllerSpec extends SpecBase {
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[IndWithoutChooseAddressView]
+        val view = application.injector.instanceOf[IndWithoutIdChooseAddressView]
 
         val result = route(application, request).value
 

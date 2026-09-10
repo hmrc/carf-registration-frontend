@@ -154,6 +154,12 @@ trait SpecBase
     countryUk = CountryUk("GB", "United Kingdom")
   )
 
+  lazy val testAddressAndUprns: Seq[AddressAndUPRN] = Seq(
+    AddressAndUPRN(testAddressUk, testUPRN),
+    AddressAndUPRN(testAddressUk, testUPRN),
+    AddressAndUPRN(testAddressUk, testUPRN)
+  )
+
   lazy val multipleAddressResponses: Seq[AddressResponse] =
     Seq(oneAddressResponse, oneAddressResponse, oneAddressResponse)
 

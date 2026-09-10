@@ -19,27 +19,27 @@ package models.audit
 import play.api.libs.json.{Json, OFormat}
 
 case class ChangeContactDetailsAuditEvent(
-    individualUpdatedValues: Option[IndividualValues],
-    individualOriginalValues: Option[IndividualValues],
-    organisationOriginalValues: Option[OrganisationValues],
-    organisationUpdatedValues: Option[OrganisationValues]
+    individualUpdatedInformation: Option[IndividualInformation],
+    individualOriginalInformation: Option[IndividualInformation],
+    organisationOriginalInformation: Option[OrganisationInformation],
+    organisationUpdatedInformation: Option[OrganisationInformation]
 )
 
 object ChangeContactDetailsAuditEvent {
   implicit val format: OFormat[ChangeContactDetailsAuditEvent] = Json.format[ChangeContactDetailsAuditEvent]
 }
 
-case class IndividualValues(
+case class IndividualInformation(
     emailAddress: String,
     contactByPhone: Boolean,
     phoneNumber: Option[String]
 )
 
-object IndividualValues {
-  implicit val format: OFormat[IndividualValues] = Json.format[IndividualValues]
+object IndividualInformation {
+  implicit val format: OFormat[IndividualInformation] = Json.format[IndividualInformation]
 }
 
-case class OrganisationValues(
+case class OrganisationInformation(
     contact1Name: String,
     contact1EmailAddress: String,
     contact1ByPhone: Boolean,
@@ -51,6 +51,6 @@ case class OrganisationValues(
     contact2PhoneNumber: Option[String]
 )
 
-object OrganisationValues {
-  implicit val format: OFormat[OrganisationValues] = Json.format[OrganisationValues]
+object OrganisationInformation {
+  implicit val format: OFormat[OrganisationInformation] = Json.format[OrganisationInformation]
 }

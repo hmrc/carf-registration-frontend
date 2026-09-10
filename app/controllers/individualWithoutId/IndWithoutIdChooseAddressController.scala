@@ -18,7 +18,7 @@ package controllers.individualWithoutId
 
 import config.Constants.noneOfTheseValue
 import controllers.actions.*
-import forms.IndWithoutChooseAddressFormProvider
+import forms.individualWithoutId.IndWithoutIdChooseAddressFormProvider
 import models.requests.DataRequest
 import models.{format, AddressAndUPRN, AddressUk, IndFindAddress, Mode, UserAnswers}
 import navigation.Navigator
@@ -31,22 +31,23 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndWithoutChooseAddressView
+import views.html.individualWithoutId.IndWithoutIdChooseAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class IndWithoutChooseAddressController @Inject() (
+class IndWithoutIdChooseAddressController @Inject() (
     override val messagesApi: MessagesApi,
     sessionRepository: SessionRepository,
     navigator: Navigator,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
-    formProvider: IndWithoutChooseAddressFormProvider,
+    submissionLock: SubmissionLockAction,
+    formProvider: IndWithoutIdChooseAddressFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: IndWithoutChooseAddressView
+    view: IndWithoutIdChooseAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -74,19 +75,17 @@ class IndWithoutChooseAddressController @Inject() (
         )}"""
     }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
       lazy val preparedForm: Form[String] = request.userAnswers.get(IndWithoutIdChooseAddressPage).fold(form)(form.fill)
 
       val WithRadiosResult(result, _) = resultWithRadios(mode) { (radios, maybeIndFindAddress) =>
-
         val maybeHtml: Option[String] = generateHtml(maybeIndFindAddress)
-
         Ok(view(preparedForm, mode, radios, maybeHtml))
       }
 
-      Future.successful(result)
-  }
+      result
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {
     implicit request =>
@@ -95,10 +94,8 @@ class IndWithoutChooseAddressController @Inject() (
         .fold(
           formWithErrors => {
             val WithRadiosResult(result, _) = resultWithRadios(mode) { (radios, maybeIndFindAddress) =>
-
               val maybeHtml: Option[String] = generateHtml(maybeIndFindAddress)
               BadRequest(view(formWithErrors, mode, radios, maybeHtml))
-
             }
             Future.successful(result)
           },
@@ -146,7 +143,7 @@ class IndWithoutChooseAddressController @Inject() (
   private def createAddressRadios(addresses: => Seq[AddressUk]): Seq[RadioItem] =
     addresses.map { address =>
       val addressFormatted = address.format
-      RadioItem(content = Text(s"$addressFormatted"), value = Some(s"$addressFormatted"))
+      RadioItem(content = Text(addressFormatted), value = Some(addressFormatted))
     }
 
   private def resultWithRadios(

@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{AddressAndUPRN, ChangeMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import pages.individualWithoutId.AddressLookupPage
+import pages.individualWithoutId.{AddressLookupPage, IndWithoutIdAddressPagePrePop}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -44,8 +44,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
   "IndReviewConfirmAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val userAnswers =
-        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
+      val userAnswers = emptyUserAnswers.withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -70,8 +69,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
     }
 
     "must return OK and the correct view for a GET for change mode" in {
-      val userAnswers =
-        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
+      val userAnswers = emptyUserAnswers.withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -95,7 +93,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Journey Recovery when an address is not found in userAnswers" in {
+    "must redirect to Journey Recovery for a GET when an address is not found in userAnswers" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -112,7 +110,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Journey Recovery when no userAnswers exist" in {
+    "must redirect to Journey Recovery for a GET when no userAnswers exist" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -130,8 +128,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
     }
 
     "must redirect to the next page when user clicks the Continue button" in {
-      val userAnswers =
-        emptyUserAnswers.set(AddressLookupPage, Seq(AddressAndUPRN(testAddressUk, testUPRN))).success.value
+      val userAnswers = emptyUserAnswers.withPage(IndWithoutIdAddressPagePrePop, testAddressUk)
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -149,7 +146,7 @@ class IndReviewConfirmAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Journey Recovery when address is not found" in {
+    "must redirect to Journey Recovery on submit when address is not found in userAnswers" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 

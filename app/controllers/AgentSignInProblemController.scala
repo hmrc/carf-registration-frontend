@@ -17,6 +17,7 @@
 package controllers
 
 import config.FrontendAppConfig
+import controllers.actions.BasicAuthAction
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -27,12 +28,13 @@ import javax.inject.Inject
 class AgentSignInProblemController @Inject() (
     override val messagesApi: MessagesApi,
     val controllerComponents: MessagesControllerComponents,
+    basicAuth: BasicAuthAction,
     appConfig: FrontendAppConfig,
     view: AgentSignInProblemView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = Action { implicit request =>
+  def onPageLoad: Action[AnyContent] = basicAuth() { implicit request =>
     val signOutNoSurveyUrl = appConfig.signOutNoSurveyUrl
     val loginContinueUrl   = appConfig.loginContinueUrl
     Ok(view(signOutNoSurveyUrl, loginContinueUrl))

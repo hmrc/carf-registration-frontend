@@ -17,17 +17,27 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.UnauthorisedView
+import views.html.problem.UnauthorisedView
 
 class UnauthorisedControllerSpec extends SpecBase {
+
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
 
   "Unauthorised Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      when(mockAppConfig.aeoiEmailAddress).thenReturn(testEmail)
+      when(mockAppConfig.feedbackUrl(any())).thenReturn("foo")
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[FrontendAppConfig].toInstance(mockAppConfig))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.UnauthorisedController.onPageLoad().url)
@@ -37,7 +47,10 @@ class UnauthorisedControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[UnauthorisedView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(testEmail, routes.UnauthorisedController.onPageLoad().url)(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }

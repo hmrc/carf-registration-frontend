@@ -20,7 +20,6 @@ import config.FrontendAppConfig
 import controllers.actions.BasicAuthAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.binders.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.problem.JourneyRecoveryView
 
@@ -34,7 +33,7 @@ class JourneyRecoveryController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = basicAuth() { implicit request =>
+  def onPageLoad(): Action[AnyContent] = basicAuth() { implicit request =>
     Ok(view(frontendAppConfig.aeoiEmailAddress))
   }
 }

@@ -14,12 +14,11 @@
  * limitations under the License.
  *@
 
+@import viewmodels.InputWidth._
 @import models.Mode
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
-@import viewmodels.InputWidth.*
 @import views.html.templates.Layout
 
 @this(
@@ -60,8 +59,7 @@
                 field = form("country"),
                 label = LabelViewModel(messages("address.country")),
                 items = countries
-            )
-            .asAccessibleAutocomplete(Some(AccessibleAutocomplete(defaultValue = Some(""), showAllValues = true, autoSelect = true)))
+            ).asAccessibleAutocomplete()
         )
         </div>
 

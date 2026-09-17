@@ -19,7 +19,6 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
 @import views.html.templates.Layout
 
 @this(
@@ -56,13 +55,12 @@
 
             <div class="govuk-form-group govuk-!-width-two-thirds">
             @govukSelect(
-                SelectViewModel(
-                    field = form("country"),
-                    label = LabelViewModel(messages("organisationBusinessAddress.country")),
-                    items = countries
+                    SelectViewModel(
+                        field = form("country"),
+                        label = LabelViewModel(messages("organisationBusinessAddress.country")),
+                        items = countries
+                    ).asAccessibleAutocomplete()
                 )
-                .asAccessibleAutocomplete(Some(AccessibleAutocomplete(defaultValue = Some(""), showAllValues = true, autoSelect = true)))
-            )
             </div>
 
         </fieldset>

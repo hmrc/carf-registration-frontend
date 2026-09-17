@@ -67,6 +67,7 @@ class CountryListFactory @Inject() (environment: Environment, appConfig: Fronten
       .groupBy(_.code)
       .map { case (_, countries) =>
         val country    = countries.head
+        // Note: Country aliases (alternativeName in countries.json) do not work with accessible autocomplete for the Select component
         val names      = countries.flatMap(c => List(Some(c.description), c.alternativeName)).flatten.distinct
         val isSelected = value.get("country").contains(country.code)
         SelectItem(

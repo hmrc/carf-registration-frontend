@@ -16,7 +16,6 @@
 
 package config
 
-import models.countries.*
 import pages.IsThisYourBusinessPage
 import pages.individual.*
 import pages.individualWithoutId.*
@@ -31,8 +30,6 @@ object Constants {
   val validBusinessNameMinLength: Int = 1
   val validTradingNameMaxLength: Int  = 80
   val validEmailMaxLength: Int        = 132
-
-  val crownDependencyPostcodeRegex = "^(?:(GY|JE)[0-9]{1,2} ?[0-9][A-Z]{2}|IM[0-9]{1,2} ?[0-9][A-Z]{2})$"
 
   inline final val addressRegex      = "^[A-Za-z0-9 &.,'\\\\-]*$"
   inline final val postcodeRegex     = "^[A-Za-z0-9 ]*$"
@@ -60,12 +57,6 @@ object Constants {
   inline final val ukTimeZoneStringId = "Europe/London"
 
   inline final val notReal0808PhoneNumber = "+448081570192"
-
-  val cdPostcodeRegex: Map[String, String] = Map(
-    Guernsey.code  -> "^GY([1-9]|10) ?[0-9][A-Z]{2}$",
-    Jersey.code    -> "^JE[1-4] ?[0-9][A-Z]{2}$",
-    IsleOfMan.code -> "^IM([1-9]|99) ?[0-9][A-Z]{2}$"
-  )
 
   val noneOfTheseValue = "none"
 

@@ -351,7 +351,7 @@ trait Formatters extends Transforms {
           case Some(str) if str.trim.isEmpty            => Right(None)
           case Some(str) if str.trim.length > maxLength => Left(Seq(FormError(key, lengthKey)))
           case Some(str) if !str.trim.matches(regex)    => Left(Seq(FormError(key, invalidKey)))
-          case Some(str)                                => Right(Some(str.trim))
+          case Some(str)                                => Right(Some(removeNonBreakingSpaces(str.trim)))
           case _                                        => Right(None)
         }
 
@@ -391,7 +391,7 @@ trait Formatters extends Transforms {
         postCode match {
           case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
           case Some(postCode)                     =>
-            val sanitisedPostcode = postCode.replaceAll("\\s+", "")
+            val sanitisedPostcode = removeNonBreakingSpaces(postCode.replaceAll("\\s+", ""))
             sanitisedPostcode match {
               case s if s.length > maxLengthPostcode                                  => Left(Seq(FormError(key, lengthKey)))
               case s if !s.matches(validCharRegex)                                    => Left(Seq(FormError(key, invalidCharKey)))
@@ -399,7 +399,7 @@ trait Formatters extends Transforms {
               case "AA11AA" if notRealKey.isDefined                                   => notRealError(notRealKey.get)
               case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
               case s if notRealKey.isDefined                                          =>
-                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get)
+                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey)
               case s                                                                  => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
@@ -414,14 +414,11 @@ trait Formatters extends Transforms {
   private def notRealPostcodeCheckForCdAndUkOnly(
       postcode: String,
       data: Map[String, String],
-      invalidCharKey: String,
-      notRealKey: String
+      invalidCharKey: String
   ): Either[Seq[FormError], String] = {
 
     val postcodeNormalised = PostcodeUtil.normalise(true, postcode)
-    val invalidError       = Left(Seq(FormError("postcode", invalidCharKey)))
-
-    val countryCode = data.getOrElse("country", "")
+    val countryCode        = data.getOrElse("country", "")
 
     def postCodeAreaValidForCountryCode: Boolean =
       countryCode match {
@@ -432,14 +429,10 @@ trait Formatters extends Transforms {
         case _                  => true
       }
 
-    if (!postCodeAreaValidForCountryCode) {
-      invalidError
+    if (postCodeAreaValidForCountryCode) {
+      Right(postcodeNormalised)
     } else {
-      Constants.cdPostcodeRegex.get(countryCode) match {
-        case None                                             => Right(postcodeNormalised)
-        case Some(regex) if postcodeNormalised.matches(regex) => Right(postcodeNormalised)
-        case Some(regex)                                      => notRealError(notRealKey)
-      }
+      Left(Seq(FormError("postcode", invalidCharKey)))
     }
 
   }

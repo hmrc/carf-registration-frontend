@@ -109,17 +109,18 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       changeContactDetailsEvent <- ResultT.fromValue(
                                      if (isIndividual) {
                                        ChangeContactDetailsAuditEvent(
-                                         individualUpdatedValues = getIndividualUpdatedValues(userAnswers),
-                                         individualOriginalValues = getIndividualOriginalValues(userAnswers),
-                                         organisationOriginalValues = None,
-                                         organisationUpdatedValues = None
+                                         individualUpdatedInformation = getIndividualUpdatedInformation(userAnswers),
+                                         individualOriginalInformation = getIndividualOriginalInformation(userAnswers),
+                                         organisationOriginalInformation = None,
+                                         organisationUpdatedInformation = None
                                        )
                                      } else {
                                        ChangeContactDetailsAuditEvent(
-                                         individualUpdatedValues = None,
-                                         individualOriginalValues = None,
-                                         organisationOriginalValues = getOrganisationOriginalValues(userAnswers),
-                                         organisationUpdatedValues = getOrganisationUpdatedValues(userAnswers)
+                                         individualUpdatedInformation = None,
+                                         individualOriginalInformation = None,
+                                         organisationOriginalInformation =
+                                           getOrganisationOriginalInformation(userAnswers),
+                                         organisationUpdatedInformation = getOrganisationUpdatedInformation(userAnswers)
                                        )
                                      }
                                    )
@@ -295,10 +296,10 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     }
 
-  private def getOrganisationOriginalValues(userAnswers: UserAnswers): Option[OrganisationValues] =
+  private def getOrganisationOriginalInformation(userAnswers: UserAnswers): Option[OrganisationInformation] =
     userAnswers.displaySubscriptionResponse.flatMap(response =>
       response.success.carfSubscriptionDetails.primaryContact.organisation.map(primaryContact =>
-        OrganisationValues(
+        OrganisationInformation(
           contact1Name = primaryContact.name,
           contact1EmailAddress = response.success.carfSubscriptionDetails.primaryContact.email,
           contact1ByPhone = response.success.carfSubscriptionDetails.primaryContact.phone.isDefined,
@@ -314,14 +315,14 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     )
 
-  private def getOrganisationUpdatedValues(userAnswers: UserAnswers): Option[OrganisationValues] =
+  private def getOrganisationUpdatedInformation(userAnswers: UserAnswers): Option[OrganisationInformation] =
     (
       userAnswers.get(ChangeDetailsOrgFirstNamePage),
       userAnswers.get(ChangeDetailsOrgFirstEmailPage),
       userAnswers.get(ChangeDetailsOrgFirstHavePhonePage),
       userAnswers.get(ChangeDetailsOrgHaveSecondContactPage)
     ).mapN { (name, email, havePhone, secondContact) =>
-      OrganisationValues(
+      OrganisationInformation(
         contact1Name = name,
         contact1EmailAddress = email,
         contact1ByPhone = havePhone,
@@ -344,19 +345,19 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       )
     }
 
-  private def getIndividualOriginalValues(userAnswers: UserAnswers): Option[IndividualValues] =
+  private def getIndividualOriginalInformation(userAnswers: UserAnswers): Option[IndividualInformation] =
     userAnswers.displaySubscriptionResponse.map(response =>
-      IndividualValues(
+      IndividualInformation(
         emailAddress = response.success.carfSubscriptionDetails.primaryContact.email,
         contactByPhone = response.success.carfSubscriptionDetails.primaryContact.phone.isDefined,
         phoneNumber = response.success.carfSubscriptionDetails.primaryContact.phone
       )
     )
 
-  private def getIndividualUpdatedValues(userAnswers: UserAnswers): Option[IndividualValues] =
+  private def getIndividualUpdatedInformation(userAnswers: UserAnswers): Option[IndividualInformation] =
     (userAnswers.get(ChangeDetailsIndividualEmailPage), userAnswers.get(ChangeDetailsIndividualHavePhonePage)).mapN {
       (email, havePhone) =>
-        IndividualValues(
+        IndividualInformation(
           emailAddress = email,
           contactByPhone = havePhone,
           phoneNumber = if (havePhone) {

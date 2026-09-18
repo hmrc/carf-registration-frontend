@@ -200,8 +200,12 @@ class IsThisYourBusinessController @Inject() (
             .flatMap(_.pageAnswer)
 
         val (pageAnswerToPersist, hasValidMatchToPersist) =
-          if (safeIdChanged) (None, false)
-          else (existingPageAnswer, request.userAnswers.hasValidMatch)
+          if (safeIdChanged) {
+            logDebug(
+              "SafeId returned by Register with ID differs from the one previously stored - resetting hasValidMatch and clearing previous answer."
+            )
+            (None, false)
+          } else (existingPageAnswer, request.userAnswers.hasValidMatch)
 
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,

@@ -26,11 +26,11 @@
     timeout = false
 ) {
 
-    <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("unauthorised.heading")</h1>
 
     <p class="govuk-body">@Html(messages("unauthorised.guidance", link(s"mailto:$emailLink", s"$emailLink")))</p>
 
-    @{
-        link(guidanceLink, messages("unauthorised.link"), classes = "govuk-link govuk-body")
-    }
+    <p class="govuk-body">@{
+        link(guidanceLink, messages("unauthorised.link"))
+    }</p>
 }

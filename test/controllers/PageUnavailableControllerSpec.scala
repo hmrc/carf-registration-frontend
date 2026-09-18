@@ -17,18 +17,28 @@
 package controllers
 
 import base.SpecBase
-import models.NormalMode
+import config.FrontendAppConfig
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.PageUnavailableView
 
 class PageUnavailableControllerSpec extends SpecBase {
 
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+
   "PageUnavailable Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("foo")
+      when(mockAppConfig.feedbackUrl(any())).thenReturn("foo")
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[FrontendAppConfig].toInstance(mockAppConfig))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.PageUnavailableController.onPageLoad().url)
@@ -38,7 +48,7 @@ class PageUnavailableControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PageUnavailableView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(routes.IndexController.onPageLoad(NormalMode).url)(
+        contentAsString(result) mustEqual view("foo")(
           request,
           messages(application)
         ).toString

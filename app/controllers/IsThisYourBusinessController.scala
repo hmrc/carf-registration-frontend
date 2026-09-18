@@ -133,7 +133,6 @@ class IsThisYourBusinessController @Inject() (
         handleLookupSuccess(
           businessDetails.name,
           businessDetails.address,
-          utr,
           mode,
           SafeId(businessDetails.safeId)
         )
@@ -160,7 +159,6 @@ class IsThisYourBusinessController @Inject() (
         handleLookupSuccess(
           individualDetails.fullName,
           individualDetails.address,
-          utr,
           mode,
           SafeId(individualDetails.safeId)
         )
@@ -180,7 +178,6 @@ class IsThisYourBusinessController @Inject() (
   private def handleLookupSuccess(
       name: String,
       address: AddressRegistrationResponse,
-      utr: String,
       mode: Mode,
       safeId: SafeId
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
@@ -221,7 +218,7 @@ class IsThisYourBusinessController @Inject() (
         } yield {
           val preparedForm = pageAnswerToPersist.fold(form)(form.fill)
 
-          logInfo(s"Sole Trader Business data found and cached.")
+          logInfo("Sole Trader Business data found and cached.")
 
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }

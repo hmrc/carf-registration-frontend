@@ -253,7 +253,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
 
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(IndWithUtr), safeId = Some(staleSafeId), hasValidMatch = true)
+          .copy(journeyType = Some(IndWithUtr))
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
@@ -263,6 +263,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
           .set(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
           .success
           .value
+          .copy(safeId = Some(staleSafeId), hasValidMatch = true)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
@@ -301,11 +302,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
 
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(
-            journeyType = Some(IndWithUtr),
-            safeId = Some(SafeId(soleTraderTestIndividual.safeId)),
-            hasValidMatch = true
-          )
+          .copy(journeyType = Some(IndWithUtr))
           .set(RegistrationTypePage, RegistrationType.SoleTrader)
           .success
           .value
@@ -315,6 +312,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
           .set(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
           .success
           .value
+          .copy(safeId = Some(SafeId(soleTraderTestIndividual.safeId)), hasValidMatch = true)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
@@ -560,12 +558,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
 
       "must reset hasValidMatch and clear the previous answer when the returned safeId differs from the stored one" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(
-            journeyType = Some(OrgWithUtr),
-            isCtAutoMatched = true,
-            safeId = Some(staleSafeId),
-            hasValidMatch = true
-          )
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
           .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
@@ -575,6 +568,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
           .set(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
           .success
           .value
+          .copy(safeId = Some(staleSafeId), hasValidMatch = true)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))
@@ -605,12 +599,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
 
       "must preserve hasValidMatch and the previous answer when the returned safeId matches the stored one" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(
-            journeyType = Some(OrgWithUtr),
-            isCtAutoMatched = true,
-            safeId = Some(SafeId(businessTestBusiness.safeId)),
-            hasValidMatch = true
-          )
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
           .set(RegistrationTypePage, RegistrationType.LimitedCompany)
           .success
           .value
@@ -620,6 +609,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
           .set(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
           .success
           .value
+          .copy(safeId = Some(SafeId(businessTestBusiness.safeId)), hasValidMatch = true)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))

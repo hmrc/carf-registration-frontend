@@ -70,14 +70,12 @@ class IsThisYourBusinessController @Inject() (
         case (Some(false), Some(utr))         =>
           handleBusinessLookup(
             businessService.getBusinessWithUtr(request.userAnswers, utr.uniqueTaxPayerReference),
-            utr.uniqueTaxPayerReference,
             mode,
             isAutoMatch = isAutoMatched
           )
         case (Some(true), Some(userInputUtr)) =>
           handleIndividualLookup(
             businessService.getIndividualByUtr(request.userAnswers),
-            userInputUtr.uniqueTaxPayerReference,
             mode
           )
 
@@ -124,7 +122,6 @@ class IsThisYourBusinessController @Inject() (
 
   private def handleBusinessLookup(
       lookupFuture: Future[Either[CarfError, BusinessDetails]],
-      utr: String,
       mode: Mode,
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
@@ -151,7 +148,6 @@ class IsThisYourBusinessController @Inject() (
 
   private def handleIndividualLookup(
       lookupFuture: Future[Either[CarfError, IndividualDetails]],
-      utr: String,
       mode: Mode
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {

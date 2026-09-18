@@ -70,14 +70,12 @@ class IsThisYourBusinessController @Inject() (
         case (Some(false), Some(utr))         =>
           handleBusinessLookup(
             businessService.getBusinessWithUtr(request.userAnswers, utr.uniqueTaxPayerReference),
-            utr.uniqueTaxPayerReference,
             mode,
             isAutoMatch = isAutoMatched
           )
         case (Some(true), Some(userInputUtr)) =>
           handleIndividualLookup(
             businessService.getIndividualByUtr(request.userAnswers),
-            userInputUtr.uniqueTaxPayerReference,
             mode
           )
 
@@ -124,7 +122,6 @@ class IsThisYourBusinessController @Inject() (
 
   private def handleBusinessLookup(
       lookupFuture: Future[Either[CarfError, BusinessDetails]],
-      utr: String,
       mode: Mode,
       isAutoMatch: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
@@ -133,7 +130,6 @@ class IsThisYourBusinessController @Inject() (
         handleLookupSuccess(
           businessDetails.name,
           businessDetails.address,
-          utr,
           mode,
           SafeId(businessDetails.safeId)
         )
@@ -152,7 +148,6 @@ class IsThisYourBusinessController @Inject() (
 
   private def handleIndividualLookup(
       lookupFuture: Future[Either[CarfError, IndividualDetails]],
-      utr: String,
       mode: Mode
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     lookupFuture.flatMap {
@@ -160,7 +155,6 @@ class IsThisYourBusinessController @Inject() (
         handleLookupSuccess(
           individualDetails.fullName,
           individualDetails.address,
-          utr,
           mode,
           SafeId(individualDetails.safeId)
         )
@@ -180,7 +174,6 @@ class IsThisYourBusinessController @Inject() (
   private def handleLookupSuccess(
       name: String,
       address: AddressRegistrationResponse,
-      utr: String,
       mode: Mode,
       safeId: SafeId
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
@@ -191,29 +184,41 @@ class IsThisYourBusinessController @Inject() (
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       } { countryDescriptionName =>
 
-        val updatedAddress = address.copy(countryName = Some(countryDescriptionName))
-
+        val updatedAddress            = address.copy(countryName = Some(countryDescriptionName))
         val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress, safeId.value)
+
+        val existingSafeId = request.userAnswers.safeId
+        val safeIdChanged  = existingSafeId.exists(_ != safeId)
+
+        val existingPageAnswer =
+          request.userAnswers
+            .get(IsThisYourBusinessPage)
+            .flatMap(_.pageAnswer)
+
+        val (pageAnswerToPersist, hasValidMatchToPersist) =
+          if (safeIdChanged) {
+            logDebug(
+              "SafeId returned by Register with ID differs from the one previously stored - resetting hasValidMatch and clearing previous answer."
+            )
+            (None, false)
+          } else (existingPageAnswer, request.userAnswers.hasValidMatch)
 
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,
-          pageAnswer = request.userAnswers
-            .get(IsThisYourBusinessPage)
-            .flatMap(_.pageAnswer)
+          pageAnswer = pageAnswerToPersist
         )
 
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
+          updatedAnswers <- Future.fromTry(
+                              request.userAnswers
+                                .copy(hasValidMatch = hasValidMatchToPersist, safeId = Some(safeId))
+                                .set(IsThisYourBusinessPage, pageDetails)
+                            )
+          _              <- sessionRepository.set(updatedAnswers)
         } yield {
-          val existingAnswer =
-            request.userAnswers
-              .get(IsThisYourBusinessPage)
-              .flatMap(_.pageAnswer)
+          val preparedForm = pageAnswerToPersist.fold(form)(form.fill)
 
-          val preparedForm = existingAnswer.fold(form)(form.fill)
-
-          logInfo(s"Sole Trader Business data found and cached for UTR: $utr.")
+          logInfo("Sole Trader Business data found and cached.")
 
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }

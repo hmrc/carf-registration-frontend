@@ -191,29 +191,37 @@ class IsThisYourBusinessController @Inject() (
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       } { countryDescriptionName =>
 
-        val updatedAddress = address.copy(countryName = Some(countryDescriptionName))
-
+        val updatedAddress            = address.copy(countryName = Some(countryDescriptionName))
         val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress, safeId.value)
+
+        val existingSafeId = request.userAnswers.safeId
+        val safeIdChanged  = existingSafeId.exists(_ != safeId)
+
+        val existingPageAnswer =
+          request.userAnswers
+            .get(IsThisYourBusinessPage)
+            .flatMap(_.pageAnswer)
+
+        val (pageAnswerToPersist, hasValidMatchToPersist) =
+          if (safeIdChanged) (None, false)
+          else (existingPageAnswer, request.userAnswers.hasValidMatch)
 
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,
-          pageAnswer = request.userAnswers
-            .get(IsThisYourBusinessPage)
-            .flatMap(_.pageAnswer)
+          pageAnswer = pageAnswerToPersist
         )
 
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
-          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
+          updatedAnswers <- Future.fromTry(
+                              request.userAnswers
+                                .copy(hasValidMatch = hasValidMatchToPersist, safeId = Some(safeId))
+                                .set(IsThisYourBusinessPage, pageDetails)
+                            )
+          _              <- sessionRepository.set(updatedAnswers)
         } yield {
-          val existingAnswer =
-            request.userAnswers
-              .get(IsThisYourBusinessPage)
-              .flatMap(_.pageAnswer)
+          val preparedForm = pageAnswerToPersist.fold(form)(form.fill)
 
-          val preparedForm = existingAnswer.fold(form)(form.fill)
-
-          logInfo(s"Sole Trader Business data found and cached for UTR: $utr.")
+          logInfo(s"Sole Trader Business data found and cached.")
 
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }

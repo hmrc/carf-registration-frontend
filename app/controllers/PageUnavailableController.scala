@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,21 @@
 package controllers
 
 import config.FrontendAppConfig
-import controllers.actions.BasicAuthAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.problem.JourneyRecoveryView
+import views.html.problem.PageUnavailableView
 
 import javax.inject.Inject
 
-class JourneyRecoveryController @Inject() (
+class PageUnavailableController @Inject() (
     val controllerComponents: MessagesControllerComponents,
-    basicAuth: BasicAuthAction,
-    view: JourneyRecoveryView,
-    frontendAppConfig: FrontendAppConfig
+    frontendAppConfig: FrontendAppConfig,
+    view: PageUnavailableView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = basicAuth() { implicit request =>
-    Ok(view(frontendAppConfig.aeoiEmailAddress))
+  def onPageLoad: Action[AnyContent] = Action { implicit request =>
+    Ok(view(frontendAppConfig.carfManagementFrontendHomePageUrl))
   }
 }

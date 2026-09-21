@@ -1,5 +1,5 @@
 @*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,19 @@
  *@
 
 @this(
-    layout: templates.Layout,
-    govukButton: GovukButton
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        link: components.Link
 )
 
 @(continueUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("journeyRecovery.continue.title"))) {
+@layout(pageTitle = titleNoForm(messages("pageUnavailable.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("journeyRecovery.continue.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("pageUnavailable.heading")</h1>
 
-    <p class="govuk-body">@messages("journeyRecovery.continue.guidance")</p>
+    <p class="govuk-body">@{
+        link(continueUrl, messages("pageUnavailable.link.text"))
+    }</p>
 
-    <p class="govuk-body">
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-                .asLink(continueUrl)
-                .withAttribute("id" -> "continue")
-        )
-    </p>
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,37 +23,36 @@ import org.mockito.Mockito.when
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.problem.JourneyRecoveryView
+import views.html.problem.PageUnavailableView
 
-class JourneyRecoveryControllerSpec extends SpecBase {
+class PageUnavailableControllerSpec extends SpecBase {
 
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
 
-  "JourneyRecovery Controller" - {
+  "PageUnavailable Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      when(mockAppConfig.aeoiEmailAddress).thenReturn(testEmail)
+
+      when(mockAppConfig.carfManagementFrontendHomePageUrl).thenReturn("foo")
       when(mockAppConfig.feedbackUrl(any())).thenReturn("foo")
 
-      val application =
-        applicationBuilder(userAnswers = None)
-          .overrides(bind[FrontendAppConfig].toInstance(mockAppConfig))
-          .build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[FrontendAppConfig].toInstance(mockAppConfig))
+        .build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.PageUnavailableController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[JourneyRecoveryView]
+        val view = application.injector.instanceOf[PageUnavailableView]
 
         status(result)          mustEqual OK
-        contentAsString(result) mustEqual view(testEmail)(
+        contentAsString(result) mustEqual view("foo")(
           request,
           messages(application)
         ).toString
       }
-
     }
   }
 }

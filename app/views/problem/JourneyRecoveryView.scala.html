@@ -15,17 +15,18 @@
  *@
 
 @this(
-    layout: templates.Layout
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        link: components.Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(emailLink: String)(implicit request: Request[_], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("unauthorised.title")),
-    timeout   = false
-) {
+@layout(pageTitle = titleNoForm(messages("journeyRecovery.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("journeyRecovery.heading")</h1>
 
-    <p class="govuk-body">@messages("unauthorised.guidance")</p>
+    <p class="govuk-body">@messages("journeyRecovery.guidance")</p>
+
+    <p class="govuk-body">@Html(messages("journeyRecovery.link", link(s"mailto:$emailLink", s"$emailLink")))</p>
 }

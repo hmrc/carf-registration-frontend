@@ -15,23 +15,22 @@
  *@
 
 @this(
-    layout: templates.Layout,
-    govukButton: GovukButton
+        layout: templates.Layout,
+        link: components.Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(emailLink: String, guidanceLink: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("journeyRecovery.startAgain.title"))) {
+@layout(
+    pageTitle = titleNoForm(messages("unauthorised.title")),
+    timeout = false
+) {
 
-    <h1 class="govuk-heading-xl">@messages("journeyRecovery.startAgain.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("unauthorised.heading")</h1>
 
-    <p class="govuk-body">@messages("journeyRecovery.startAgain.guidance")</p>
+    <p class="govuk-body">@Html(messages("unauthorised.guidance", link(s"mailto:$emailLink", s"$emailLink")))</p>
 
-    <p class="govuk-body">
-        @govukButton(
-            ButtonViewModel(messages("site.startAgain"))
-                .asLink(routes.IndexController.onPageLoad(NormalMode).url)
-                .withAttribute("id" -> "start-again")
-        )
-    </p>
+    <p class="govuk-body">@{
+        link(guidanceLink, messages("unauthorised.link"))
+    }</p>
 }

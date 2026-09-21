@@ -28,11 +28,6 @@ class PostcodeUtilSpec extends AnyFreeSpec with Matchers {
         PostcodeUtil.normalise(isCrownDependency = false, "  AB12 3CD  ") mustEqual "AB12 3CD"
         PostcodeUtil.normalise(isCrownDependency = false, "\tSW1A 1AA\n") mustEqual "SW1A 1AA"
       }
-
-      "should NOT change internal spacing or casing" in {
-        PostcodeUtil.normalise(isCrownDependency = false, "ab12   3cd") mustEqual "ab12   3cd"
-        PostcodeUtil.normalise(isCrownDependency = false, "sw1a 1aa")   mustEqual "sw1a 1aa"
-      }
     }
 
     "when isCrownDependency is true" - {

@@ -256,7 +256,7 @@ class IndWithoutIdAddressFormProviderSpec extends StringFieldBehaviours {
       val formData = Map(
         "addressLine1" -> "addressLine1",
         "townOrCity"   -> "town",
-        "country"      -> "JE",
+        "country"      -> "GB",
         "postcode"     -> "AA1 1AA"
       )
       val result   = form.bind(formData)
@@ -267,7 +267,7 @@ class IndWithoutIdAddressFormProviderSpec extends StringFieldBehaviours {
       val formData = Map(
         "addressLine1" -> "addressLine1",
         "townOrCity"   -> "town",
-        "country"      -> "UK",
+        "country"      -> "GB",
         "postcode"     -> "AA11AA"
       )
       val result   = form.bind(formData)

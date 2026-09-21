@@ -62,8 +62,7 @@ class OrganisationBusinessAddressFormProvider @Inject() extends Mappings {
         lengthKey = "organisationBusinessAddress.postcode.error.length",
         invalidCharKey = "organisationBusinessAddress.postcode.error.invalid",
         requiredCrownKey = "organisationBusinessAddress.postcode.error.emptyAndCountryIsCrownDependency",
-        invalidFormatCrownKey = "organisationBusinessAddress.postcode.error.invalidFormat",
-        invalidRealCrownKey = "organisationBusinessAddress.postcode.error.required"
+        invalidFormatCrownKey = "organisationBusinessAddress.postcode.error.invalidFormat"
       ),
       "country"      -> text("organisationBusinessAddress.country.error.required")
         .verifying("organisationBusinessAddress.country.error.required", value => countryList.exists(_.code == value))

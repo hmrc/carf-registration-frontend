@@ -140,8 +140,7 @@ trait Mappings extends Formatters with Constraints {
       lengthKey: String,
       invalidCharKey: String,
       requiredCrownKey: String,
-      invalidFormatCrownKey: String,
-      invalidRealCrownKey: String
+      invalidFormatCrownKey: String
   ): FieldMapping[Option[String]] =
     of(
       PostcodeFormatter(
@@ -149,8 +148,7 @@ trait Mappings extends Formatters with Constraints {
         lengthKey,
         invalidCharKey,
         requiredCrownKey,
-        invalidFormatCrownKey,
-        invalidRealCrownKey
+        invalidFormatCrownKey
       )
     )
 

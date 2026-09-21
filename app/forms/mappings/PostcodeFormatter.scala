@@ -26,15 +26,13 @@ case class PostcodeFormatter(
     lengthKey: String,
     invalidCharKey: String,
     requiredCrownKey: String,
-    invalidFormatCrownKey: String,
-    invalidRealCrownKey: String
+    invalidFormatCrownKey: String
 ) extends Formatter[Option[String]] {
 
   private val crownDependencies = Seq("GG", "JE", "IM")
 
   private val cdPostcodeCharsRegex    = "^[A-Z0-9 ]*$"
   private val nonCdPostcodeCharsRegex = "^[A-Za-z0-9 \\-]*$"
-  private val examplePostcode         = "AA1 1AA"
 
   private def getPostcodePrefix(countryCode: String): String =
     countryCode match {
@@ -42,14 +40,11 @@ case class PostcodeFormatter(
       case other => other
     }
 
-  private def removeNonBreakingSpaces(str: String) =
-    str.replaceAll("\u00A0", " ")
-
   private def validation(countryCode: Option[String], postcode: String): Either[Seq[FormError], Option[String]] = {
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
     val cc                = countryCode.getOrElse("")
 
-    (isCrownDependency, removeNonBreakingSpaces(postcode.trim)) match {
+    (isCrownDependency, postcode) match {
       case (true, "")                                        =>
         Left(Seq(FormError("postcode", requiredCrownKey)))
       case (_, p) if p.length > 10                           =>
@@ -58,8 +53,6 @@ case class PostcodeFormatter(
         Left(Seq(FormError("postcode", invalidCharKey)))
       case (false, p) if !p.matches(nonCdPostcodeCharsRegex) =>
         Left(Seq(FormError("postcode", invalidCharKey)))
-      case (true, p) if p == examplePostcode                 =>
-        Left(Seq(FormError("postcode", invalidRealCrownKey)))
       case (true, p) if !p.startsWith(getPostcodePrefix(cc)) =>
         Left(Seq(FormError("postcode", invalidFormatCrownKey)))
       case (true, p)                                         =>

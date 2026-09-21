@@ -391,14 +391,14 @@ trait Formatters extends Transforms {
         postCode match {
           case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
           case Some(postCode)                     =>
-            val sanitisedPostcode = postCode.replaceAll("[\\s-]", "")
+            val sanitisedPostcode = postCode.replaceAll("\\s+", "")
             sanitisedPostcode match {
               case s if s.length > maxLengthPostcode                                  => Left(Seq(FormError(key, lengthKey)))
               case s if !s.matches(validCharRegex)                                    => Left(Seq(FormError(key, invalidCharKey)))
               case s if !s.matches(regex)                                             => Left(Seq(FormError(key, invalidKey)))
               case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
               case s if notRealKey.isDefined                                          =>
-                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey)
+                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get)
               case s                                                                  => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
@@ -414,7 +414,7 @@ trait Formatters extends Transforms {
       postcode: String,
       data: Map[String, String],
       invalidKey: String,
-      notRealKey: Option[String]
+      notRealKey: String
   ): Either[Seq[FormError], String] = {
 
     val postcodeNormalised = PostcodeUtil.normalise(true, postcode)
@@ -429,7 +429,7 @@ trait Formatters extends Transforms {
         case _                  => true
       }
 
-    if (countryCode == UnitedKingdom.code && postcodeNormalised == "AA1 1AA") { notRealError(notRealKey.get) }
+    if (countryCode == UnitedKingdom.code && postcodeNormalised == "AA1 1AA") { notRealError(notRealKey) }
     else if (postCodeAreaValidForCountryCode) {
       Right(postcodeNormalised)
     } else {

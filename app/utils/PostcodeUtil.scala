@@ -27,6 +27,6 @@ object PostcodeUtil {
         noSpaces
       }
     } else {
-      postcode.trim
+      postcode.trim.replaceAll("//s+", " ")
     }
 }

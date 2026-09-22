@@ -23,6 +23,7 @@ import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.responses.AddressRegistrationResponse
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import pages.*
@@ -91,6 +92,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
     ),
     pageAnswer = None
   )
+  val staleSafeId: SafeId                            = SafeId("stale-safe-id")
 
   lazy val isThisYourBusinessControllerRoute: String = routes.IsThisYourBusinessController.onPageLoad(NormalMode).url
   lazy val postRoute: String                         = routes.IsThisYourBusinessController.onSubmit(NormalMode).url
@@ -109,12 +111,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
         val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
-          .set(RegistrationTypePage, RegistrationType.SoleTrader)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
@@ -140,12 +138,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
         val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
-          .set(RegistrationTypePage, RegistrationType.SoleTrader)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Right(soleTraderTestIndividualNonUk)))
@@ -176,12 +170,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
         val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
-          .set(RegistrationTypePage, RegistrationType.SoleTrader)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Right(soleTraderTestIndividualNonUk)))
@@ -204,18 +194,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
         val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
-          .set(RegistrationTypePage, RegistrationType.SoleTrader)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
-          .success
-          .value
-          .set(
-            IsThisYourBusinessPage,
-            testIsThisYourBusinessPageDetails
-          )
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
@@ -247,16 +228,100 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         }
       }
 
+      "must reset hasValidMatch and clear the previous answer when the returned safeId differs from the stored one" in {
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
+
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(IndWithUtr), safeId = Some(staleSafeId), hasValidMatch = true)
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .withPage(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
+
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(
+            form,
+            NormalMode,
+            BusinessDetails(
+              s"${soleTraderTestIndividual.firstName} ${soleTraderTestIndividual.lastName}",
+              soleTraderTestIndividual.address,
+              soleTraderTestIndividual.safeId
+            )
+          )(request, messages(application)).toString
+
+          val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(captor.capture())
+
+          captor.getValue.hasValidMatch                                     mustBe false
+          captor.getValue.safeId                                            mustBe Some(SafeId(soleTraderTestIndividual.safeId))
+          captor.getValue.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) mustBe None
+        }
+      }
+
+      "must preserve hasValidMatch and the previous answer when the returned safeId matches the stored one" in {
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
+
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(
+            journeyType = Some(IndWithUtr),
+            safeId = Some(SafeId(soleTraderTestIndividual.safeId)),
+            hasValidMatch = true
+          )
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .withPage(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
+
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(
+            form.fill(true),
+            NormalMode,
+            BusinessDetails(
+              s"${soleTraderTestIndividual.firstName} ${soleTraderTestIndividual.lastName}",
+              soleTraderTestIndividual.address,
+              soleTraderTestIndividual.safeId
+            )
+          )(request, messages(application)).toString
+
+          val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(captor.capture())
+
+          captor.getValue.hasValidMatch                                     mustBe true
+          captor.getValue.safeId                                            mustBe Some(SafeId(soleTraderTestIndividual.safeId))
+          captor.getValue.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) mustBe Some(true)
+        }
+      }
+
       "must redirect to Sole Trader Not Identified page for an unsuccessful match" in {
         val soleTraderUtr = UniqueTaxpayerReference("3000000000")
         val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
-          .set(RegistrationTypePage, RegistrationType.SoleTrader)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Left(NotFoundError)))
@@ -281,12 +346,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         val soleTraderUtr = UniqueTaxpayerReference("3000000000")
         val userAnswers   = UserAnswers(userAnswersId)
           .copy(journeyType = Some(IndWithUtr))
-          .set(RegistrationTypePage, RegistrationType.SoleTrader)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
 
         when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
           .thenReturn(Future.successful(Left(InternalServerError)))
@@ -310,14 +371,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
     "on an Organisation auto match journey" - {
       "must return OK and the correct view when a UTR is found via user answers" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(isCtAutoMatched = true)
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))
@@ -345,14 +401,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(Some("France"))
 
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(isCtAutoMatched = true)
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))
@@ -385,14 +436,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         when(mockCountryListFactory.getDescriptionFromCode(any())).thenReturn(None)
 
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(isCtAutoMatched = true)
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))
@@ -413,20 +459,10 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
 
       "must prepopulate the page if it has been answered previously" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(isCtAutoMatched = true)
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(
-            IsThisYourBusinessPage,
-            testIsThisYourBusinessPageDetails
-          )
-          .success
-          .value
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(IsThisYourBusinessPage, testIsThisYourBusinessPageDetails)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))
@@ -456,16 +492,89 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         }
       }
 
+      "must reset hasValidMatch and clear the previous answer when the returned safeId differs from the stored one" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(
+            journeyType = Some(OrgWithUtr),
+            isCtAutoMatched = true,
+            safeId = Some(staleSafeId),
+            hasValidMatch = true
+          )
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
+
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
+          .thenReturn(Future.successful(Right(businessTestBusiness)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode, businessTestBusiness)(
+            request,
+            messages(application)
+          ).toString
+
+          val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(captor.capture())
+
+          captor.getValue.hasValidMatch                                     mustBe false
+          captor.getValue.safeId                                            mustBe Some(SafeId(businessTestBusiness.safeId))
+          captor.getValue.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) mustBe None
+        }
+      }
+
+      "must preserve hasValidMatch and the previous answer when the returned safeId matches the stored one" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(
+            journeyType = Some(OrgWithUtr),
+            isCtAutoMatched = true,
+            safeId = Some(SafeId(businessTestBusiness.safeId)),
+            hasValidMatch = true
+          )
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(true)))
+
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
+          .thenReturn(Future.successful(Right(businessTestBusiness)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[IsThisYourBusinessView]
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessTestBusiness)(
+            request,
+            messages(application)
+          ).toString
+
+          val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(captor.capture())
+
+          captor.getValue.hasValidMatch                                     mustBe true
+          captor.getValue.safeId                                            mustBe Some(SafeId(businessTestBusiness.safeId))
+          captor.getValue.get(IsThisYourBusinessPage).flatMap(_.pageAnswer) mustBe Some(true)
+        }
+      }
+
       "must redirect to Journey Recovery when the service finds no business" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(isCtAutoMatched = true)
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(RegistrationTypePage, RegistrationType.LLP)
-          .success
-          .value
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(RegistrationTypePage, RegistrationType.LLP)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Left(NotFoundError)))
@@ -488,11 +597,8 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
 
       "must redirect to journey recovery when the registration service returns an Internal Server Error" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .copy(journeyType = Some(OrgWithUtr))
-          .copy(isCtAutoMatched = true)
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
 
         when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Left(InternalServerError)))
@@ -518,15 +624,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
       "must return OK and the correct view when UTR and Business name are provided" in {
         val userAnswers = UserAnswers(userAnswersId)
           .copy(journeyType = Some(OrgWithUtr))
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(WhatIsTheNameOfYourBusinessPage, "some name")
-          .success
-          .value
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(WhatIsTheNameOfYourBusinessPage, "some name")
 
         when(mockRegistrationService.getBusinessWithUtr(eqTo(userAnswers), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Right(businessTestBusiness)))
@@ -554,15 +654,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
       "must redirect to Business Not Identified when no business is found" in {
         val userAnswers = UserAnswers(userAnswersId)
           .copy(journeyType = Some(OrgWithUtr))
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(WhatIsTheNameOfYourBusinessPage, "some name")
-          .success
-          .value
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(WhatIsTheNameOfYourBusinessPage, "some name")
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
 
         when(mockRegistrationService.getBusinessWithUtr(eqTo(userAnswers), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Left(NotFoundError)))
@@ -588,15 +682,9 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
       "must redirect to journey recovery when the registration service returns an error" in {
         val userAnswers = UserAnswers(userAnswersId)
           .copy(journeyType = Some(OrgWithUtr))
-          .set(UniqueTaxpayerReferenceInUserAnswers, testUtr)
-          .success
-          .value
-          .set(WhatIsTheNameOfYourBusinessPage, "some name")
-          .success
-          .value
-          .set(RegistrationTypePage, RegistrationType.LimitedCompany)
-          .success
-          .value
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(WhatIsTheNameOfYourBusinessPage, "some name")
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
 
         when(mockRegistrationService.getBusinessWithUtr(eqTo(userAnswers), eqTo(testUtrString))(any()))
           .thenReturn(Future.successful(Left(InternalServerError)))
@@ -620,7 +708,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
 
     "onSubmit" - {
       "must redirect to the next page and set the match flag to true when valid data is submitted" in {
-        val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value
+        val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testPageDetails)
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
           .build()
@@ -635,7 +723,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
       }
 
       "must redirect to the next page and not set the match flag to true when valid data is submitted" in {
-        val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value
+        val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testPageDetails)
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
           .build()
@@ -650,7 +738,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
       }
 
       "must return a Bad Request when invalid data is submitted" in {
-        val userAnswers = UserAnswers(userAnswersId).set(IsThisYourBusinessPage, testPageDetails).success.value
+        val userAnswers = emptyUserAnswers.withPage(IsThisYourBusinessPage, testPageDetails)
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
@@ -661,7 +749,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
       }
 
       "must redirect to Journey Recovery when no business details found in UserAnswers on POST" in {
-        val userAnswers = UserAnswers(userAnswersId)
+        val userAnswers = emptyUserAnswers
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {

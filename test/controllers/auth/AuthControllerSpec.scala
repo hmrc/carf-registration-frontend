@@ -18,19 +18,17 @@ package controllers.auth
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.actions.{FakeUserIdRetrievalAction, UserIdRetrievalAction}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify, when}
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
 import java.net.URLEncoder
 import scala.concurrent.Future
 
-class AuthControllerSpec extends SpecBase with MockitoSugar {
-
-  override def afterEach(): Unit =
-    reset(mockSessionRepository)
+class AuthControllerSpec extends SpecBase {
 
   "signOut" - {
 
@@ -61,27 +59,49 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
 
   "signOutNoSurvey" - {
 
-    "must clear users answers and redirect to sign out, specifying SignedOut as the continue URL" in {
-
+    "must clear user answers and redirect to sign out when userId exists in the request, specifying SignedOut as the continue URL" in {
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(None)
-          .build()
+      val application = applicationBuilder(None)
+        .overrides(
+          bind[UserIdRetrievalAction].toInstance(new FakeUserIdRetrievalAction(injectedParsers, Some(userAnswersId)))
+        )
+        .build()
 
       running(application) {
-
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val request   = FakeRequest(GET, routes.AuthController.signOutNoSurvey().url)
 
         val result = route(application, request).value
 
-        val encodedContinueUrl  = URLEncoder.encode(routes.SignedOutController.onPageLoad().url, "UTF-8")
+        val encodedContinueUrl  = URLEncoder.encode(appConfig.signedOutPageUrl, "UTF-8")
         val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
+
         verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
+      }
+    }
+
+    "must redirect to sign out when userId does not exist in the request, specifying SignedOut as the continue URL" in {
+      val application = applicationBuilder(None)
+        .overrides(bind[UserIdRetrievalAction].toInstance(new FakeUserIdRetrievalAction(injectedParsers, None)))
+        .build()
+
+      running(application) {
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val request   = FakeRequest(GET, routes.AuthController.signOutNoSurvey().url)
+
+        val result = route(application, request).value
+
+        val encodedContinueUrl  = URLEncoder.encode(appConfig.signedOutPageUrl, "UTF-8")
+        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual expectedRedirectUrl
+
+        verify(mockSessionRepository, times(0)).clear(any())
       }
     }
   }

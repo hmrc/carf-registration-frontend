@@ -33,6 +33,7 @@ class Module extends AbstractModule {
     bind(classOf[ChangeDetailsDataRequiredAction]).to(classOf[ChangeDetailsDataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[CarfIdRetrievalAction]).to(classOf[CarfIdRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[BasicAuthAction]).to(classOf[BasicAuthActionImpl]).asEagerSingleton()
+    bind(classOf[UserIdRetrievalAction]).to(classOf[UserIdRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[Encrypter]).toProvider(classOf[CryptoProvider])
     bind(classOf[Decrypter]).toProvider(classOf[CryptoProvider])
 

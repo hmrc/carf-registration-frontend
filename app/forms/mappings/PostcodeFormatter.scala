@@ -44,21 +44,21 @@ case class PostcodeFormatter(
     val cc                = countryCode.getOrElse("")
 
     (isCrownDependency, postcode) match {
-      case (true, "")                                        =>
+      case (true, "")                                                               =>
         Left(Seq(FormError("postcode", requiredCrownKey)))
-      case (_, p) if p.length > 10                           =>
+      case (_, p) if p.length > 10                                                  =>
         Left(Seq(FormError("postcode", lengthKey)))
-      case (true, p) if !p.matches(cdPostcodeCharsRegex)     =>
+      case (true, p) if !p.matches(cdPostcodeCharsRegex)                            =>
         Left(Seq(FormError("postcode", invalidCharKey)))
-      case (false, p) if !p.matches(nonCdPostcodeCharsRegex) =>
+      case (false, p) if !p.matches(nonCdPostcodeCharsRegex)                        =>
         Left(Seq(FormError("postcode", invalidCharKey)))
-      case (true, p) if !p.startsWith(getPostcodePrefix(cc)) =>
+      case (true, p) if !p.replaceAll("\\s+", "").startsWith(getPostcodePrefix(cc)) =>
         Left(Seq(FormError("postcode", invalidFormatCrownKey)))
-      case (true, p)                                         =>
+      case (true, p)                                                                =>
         Right(Some(p))
-      case (false, "")                                       =>
+      case (false, "")                                                              =>
         Right(None)
-      case _                                                 =>
+      case _                                                                        =>
         Right(Some(postcode))
     }
   }

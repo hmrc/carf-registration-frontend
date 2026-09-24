@@ -398,7 +398,7 @@ trait Formatters extends Transforms {
               case s if !s.matches(regex)                                             => Left(Seq(FormError(key, invalidKey)))
               case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
               case s if notRealKey.isDefined                                          =>
-                notRealPostcodeCheckForCdAndUkOnly(postCode, data, invalidKey, notRealKey.get)
+                notRealPostcodeCheckForCdAndUkOnly(sanitisedPostcode, data, invalidKey, notRealKey.get)
               case s                                                                  => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
@@ -417,19 +417,27 @@ trait Formatters extends Transforms {
       notRealKey: String
   ): Either[Seq[FormError], String] = {
 
-    val postcodeNormalised = PostcodeUtil.normalise(true, postcode)
-    val countryCode        = data.getOrElse("country", "")
+    val countryCode = data.getOrElse("country", "")
 
     def postCodeAreaValidForCountryCode: Boolean =
       countryCode match {
-        case Jersey.code        => postcodeNormalised.startsWith("JE")
-        case IsleOfMan.code     => postcodeNormalised.startsWith("IM")
-        case Guernsey.code      => postcodeNormalised.startsWith("GY")
-        case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.take(2))
+        case Jersey.code        => postcode.trim.startsWith("JE")
+        case IsleOfMan.code     => postcode.trim.startsWith("IM")
+        case Guernsey.code      => postcode.trim.startsWith("GY")
+        case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.trim.take(2))
         case _                  => true
       }
 
-    if (countryCode == UnitedKingdom.code && postcodeNormalised == "AA1 1AA") { notRealError(notRealKey) }
+    val cdCodes = Set(
+      Jersey.code,
+      IsleOfMan.code,
+      Guernsey.code
+    )
+
+    val postcodeNormalised =
+      PostcodeUtil.normalise(cdCodes.contains(countryCode), postcode)
+
+    if (countryCode == UnitedKingdom.code && postcodeNormalised == "AA11AA") { notRealError(notRealKey) }
     else if (postCodeAreaValidForCountryCode) {
       Right(postcodeNormalised)
     } else {

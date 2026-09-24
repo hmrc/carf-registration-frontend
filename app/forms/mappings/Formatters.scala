@@ -390,16 +390,16 @@ trait Formatters extends Transforms {
         postCode match {
           case Some(postCode) if postCode.isEmpty => Left(Seq(FormError(key, requiredKey)))
           case Some(postCode)                     =>
-            val sanitisedPostcode = postCode.replaceAll("\\s+", "")
+            val sanitisedPostcode = postCode.replaceAll("\\s+", " ")
             sanitisedPostcode match {
-              case s if s.length > maxLengthPostcode                                  => Left(Seq(FormError(key, lengthKey)))
-              case s if !s.matches(validCharRegex)                                    => Left(Seq(FormError(key, invalidCharKey)))
-              case s if !s.matches(regex) && data.getOrElse("country", "").isEmpty    =>
-                Left(Seq(FormError(key, invalidKey)))
-              case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
-              case s if notRealKey.isDefined                                          =>
+              case s if s.length > maxLengthPostcode          => Left(Seq(FormError(key, lengthKey)))
+              case s if !s.matches(validCharRegex)            => Left(Seq(FormError(key, invalidCharKey)))
+              case s if data.getOrElse("country", "").isEmpty =>
+                if (!postCode.replaceAll("\\s+", "").matches(regex)) { Left(Seq(FormError(key, invalidKey))) }
+                else { Right(validPostCodeFormat(s)) }
+              case s if notRealKey.isDefined                  =>
                 notRealPostcodeCheckForCdAndUkOnly(sanitisedPostcode, data, invalidKey, notRealKey.get)
-              case s                                                                  => Right(validPostCodeFormat(s))
+              case s                                          => Right(validPostCodeFormat(s))
             }
           case _                                  => Left(Seq(FormError(key, requiredKey)))
         }
@@ -428,7 +428,7 @@ trait Formatters extends Transforms {
         case _                  => true
       }
 
-    if (countryCode == UnitedKingdom.code && postcode == "AA11AA") { notRealError(notRealKey) }
+    if (countryCode == UnitedKingdom.code && postcode.replaceAll("\\s+", "") == "AA11AA") { notRealError(notRealKey) }
     else if (postCodeAreaValidForCountryCode) {
       Right(postcode)
     } else {

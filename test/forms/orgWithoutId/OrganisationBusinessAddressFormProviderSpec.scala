@@ -213,14 +213,6 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.hasErrors mustBe false
     }
 
-    "must correctly format a Crown Dependency postcode by adding a space" in {
-      val postcodeWithoutSpace = "JE23AB"
-      val data                 = baseFormData ++ Map("country" -> "JE", "postcode" -> postcodeWithoutSpace)
-      val result               = form.bind(data)
-      result.hasErrors            mustBe false
-      result.value.value.postcode mustBe Some("JE2 3AB")
-    }
-
     "must correctly trim a non-Crown Dependency postcode" in {
       val postcodeWithSpaces = "  12345-6789  "
       val data               = baseFormData ++ Map("country" -> "FR", "postcode" -> postcodeWithSpaces)

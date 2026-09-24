@@ -23,7 +23,6 @@ import models.Enumerable
 import models.countries.*
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import utils.PostcodeUtil
 import utils.LoggerUtil.*
 
 import scala.util.control.Exception.nonFatalCatch
@@ -395,7 +394,8 @@ trait Formatters extends Transforms {
             sanitisedPostcode match {
               case s if s.length > maxLengthPostcode                                  => Left(Seq(FormError(key, lengthKey)))
               case s if !s.matches(validCharRegex)                                    => Left(Seq(FormError(key, invalidCharKey)))
-              case s if !s.matches(regex)                                             => Left(Seq(FormError(key, invalidKey)))
+              case s if !s.matches(regex) && data.getOrElse("country", "").isEmpty    =>
+                Left(Seq(FormError(key, invalidKey)))
               case s if notRealKey.isDefined && data.getOrElse("country", "").isEmpty => Right(validPostCodeFormat(s))
               case s if notRealKey.isDefined                                          =>
                 notRealPostcodeCheckForCdAndUkOnly(sanitisedPostcode, data, invalidKey, notRealKey.get)
@@ -428,18 +428,9 @@ trait Formatters extends Transforms {
         case _                  => true
       }
 
-    val cdCodes = Set(
-      Jersey.code,
-      IsleOfMan.code,
-      Guernsey.code
-    )
-
-    val postcodeNormalised =
-      PostcodeUtil.normalise(cdCodes.contains(countryCode), postcode)
-
-    if (countryCode == UnitedKingdom.code && postcodeNormalised == "AA11AA") { notRealError(notRealKey) }
+    if (countryCode == UnitedKingdom.code && postcode == "AA11AA") { notRealError(notRealKey) }
     else if (postCodeAreaValidForCountryCode) {
-      Right(postcodeNormalised)
+      Right(postcode)
     } else {
       Left(Seq(FormError("postcode", invalidKey)))
     }

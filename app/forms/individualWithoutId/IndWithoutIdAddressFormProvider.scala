@@ -16,7 +16,7 @@
 
 package forms.individualWithoutId
 
-import config.Constants.{addressMaxLength, addressRegex, postCodeAllowedChars, regexPostcode}
+import config.Constants.*
 import forms.mappings.Mappings
 import models.AddressUk
 import models.countries.{Country, CountryUk}
@@ -57,7 +57,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         "address.postcode.error.required",
         "address.postcode.error.length",
         "address.postcode.error.invalidFormat",
-        regexPostcode,
+        cdPostcodeRegex,
         "address.postcode.error.invalid",
         postCodeAllowedChars,
         Some("address.postcode.error.notReal")

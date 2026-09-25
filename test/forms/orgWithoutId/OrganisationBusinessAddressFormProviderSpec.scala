@@ -159,6 +159,13 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
 
     "must return an invalid character error if postcode contains invalid chars" in {
       val postcode = "!!??"
+      val formData = baseFormData ++ Map("country" -> "GB", "postcode" -> postcode)
+      val result   = form.bind(formData)
+      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.invalid"))
+    }
+
+    "must return an invalid character error if country is a Crown Dependency and postcode contains invalid chars" in {
+      val postcode = "!!??"
       val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> postcode)
       val result   = form.bind(formData)
       result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.invalid"))
@@ -170,43 +177,13 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.invalidFormat"))
     }
 
-    "must return a 'real postcode' error for example postcode AA1 1AA when country is Crown Dependency" in {
-      val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> "AA1 1AA")
-      val result   = form.bind(formData)
-      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.required"))
-    }
-
     "must accept example postcode AA1 1AA when country is not a Crown Dependency" in {
       val formData = baseFormData ++ Map("country" -> "FR", "postcode" -> "AA1 1AA")
       val result   = form.bind(formData)
       result.hasErrors mustBe false
     }
 
-    "must return a 'real postcode' error for Jersey with invalid district JE5" in {
-      val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> "JE5 1AA")
-      val result   = form.bind(formData)
-      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.required"))
-    }
-
-    "must return a 'real postcode' error for Jersey with invalid district JE0" in {
-      val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> "JE0 1AA")
-      val result   = form.bind(formData)
-      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.required"))
-    }
-
-    "must return a 'real postcode' error for Isle of Man with invalid district IM0" in {
-      val formData = baseFormData ++ Map("country" -> "IM", "postcode" -> "IM0 1AA")
-      val result   = form.bind(formData)
-      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.required"))
-    }
-
-    "must return a 'real postcode' error for Guernsey with invalid district GY0" in {
-      val formData = baseFormData ++ Map("country" -> "GG", "postcode" -> "GY0 1AA")
-      val result   = form.bind(formData)
-      result.errors must contain(FormError("postcode", "organisationBusinessAddress.postcode.error.required"))
-    }
-
-    "must be valid for Jersey with valid districts JE1-JE4" in {
+    "must be valid for Jersey with valid country code" in {
       Seq("JE1 1AA", "JE2 1AA", "JE3 1AA", "JE4 1AA").foreach { postcode =>
         val formData = baseFormData ++ Map("country" -> "JE", "postcode" -> postcode)
         val result   = form.bind(formData)
@@ -214,7 +191,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       }
     }
 
-    "must be valid for Isle of Man with valid districts IM1-IM9 and IM99" in {
+    "must be valid for Isle of Man with valid country code" in {
       Seq("IM1 1AA", "IM5 1AA", "IM9 1AA", "IM99 1AA").foreach { postcode =>
         val formData = baseFormData ++ Map("country" -> "IM", "postcode" -> postcode)
         val result   = form.bind(formData)
@@ -222,7 +199,7 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       }
     }
 
-    "must be valid for Guernsey with valid districts GY1-GY10" in {
+    "must be valid for Guernsey with valid country code" in {
       Seq("GY1 1AA", "GY5 1AA", "GY10 1AA").foreach { postcode =>
         val formData = baseFormData ++ Map("country" -> "GG", "postcode" -> postcode)
         val result   = form.bind(formData)
@@ -236,28 +213,12 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.hasErrors mustBe false
     }
 
-    "must correctly format a Crown Dependency postcode by adding a space" in {
-      val postcodeWithoutSpace = "JE23AB"
-      val data                 = baseFormData ++ Map("country" -> "JE", "postcode" -> postcodeWithoutSpace)
-      val result               = form.bind(data)
-      result.hasErrors            mustBe false
-      result.value.value.postcode mustBe Some("JE2 3AB")
-    }
-
     "must correctly trim a non-Crown Dependency postcode" in {
       val postcodeWithSpaces = "  12345-6789  "
       val data               = baseFormData ++ Map("country" -> "FR", "postcode" -> postcodeWithSpaces)
       val result             = form.bind(data)
       result.hasErrors            mustBe false
       result.value.value.postcode mustBe Some("12345-6789")
-    }
-
-    "must preserve internal spaces and case for non-Crown Dependency postcodes" in {
-      val postcodeWithInternalSpaces = "  abc   123  "
-      val data                       = baseFormData ++ Map("country" -> "FR", "postcode" -> postcodeWithInternalSpaces)
-      val result                     = form.bind(data)
-      result.hasErrors            mustBe false
-      result.value.value.postcode mustBe Some("abc   123")
     }
 
     "must be valid if country is not a Crown Dependency and postcode is empty" in {

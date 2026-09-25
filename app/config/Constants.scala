@@ -31,8 +31,8 @@ object Constants {
   val validTradingNameMaxLength: Int  = 80
   val validEmailMaxLength: Int        = 132
 
-  inline final val addressRegex      = "^[A-Za-z0-9 &.,'\\\\-]*$"
-  inline final val postcodeRegex     = "^[A-Za-z0-9 ]*$"
+  inline final val addressRegex = "^[A-Za-z0-9 &.,'\\\\-]*$"
+
   inline final val addressMaxLength  = 35
   inline final val postcodeMaxLength = 10
 
@@ -45,8 +45,9 @@ object Constants {
   inline final val ninoRegex       =
     "^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D ]$"
 
-  final val regexPostcode        = """^[A-Za-z]{1,2}\d[A-Za-z0-9]?\s?\d[A-Za-z]{2}$"""
-  final val postCodeAllowedChars = """^[A-Za-z0-9 ]*$"""
+  final val regexPostcode          = """^[A-Za-z]{1,2}\d[A-Za-z0-9]?\s?\d[A-Za-z]{2}$"""
+  final val postCodeAllowedChars   = """^[A-Za-z0-9 ]*$"""
+  inline final val cdPostcodeRegex = "^[A-Za-z0-9 ]*$"
 
   private inline final val utrLengthTen      = 10
   private inline final val utrLengthThirteen = 13

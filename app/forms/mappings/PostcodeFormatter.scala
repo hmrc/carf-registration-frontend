@@ -16,6 +16,7 @@
 
 package forms.mappings
 
+import config.Constants.cdPostcodeRegex
 import models.countries.*
 import play.api.data.FormError
 import play.api.data.format.Formatter
@@ -30,7 +31,6 @@ case class PostcodeFormatter(
 
   private val crownDependencies = Seq("GG", "JE", "IM")
 
-  private val cdPostcodeCharsRegex    = "^[A-Z0-9 ]*$"
   private val nonCdPostcodeCharsRegex = "^[A-Za-z0-9 \\-]*$"
 
   private def getPostcodePrefix(countryCode: String): String =
@@ -48,7 +48,7 @@ case class PostcodeFormatter(
         Left(Seq(FormError("postcode", requiredCrownKey)))
       case (_, p) if p.length > 10                                                  =>
         Left(Seq(FormError("postcode", lengthKey)))
-      case (true, p) if !p.matches(cdPostcodeCharsRegex)                            =>
+      case (true, p) if !p.matches(cdPostcodeRegex)                                 =>
         Left(Seq(FormError("postcode", invalidCharKey)))
       case (false, p) if !p.matches(nonCdPostcodeCharsRegex)                        =>
         Left(Seq(FormError("postcode", invalidCharKey)))

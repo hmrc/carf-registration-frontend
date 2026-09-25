@@ -57,7 +57,7 @@ class IndWithoutIdAddressFormProvider @Inject() extends Mappings {
         "address.postcode.error.required",
         "address.postcode.error.length",
         "address.postcode.error.invalidFormat",
-        postcodeRegex,
+        cdPostcodeRegex,
         "address.postcode.error.invalid",
         postCodeAllowedChars,
         Some("address.postcode.error.notReal")

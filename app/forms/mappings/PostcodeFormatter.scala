@@ -43,7 +43,7 @@ case class PostcodeFormatter(
     val isCrownDependency = countryCode.exists(crownDependencies.contains)
     val cc                = countryCode.getOrElse("")
 
-    (isCrownDependency, postcode) match {
+    (isCrownDependency, postcode.toUpperCase) match {
       case (true, "")                                                               =>
         Left(Seq(FormError("postcode", requiredCrownKey)))
       case (_, p) if p.length > 10                                                  =>
@@ -55,7 +55,7 @@ case class PostcodeFormatter(
       case (true, p) if !p.replaceAll("\\s+", "").startsWith(getPostcodePrefix(cc)) =>
         Left(Seq(FormError("postcode", invalidFormatCrownKey)))
       case (true, p)                                                                =>
-        Right(Some(p))
+        Right(Some(postcode))
       case (false, "")                                                              =>
         Right(None)
       case _                                                                        =>

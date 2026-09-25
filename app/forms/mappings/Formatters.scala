@@ -418,7 +418,7 @@ trait Formatters extends Transforms {
   ): Either[Seq[FormError], String] = {
 
     val countryCode        = data.getOrElse("country", "")
-    val normalisedPostcode = postcode.replaceAll("\\s+", "")
+    val normalisedPostcode = postcode.replaceAll("\\s+", "").toUpperCase
 
     def postCodeAreaValidForCountryCode: Boolean =
       countryCode match {

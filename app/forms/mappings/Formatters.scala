@@ -417,18 +417,19 @@ trait Formatters extends Transforms {
       notRealKey: String
   ): Either[Seq[FormError], String] = {
 
-    val countryCode = data.getOrElse("country", "")
+    val countryCode        = data.getOrElse("country", "")
+    val normalisedPostcode = postcode.replaceAll("\\s+", "")
 
     def postCodeAreaValidForCountryCode: Boolean =
       countryCode match {
-        case Jersey.code        => postcode.trim.startsWith("JE")
-        case IsleOfMan.code     => postcode.trim.startsWith("IM")
-        case Guernsey.code      => postcode.trim.startsWith("GY")
-        case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(postcode.trim.take(2))
+        case Jersey.code        => normalisedPostcode.startsWith("JE")
+        case IsleOfMan.code     => normalisedPostcode.startsWith("IM")
+        case Guernsey.code      => normalisedPostcode.startsWith("GY")
+        case UnitedKingdom.code => !Seq("GY", "JE", "IM").contains(normalisedPostcode.take(2))
         case _                  => true
       }
 
-    if (countryCode == UnitedKingdom.code && postcode.replaceAll("\\s+", "") == "AA11AA") { notRealError(notRealKey) }
+    if (countryCode == UnitedKingdom.code && normalisedPostcode == "AA11AA") { notRealError(notRealKey) }
     else if (postCodeAreaValidForCountryCode) {
       Right(postcode)
     } else {

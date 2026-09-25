@@ -396,7 +396,7 @@ trait Formatters extends Transforms {
               case s if !s.matches(validCharRegex)            => Left(Seq(FormError(key, invalidCharKey)))
               case s if data.getOrElse("country", "").isEmpty =>
                 if (!postCode.replaceAll("\\s+", "").matches(regex)) { Left(Seq(FormError(key, invalidKey))) }
-                else { Right(validPostCodeFormat(s)) }
+                else { Right(validPostCodeFormat(postCode.replaceAll("\\s+", ""))) }
               case s if notRealKey.isDefined                  =>
                 notRealPostcodeCheckForCdAndUkOnly(sanitisedPostcode, data, invalidKey, notRealKey.get)
               case s                                          => Right(validPostCodeFormat(s))

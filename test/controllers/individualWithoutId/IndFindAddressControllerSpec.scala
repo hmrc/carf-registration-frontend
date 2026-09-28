@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.routes
 import forms.individualWithoutId.IndFindAddressFormProvider
 import models.error.ApiError
-import models.{AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, NormalMode, UserAnswers}
+import models.{format, AddressAndUPRN, AddressUk, ChangeMode, IndFindAddress, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.*
 import pages.individualWithoutId.*
@@ -152,10 +152,12 @@ class IndFindAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the next page and clear IndFindAddressAdditionalCallUa and AddressLookupPage on submit when postcode has returned one address" in {
+    "must redirect to the next page and clear the required pages on submit when postcode has returned one address" in {
       val userAnswers = emptyUserAnswers
         .withPage(IndFindAddressAdditionalCallUa, true)
         .withPage(AddressLookupPage, testAddressAndUprns)
+        .withPage(IndWithoutIdChooseAddressPage, testAddressUk.format)
+        .withPage(IndWithoutIdSelectedChooseAddressPage, testAddressUk)
 
       val onwardRouteOneAddress =
         controllers.individualWithoutId.routes.IndReviewConfirmAddressController.onPageLoad(NormalMode)
@@ -190,7 +192,9 @@ class IndFindAddressControllerSpec extends SpecBase {
             ua.get(AddressUPRNUserAnswers).contains(testUPRN) &&
               ua.get(IndWithoutIdAddressPagePrePop).contains(testAddressUk) &&
               ua.get(IndFindAddressAdditionalCallUa).isEmpty &&
-              ua.get(AddressLookupPage).isEmpty
+              ua.get(AddressLookupPage).isEmpty &&
+              ua.get(IndWithoutIdChooseAddressPage).isEmpty &&
+              ua.get(IndWithoutIdSelectedChooseAddressPage).isEmpty
           )
         )
       }

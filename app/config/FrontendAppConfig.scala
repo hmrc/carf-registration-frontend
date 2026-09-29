@@ -65,7 +65,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")
   val aeoiEmailAddress: String        = configuration.get("email.aeoi")
 
-  private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
+  private val exitSurveyBaseUrl: String = configuration.get[String]("urls.feedbackFrontendBase")
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/carf-registration-frontend?useServiceNavigation"
 
   val languageTranslationEnabled: Boolean =

@@ -208,12 +208,8 @@ class IsThisYourBusinessController @Inject() (
         )
 
         for {
-          updatedAnswers <- Future.fromTry(
-                              request.userAnswers
-                                .copy(safeId = Some(safeId))
-                                .set(IsThisYourBusinessPage, pageDetails)
-                            )
-          _              <- sessionRepository.set(updatedAnswers)
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
         } yield {
           val preparedForm = existingPageAnswer.fold(form)(form.fill)
 

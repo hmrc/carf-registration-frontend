@@ -23,6 +23,7 @@ import models.JourneyType.{IndWithUtr, OrgWithUtr}
 import models.error.ApiError.{InternalServerError, NotFoundError}
 import models.responses.AddressRegistrationResponse
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, argThat, eq as eqTo}
 import org.mockito.Mockito.{never, reset, times, verify, when}
 import pages.*
@@ -223,6 +224,35 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
             messages(application)
           ).toString
           verify(mockRegistrationService).getIndividualByUtr(eqTo(userAnswers))(any())
+        }
+      }
+
+      "must persist the new safeId even when the previous answer was No (regression test for CARF-515/636 - cleanup on IsThisYourBusinessPage must not wipe a freshly-fetched safeId)" in {
+        val soleTraderUtr = UniqueTaxpayerReference("5234567890")
+
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(IndWithUtr), hasValidMatch = false)
+          .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, soleTraderUtr)
+          .withPage(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(false)))
+
+        when(mockRegistrationService.getIndividualByUtr(eqTo(userAnswers))(any()))
+          .thenReturn(Future.successful(Right(soleTraderTestIndividual)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+
+          val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(captor.capture())
+
+          captor.getValue.safeId mustBe Some(SafeId(soleTraderTestIndividual.safeId))
         }
       }
 
@@ -431,6 +461,33 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
           verify(mockRegistrationService, times(1)).getBusinessWithUtr(any(), eqTo(testUtrString))(
             any()
           )
+        }
+      }
+
+      "must persist the new safeId even when the previous answer was No (regression test for CARF-515/636 - cleanup on IsThisYourBusinessPage must not wipe a freshly-fetched safeId)" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true, hasValidMatch = false)
+          .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+          .withPage(UniqueTaxpayerReferenceInUserAnswers, testUtr)
+          .withPage(IsThisYourBusinessPage, testPageDetails.copy(pageAnswer = Some(false)))
+
+        when(mockRegistrationService.getBusinessWithUtr(any(), eqTo(testUtrString))(any()))
+          .thenReturn(Future.successful(Right(businessTestBusiness)))
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, isThisYourBusinessControllerRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+
+          val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(captor.capture())
+
+          captor.getValue.safeId mustBe Some(SafeId(businessTestBusiness.safeId))
         }
       }
 

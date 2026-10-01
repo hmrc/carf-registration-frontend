@@ -227,7 +227,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         }
       }
 
-      "must persist the new safeId even when the previous answer was No (regression test for CARF-515/636 - cleanup on IsThisYourBusinessPage must not wipe a freshly-fetched safeId)" in {
+      "must persist the new safeId even when the previous answer was No" in {
         val soleTraderUtr = UniqueTaxpayerReference("5234567890")
 
         val userAnswers = UserAnswers(userAnswersId)
@@ -464,7 +464,7 @@ class IsThisYourBusinessControllerSpec extends SpecBase {
         }
       }
 
-      "must persist the new safeId even when the previous answer was No (regression test for CARF-515/636 - cleanup on IsThisYourBusinessPage must not wipe a freshly-fetched safeId)" in {
+      "must persist the new safeId even when the previous answer was No" in {
         val userAnswers = UserAnswers(userAnswersId)
           .copy(journeyType = Some(OrgWithUtr), isCtAutoMatched = true, hasValidMatch = false)
           .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)

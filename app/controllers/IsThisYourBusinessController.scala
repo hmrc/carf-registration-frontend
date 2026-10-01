@@ -62,28 +62,38 @@ class IsThisYourBusinessController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData).async { implicit request =>
-      val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
-      val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == IndWithUtr)
-      val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched
+      request.userAnswers.get(IsThisYourBusinessPage) match {
+        case Some(existingPageDetails) if request.userAnswers.hasValidMatch =>
+          logDebug(
+            "hasValidMatch is already true - skipping the Register with ID call and re-using the previously confirmed business details."
+          )
+          val preparedForm = existingPageDetails.pageAnswer.fold(form)(form.fill)
+          Future.successful(Ok(view(preparedForm, mode, existingPageDetails.businessDetails)))
 
-      (maybeJourneyTypeSoleTrader, maybeUtr) match {
-        case (Some(false), Some(utr))         =>
-          handleBusinessLookup(
-            businessService.getBusinessWithUtr(request.userAnswers, utr.uniqueTaxPayerReference),
-            mode,
-            isAutoMatch = isAutoMatched
-          )
-        case (Some(true), Some(userInputUtr)) =>
-          handleIndividualLookup(
-            businessService.getIndividualByUtr(request.userAnswers),
-            mode
-          )
+        case _ =>
+          val maybeUtr                   = request.userAnswers.get(UniqueTaxpayerReferenceInUserAnswers)
+          val maybeJourneyTypeSoleTrader = request.userAnswers.journeyType.map(_ == IndWithUtr)
+          val isAutoMatched: Boolean     = request.userAnswers.isCtAutoMatched
 
-        case (_, _) =>
-          logWarn(
-            s"No UTR or no JourneyType <$maybeJourneyTypeSoleTrader> found in user answers. Redirecting to journey recovery."
-          )
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+          (maybeJourneyTypeSoleTrader, maybeUtr) match {
+            case (Some(false), Some(utr))         =>
+              handleBusinessLookup(
+                businessService.getBusinessWithUtr(request.userAnswers, utr.uniqueTaxPayerReference),
+                mode,
+                isAutoMatch = isAutoMatched
+              )
+            case (Some(true), Some(userInputUtr)) =>
+              handleIndividualLookup(
+                businessService.getIndividualByUtr(request.userAnswers),
+                mode
+              )
+
+            case (_, _) =>
+              logWarn(
+                s"No UTR or no JourneyType <$maybeJourneyTypeSoleTrader> found in user answers. Redirecting to journey recovery."
+              )
+              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+          }
       }
     }
 
@@ -187,36 +197,21 @@ class IsThisYourBusinessController @Inject() (
         val updatedAddress            = address.copy(countryName = Some(countryDescriptionName))
         val soleTraderBusinessDetails = BusinessDetails(name, updatedAddress, safeId.value)
 
-        val existingSafeId = request.userAnswers.safeId
-        val safeIdChanged  = existingSafeId.exists(_ != safeId)
-
         val existingPageAnswer =
           request.userAnswers
             .get(IsThisYourBusinessPage)
             .flatMap(_.pageAnswer)
 
-        val (pageAnswerToPersist, hasValidMatchToPersist) =
-          if (safeIdChanged) {
-            logDebug(
-              "SafeId returned by Register with ID differs from the one previously stored - resetting hasValidMatch and clearing previous answer."
-            )
-            (None, false)
-          } else (existingPageAnswer, request.userAnswers.hasValidMatch)
-
         val pageDetails = IsThisYourBusinessPageDetails(
           businessDetails = soleTraderBusinessDetails,
-          pageAnswer = pageAnswerToPersist
+          pageAnswer = existingPageAnswer
         )
 
         for {
-          updatedAnswers <- Future.fromTry(
-                              request.userAnswers
-                                .copy(hasValidMatch = hasValidMatchToPersist, safeId = Some(safeId))
-                                .set(IsThisYourBusinessPage, pageDetails)
-                            )
-          _              <- sessionRepository.set(updatedAnswers)
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(IsThisYourBusinessPage, pageDetails))
+          _              <- sessionRepository.set(updatedAnswers.copy(safeId = Some(safeId)))
         } yield {
-          val preparedForm = pageAnswerToPersist.fold(form)(form.fill)
+          val preparedForm = existingPageAnswer.fold(form)(form.fill)
 
           logInfo("Sole Trader Business data found and cached.")
 

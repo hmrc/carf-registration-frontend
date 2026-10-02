@@ -255,4 +255,23 @@ class OrganisationBusinessAddressFormProviderSpec extends StringFieldBehaviours 
       result.errors mustBe empty
     }
   }
+
+  "combinations" - {
+    "must return an unduplicated spaces character when duplicated spaces are applied to all relevant fields" in {
+      val formData = baseFormData ++ Map(
+        "addressLine1" -> "addres sLine    1",
+        "addressLine2" -> "addres sLine    2",
+        "townOrCity"   -> "t ow   n",
+        "region"       -> "r eg   ion",
+        "country"      -> "GB",
+        "postcode"     -> "NW4 1QS"
+      )
+      val result   = form.bind(formData)
+      result.errors                     mustBe empty
+      result.value.get.addressLine1     mustBe "addres sLine 1"
+      result.value.get.addressLine2.get mustBe "addres sLine 2"
+      result.value.get.townOrCity       mustBe "t ow n"
+      result.value.get.region           mustBe Some("r eg ion")
+    }
+  }
 }

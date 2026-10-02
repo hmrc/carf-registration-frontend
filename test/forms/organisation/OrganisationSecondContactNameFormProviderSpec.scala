@@ -70,6 +70,13 @@ class OrganisationSecondContactNameFormProviderSpec extends StringFieldBehaviour
       requiredError = FormError(fieldName, requiredKey)
     )
 
+    "must reduce duplicate spaces down to one space for second contact name" in {
+      val result = form.bind(Map(fieldName -> "Rob  Bob T"))
+
+      result.errors.isEmpty mustBe true
+      result.value.get      mustBe "Rob Bob T"
+    }
+
     "not bind strings with invalid characters" in {
       val invalidCharGen = Gen.oneOf("!\"#$%()*+,./:;<=>?@[]_{|}~").map(_.toString)
       forAll(invalidCharGen) { invalidChar =>

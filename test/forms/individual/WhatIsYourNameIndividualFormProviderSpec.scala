@@ -112,4 +112,16 @@ class WhatIsYourNameIndividualFormProviderSpec extends StringFieldBehaviours {
       }
     }
   }
+
+  "must be reduced when firstName and lastname contains duplicate spaces" in {
+    val result = form.bind(
+      Map(
+        "firstName" -> "Ar  te t   a",
+        "lastName"  -> "S  mi th"
+      )
+    )
+    result.errors mustBe empty
+    result.value.get.firstName mustBe "Ar te t a"
+    result.value.get.lastName  mustBe "S mi th"
+  }
 }

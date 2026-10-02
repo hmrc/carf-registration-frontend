@@ -51,6 +51,13 @@ class OrganisationSecondContactPhoneNumberFormProviderSpec extends StringFieldBe
       result.errors.isEmpty mustBe true
     }
 
+    "must reduce duplicate spaces down to one space for phone numbers" in {
+      val result = form.bind(Map(fieldName -> "07 1111    11 111"))
+
+      result.errors.isEmpty mustBe true
+      result.value.get      mustBe "07 1111 11 111"
+    }
+
     "not bind strings longer than the max length" in {
       val longString = "1" * (maxLength + 1)
 

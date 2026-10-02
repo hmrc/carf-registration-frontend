@@ -71,5 +71,15 @@ class FirstContactNameFormProviderSpec extends StringFieldBehaviours {
       val result = form.bind(Map(fieldName -> longString))
       result.errors must contain only FormError(fieldName, lengthKey, Seq.empty)
     }
+
+    "must be reduced to one space when value and contains duplicate spaces" in {
+      val result = form.bind(
+        Map(
+          "value" -> "Ar  te t   a"
+        )
+      )
+      result.errors mustBe empty
+      result.value.get mustBe "Ar te t a"
+    }
   }
 }

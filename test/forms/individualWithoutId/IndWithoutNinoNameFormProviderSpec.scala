@@ -110,4 +110,18 @@ class IndWithoutNinoNameFormProviderSpec extends StringFieldBehaviours {
       }
     }
   }
+
+  "combined" - {
+    "must be valid when givenName and familyName contains duplicate spaces" in {
+      val result = form.bind(
+        Map(
+          "givenName"  -> "Ar  te t   a",
+          "familyName" -> "S  mi th"
+        )
+      )
+      result.errors mustBe empty
+      result.value.get.firstName mustBe "Ar te t a"
+      result.value.get.lastName  mustBe "S mi th"
+    }
+  }
 }

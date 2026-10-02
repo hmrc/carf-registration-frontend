@@ -203,6 +203,7 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
       result.errors mustBe empty
     }
   }
+
   "form binding with all valid fields populates the model and has no errors" in {
     val data   = Map(
       "addressLine1" -> "123 Main Street",
@@ -219,6 +220,29 @@ class IndWithoutIdAddressNonUkFormProviderSpec extends StringFieldBehaviours {
       addressLine1 = "123 Main Street",
       addressLine2 = Some("Apt 4B"),
       townOrCity = "Paris",
+      region = Some("Ile-de-France"),
+      postcode = Some("75001"),
+      country = france
+    )
+    result.get mustBe expected
+  }
+
+  "form binding with all valid fields with duplicate spacing populates the model and has singular spacing" in {
+    val data   = Map(
+      "addressLine1" -> "123 Main   Street",
+      "addressLine2" -> "Apt    4B",
+      "townOrCity"   -> "Par   is",
+      "region"       -> "Ile-de-France",
+      "postcode"     -> "75001",
+      "country"      -> "FR"
+    )
+    val result = form.bind(data)
+    result.hasErrors mustBe false
+
+    val expected = IndWithoutIdAddressNonUk(
+      addressLine1 = "123 Main Street",
+      addressLine2 = Some("Apt 4B"),
+      townOrCity = "Par is",
       region = Some("Ile-de-France"),
       postcode = Some("75001"),
       country = france

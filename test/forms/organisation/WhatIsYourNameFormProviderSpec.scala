@@ -113,4 +113,19 @@ class WhatIsYourNameFormProviderSpec extends StringFieldBehaviours {
       }
     }
   }
+
+  "combined" - {
+    "must reduce duplicate spaces down to one space for given names" in {
+      val result = form.bind(
+        Map(
+          "firstName" -> "Rob  Bob T",
+          "lastName"  -> "Last  Bob T"
+        )
+      )
+
+      result.errors.isEmpty      mustBe true
+      result.value.get.firstName mustBe "Rob Bob T"
+      result.value.get.lastName  mustBe "Last Bob T"
+    }
+  }
 }

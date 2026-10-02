@@ -61,6 +61,12 @@ class WhatIsTheNameOfYourBusinessFormProviderSpec extends StringFieldBehaviours 
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
-  }
 
+    "must reduce duplicate spaces down to one space for business name" in {
+      val result = form.bind(Map(fieldName -> "Arsenal  FC"))
+
+      result.errors.isEmpty mustBe true
+      result.value.get      mustBe "Arsenal FC"
+    }
+  }
 }

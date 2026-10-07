@@ -132,7 +132,7 @@ class RegistrationConnectorISpec
   "individualWithNino" should {
     "successfully retrieve a name and address" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/nino"))
+        post(urlPathMatching("/carf-account/individual/nino"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -145,7 +145,7 @@ class RegistrationConnectorISpec
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/nino"))
+        post(urlPathMatching("/carf-account/individual/nino"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -158,7 +158,7 @@ class RegistrationConnectorISpec
 
     "return a not found error if 404 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/nino"))
+        post(urlPathMatching("/carf-account/individual/nino"))
           .willReturn(
             aResponse()
               .withStatus(NOT_FOUND)
@@ -171,7 +171,7 @@ class RegistrationConnectorISpec
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/nino"))
+        post(urlPathMatching("/carf-account/individual/nino"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -186,7 +186,7 @@ class RegistrationConnectorISpec
   "individualWithUtr" should {
     "successfully retrieve a Sole Trader's first and last name and address" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/utr"))
+        post(urlPathMatching("/carf-account/individual/utr"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -199,7 +199,7 @@ class RegistrationConnectorISpec
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/utr"))
+        post(urlPathMatching("/carf-account/individual/utr"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -212,7 +212,7 @@ class RegistrationConnectorISpec
 
     "return a not found error if 404 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/utr"))
+        post(urlPathMatching("/carf-account/individual/utr"))
           .willReturn(
             aResponse()
               .withStatus(NOT_FOUND)
@@ -225,7 +225,7 @@ class RegistrationConnectorISpec
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual/utr"))
+        post(urlPathMatching("/carf-account/individual/utr"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -240,7 +240,7 @@ class RegistrationConnectorISpec
   "organisationWithUtrNonAutoMatch" should {
     "successfully retrieve a name and address" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
+        post(urlPathMatching("/carf-account/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -255,7 +255,7 @@ class RegistrationConnectorISpec
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
+        post(urlPathMatching("/carf-account/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -270,7 +270,7 @@ class RegistrationConnectorISpec
 
     "return a not found error if 404 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
+        post(urlPathMatching("/carf-account/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(NOT_FOUND)
@@ -285,7 +285,7 @@ class RegistrationConnectorISpec
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/user-entered"))
+        post(urlPathMatching("/carf-account/organisation/utr/user-entered"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -302,7 +302,7 @@ class RegistrationConnectorISpec
   "organisationWithUtrCTAutoMatch" should {
     "successfully retrieve a name and address" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+        post(urlPathMatching("/carf-account/organisation/utr/ct-auto-match"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -317,7 +317,7 @@ class RegistrationConnectorISpec
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+        post(urlPathMatching("/carf-account/organisation/utr/ct-auto-match"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -332,7 +332,7 @@ class RegistrationConnectorISpec
 
     "return a not found error if 404 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+        post(urlPathMatching("/carf-account/organisation/utr/ct-auto-match"))
           .willReturn(
             aResponse()
               .withStatus(NOT_FOUND)
@@ -347,7 +347,7 @@ class RegistrationConnectorISpec
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation/utr/ct-auto-match"))
+        post(urlPathMatching("/carf-account/organisation/utr/ct-auto-match"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -364,7 +364,7 @@ class RegistrationConnectorISpec
   "individualWithoutId" should {
     "successfully retrieve the minimal response (safeId)" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual-without-id"))
+        post(urlPathMatching("/carf-account/individual-without-id"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -378,7 +378,7 @@ class RegistrationConnectorISpec
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual-without-id"))
+        post(urlPathMatching("/carf-account/individual-without-id"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -392,7 +392,7 @@ class RegistrationConnectorISpec
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/individual-without-id"))
+        post(urlPathMatching("/carf-account/individual-without-id"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -408,7 +408,7 @@ class RegistrationConnectorISpec
   "organisationWithoutId" should {
     "successfully retrieve the minimal response (safeId)" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation-without-id"))
+        post(urlPathMatching("/carf-account/organisation-without-id"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -422,7 +422,7 @@ class RegistrationConnectorISpec
 
     "return a Json validation error if unexpected response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation-without-id"))
+        post(urlPathMatching("/carf-account/organisation-without-id"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -436,7 +436,7 @@ class RegistrationConnectorISpec
 
     "return an internal server error if 500 status response is returned from backend" in {
       stubFor(
-        post(urlPathMatching("/carf-registration/organisation-without-id"))
+        post(urlPathMatching("/carf-account/organisation-without-id"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)

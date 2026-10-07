@@ -39,7 +39,7 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
     ec: ExecutionContext
 ) {
 
-  private lazy val backendBaseUrl = config.carfRegistrationBaseUrl
+  private lazy val backendBaseUrl = config.carfAccountBaseUrl
 
   def individualWithNino(
       request: RegisterIndividualWithNinoRequest

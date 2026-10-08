@@ -38,7 +38,8 @@ trait Formatters extends Transforms {
     new Formatter[String] {
 
       override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
-        data.get(key) match {
+        val cleanedData = data.map { case (k, v) => k -> v.replaceAll("\\s+", " ") }
+        cleanedData.get(key) match {
           case None                      => Left(Seq(FormError(key, errorKey, args)))
           case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
           case Some(s)                   => Right(s)
@@ -217,7 +218,8 @@ trait Formatters extends Transforms {
     new Formatter[String] {
 
       override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
-        data.get(key) match {
+        val cleanedData = data.map { case (k, v) => k -> v.replaceAll("\\s+", " ") }
+        cleanedData.get(key) match {
           case None                              =>
             Left(Seq(FormError(key, requiredKey, args)))
           case Some(value) if value.trim.isEmpty =>
@@ -256,7 +258,8 @@ trait Formatters extends Transforms {
       override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue = {
         lazy val formErrorInvalidKey = Left(Seq(FormError(key, invalidKey, args)))
 
-        data.get(key).map(_.trim) match {
+        val cleanedData = data.map { case (k, v) => k -> v.replaceAll("\\s+", " ") }
+        cleanedData.get(key).map(_.trim) match {
           case None                                 => Left(Seq(FormError(key, requiredKey, args)))
           case Some(value) if value.isEmpty         => Left(Seq(FormError(key, requiredKey, args)))
           case Some(value) if !value.matches(regex) => formErrorInvalidKey
@@ -324,8 +327,9 @@ trait Formatters extends Transforms {
       private val dataFormatter: Formatter[String] = stringTrimFormatter(requiredKey, msgArg)
 
       override def bind(key: String, data: Map[String, String]): EitherFormErrorOrValue =
+        val cleanedData = data.map { case (k, v) => k -> v.replaceAll("\\s+", " ") }
         dataFormatter
-          .bind(key, data)
+          .bind(key, cleanedData)
           .flatMap {
             case str if str.length > maxLength => Left(Seq(FormError(key, lengthKey)))
             case str if str.length < minLength => Left(Seq(FormError(key, lengthKey)))
@@ -346,7 +350,8 @@ trait Formatters extends Transforms {
     new Formatter[Option[String]] {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] =
-        data.get(key) match {
+        val cleanedData = data.map { case (k, v) => k -> v.replaceAll("\\s+", " ") }
+        cleanedData.get(key) match {
           case Some(str) if str.trim.isEmpty            => Right(None)
           case Some(str) if str.trim.length > maxLength => Left(Seq(FormError(key, lengthKey)))
           case Some(str) if !str.trim.matches(regex)    => Left(Seq(FormError(key, invalidKey)))
@@ -362,7 +367,8 @@ trait Formatters extends Transforms {
     new Formatter[Option[String]] {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] =
-        data.get(key) match {
+        val cleanedData = data.map { case (k, v) => k -> v.replaceAll("\\s+", " ") }
+        cleanedData.get(key) match {
           case Some(str) if str.trim.isEmpty            => Right(None)
           case Some(str) if str.trim.length > maxLength => Left(Seq(FormError(key, lengthKey)))
           case Some(str)                                => Right(Some(str.trim))

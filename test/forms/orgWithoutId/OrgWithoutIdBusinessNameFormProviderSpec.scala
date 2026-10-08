@@ -53,5 +53,12 @@ class OrgWithoutIdBusinessNameFormProviderSpec extends StringFieldBehaviours {
       businessNameWithInvalidChars,
       FormError(fieldName, invalidFormatErrorKey)
     )
+
+    "must reduce duplicate spaces down to one space for org name" in {
+      val result = form.bind(Map(fieldName -> "Rob  Bob T"))
+
+      result.errors.isEmpty mustBe true
+      result.value.get      mustBe "Rob Bob T"
+    }
   }
 }

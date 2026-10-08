@@ -84,12 +84,13 @@ class NiNumberFormProviderSpec extends StringFieldBehaviours {
       }
     }
 
-    "must normalize user input (spaces, convert to uppercase)" in {
+    "must normalize user input (spaces, additional spaces, convert to uppercase)" in {
       val normalizationCases = Seq(
         ("AB 12 34 56 C", "AB123456C"),
         ("ab123456c", "AB123456C"),
         ("Ab123456C", "AB123456C"),
         ("AB123456 C", "AB123456C"),
+        ("AB12   3456   C", "AB123456C"),
         (" AB123456C", "AB123456C")
       )
 

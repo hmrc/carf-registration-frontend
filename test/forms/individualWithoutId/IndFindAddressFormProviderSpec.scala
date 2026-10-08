@@ -95,6 +95,20 @@ class IndFindAddressFormProviderSpec extends StringFieldBehaviours {
       result.errors mustBe empty
     }
 
+    "must bind a double whitespace string as None" in {
+      val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> "  "))
+      result.value mustBe Some(IndFindAddress("SW1A 1AA", None))
+
+      result.errors mustBe empty
+    }
+
+    "must reduce double whitespace into one" in {
+      val result = form.bind(Map("postcode" -> "SW1A 1AA", fieldName -> "valid  String"))
+      result.errors mustBe empty
+      result.value  mustBe Some(IndFindAddress("SW1A 1AA", Some("valid String")))
+
+    }
+
     "must not bind when field is missing" in {
       val result = form.bind(Map("postcode" -> "SW1A 1AA"))
       result.value.flatMap(_.propertyNameOrNumber) mustBe None

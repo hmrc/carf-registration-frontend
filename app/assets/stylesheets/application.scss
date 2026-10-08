@@ -18,10 +18,17 @@
   word-wrap: break-word;
 }
 
-.govuk-body {
-  word-wrap: break-word;
-}
-
-.govuk-heading-l {
+.govuk-heading-xl,
+.govuk-heading-l,
+.govuk-heading-m,
+.govuk-body,
+.govuk-body-l,
+.govuk-list,
+.govuk-fieldset__legend,
+.govuk-fieldset__heading,
+.govuk-label,
+.govuk-hint,
+.govuk-caption {
   overflow-wrap: break-word;
+  word-wrap: break-word;
 }

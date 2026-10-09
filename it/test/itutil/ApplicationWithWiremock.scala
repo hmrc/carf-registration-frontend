@@ -35,8 +35,8 @@ trait ApplicationWithWiremock
     Map[String, Any](
       "microservice.services.auth.host"              -> WireMockConstants.stubHost,
       "microservice.services.auth.port"              -> WireMockConstants.stubPort,
-      "microservice.services.carf-registration.host" -> WireMockConstants.stubHost,
-      "microservice.services.carf-registration.port" -> WireMockConstants.stubPort,
+      "microservice.services.carf-account.host" -> WireMockConstants.stubHost,
+      "microservice.services.carf-account.port" -> WireMockConstants.stubPort,
       "microservice.services.tax-enrolments.host" -> WireMockConstants.stubHost,
       "microservice.services.tax-enrolments.port" -> WireMockConstants.stubPort,
       "microservice.services.tax-enrolments.url" -> WireMockConstants.stubEnrolmentsUri,
@@ -62,4 +62,4 @@ trait ApplicationWithWiremock
     wireMock.stop()
     super.afterAll()
 
-  val baseUrl: String = s"http://localhost:$port/carf-registration"
+  val baseUrl: String = s"http://localhost:$port/carf-account"

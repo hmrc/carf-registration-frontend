@@ -43,7 +43,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       createSubscriptionRequest: SubscriptionRequest
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[SubscriptionId] = {
 
-    val submissionUrl = url"${config.carfRegistrationBaseUrl}/subscription/subscribe"
+    val submissionUrl = url"${config.carfAccountBaseUrl}/subscription/subscribe"
 
     processSubscriptionRequest(createSubscriptionRequest, submissionUrl, false)
   }
@@ -52,7 +52,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       updateSubscriptionRequest: SubscriptionRequest
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[SubscriptionId] = {
 
-    val submissionUrl = url"${config.carfRegistrationBaseUrl}/subscription/amend"
+    val submissionUrl = url"${config.carfAccountBaseUrl}/subscription/amend"
 
     processSubscriptionRequest(updateSubscriptionRequest, submissionUrl, true)
   }
@@ -95,7 +95,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
   def displaySubscription(
       carfId: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[DisplaySubscriptionResponse] = {
-    val baseUrl = url"${config.carfRegistrationBaseUrl}/subscription/display/$carfId"
+    val baseUrl = url"${config.carfAccountBaseUrl}/subscription/display/$carfId"
 
     logDebug(
       s"[SubscriptionConnector] Displaying subscription with ID: $carfId"

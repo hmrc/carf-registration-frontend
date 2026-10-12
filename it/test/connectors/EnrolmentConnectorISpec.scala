@@ -61,11 +61,13 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
     )
   )
 
+  val url = "/tax-enrolments/service/HMRC-CARF-ORG/enrolment"
+
   "createEnrolment" should {
     "successfully receive NO Content response" in {
 
       stubFor(
-        put(urlPathMatching("/tax-enrolments/service/HMRC-CARF-ORG/enrolment"))
+        put(urlPathMatching(url))
           .withRequestBody(equalToJson(enrolmentRequestValidAsJson.toString))
           .willReturn(
             aResponse()
@@ -77,11 +79,15 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
 
       assert(result.isRight)
 
+      verify(1, putRequestedFor(urlPathMatching(url))
+        .withRequestBody(equalToJson(enrolmentRequestValidAsJson.toString))
+      )
+
     }
 
     "return Left when a Bad Request response status is received" in {
       stubFor(
-        put(urlPathMatching("/tax-enrolments/service/HMRC-CARF-ORG/enrolment"))
+        put(urlPathMatching(url))
           .willReturn(
             aResponse()
               .withStatus(BAD_REQUEST)
@@ -93,11 +99,14 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
 
       result shouldBe Left(ApiError.BadRequestError)
 
+      verify(1, putRequestedFor(urlPathMatching(url))
+        .withRequestBody(equalToJson(enrolmentRequestValidAsJson.toString))
+      )
     }
     
     "return Left when a Internal Server Error response status is received" in {
       stubFor(
-        put(urlPathMatching("/tax-enrolments/service/HMRC-CARF-ORG/enrolment"))
+        put(urlPathMatching(url))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -109,6 +118,9 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
 
       result shouldBe Left(ApiError.InternalServerError)
 
+      verify(3, putRequestedFor(urlPathMatching(url))
+        .withRequestBody(equalToJson(enrolmentRequestValidAsJson.toString))
+      )
     }
   }
 }

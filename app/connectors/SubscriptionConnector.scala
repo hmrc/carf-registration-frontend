@@ -36,6 +36,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration.*
 
 class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) {
 
@@ -66,7 +67,9 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       if (isUpdate) {
         http.put(submissionUrl)
       } else {
-        http.post(submissionUrl)
+        http
+          .post(submissionUrl)
+          .transform(_.withRequestTimeout(config.createSubscriptionTimeoutInSeconds.seconds))
       }
 
     ResultT.fromFuture(

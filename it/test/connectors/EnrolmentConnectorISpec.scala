@@ -64,7 +64,7 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
   val url = "/tax-enrolments/service/HMRC-CARF-ORG/enrolment"
 
   "createEnrolment" should {
-    "successfully receive NO Content response" in {
+    "successfully receive NO Content response (And make a call once)" in {
 
       stubFor(
         put(urlPathMatching(url))
@@ -85,7 +85,7 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
 
     }
 
-    "return Left when a Bad Request response status is received" in {
+    "return Left when a Bad Request response status is received (And make a call once)" in {
       stubFor(
         put(urlPathMatching(url))
           .willReturn(
@@ -104,7 +104,7 @@ class EnrolmentConnectorISpec extends ApplicationWithWiremock
       )
     }
     
-    "return Left when a Internal Server Error response status is received" in {
+    "return Left when a Internal Server Error response status is received (And make three total calls)" in {
       stubFor(
         put(urlPathMatching(url))
           .willReturn(

@@ -34,8 +34,8 @@ trait RetryMechanism {
   implicit val ex: ExecutionContext = system.dispatcher
   implicit val scheduler: Scheduler = system.scheduler
 
-  /** apiRetryAttempts //+1 from total is equal to total attempts. e.g. apiRetryAttempts = 2, retries twice so total
-    * attempts is equal to 3
+  /** Total call attempts is equal to apiRetryAttempts in the config plus the initial call. e.g. if apiRetryAttempts = 2
+    * in config, we retry twice so the total attempts is equal to 3
     */
   protected def retryCall[T](call: => ResultT[T])(implicit hc: HeaderCarrier): ResultT[T] =
     ResultT.fromFuture(

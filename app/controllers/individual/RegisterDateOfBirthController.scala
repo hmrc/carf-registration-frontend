@@ -103,7 +103,7 @@ class RegisterDateOfBirthController @Inject() (
                 )
               )
             case Left(error)              =>
-              logError(s"[RegisterDateOfBirthController][handleValidFormSubmission] Unexpected error. Error: $error")
+              logWarn(s"[RegisterDateOfBirthController][handleValidFormSubmission] Unexpected error. Error: $error")
               Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           }
       case _                                   =>

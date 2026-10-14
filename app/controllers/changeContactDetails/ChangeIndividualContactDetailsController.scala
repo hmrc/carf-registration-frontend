@@ -70,6 +70,7 @@ class ChangeIndividualContactDetailsController @Inject() (
           case Some((summaryListRows, hasChanged)) =>
             Ok(view(summaryListRows, hasChanged, appConfig.carfManagementFrontendHomePageUrl))
           case None                                =>
+            logWarn("[ChangeIndividualContactDetailsController][onPageLoad] Could not retrieve contact details")
             Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
         }
       }
@@ -91,10 +92,10 @@ class ChangeIndividualContactDetailsController @Inject() (
 
             } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logError("[ChangeIndividualContactDetailsController][onSubmit] Had missing data on submission")
+            logWarn("[ChangeIndividualContactDetailsController][onSubmit] Had missing data on submission")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
-            logError(s"[ChangeIndividualContactDetailsController][onSubmit] Failed to update: $error")
+            logWarn(s"[ChangeIndividualContactDetailsController][onSubmit] Failed to update: $error")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }

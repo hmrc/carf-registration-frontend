@@ -86,7 +86,7 @@ class IsThisYourBusinessController @Inject() (
               )
 
             case (_, _) =>
-              logError(
+              logWarn(
                 s"[IsThisYourBusinessController][onPageLoad] No UTR or no JourneyType <$maybeJourneyTypeSoleTrader> found in user answers. Redirecting to journey recovery."
               )
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -119,7 +119,7 @@ class IsThisYourBusinessController @Inject() (
               }
             )
         case None                      =>
-          logError(
+          logWarn(
             "[IsThisYourBusinessController][onSubmit] No business details found. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -141,18 +141,18 @@ class IsThisYourBusinessController @Inject() (
         )
       case Left(NotFoundError)    =>
         if (isAutoMatch) {
-          logError(
+          logWarn(
             "[IsThisYourBusinessController][handleBusinessLookup] Auto-match failed for a non-Sole Trader. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {
-          logError(
+          logWarn(
             "[IsThisYourBusinessController][handleBusinessLookup] Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified."
           )
           Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
       case Left(error)            =>
-        logError(s"[IsThisYourBusinessController][handleBusinessLookup] Unexpected error. Error: $error")
+        logWarn(s"[IsThisYourBusinessController][handleBusinessLookup] Unexpected error. Error: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
 
@@ -170,13 +170,13 @@ class IsThisYourBusinessController @Inject() (
         )
 
       case Left(NotFoundError) =>
-        logError(
+        logWarn(
           "[IsThisYourBusinessController][handleIndividualLookup] User is a Sole Trader. Redirecting to sole-trader-not-identified."
         )
         Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
 
       case Left(error) =>
-        logError(s"[IsThisYourBusinessController][handleIndividualLookup] Unexpected error. Error: $error")
+        logWarn(s"[IsThisYourBusinessController][handleIndividualLookup] Unexpected error. Error: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 
     }
@@ -190,7 +190,7 @@ class IsThisYourBusinessController @Inject() (
     countryListFactory
       .getDescriptionFromCode(address.countryCode)
       .fold {
-        logError(
+        logWarn(
           s"[IsThisYourBusinessController][handleLookupSuccess] Failed to convert country code to country name for country code: (${address.countryCode}"
         )
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

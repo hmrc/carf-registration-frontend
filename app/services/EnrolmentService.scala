@@ -43,7 +43,7 @@ class EnrolmentService @Inject() (enrolmentConnector: EnrolmentConnector) {
     )
 
     enrolmentConnector.createEnrolment(enrolmentRequest).leftMap { error =>
-      logError(s"[EnrolmentService][enrol] Failed to create enrolment: $error")
+      logWarn(s"[EnrolmentService][enrol] Failed to create enrolment: $error")
       error
     }
   }

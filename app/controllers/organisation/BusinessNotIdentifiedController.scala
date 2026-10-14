@@ -73,7 +73,7 @@ class BusinessNotIdentifiedController @Inject() (
           )
         case _                                                                                                   =>
           val orgType = request.userAnswers.get(RegistrationTypePage)
-          logError(
+          logWarn(
             s"[BusinessNotIdentifiedController][onPageLoad] Utr, business name or valid registration was missing from user answers <registration type: $orgType>. Redirecting to journey recovery."
           )
           Redirect(routes.JourneyRecoveryController.onPageLoad())

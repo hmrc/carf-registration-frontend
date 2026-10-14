@@ -50,7 +50,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
       val userAnswers = request.userAnswers
 
       userAnswers.displaySubscriptionResponse.fold {
-        logError("[ChangeOrganisationContactDetailsController][onPageLoad] No subscription data found")
+        logWarn("[ChangeOrganisationContactDetailsController][onPageLoad] No subscription data found")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       } { displaySubscriptionResponse =>
         val pageDetails = for {
@@ -117,10 +117,10 @@ class ChangeOrganisationContactDetailsController @Inject() (
                   .value
             } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logError("[ChangeOrganisationContactDetailsController] Had missing data on submission")
+            logWarn("[ChangeOrganisationContactDetailsController] Had missing data on submission")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
-            logError(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
+            logWarn(s"[ChangeOrganisationContactDetailsController] Failed to update: $error")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }

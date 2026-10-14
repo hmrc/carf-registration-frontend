@@ -27,7 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.logError
+import utils.LoggerUtil.*
 import views.html.organisation.OrganisationSecondContactEmailView
 
 import javax.inject.Inject
@@ -61,7 +61,7 @@ class OrganisationSecondContactEmailController @Inject() (
       request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case Some(secondContactName) => Ok(view(preparedForm, mode, secondContactName))
         case None                    =>
-          logError("[OrganisationSecondContactEmailController][onSubmit] Name not found in user answers")
+          logWarn("[OrganisationSecondContactEmailController][onSubmit] Name not found in user answers")
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
     }
@@ -76,7 +76,7 @@ class OrganisationSecondContactEmailController @Inject() (
               case Some(secondContactName) =>
                 Future.successful(BadRequest(view(formWithErrors, mode, secondContactName)))
               case None                    =>
-                logError("[OrganisationSecondContactEmailController][onSubmit] Name not found in user answers")
+                logWarn("[OrganisationSecondContactEmailController][onSubmit] Name not found in user answers")
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>

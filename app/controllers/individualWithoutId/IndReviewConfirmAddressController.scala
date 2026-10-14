@@ -71,7 +71,7 @@ class IndReviewConfirmAddressController @Inject() (
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPageForNavigatorOnly, mode, updatedAnswers))
         case None          =>
-          logError("[IndReviewConfirmAddressController][onSubmit] No address found in user answers")
+          logWarn("[IndReviewConfirmAddressController][onSubmit] No address found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }

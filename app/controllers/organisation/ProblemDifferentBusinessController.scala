@@ -51,7 +51,7 @@ class ProblemDifferentBusinessController @Inject() (
 
           Future.successful(Ok(view(businessName, address, signOutUrl)))
         case None                      =>
-          logError(
+          logWarn(
             "[ProblemDifferentBusinessController][onPageLoad] Business details expected but not found. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

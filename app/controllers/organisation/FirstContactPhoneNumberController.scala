@@ -27,7 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.logError
+import utils.LoggerUtil.*
 import views.html.organisation.FirstContactPhoneNumberView
 
 import javax.inject.Inject
@@ -58,7 +58,7 @@ class FirstContactPhoneNumberController @Inject() (
       request.userAnswers.get(FirstContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
         case None            =>
-          logError("[FirstContactPhoneNumberController][onPageLoad] Name not found in user answers")
+          logWarn("[FirstContactPhoneNumberController][onPageLoad] Name not found in user answers")
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
     }
@@ -72,7 +72,7 @@ class FirstContactPhoneNumberController @Inject() (
             request.userAnswers.get(FirstContactNamePage) match {
               case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
               case None            =>
-                logError("[FirstContactPhoneNumberController][onSubmit] Name not found in user answers")
+                logWarn("[FirstContactPhoneNumberController][onSubmit] Name not found in user answers")
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>

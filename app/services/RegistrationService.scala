@@ -122,7 +122,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
         )
       case Left(error)     =>
-        logError(
+        logWarn(
           s"[RegistrationService][handleOrganisationRegistrationResponse] Failed to retrieve organisation details: $error"
         )
         Future.successful(Left(error))
@@ -148,7 +148,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           )
         )
       case Left(error)     =>
-        logError(
+        logWarn(
           s"[RegistrationService][handleIndividualRegistrationResponse] Failed to retrieve Individual details: $error"
         )
         Future.successful(Left(error))
@@ -165,7 +165,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
         result.bimap(
           err =>
-            logError(
+            logWarn(
               s"[RegistrationService][registerForWithoutIdJourneys] Failed to register without id. JourneyType: ${userAnswers.journeyType}. Error: $err"
             )
             err

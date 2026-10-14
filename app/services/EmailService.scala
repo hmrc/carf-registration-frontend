@@ -34,10 +34,10 @@ class EmailService @Inject() (
       implicit hc: HeaderCarrier
   ): Future[Unit] =
     if (haveEmailsSentAlready) {
-      logInfo("Emails already sent — skipping email sending")
+      logInfo("[EmailService][sendEmails] Emails already sent — skipping email sending")
       Future.successful(())
     } else if (contacts.isEmpty) {
-      logWarn("No contacts to send registration confirmation emails to")
+      logWarn("[EmailService][sendEmails] No contacts to send registration confirmation emails to")
       Future.successful(())
     } else {
       Future
@@ -52,10 +52,14 @@ class EmailService @Inject() (
           val failureCount = statuses.length - successCount
 
           if (failureCount > 0) {
-            logWarn(s"Failed to send $failureCount out of ${statuses.length} registration confirmation email(s)")
+            logWarn(
+              s"[EmailService][sendEmails] Failed to send $failureCount out of ${statuses.length} registration confirmation email(s)"
+            )
           }
 
-          logInfo(s"Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)")
+          logInfo(
+            s"[EmailService][sendEmails] Successfully sent $successCount out of ${statuses.length} registration confirmation email(s)"
+          )
         }
     }
 }

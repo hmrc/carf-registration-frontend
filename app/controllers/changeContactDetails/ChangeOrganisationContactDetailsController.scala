@@ -49,9 +49,10 @@ class ChangeOrganisationContactDetailsController @Inject() (
     implicit request =>
       val userAnswers = request.userAnswers
 
-      userAnswers.displaySubscriptionResponse.fold(
+      userAnswers.displaySubscriptionResponse.fold {
+        logError("[ChangeOrganisationContactDetailsController][onPageLoad] No subscription data found")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      ) { displaySubscriptionResponse =>
+      } { displaySubscriptionResponse =>
         val pageDetails = for {
           maybeSummaryListRows       <- changeDetailsHelper.getFirstContactDetailsSectionMaybe(userAnswers)
           firstName                  <- userAnswers.get(ChangeDetailsOrgFirstNamePage)
@@ -112,10 +113,7 @@ class ChangeOrganisationContactDetailsController @Inject() (
               _ <-
                 auditService
                   .auditChangeContactDetails(request.userAnswers, isIndividual = false)
-                  .recover { case e =>
-                    logDebug(s"Auditing ChangeContactDetails failed due to $e")
-                    ()
-                  }
+                  .recover { case e => () }
                   .value
             } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>

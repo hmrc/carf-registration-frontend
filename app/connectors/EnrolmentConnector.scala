@@ -50,14 +50,16 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
         .map {
           case response if response.status == NO_CONTENT  => Right(())
           case response if response.status == BAD_REQUEST =>
-            logError(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
+            logError(
+              s"[EnrolmentConnector][createEnrolment] Failed to create enrolment as Bad request was returned with message: ${response.body}"
+            )
             Left(ApiError.BadRequestError)
           case response                                   =>
-            logError(s"Failed to create enrolment due to ${response.body}")
+            logError(s"[EnrolmentConnector][createEnrolment] Failed to create enrolment due to ${response.body}")
             Left(ApiError.InternalServerError)
         }
         .recover { case NonFatal(e) =>
-          logError(s"Future Failed to complete due to: ${e.getMessage}")
+          logError(s"[EnrolmentConnector][createEnrolment] Future Failed to complete due to: ${e.getMessage}")
           Left(InternalServerError)
         }
     }

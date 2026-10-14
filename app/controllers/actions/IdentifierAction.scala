@@ -30,6 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, allEnrolment
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import utils.LoggerUtil.logWarn
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -82,11 +83,16 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
         block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
       case _                                                                                         =>
+        logWarn("[AuthenticatedIdentifierActionWithRegime][invokeBlock] Failed to retrieve valid auth data")
         throw new UnauthorizedException("Failed to retrieve valid auth data")
     } recover {
       case _: NoActiveSession        =>
+        logWarn("[AuthenticatedIdentifierActionWithRegime][invokeBlock] No active session found")
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
+        logWarn(
+          "[AuthenticatedIdentifierActionWithRegime][invokeBlock] User is not authorised to navigate to this page"
+        )
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }

@@ -44,11 +44,13 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   def individualWithNino(
       request: RegisterIndividualWithNinoRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterIndividualWithIdResponse] =
+    logInfo("[RegistrationConnector][individualWithNino] Registering for an individual with NINO")
     registerIndividualWithId(request, url"$backendBaseUrl/individual/nino")
 
   def individualWithUtr(
       request: RegisterIndividualWithUtrRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterIndividualWithIdResponse] =
+    logInfo("[RegistrationConnector][individualWithUtr] Registering for an individual with UTR")
     registerIndividualWithId(request, url"$backendBaseUrl/individual/utr")
 
   private def registerIndividualWithId(
@@ -65,16 +67,20 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
             Try(response.json.as[RegisterIndividualWithIdResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
-                logWarn(s"Error parsing RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}")
+                logError(
+                  s"[RegistrationConnector][registerIndividualWithId] Error parsing RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"
+                )
                 Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>
-            logWarn(
-              s"No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            logError(
+              s"[RegistrationConnector][registerIndividualWithId] No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(ApiError.NotFoundError)
           case response                                 =>
-            logWarn(s"Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}")
+            logError(
+              s"[RegistrationConnector][registerIndividualWithId] Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            )
             Left(ApiError.InternalServerError)
         }
     }
@@ -82,11 +88,17 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   def organisationWithUtrNonAutoMatch(
       request: RegOrgWithIdNonAutoMatchRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterOrganisationWithIdResponse] =
+    logInfo(
+      "[RegistrationConnector][organisationWithUtrNonAutoMatch] Registering for an organisation with UTR non auto-match"
+    )
     registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr/user-entered")
 
   def organisationWithUtrCTAutoMatch(
       request: RegOrgWithIdCTAutoMatchRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterOrganisationWithIdResponse] =
+    logInfo(
+      "[RegistrationConnector][organisationWithUtrNonAutoMatch] Registering for an organisation with UTR auto-match"
+    )
     registerOrganisationWithId(request, url"$backendBaseUrl/organisation/utr/ct-auto-match")
 
   private def registerOrganisationWithId(
@@ -103,17 +115,19 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
             Try(response.json.as[RegisterOrganisationWithIdResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
-                logWarn(s"Error parsing RegisterOrganisationWithIdResponse with endpoint: ${endpoint.toURI}")
+                logError(
+                  s"[RegistrationConnector][registerOrganisationWithId] Error parsing RegisterOrganisationWithIdResponse with endpoint: ${endpoint.toURI}"
+                )
                 Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>
-            logWarn(
-              s"No match found for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            logError(
+              s"[RegistrationConnector][registerOrganisationWithId] No match found for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(ApiError.NotFoundError)
           case response                                 =>
-            logWarn(
-              s"Unexpected response for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+            logError(
+              s"[RegistrationConnector][registerOrganisationWithId] Unexpected response for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
             )
             Left(ApiError.InternalServerError)
         }
@@ -122,14 +136,14 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
   def registerIndividualWithoutId(
       request: RegisterIndividualWithoutIdRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] = {
-    logInfo("Registering for an individual without id")
+    logInfo("[RegistrationConnector][registerIndividualWithoutId] Registering for an individual without id")
     registerWithoutId(request, url"$backendBaseUrl/individual-without-id")
   }
 
   def registerOrganisationWithoutId(
       request: RegisterOrganisationWithoutIdRequest
   )(implicit hc: HeaderCarrier): ResultT[RegisterWithoutIdResponse] =
-    logInfo("Registering for an organisation without id")
+    logInfo("[RegistrationConnector][registerOrganisationWithoutId] Registering for an organisation without id")
     registerWithoutId(request, url"$backendBaseUrl/organisation-without-id")
 
   private def registerWithoutId(
@@ -146,11 +160,15 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
             Try(response.json.as[RegisterWithoutIdResponse]) match {
               case Success(data)      => Right(data)
               case Failure(exception) =>
-                logWarn(s"Error parsing RegisterIndividualWithoutIdResponse with endpoint: ${endpoint.toURI}")
+                logError(
+                  s"[RegistrationConnector][registerWithoutId] Error parsing RegisterIndividualWithoutIdResponse with endpoint: ${endpoint.toURI}"
+                )
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
-            logWarn(s"Unexpected response from endpoint ${endpoint.toURI}, status: ${response.status}")
+            logError(
+              s"[RegistrationConnector][registerWithoutId] Unexpected response from endpoint ${endpoint.toURI}, status: ${response.status}"
+            )
             Left(ApiError.InternalServerError)
         }
     }

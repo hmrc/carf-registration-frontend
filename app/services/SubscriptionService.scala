@@ -50,12 +50,14 @@ class SubscriptionService @Inject() (
             error
           }
       case None          =>
-        logError("There has been an error building the subscription request from userAnswers")
+        logError(
+          "[SubscriptionService][subscribe] There has been an error building the subscription request from userAnswers"
+        )
         EitherT {
           Future.successful(
             Left(
               MandatoryInformationMissingError(
-                s"There has been an error building the subscription request from userAnswers"
+                s"[SubscriptionService][subscribe] There has been an error building the subscription request from userAnswers"
               )
             )
           )
@@ -82,14 +84,16 @@ class SubscriptionService @Inject() (
         subscriptionConnector
           .updateSubscription(request)
           .leftMap { error =>
-            logError(s"Failed to update subscription: $error")
+            logError(s"[SubscriptionService][updateSubscription] Failed to update subscription: $error")
             error
           }
       case None          =>
-        logError("There has been an error building the subscription request from userAnswers")
+        logError(
+          "T[SubscriptionService][updateSubscription] here has been an error building the subscription request from userAnswers"
+        )
         ResultT.fromError(
           MandatoryInformationMissingError(
-            s"There has been an error building the subscription request from userAnswers"
+            s"[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
           )
         )
 

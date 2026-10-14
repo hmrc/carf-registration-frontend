@@ -55,8 +55,8 @@ class ProblemSoleTraderNotIdentifiedController @Inject() (
       pageInfo match {
         case Some(utr, name) => Ok(view(utr, name, indexPageUrl, guidancePageUrl, aeoiEmailAddress))
         case None            =>
-          logWarn(
-            "Some information was missing from user answers (utr, business name or both). Redirecting to journey recovery."
+          logError(
+            "[ProblemSoleTraderNotIdentifiedController][onPageLoad] Some information was missing from user answers (utr, business name or both). Redirecting to journey recovery."
           )
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }

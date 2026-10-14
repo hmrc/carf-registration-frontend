@@ -47,7 +47,9 @@ class UnableToChangeBusinessController @Inject() (
       case Some(pageDetails: IsThisYourBusinessPageDetails) =>
         Ok(view(pageDetails.businessDetails, signOutNoSurveyUrl, loginContinueUrl))
       case None                                             =>
-        logWarn("[UnableToChangeBusinessController] Error! Business details are missing from user answers!")
+        logError(
+          "[UnableToChangeBusinessController][UnableTOChangeBusinessController] Error! Business details are missing from user answers!"
+        )
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
 

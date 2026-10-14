@@ -86,18 +86,15 @@ class ChangeIndividualContactDetailsController @Inject() (
               _ <-
                 auditService
                   .auditChangeContactDetails(request.userAnswers, isIndividual = true)
-                  .recover { case e =>
-                    logDebug(s"Auditing ChangeContactDetails failed due to $e")
-                    ()
-                  }
+                  .recover { case e => () }
                   .value
 
             } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logError("[ChangeIndividualContactDetailsController] Had missing data on submission")
+            logError("[ChangeIndividualContactDetailsController][onSubmit] Had missing data on submission")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
-            logError(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+            logError(s"[ChangeIndividualContactDetailsController][onSubmit] Failed to update: $error")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }

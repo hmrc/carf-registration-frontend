@@ -92,8 +92,8 @@ class CheckYourAnswersController @Inject() (
       (sectionsMaybe, isMatchValidOrNotNeeded(userAnswers)) match {
         case (Some(sections), true)                   => Ok(view(sections))
         case (sectionsMaybe, matchIsValidOrNotNeeded) =>
-          logWarn(
-            "[CheckYourAnswersController] Error! Could not load page. " +
+          logError(
+            "[CheckYourAnswersController][onPageLoad] Error! Could not load page. " +
               s"< journeyType = ${userAnswers.journeyType} > " +
               s"< matchIsValidOrNotNeeded = $matchIsValidOrNotNeeded > " +
               s"< is sectionsMaybe empty = ${sectionsMaybe.isEmpty} >"
@@ -144,14 +144,14 @@ class CheckYourAnswersController @Inject() (
           case Left(AlreadyRegisteredError) =>
             Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
           case Left(DataError)              =>
-            logError("[CheckYourAnswersController] Had missing data on submission")
+            logError("[CheckYourAnswersController][onSubmit] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error                        =>
-            logError(s"[CheckYourAnswersController] Failed to subscribe: $error")
+            logError(s"[CheckYourAnswersController][onSubmit] Failed to subscribe: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
       } else {
-        logWarn("[CheckYourAnswersController] Error! Valid match was not found for this user onSubmit")
+        logWarn("[CheckYourAnswersController][onSubmit] Error! Valid match was not found for this user")
         Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
       }
     }
@@ -166,7 +166,6 @@ class CheckYourAnswersController @Inject() (
       _                     <-
         journeyTypeMaybe.fold(ResultT.fromValue(())) { journeyType =>
           auditService.auditRegistration(userAnswersWithSafeId, journeyType, request.affinityGroup).recover { case e =>
-            logDebug(s"Auditing Registration failed due to $e")
             ResultT.fromValue(())
           }
         }

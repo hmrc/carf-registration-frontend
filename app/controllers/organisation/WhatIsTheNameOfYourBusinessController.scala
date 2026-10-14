@@ -28,6 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.LoggerUtil.logError
 import views.html.organisation.WhatIsTheNameOfYourBusinessView
 
 import javax.inject.Inject
@@ -58,7 +59,9 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
           val preparedForm = request.userAnswers.get(WhatIsTheNameOfYourBusinessPage).fold(form)(form.fill)
 
           Ok(view(preparedForm, mode, messageKey))
-        case None             => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case None             =>
+          logError("[WhatIsTheNameOfYourBusinessController][onPageLoad] Could not retrieve registration type")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
 
     }
@@ -85,7 +88,9 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
                 } yield Redirect(navigator.nextPage(WhatIsTheNameOfYourBusinessPage, mode, updatedAnswers))
             )
 
-        case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        case None =>
+          logError("[WhatIsTheNameOfYourBusinessController][onSubmit] Could not retrieve registration type")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }
 

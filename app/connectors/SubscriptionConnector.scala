@@ -84,7 +84,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
-            logError(
+            logWarn(
               s"[SubscriptionConnector][processSubscriptionRequest] Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl"
             )
             Left(handleErrorResponse(response))
@@ -137,7 +137,7 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
     val jsonBody = Try(Json.parse(response.body)).toOption.getOrElse(Json.obj())
     (jsonBody \ "status").asOpt[String] match {
       case Some("already_registered") =>
-        logWarn("[SubscriptionConnector][handleErrorResponse] Subscription already exists.")
+        logError("[SubscriptionConnector][handleErrorResponse] Subscription already exists.")
         AlreadyRegisteredError
 
       case _ =>

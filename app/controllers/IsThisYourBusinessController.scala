@@ -101,10 +101,8 @@ class IsThisYourBusinessController @Inject() (
           form
             .bindFromRequest()
             .fold(
-              formWithErrors => {
-                logWarn("[IsThisYourBusinessController][onSubmit] Form submission contained errors")
-                Future.successful(BadRequest(view(formWithErrors, mode, existingPageDetails.businessDetails)))
-              },
+              formWithErrors =>
+                Future.successful(BadRequest(view(formWithErrors, mode, existingPageDetails.businessDetails))),
               value => {
                 val updatedPageDetails = existingPageDetails.copy(pageAnswer = Some(value))
                 for {

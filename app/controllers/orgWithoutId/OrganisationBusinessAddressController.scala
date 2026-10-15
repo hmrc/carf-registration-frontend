@@ -73,7 +73,7 @@ class OrganisationBusinessAddressController @Inject() (
           )
 
         case None =>
-          logWarn(
+          logError(
             "[OrganisationBusinessAddressController][onPageLoad] Could not retrieve countries list from JSON file."
           )
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

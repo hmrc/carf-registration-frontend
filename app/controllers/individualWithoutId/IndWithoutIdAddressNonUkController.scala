@@ -97,7 +97,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
                 } yield Redirect(navigator.nextPage(IndWithoutIdAddressNonUkPage, mode, updatedAnswersWithoutUPRN))
             )
         case None            =>
-          logWarn("[IndWithoutIdAddressNonUkController][onSubmit] Could not retrieve countries list from JSON file.")
+          logError("[IndWithoutIdAddressNonUkController][onSubmit] Could not retrieve countries list from JSON file.")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }

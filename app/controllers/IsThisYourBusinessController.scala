@@ -190,7 +190,7 @@ class IsThisYourBusinessController @Inject() (
     countryListFactory
       .getDescriptionFromCode(address.countryCode)
       .fold {
-        logWarn(
+        logError(
           s"[IsThisYourBusinessController][handleLookupSuccess] Failed to convert country code to country name for country code: (${address.countryCode}"
         )
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

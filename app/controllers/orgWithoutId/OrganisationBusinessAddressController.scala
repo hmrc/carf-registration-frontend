@@ -105,7 +105,7 @@ class OrganisationBusinessAddressController @Inject() (
                 } yield Redirect(navigator.nextPage(OrganisationBusinessAddressPage, mode, updatedAnswers))
             )
         case None            =>
-          logWarn(
+          logError(
             "[OrganisationBusinessAddressController][onSubmit] Could not retrieve countries list from JSON file."
           )
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

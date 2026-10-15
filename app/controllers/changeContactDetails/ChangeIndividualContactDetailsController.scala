@@ -48,9 +48,10 @@ class ChangeIndividualContactDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
     implicit request =>
-      request.userAnswers.displaySubscriptionResponse.fold(
+      request.userAnswers.displaySubscriptionResponse.fold {
+        logWarn("[ChangeIndividualContactDetailsController][onPageLoad] No subscription data found")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      ) { displaySubscriptionResponse =>
+      } { displaySubscriptionResponse =>
 
         val pageDetails = for {
           maybeSummaryListRows <- changeDetailsHelper.getFirstContactDetailsSectionMaybe(request.userAnswers)

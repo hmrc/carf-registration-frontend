@@ -66,7 +66,7 @@ class IndWithoutIdAddressNonUkController @Inject() (
           )
 
         case None =>
-          logWarn("[IndWithoutIdAddressNonUkController][onPageLoad] Could not retrieve countries list from JSON file.")
+          logError("[IndWithoutIdAddressNonUkController][onPageLoad] Could not retrieve countries list from JSON file.")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }

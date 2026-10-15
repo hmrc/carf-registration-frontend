@@ -46,7 +46,7 @@ class SubscriptionService @Inject() (
         subscriptionConnector
           .createSubscription(request)
           .leftMap { error =>
-            logWarn(s"Failed to create subscription: $error")
+            logWarn(s"[SubscriptionService][subscribe] Failed to create subscription: $error")
             error
           }
       case None          =>
@@ -57,7 +57,7 @@ class SubscriptionService @Inject() (
           Future.successful(
             Left(
               MandatoryInformationMissingError(
-                s"[SubscriptionService][subscribe] There has been an error building the subscription request from userAnswers"
+                "[SubscriptionService][subscribe] There has been an error building the subscription request from userAnswers"
               )
             )
           )
@@ -71,7 +71,7 @@ class SubscriptionService @Inject() (
     subscriptionConnector
       .displaySubscription(subscriptionId.value)
       .leftMap { error =>
-        logWarn(s"Failed to retrieve subscription: $error")
+        logWarn(s"[SubscriptionService][displaySubscription] Failed to retrieve subscription: $error")
         error
       }
 
@@ -89,11 +89,11 @@ class SubscriptionService @Inject() (
           }
       case None          =>
         logWarn(
-          "T[SubscriptionService][updateSubscription] here has been an error building the subscription request from userAnswers"
+          "[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
         )
         ResultT.fromError(
           MandatoryInformationMissingError(
-            s"[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
+            "[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
           )
         )
 

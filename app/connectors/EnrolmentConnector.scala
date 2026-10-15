@@ -20,9 +20,9 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.error.ApiError
-import models.error.ApiError.InternalServerError
 import models.requests.EnrolmentRequest
 import models.requests.EnrolmentRequest.*
+import org.apache.pekko.actor.ActorSystem
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -32,33 +32,38 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import utils.LoggerUtil.*
 
-import scala.concurrent.ExecutionContext
-import scala.util.control.NonFatal
+import scala.concurrent.Future
+import scala.concurrent.duration.*
 
 class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
-    ec: ExecutionContext
-) {
+    val system: ActorSystem
+) extends RetryMechanism {
 
   private lazy val enrolmentUrl = config.taxEnrolmentBaseUrl
 
   def createEnrolment(requestBody: EnrolmentRequest)(implicit hc: HeaderCarrier): ResultT[Unit] =
-    EitherT {
-      http
-        .put(url"$enrolmentUrl")
-        .withBody(Json.toJson(requestBody))
-        .execute[HttpResponse]
-        .map {
-          case response if response.status == NO_CONTENT  => Right(())
-          case response if response.status == BAD_REQUEST =>
-            logError(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
-            Left(ApiError.BadRequestError)
-          case response                                   =>
-            logError(s"Failed to create enrolment due to ${response.body}")
-            Left(ApiError.InternalServerError)
-        }
-        .recover { case NonFatal(e) =>
-          logError(s"Future Failed to complete due to: ${e.getMessage}")
-          Left(InternalServerError)
-        }
-    }
+    retryCall(
+      EitherT {
+        http
+          .put(url"$enrolmentUrl")
+          .withBody(Json.toJson(requestBody))
+          .transform(_.withRequestTimeout(config.taxEnrolmentTimeoutInSeconds.seconds))
+          .execute[HttpResponse]
+          .flatMap {
+            case response if response.status == NO_CONTENT                    =>
+              Future.successful(Right(()))
+            case response if response.status == BAD_REQUEST                   =>
+              logError(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
+              Future.successful(Left(ApiError.BadRequestError))
+            case response if response.status >= 500 && response.status <= 599 =>
+              logWarn(s"Received 5xx error (${response.status}), failing future to trigger retry.")
+              Future.failed(
+                new RuntimeException(s"Upstream 5xx error: ${response.status} with message: ${response.body}")
+              )
+            case response                                                     =>
+              logError(s"Failed to create enrolment due to ${response.body}")
+              Future.successful(Left(ApiError.InternalServerError))
+          }
+      }
+    )
 }

@@ -35,6 +35,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val taxEnrolmentBaseUrl: String =
     s"$taxEnrolmentHost${configuration.get[String]("microservice.services.tax-enrolments.uri")}"
 
+  val taxEnrolmentTimeoutInSeconds: Int =
+    configuration.get[Int]("microservice.services.tax-enrolments.timeoutInSeconds")
+
   private val addressLookupHost: String = servicesConfig.baseUrl("address-lookup")
   val addressLookupBaseUrl: String      = s"$addressLookupHost/address-lookup"
 
@@ -78,8 +81,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val mongoEncryptionEnabled: Boolean = configuration.get[Boolean]("mongodb.encryptionEnabled")
 
-  val enrolmentKey: String   = configuration.get[String]("keys.enrolmentKey.carf")
-  val ctEnrolmentKey: String = configuration.get[String]("keys.enrolmentKey.ct")
+  val enrolmentKey: String        = configuration.get[String]("keys.enrolmentKey.carf")
+  val ctEnrolmentKey: String      = configuration.get[String]("keys.enrolmentKey.ct")
+  val apiRetryAttempts: Int       = configuration.get[Int]("microservice.services.retry.attempts")
+  val apiRetryDelayInSeconds: Int = configuration.get[Int]("microservice.services.retry.delayInSeconds")
+
+  val createSubscriptionTimeoutInSeconds: Int =
+    configuration.get[Int]("microservice.services.create-subscription.timeoutInSeconds")
 
   def emailSendForce: Boolean = servicesConfig.getBoolean("microservice.services.email.force")
 }

@@ -44,7 +44,7 @@ trait RetryMechanism {
         config.apiRetryAttempts,
         config.apiRetryDelayInSeconds.seconds
       ).recoverWith { e =>
-        logError(s"Retry Failed returning final outcome with message: \n${e.getMessage}")
+        logError(s"[RetryMechanism][retryCall] Retry Failed returning final outcome with message: \n${e.getMessage}")
         Future.successful(Left(InternalServerError))
       }
     )

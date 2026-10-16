@@ -60,7 +60,9 @@ class OrganisationSecondContactHavePhoneController @Inject() (
       request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
         case None            =>
-          logWarn("[OrganisationSecondContactHavePhoneController] Name not found in user answers on page load")
+          logWarn(
+            "[OrganisationSecondContactHavePhoneController][onPageLoad] Name not found in user answers"
+          )
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
     }
@@ -74,7 +76,9 @@ class OrganisationSecondContactHavePhoneController @Inject() (
             request.userAnswers.get(OrganisationSecondContactNamePage) match {
               case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
               case None            =>
-                logWarn("[OrganisationSecondContactHavePhoneController] Name not found in user answers on submit")
+                logWarn(
+                  "[OrganisationSecondContactHavePhoneController][onSubmit] Name not found in user answers"
+                )
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>

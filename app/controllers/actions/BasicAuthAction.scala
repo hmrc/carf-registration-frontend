@@ -66,7 +66,7 @@ class BasicAuthActionExtractor @Inject() (
     authorised().retrieve(Retrievals.internalId) {
       case Some(internalId) => block(BasicAuthRequest(request, internalId))
       case _                =>
-        val msg = "[BasicAuthAction] Unable to retrieve internal id"
+        val msg = "[BasicAuthAction][invokeBlock] Unable to retrieve internal id"
         logWarn(msg)
         throw AuthorisationException.fromString(msg)
     } recover {

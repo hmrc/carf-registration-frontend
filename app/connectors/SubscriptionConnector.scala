@@ -81,15 +81,21 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
             Try(response.json.as[SubscriptionResponse]) match {
               case Success(data)      => Right(data.subscriptionId)
               case Failure(exception) =>
-                logWarn(s"Error parsing SubscriptionResponse with endpoint: $submissionUrl")
+                logError(
+                  s"[SubscriptionConnector][processSubscriptionRequest] Error parsing SubscriptionResponse with endpoint: $submissionUrl"
+                )
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
-            logWarn(s"Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl")
+            logWarn(
+              s"[SubscriptionConnector][processSubscriptionRequest] Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl"
+            )
             Left(handleErrorResponse(response))
         }
         .recover { case NonFatal(e) =>
-          logError(s"Future Failed to complete due to: ${e.getMessage}")
+          logError(
+            s"[SubscriptionConnector][processSubscriptionRequest] Future Failed to complete due to: ${e.getMessage}"
+          )
           Left(InternalServerError)
         }
     )
@@ -99,10 +105,6 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
       carfId: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[DisplaySubscriptionResponse] = {
     val baseUrl = url"${config.carfAccountBaseUrl}/subscription/display/$carfId"
-
-    logDebug(
-      s"[SubscriptionConnector] Displaying subscription with ID: $carfId"
-    )
 
     ResultT.fromFuture(
       http
@@ -114,16 +116,20 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
               Try(httpResponse.json.as[DisplaySubscriptionResponse]) match {
                 case Success(data)      => Right(data)
                 case Failure(exception) =>
-                  logWarn(s"Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}")
+                  logError(
+                    s"[SubscriptionConnector][displaySubscription] Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}"
+                  )
                   Left(ApiError.JsonValidationError)
               }
             case NOT_FOUND =>
-              logWarn(
-                s"No match could be found for this user: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
+              logError(
+                s"[SubscriptionConnector][displaySubscription] No match could be found for this user: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
               )
               Left(ApiError.NotFoundError)
             case _         =>
-              logWarn(s"Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}")
+              logError(
+                s"[SubscriptionConnector][displaySubscription] Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
+              )
               Left(InternalServerError)
           }
         }
@@ -134,11 +140,13 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
     val jsonBody = Try(Json.parse(response.body)).toOption.getOrElse(Json.obj())
     (jsonBody \ "status").asOpt[String] match {
       case Some("already_registered") =>
-        logWarn("Subscription already exists.")
+        logError("[SubscriptionConnector][handleErrorResponse] Subscription already exists.")
         AlreadyRegisteredError
 
       case _ =>
-        logWarn(s"Received error response from backend: ${response.status}")
+        logError(
+          s"[SubscriptionConnector][handleErrorResponse] Received error response from backend: ${response.status}"
+        )
         UnableToProcessSubscriptionError
     }
   }

@@ -53,15 +53,19 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
             case response if response.status == NO_CONTENT                    =>
               Future.successful(Right(()))
             case response if response.status == BAD_REQUEST                   =>
-              logError(s"Failed to create enrolment as Bad request was returned with message: ${response.body}")
+              logError(
+                s"[EnrolmentConnector][createEnrolment] Failed to create enrolment as Bad request was returned with message: ${response.body}"
+              )
               Future.successful(Left(ApiError.BadRequestError))
             case response if response.status >= 500 && response.status <= 599 =>
-              logWarn(s"Received 5xx error (${response.status}), failing future to trigger retry.")
+              logWarn(
+                s"[EnrolmentConnector][createEnrolment] Received 5xx error (${response.status}), failing future to trigger retry."
+              )
               Future.failed(
                 new RuntimeException(s"Upstream 5xx error: ${response.status} with message: ${response.body}")
               )
             case response                                                     =>
-              logError(s"Failed to create enrolment due to ${response.body}")
+              logError(s"[EnrolmentConnector][createEnrolment] Failed to create enrolment due to ${response.body}")
               Future.successful(Left(ApiError.InternalServerError))
           }
       }

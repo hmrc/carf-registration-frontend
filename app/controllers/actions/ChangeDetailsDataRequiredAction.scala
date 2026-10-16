@@ -58,8 +58,8 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
                 )
               )
             case _            =>
-              logWarn("[ChangeDetailsDataRequiredAction] Could not retrieve display subscription details.")
-              throw new Exception("Could not retrieve subscription details")
+              logWarn("[ChangeDetailsDataRequiredAction][refine] Could not retrieve display subscription details.")
+              throw new Exception("[ChangeDetailsDataRequiredAction][refine] Could not retrieve subscription details")
           }
         } else {
           Future.successful(
@@ -74,7 +74,7 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
           )
         }
       case None              =>
-        logWarn("[ChangeDetailsDataRequiredAction] User answers could not be found for request.")
+        logWarn("[ChangeDetailsDataRequiredAction][refine] User answers could not be found for request.")
         Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
     }
 

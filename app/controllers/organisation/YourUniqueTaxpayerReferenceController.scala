@@ -27,6 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.LoggerUtil.*
 import views.html.organisation.YourUniqueTaxpayerReferenceView
 
 import javax.inject.Inject
@@ -58,7 +59,9 @@ class YourUniqueTaxpayerReferenceController @Inject() (
 
           Ok(view(preparedForm, mode, messageKey))
 
-        case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case None =>
+          logWarn("[YourUniqueTaxpayerReferenceController][onPageLoad] Could not retrieve registration type")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
 
@@ -79,7 +82,9 @@ class YourUniqueTaxpayerReferenceController @Inject() (
                   _              <- sessionRepository.set(updatedAnswers)
                 } yield Redirect(navigator.nextPage(YourUtrPageForNavigatorOnly, mode, updatedAnswers))
             )
-        case None             => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        case None             =>
+          logWarn("[YourUniqueTaxpayerReferenceController][onSubmit] Could not retrieve registration type")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }
 

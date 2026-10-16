@@ -254,7 +254,7 @@ class SubscriptionHelper {
       name   <- businessName
       result <- if (name.length > validTradingNameMaxLength) {
                   logInfo(
-                    s"[SubscriptionHelper] Business name was greater than 80 characters and has been replaced with $None"
+                    s"[SubscriptionHelper][businessNameLengthCheck] Business name was greater than 80 characters and has been replaced with $None"
                   )
                   None
                 } else Some(name)

@@ -73,12 +73,16 @@ class CarfIdRetrievalActionExtractor @Inject() (
           case Some(subscriptionId) =>
             block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
           case None                 =>
-            logInfo("User has no CARF enrolment. Taking user to the start of the registration journey.")
+            logInfo(
+              "[CarfIdRetrievalActionExtractor][invokeBlock] User has no CARF enrolment. Taking user to the start of the registration journey."
+            )
             Future.successful(Redirect(controllers.routes.IndexController.onPageLoad(NormalMode)))
         }
       case _                             =>
-        logWarn("Unable to retrieve internal id")
-        throw AuthorisationException.fromString("Unable to retrieve internal id")
+        logWarn("[CarfIdRetrievalActionExtractor][invokeBlock] Unable to retrieve internal id")
+        throw AuthorisationException.fromString(
+          "[CarfIdRetrievalActionExtractor][invokeBlock] Unable to retrieve internal id"
+        )
     } recover {
       case _: NoActiveSession        =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))

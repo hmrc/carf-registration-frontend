@@ -112,7 +112,9 @@ class SubscriptionServiceSpec extends SpecBase {
         val result = testService.subscribe(emptyUserAnswers).value.futureValue
 
         result mustBe Left(
-          MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")
+          MandatoryInformationMissingError(
+            "[SubscriptionService][subscribe] There has been an error building the subscription request from userAnswers"
+          )
         )
         verify(mockConnector, never()).createSubscription(any[SubscriptionRequest])(any(), any())
       }
@@ -144,7 +146,9 @@ class SubscriptionServiceSpec extends SpecBase {
         val result = testService.updateSubscription(emptyUserAnswers, exampleSubscriptionId.value).value.futureValue
 
         result mustBe Left(
-          MandatoryInformationMissingError("There has been an error building the subscription request from userAnswers")
+          MandatoryInformationMissingError(
+            "[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
+          )
         )
         verify(mockConnector, never()).updateSubscription(any[SubscriptionRequest])(any(), any())
       }

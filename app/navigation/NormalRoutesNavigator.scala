@@ -368,7 +368,7 @@ trait NormalRoutesNavigator extends UserAnswersHelper {
         controllers.organisation.routes.OrganisationAlreadyRegisteredController.onPageLoad()
       case OrgWithoutId | IndWithoutId =>
         logWarn(
-          "Already registered response has been returned for without id journeys. This should not be possible!"
+          "[NormalRoutesNavigator][checkYourAnswersErrorNavigation] Already registered response has been returned for without id journeys. This should not be possible!"
         )
         routes.JourneyRecoveryController.onPageLoad()
     }

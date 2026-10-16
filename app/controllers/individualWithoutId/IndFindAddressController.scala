@@ -82,7 +82,7 @@ class IndFindAddressController @Inject() (
               .postcodeSearch(value.postcode, value.propertyNameOrNumber)
               .flatMap {
                 case Left(error)                                    =>
-                  logError(s"[IndFindAddressController][onSubmit] Address lookup service failed: $error")
+                  logWarn(s"[IndFindAddressController][onSubmit] Address lookup service failed: $error")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
                 case Right((Nil, _))                                =>
                   val formError =

@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.WhereDoYouLiveView
-import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,10 +62,7 @@ class WhereDoYouLiveController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => {
-            logDebug("Where do you live form submission contained errors")
-            Future.successful(BadRequest(view(formWithErrors, mode)))
-          },
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(WhereDoYouLivePage, value))

@@ -48,9 +48,10 @@ class ChangeIndividualContactDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
     implicit request =>
-      request.userAnswers.displaySubscriptionResponse.fold(
+      request.userAnswers.displaySubscriptionResponse.fold {
+        logWarn("[ChangeIndividualContactDetailsController][onPageLoad] No subscription data found")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      ) { displaySubscriptionResponse =>
+      } { displaySubscriptionResponse =>
 
         val pageDetails = for {
           maybeSummaryListRows <- changeDetailsHelper.getFirstContactDetailsSectionMaybe(request.userAnswers)
@@ -70,6 +71,7 @@ class ChangeIndividualContactDetailsController @Inject() (
           case Some((summaryListRows, hasChanged)) =>
             Ok(view(summaryListRows, hasChanged, appConfig.carfManagementFrontendHomePageUrl))
           case None                                =>
+            logWarn("[ChangeIndividualContactDetailsController][onPageLoad] Could not retrieve contact details")
             Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
         }
       }
@@ -86,18 +88,15 @@ class ChangeIndividualContactDetailsController @Inject() (
               _ <-
                 auditService
                   .auditChangeContactDetails(request.userAnswers, isIndividual = true)
-                  .recover { case e =>
-                    logDebug(s"Auditing ChangeContactDetails failed due to $e")
-                    ()
-                  }
+                  .recover { case e => () }
                   .value
 
             } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logError("[ChangeIndividualContactDetailsController] Had missing data on submission")
+            logWarn("[ChangeIndividualContactDetailsController][onSubmit] Had missing data on submission")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
-            logError(s"[ChangeIndividualContactDetailsController] Failed to update: $error")
+            logWarn(s"[ChangeIndividualContactDetailsController][onSubmit] Failed to update: $error")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }

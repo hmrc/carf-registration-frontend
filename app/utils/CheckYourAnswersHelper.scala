@@ -93,7 +93,9 @@ class CheckYourAnswersHelper @Inject() {
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, whatNino, name, dob))
                 } else {
-                  logWarn("Individual with NINO answers were not as expected")
+                  logWarn(
+                    "[CheckYourAnswersHelper][indWithNinoYourDetailsMaybe] Individual with NINO answers were not as expected"
+                  )
                   None
                 }
               }
@@ -103,7 +105,9 @@ class CheckYourAnswersHelper @Inject() {
             None
         }
       } else {
-        logWarn("Individual with NINO requires user to have a nino. When questioned, user answered false")
+        logWarn(
+          "[CheckYourAnswersHelper][indWithNinoYourDetailsMaybe] Individual with NINO requires user to have a nino. When questioned, user answered false"
+        )
         None
       }
   }.flatten.map(Section(messages("checkYourAnswers.summaryListTitle.individualDetails"), _))
@@ -133,7 +137,9 @@ class CheckYourAnswersHelper @Inject() {
                 if (hasCorrectAnswersForGettingHere) {
                   Some(Seq(registeringAs, registeredAddressInUkRow, haveUtrRow, haveNinoRow, name, dob, address))
                 } else {
-                  logWarn("Individual without NINO answers were not as expected")
+                  logWarn(
+                    "[CheckYourAnswersHelper][indWithoutIdYourDetailsMaybe] Individual without NINO answers were not as expected"
+                  )
                   None
                 }
               }
@@ -144,7 +150,7 @@ class CheckYourAnswersHelper @Inject() {
         }
       } else {
         logWarn(
-          "Individual without NINO requires user to NOT have a nino. When questioned, user answered true"
+          "[CheckYourAnswersHelper][indWithoutIdYourDetailsMaybe] Individual without NINO requires user to NOT have a nino. When questioned, user answered true"
         )
         None
       }

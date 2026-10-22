@@ -70,7 +70,7 @@
     <p class="govuk-body">@messages("registrationConfirmation.feedback.text")</p>
     <p class="govuk-body">
         @link(
-            routes.PlaceholderController.onPageLoad("Page will be implemented in CARF-369").url,
+            controllers.auth.routes.AuthController.signOut().url,
             "registrationConfirmation.feedback.link",
             id = Some("exit-survey-link")
         )

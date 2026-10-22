@@ -172,8 +172,14 @@ whatIsTheNameOfYourBusiness.unincorporatedAssociationTrust.error.length = Organi
 
 orgYourContactDetails.title = Setting up contact details for cryptoasset reporting
 orgYourContactDetails.heading = Setting up contact details for cryptoasset reporting
-orgYourContactDetails.paragraph1 = Provide the name and contact details for one or two people or teams within your organisation who could answer questions about your reports.
-orgYourContactDetails.paragraph2 = You can change your contact names and details later, if you want to.
+orgYourContactDetails.paragraph1 = You must provide contact details for one or two people or teams within your organisation. You can change your contact details later if needed.
+orgYourContactDetails.paragraph2 = You can choose whether you want to provide a phone number.
+orgYourContactDetails.heading2 = Why we need these contact details
+orgYourContactDetails.paragraph3 = We’ll use these contact details to send confirmation emails. We may also email or phone these contacts about:
+orgYourContactDetails.bullet1 = information in previous reports
+orgYourContactDetails.bullet2 = what’s required for reporting
+orgYourContactDetails.heading3 = Who to add as contacts
+orgYourContactDetails.paragraph4 = Your contacts must be able to answer questions about reports. They do not need to have a specific role within your organisation.
 
 niNumber.title = What is your National Insurance number?
 niNumber.heading = What is your National Insurance number?
@@ -262,7 +268,6 @@ registerDateOfBirth.change.hidden = Change details of your national insurance nu
 
 firstContactPhone.title = Can we contact your first contact by phone?
 firstContactPhone.heading = Can we contact {0} by phone?
-firstContactPhone.p1 = We will call if we have any questions about your reports.
 firstContactPhone.checkYourAnswersLabel = Can we contact the first contact by phone?
 firstContactPhone.error.required = Select yes if the first contact can be contacted by phone
 firstContactPhone.change.hidden = Change if we can contact the first contact by phone
@@ -290,15 +295,13 @@ organisationSecondContactPhoneNumber.hint = For international numbers, include t
 firstContactEmail.title = What is the email address for the first contact?
 firstContactEmail.heading = What is the email address for {0}?
 firstContactEmail.checkYourAnswersLabel = First contact email address
-firstContactEmail.paragraph = We will use this email address to send confirmation of your reports or if we have any questions about them.
 firstContactEmail.error.required = Enter an email address for the first contact
 firstContactEmail.error.length = The email address must be 132 characters or less
 firstContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
 firstContactEmail.change.hidden = Change first contact email address
 
-organisationHaveSecondContact.title =  Is there someone else we can contact if your first contact is not available?
+organisationHaveSecondContact.title = Is there someone else we can contact if your first contact is not available?
 organisationHaveSecondContact.heading = Is there someone else we can contact if {0} is not available?
-organisationHaveSecondContact.hint = This can be a team mailbox or another contact.
 organisationHaveSecondContact.checkYourAnswersLabel = Do you have a second contact?
 organisationHaveSecondContact.error.required = Select yes if there is someone else we can contact
 organisationHaveSecondContact.change.hidden = Change if you have a second contact
@@ -368,7 +371,6 @@ businessNotIdentified.name.p1.default = Check if you have entered your full busi
 
 organisationSecondContactHavePhone.title = Can we contact your second contact by phone?
 organisationSecondContactHavePhone.heading = Can we contact {0} by phone?
-organisationSecondContactHavePhone.p1 = We will call if we have any questions about your reports.
 organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact the second contact by phone?
 organisationSecondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
 organisationSecondContactHavePhone.change.hidden = Change if we can contact the second contact by phone

@@ -499,9 +499,6 @@ registrationConfirmation.feedback.text = Your feedback helps us make our service
 registrationConfirmation.feedback.link = Take a short survey
 registrationConfirmation.feedback.postLink = to share your feedback on this service.
 
-page.unavailable.title = Page Unavailable
-page.unavailable.heading = Page Unavailable
-
 indWithoutIdAddressNonUk.title = What is your address?
 indWithoutIdAddressNonUk.heading = What is your address?
 indWithoutIdAddressNonUk.addressLine1 = Address line 1
@@ -530,7 +527,6 @@ indWithoutIdAddressUk.checkYourAnswersLabel = Your home address
 indWithoutIdAddressUk.change.hidden = Change your home address
 
 address.heading = What is your address?
-
 address.title = What is your address?
 address.addressLine1 = Address line 1
 address.addressLine1.error.required = Enter address line 1

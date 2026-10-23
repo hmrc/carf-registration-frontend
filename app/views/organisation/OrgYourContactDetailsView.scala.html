@@ -27,12 +27,18 @@
 
     <p class="govuk-body">@messages("orgYourContactDetails.paragraph1")</p>
 
-    <p class="govuk-body">@messages("orgYourContactDetails.paragraph2")</p>
+    <h2 class="govuk-heading-m">@messages("orgYourContactDetails.heading2")</h2>
+    <p class="govuk-body govuk-!-margin-bottom-2">@messages("orgYourContactDetails.paragraph2")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("orgYourContactDetails.bullet1")</li>
+        <li>@messages("orgYourContactDetails.bullet2")</li>
+    </ul>
+    <p class="govuk-body">@messages("orgYourContactDetails.paragraph3")</p>
+
+    <h2 class="govuk-heading-m">@messages("orgYourContactDetails.heading3")</h2>
+    <p class="govuk-body">@messages("orgYourContactDetails.paragraph4")</p>
 
     @govukButton(
         ButtonViewModel(messages("site.continue")).withAttribute("id" -> "continue").asLink(continueUrl)
     )
-
-    <br>
-  
 }

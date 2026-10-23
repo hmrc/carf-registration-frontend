@@ -295,6 +295,7 @@ organisationSecondContactPhoneNumber.hint = For international numbers, include t
 firstContactEmail.title = What is the email address for the first contact?
 firstContactEmail.heading = What is the email address for {0}?
 firstContactEmail.checkYourAnswersLabel = First contact email address
+firstContactEmail.paragraph = We will use this email address to send confirmation of your reports or if we have any questions about them.
 firstContactEmail.error.required = Enter an email address for the first contact
 firstContactEmail.error.length = The email address must be 132 characters or less
 firstContactEmail.error.invalid = Enter an email address in the right format, like yourname@example.com
@@ -372,6 +373,7 @@ businessNotIdentified.name.p1.default = Check if you have entered your full busi
 
 organisationSecondContactHavePhone.title = Can we contact your second contact by phone?
 organisationSecondContactHavePhone.heading = Can we contact {0} by phone?
+organisationSecondContactHavePhone.p1 = We will call if we have any questions about your reports.
 organisationSecondContactHavePhone.checkYourAnswersLabel = Can we contact the second contact by phone?
 organisationSecondContactHavePhone.error.required = Select yes if the second contact can be contacted by phone
 organisationSecondContactHavePhone.change.hidden = Change if we can contact the second contact by phone

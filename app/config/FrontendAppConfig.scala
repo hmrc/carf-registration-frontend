@@ -90,5 +90,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val createSubscriptionTimeoutInSeconds: Int =
     configuration.get[Int]("microservice.services.create-subscription.timeoutInSeconds")
 
+  val passcode: String              = configuration.get[String]("features.passcode")
+  val passcodeCheckEnabled: Boolean = configuration.get[Boolean]("features.passcodeCheckEnabled")
+
   def emailSendForce: Boolean = servicesConfig.getBoolean("microservice.services.email.force")
 }

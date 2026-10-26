@@ -72,7 +72,7 @@ class RegistrationConfirmationController @Inject() (
           view(
             subscriptionId = subscriptionId.value,
             emailAddresses = contacts.map(_.email),
-            addProviderUrl = appConfig.managementRoutingUrl
+            addProviderUrl = passcodeRoutingCheck(request.userAnswers)
           )
         )
       }
@@ -115,4 +115,10 @@ class RegistrationConfirmationController @Inject() (
           email <- userAnswers.get(IndividualEmailPage)
         } yield List(ContactEmailInfo(name.fullName, email))
     }
+
+  private def passcodeRoutingCheck(userAnswers: UserAnswers) =
+    if (appConfig.passcodeCheckEnabled)
+      s"${appConfig.managementRoutingUrl}/passcode/${userAnswers.get(PasscodePage).get}"
+    else
+      appConfig.managementRoutingUrl
 }

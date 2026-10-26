@@ -27,3 +27,5 @@ case class IdentifierRequest[A](
     enrolments: Set[Enrolment] = Set.empty,
     utr: Option[UniqueTaxpayerReference] = None
 ) extends WrappedRequest[A](request)
+
+case class PasscodeRequest[A](request: Request[A], userId: String) extends WrappedRequest[A](request)

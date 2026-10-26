@@ -75,7 +75,7 @@ class CarfIdRetrievalActionExtractor @Inject() (
       case Some(internalId) ~ enrolments =>
         getCarfId(enrolments) match {
           case Some(subscriptionId) =>
-            passcodeEnabledCheck(internalId).flatMap {
+            handlePasscodeCheck(internalId).flatMap {
               case true =>
                 block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
               case _    =>
@@ -109,7 +109,7 @@ class CarfIdRetrievalActionExtractor @Inject() (
       carfId    <- if (id.value.nonEmpty) Some(id.value) else None
     } yield carfId
 
-  private def passcodeEnabledCheck(userId: String): Future[Boolean] =
+  private def handlePasscodeCheck(userId: String): Future[Boolean] =
     if (config.passcodeCheckEnabled)
       passcodeCheck(userId)
     else

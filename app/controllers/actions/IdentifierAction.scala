@@ -85,7 +85,7 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
       case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
         Future.successful(Redirect(routes.AssistantSignInProblemController.onPageLoad()))
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
-        passcodeEnabledCheck(internalID).flatMap {
+        handlePasscodeCheck(internalID).flatMap {
           case true => block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
           case _    => Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Content not yet available")))
         }
@@ -105,7 +105,7 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
     }
   }
 
-  private def passcodeEnabledCheck(userId: String): Future[Boolean] =
+  private def handlePasscodeCheck(userId: String): Future[Boolean] =
     if (config.passcodeCheckEnabled)
       passcodeCheck(userId)
     else

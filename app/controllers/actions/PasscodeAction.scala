@@ -29,26 +29,44 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PasscodeAction @Inject() (
+class PasscodeActionImpl @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
     val parser: BodyParsers.Default
-)(implicit val ec: ExecutionContext)
+)(implicit val executionContext: ExecutionContext)
+    extends PasscodeAction
+    with AuthorisedFunctions {
+
+  override def apply(
+      redirect: Boolean = true
+  ): ActionBuilder[PasscodeRequest, AnyContent] with ActionFunction[Request, PasscodeRequest] =
+    new PasscodeActionExtractor(authConnector, config, parser)
+}
+
+class PasscodeActionExtractor @Inject() (
+    override val authConnector: AuthConnector,
+    config: FrontendAppConfig,
+    val parser: BodyParsers.Default
+)(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[PasscodeRequest, AnyContent]
     with ActionFunction[Request, PasscodeRequest]
     with AuthorisedFunctions {
-
-  override protected def executionContext: ExecutionContext = ec
 
   override def invokeBlock[A](request: Request[A], block: PasscodeRequest[A] => Future[Result]): Future[Result] = {
     implicit val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     authorised()
       .retrieve(Retrievals.internalId) {
         case Some(id) => block(PasscodeRequest(request = request, userId = id))
-        case _        => Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Uh oh! we failin")))
+        case _        => Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Could not retrieve id!")))
       } recover { case _: NoActiveSession =>
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
     }
   }
 
+}
+
+trait PasscodeAction {
+  def apply(
+      redirect: Boolean = true
+  ): ActionBuilder[PasscodeRequest, AnyContent] with ActionFunction[Request, PasscodeRequest]
 }

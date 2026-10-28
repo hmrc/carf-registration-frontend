@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.JourneyType.*
 import models.{Name, RegistrationType, SubscriptionId, UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -24,7 +25,8 @@ import org.mockito.Mockito.{never, reset, verify, when}
 import pages.individual.{IndividualEmailPage, WhatIsYourNameIndividualPage}
 import pages.individualWithoutId.IndWithoutNinoNamePage
 import pages.organisation.*
-import pages.{RegistrationTypePage, SubmissionSucceededPage}
+import pages.{PasscodePage, RegistrationTypePage, SubmissionSucceededPage}
+import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -36,18 +38,21 @@ import scala.concurrent.Future
 
 class RegistrationConfirmationControllerSpec extends SpecBase {
 
-  private val mockEmailService = mock[EmailService]
-  private val subscriptionId   = SubscriptionId("XCARF0012345678")
-  private val routingUrl       = "http://localhost:17002/manage-your-rcasps"
+  private val mockEmailService: EmailService   = mock[EmailService]
+  private val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  private val subscriptionId: SubscriptionId   = SubscriptionId("XCARF0012345678")
+  private val passcode: String                 = "Test"
+  private val routingUrl: String               = "http://localhost:17002/manage-your-rcasps"
+  private val passcodeRoutingUrl: String       = s"$routingUrl/passcode/$passcode"
 
   override def beforeEach(): Unit = {
     reset(mockEmailService)
     super.beforeEach()
   }
 
-  def buildApplication(userAnswers: Option[UserAnswers]) =
+  def buildApplication(userAnswers: Option[UserAnswers]): Application =
     applicationBuilder(userAnswers = userAnswers)
-      .overrides(bind[EmailService].toInstance(mockEmailService))
+      .overrides(bind[EmailService].toInstance(mockEmailService), bind[FrontendAppConfig].toInstance(mockAppConfig))
       .build()
 
   private def request = FakeRequest(routes.RegistrationConfirmationController.onPageLoad())
@@ -62,6 +67,9 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
   }
 
   "RegistrationConfirmationController" - {
+
+    when(mockAppConfig.managementRoutingUrl).thenReturn(routingUrl)
+    when(mockAppConfig.feedbackUrl(any())).thenReturn("foo")
 
     "onPageLoad" - {
 
@@ -81,6 +89,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
 
         stubSessionSave()
 
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(
           mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
             any[HeaderCarrier]
@@ -108,9 +117,55 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
         }
       }
 
+      "must return OK and render view when submission already succeeded (OrgWithUtr with LimitedCompany) and passcode check is enabled" in {
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "org@test.com")
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, "Jane Smith")
+            .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+            .withPage(RegistrationTypePage, RegistrationType.LimitedCompany)
+            .withPage(SubmissionSucceededPage, true)
+            .withPage(PasscodePage, passcode)
+            .copy(isCtAutoMatched = true)
+
+        stubSessionSave()
+
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
+        ).thenReturn(Future.successful(()))
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("org@test.com", "org2@test.com"),
+            addProviderUrl = passcodeRoutingUrl
+          )(request, messages(application)).toString
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(Some(subscriptionId.value)),
+            eqTo(true)
+          )(any[HeaderCarrier])
+        }
+      }
+
       "must return OK and render view for organisation with UTR and allowed registration type" in {
         stubSessionSave()
 
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(
           mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
             any[HeaderCarrier]
@@ -150,9 +205,54 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
         }
       }
 
+      "must return OK and render view for organisation with UTR and allowed registration type when passcode check is enabled" in {
+        stubSessionSave()
+
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
+        ).thenReturn(Future.successful(()))
+
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(OrgWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "org@test.com")
+            .withPage(OrganisationHaveSecondContactPage, true)
+            .withPage(OrganisationSecondContactNamePage, "Jane Smith")
+            .withPage(OrganisationSecondContactEmailPage, "org2@test.com")
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+            .withPage(RegistrationTypePage, RegistrationType.Partnership)
+            .withPage(PasscodePage, passcode)
+            .copy(isCtAutoMatched = true)
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("org@test.com", "org2@test.com"),
+            addProviderUrl = passcodeRoutingUrl
+          )(request, messages(application)).toString
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(Some(subscriptionId.value)),
+            eqTo(false)
+          )(any[HeaderCarrier])
+        }
+      }
+
       "must return OK and render view for organisation with SoleTrader (no CARF reference)" in {
         stubSessionSave()
 
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(
           mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
             any[HeaderCarrier]
@@ -189,9 +289,51 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
         }
       }
 
+      "must return OK and render view for organisation with SoleTrader (no CARF reference) when passcode check is enabled" in {
+        stubSessionSave()
+
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
+        ).thenReturn(Future.successful(()))
+
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(IndWithUtr), subscriptionId = Some(subscriptionId))
+            .withPage(WhatIsYourNamePage, Name("John", "Doe"))
+            .withPage(IndividualEmailPage, "timmy@example.com")
+            .withPage(UniqueTaxpayerReferenceInUserAnswers, UniqueTaxpayerReference("1234567890"))
+            .withPage(RegistrationTypePage, RegistrationType.SoleTrader)
+            .withPage(PasscodePage, passcode)
+            .copy(isCtAutoMatched = false)
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("timmy@example.com"),
+            addProviderUrl = passcodeRoutingUrl
+          )(request, messages(application)).toString
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(None),
+            eqTo(false)
+          )(any[HeaderCarrier])
+        }
+      }
+
       "must return OK and render view for organisation without ID" in {
         stubSessionSave()
 
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(
           mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
             any[HeaderCarrier]
@@ -217,6 +359,46 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
             subscriptionId = subscriptionId.value,
             emailAddresses = List("orgwithout@test.com"),
             addProviderUrl = routingUrl
+          )(request, messages(application)).toString
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(Some(subscriptionId.value)),
+            eqTo(false)
+          )(any[HeaderCarrier])
+        }
+      }
+
+      "must return OK and render view for organisation without ID when passcode check is enabled" in {
+        stubSessionSave()
+
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
+        ).thenReturn(Future.successful(()))
+
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(OrgWithoutId), subscriptionId = Some(subscriptionId))
+            .withPage(FirstContactNamePage, "John Doe")
+            .withPage(FirstContactEmailPage, "orgwithout@test.com")
+            .withPage(OrganisationHaveSecondContactPage, false)
+            .withPage(PasscodePage, passcode)
+            .copy(isCtAutoMatched = false)
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("orgwithout@test.com"),
+            addProviderUrl = passcodeRoutingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(
@@ -259,6 +441,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
         reset(mockEmailService, mockSessionRepository)
         stubSessionSave()
 
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(mockEmailService.sendEmails(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(()))
 
@@ -288,6 +471,7 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
 
         stubSessionSave()
 
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(
           mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
             any[HeaderCarrier]
@@ -311,6 +495,46 @@ class RegistrationConfirmationControllerSpec extends SpecBase {
             subscriptionId = subscriptionId.value,
             emailAddresses = List("indwithout@test.com"),
             addProviderUrl = routingUrl
+          )(request, messages(application)).toString
+
+          verify(mockEmailService).sendEmails(
+            any[List[ContactEmailInfo]],
+            eqTo(None),
+            eqTo(false)
+          )(any[HeaderCarrier])
+        }
+      }
+
+      "must return OK and render view for individual without ID journeys (no CARF reference) when passcode check is enabled" in {
+        reset(mockEmailService, mockSessionRepository)
+
+        stubSessionSave()
+
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(
+          mockEmailService.sendEmails(any[List[ContactEmailInfo]], any[Option[String]], any[Boolean])(
+            any[HeaderCarrier]
+          )
+        ).thenReturn(Future.successful(()))
+
+        val userAnswers =
+          emptyUserAnswers
+            .copy(journeyType = Some(IndWithoutId), subscriptionId = Some(subscriptionId))
+            .withPage(IndWithoutNinoNamePage, Name("John", "Smith"))
+            .withPage(IndividualEmailPage, "indwithout@test.com")
+            .withPage(PasscodePage, passcode)
+
+        val application = buildApplication(Some(userAnswers))
+        val view        = application.injector.instanceOf[RegistrationConfirmationView]
+
+        running(application) {
+          val result = route(application, request).value
+
+          status(result)          mustEqual OK
+          contentAsString(result) mustEqual view(
+            subscriptionId = subscriptionId.value,
+            emailAddresses = List("indwithout@test.com"),
+            addProviderUrl = passcodeRoutingUrl
           )(request, messages(application)).toString
 
           verify(mockEmailService).sendEmails(

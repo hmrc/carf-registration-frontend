@@ -87,7 +87,8 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
         handlePasscodeCheck(internalID).flatMap {
           case true => block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
-          case _    => Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Content not yet available")))
+          case _    =>
+            Future.successful(Redirect(controllers.routes.PasscodeIncorrectController.onPageLoad()))
         }
 
       case _ =>

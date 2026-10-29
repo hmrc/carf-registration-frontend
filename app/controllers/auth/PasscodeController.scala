@@ -30,12 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class PasscodeController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     sessionRepository: SessionRepository,
-    identify: PasscodeAction
+    passcodeAction: PasscodeAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def processPasscode(passcode: String): Action[AnyContent] = identify().async { implicit request =>
+  def processPasscode(passcode: String): Action[AnyContent] = passcodeAction().async { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(UserAnswers(request.userId).set(PasscodePage, passcode))
       _              <- sessionRepository.set(updatedAnswers)

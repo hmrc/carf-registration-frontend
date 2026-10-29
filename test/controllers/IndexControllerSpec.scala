@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import controllers.actions.{CtUtrRetrievalAction, FakeCtUtrRetrievalAction}
 import models.JourneyType.OrgWithUtr
 import models.{NormalMode, UniqueTaxpayerReference, UserAnswers}
@@ -37,6 +38,8 @@ import scala.concurrent.Future
 
 class IndexControllerSpec extends SpecBase {
 
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+
   val testExistingUserAnswers: UserAnswers        =
     UserAnswers(id = "test-id", lastUpdated = clock.instant()).set(HaveNiNumberPage, true).success.value
   val testExistingUserAnswersWithUtr: UserAnswers =
@@ -47,7 +50,6 @@ class IndexControllerSpec extends SpecBase {
       "must be redirected successfully" in new Setup(Individual) {
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction())
-
         val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
 
         val result: Future[Result] = route(application, request).value
@@ -84,6 +86,31 @@ class IndexControllerSpec extends SpecBase {
         Organisation,
         Some(testUtrString)
       ) {
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
+        when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
+        when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
+
+        val request = FakeRequest(GET, routes.IndexController.onPageLoad(NormalMode).url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)                 mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.IsThisYourBusinessController
+          .onPageLoad(NormalMode)
+          .url
+        verify(mockSessionRepository).set(
+          argThat(ua =>
+            ua.get(UniqueTaxpayerReferenceInUserAnswers).contains(testUtr) &&
+              ua.isCtAutoMatched && ua.journeyType.contains(OrgWithUtr)
+          )
+        )
+      }
+
+      "create user answers with isCtAutoMatched and journeyType set when passcode check is enabled" in new Setup(
+        Organisation,
+        Some(testUtrString)
+      ) {
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
         when(mockSessionRepository.set(any)).thenReturn(Future.successful(true))
 
@@ -108,6 +135,7 @@ class IndexControllerSpec extends SpecBase {
         Some(testUtrString),
         Some(testExistingUserAnswers)
       ) {
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
         when(mockCtUtrRetrievalAction.apply()).thenReturn(new FakeCtUtrRetrievalAction(utr = Some(testUtr)))
         when(mockSessionRepository.set(testExistingUserAnswersWithUtr)).thenReturn(Future.successful(true))
 
@@ -168,6 +196,7 @@ class IndexControllerSpec extends SpecBase {
       applicationBuilder(affinityGroup = affinityGroup, requestUtr = requestUtr, userAnswers = userAnswers)
         .overrides(
           bind[CtUtrRetrievalAction].toInstance(mockCtUtrRetrievalAction),
+          bind[FrontendAppConfig].toInstance(mockAppConfig),
           bind[Clock].toInstance(clock)
         )
         .build()

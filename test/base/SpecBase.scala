@@ -98,6 +98,7 @@ trait SpecBase
         bind[CarfIdRetrievalAction].toInstance(new FakeCarfIdRetrievalAction(injectedParsers)),
         bind[ChangeDetailsDataRequiredAction].toInstance(new FakeChangeDetailsDataRequiredAction(userAnswers)),
         bind[BasicAuthAction].toInstance(new FakeBasicAuthAction(injectedParsers)),
+        bind[PasscodeAction].toInstance(new FakePasscodeAction(injectedParsers)),
         bind[SubmissionLockAction].to[FakeSubmissionLockAction],
         bind[SessionRepository].toInstance(mockSessionRepository)
       )

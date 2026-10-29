@@ -20,9 +20,11 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
+import pages.PasscodePage
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*
+import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -43,7 +45,8 @@ trait IdentifierAction {
 class AuthenticatedIdentifierAction @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
-    val parser: BodyParsers.Default
+    val parser: BodyParsers.Default,
+    sessionRepository: SessionRepository
 )(implicit val executionContext: ExecutionContext)
     extends IdentifierAction
     with AuthorisedFunctions {
@@ -51,14 +54,15 @@ class AuthenticatedIdentifierAction @Inject() (
   override def apply(
       redirect: Boolean = true
   ): ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest] =
-    new AuthenticatedIdentifierActionWithRegime(authConnector, config, parser, redirect)
+    new AuthenticatedIdentifierActionWithRegime(authConnector, config, parser, redirect, sessionRepository)
 }
 
 class AuthenticatedIdentifierActionWithRegime @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
     val parser: BodyParsers.Default,
-    val redirect: Boolean
+    val redirect: Boolean,
+    sessionRepository: SessionRepository
 )(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[IdentifierRequest, AnyContent]
     with ActionFunction[Request, IdentifierRequest]
@@ -81,8 +85,12 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
       case _ ~ _ ~ _ ~ Some(Assistant)                                                               =>
         Future.successful(Redirect(routes.AssistantSignInProblemController.onPageLoad()))
       case Some(internalID) ~ enrolments ~ Some(affinityGroup) ~ _                                   =>
-        block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
-      case _                                                                                         =>
+        handlePasscodeCheck(internalID).flatMap {
+          case true => block(IdentifierRequest(request, internalID, affinityGroup, enrolments.enrolments))
+          case _    => Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Content not yet available")))
+        }
+
+      case _ =>
         logWarn("[AuthenticatedIdentifierActionWithRegime][invokeBlock] Failed to retrieve valid auth data")
         throw new UnauthorizedException("Failed to retrieve valid auth data")
     } recover {
@@ -96,4 +104,13 @@ class AuthenticatedIdentifierActionWithRegime @Inject() (
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
+
+  private def handlePasscodeCheck(userId: String): Future[Boolean] =
+    if (config.passcodeCheckEnabled)
+      passcodeCheck(userId)
+    else
+      Future.successful(true)
+
+  private def passcodeCheck(userId: String): Future[Boolean] =
+    sessionRepository.get(userId).map(_.exists(_.get(PasscodePage).contains(config.passcode)))
 }

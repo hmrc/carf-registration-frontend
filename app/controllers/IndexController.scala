@@ -16,8 +16,9 @@
 
 package controllers
 
-import models.JourneyType.OrgWithUtr
+import config.FrontendAppConfig
 import controllers.actions.{CtUtrRetrievalAction, DataRetrievalAction, IdentifierAction, SubmissionLockAction}
+import models.JourneyType.OrgWithUtr
 import models.{Mode, NormalMode, UserAnswers}
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
 import play.api.Logging
@@ -36,7 +37,8 @@ class IndexController @Inject() (
     retrieveCtUTR: CtUtrRetrievalAction,
     getData: DataRetrievalAction,
     submissionLock: SubmissionLockAction,
-    sessionRepository: SessionRepository
+    sessionRepository: SessionRepository,
+    config: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -54,15 +56,34 @@ class IndexController @Inject() (
           request.utr match {
             case Some(utr) =>
               for {
-                autoMatchedUserAnswers <-
-                  Future.fromTry(
-                    request.userAnswers
-                      .getOrElse(
-                        UserAnswers(id = request.userId, isCtAutoMatched = true, journeyType = Some(OrgWithUtr))
-                      )
-                      .set(UniqueTaxpayerReferenceInUserAnswers, utr)
-                  )
-                _                      <- sessionRepository.set(autoMatchedUserAnswers)
+                autoMatchedUserAnswers <- if (config.passcodeCheckEnabled) {
+                                            Future.fromTry(
+                                              request.userAnswers
+                                                .getOrElse(
+                                                  UserAnswers(
+                                                    id = request.userId,
+                                                    isCtAutoMatched = true,
+                                                    journeyType = Some(OrgWithUtr)
+                                                  )
+                                                )
+                                                .copy(isCtAutoMatched = true, journeyType = Some(OrgWithUtr))
+                                                .set(UniqueTaxpayerReferenceInUserAnswers, utr)
+                                            )
+                                          } else {
+                                            Future.fromTry(
+                                              request.userAnswers
+                                                .getOrElse(
+                                                  UserAnswers(
+                                                    id = request.userId,
+                                                    isCtAutoMatched = true,
+                                                    journeyType = Some(OrgWithUtr)
+                                                  )
+                                                )
+                                                .set(UniqueTaxpayerReferenceInUserAnswers, utr)
+                                            )
+                                          }
+
+                _ <- sessionRepository.set(autoMatchedUserAnswers)
               } yield Redirect(controllers.routes.IsThisYourBusinessController.onPageLoad(NormalMode))
             case None      =>
               for {

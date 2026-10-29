@@ -23,6 +23,7 @@ import models.NormalMode
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
+import pages.PasscodePage
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.mvc.Results.Ok
 import play.api.mvc.{BodyParsers, Request, Result}
@@ -58,15 +59,16 @@ class CarfIdRetrievalSpec extends SpecBase {
   val emptyEnrolments           = Enrolments(Set.empty[Enrolment])
 
   val testCarfIdRetrievalActionExtractor: CarfIdRetrievalActionExtractor =
-    new CarfIdRetrievalActionExtractor(mockAuthConnector, mockAppConfig, defaultBodyParser)
+    new CarfIdRetrievalActionExtractor(mockAuthConnector, mockAppConfig, defaultBodyParser, mockSessionRepository)
 
   val testAction: Request[_] => Future[Result] = { _ =>
     Future(Ok(testContent))
   }
 
   "CarfIdRetrievalActionExtractor.invokeBlock" - {
-    "execute the block and return OK if authorised and carf id can be retrieved from enrolments" in {
+    "execute the block and return OK if authorised and carf id can be retrieved from enrolments and passcode is disabled" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
+      when(mockAppConfig.passcodeCheckEnabled).thenReturn(false)
       when(
         mockAuthConnector.authorise(
           ArgumentMatchers.eq(EmptyPredicate),
@@ -81,6 +83,49 @@ class CarfIdRetrievalSpec extends SpecBase {
 
       status(result)          mustBe OK
       contentAsString(result) mustBe testContent
+    }
+
+    "execute the block and return OK if authorised and carf id can be retrieved from enrolments when passcode is enabled and passcode is correct" in {
+      when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
+      when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+      when(mockAppConfig.passcode).thenReturn("foo")
+      when(mockSessionRepository.get(any))
+        .thenReturn(Future.successful(Some(emptyUserAnswers.withPage(PasscodePage, "foo"))))
+      when(
+        mockAuthConnector.authorise(
+          ArgumentMatchers.eq(EmptyPredicate),
+          ArgumentMatchers.eq(
+            internalId and allEnrolments
+          )
+        )(any(), any())
+      )
+        .thenReturn(Future(new ~(Some(testInternalId), carfEnrolment)))
+
+      val result: Future[Result] = testCarfIdRetrievalActionExtractor.invokeBlock(FakeRequest(), testAction)
+
+      status(result)          mustBe OK
+      contentAsString(result) mustBe testContent
+    }
+
+    "redirect to Placeholder Page if passcode is enabled and passcode is incorrect" in {
+      when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
+      when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+      when(mockAppConfig.passcode).thenReturn("foo")
+      when(mockSessionRepository.get(any)).thenReturn(Future.successful(None))
+      when(
+        mockAuthConnector.authorise(
+          ArgumentMatchers.eq(EmptyPredicate),
+          ArgumentMatchers.eq(
+            internalId and allEnrolments
+          )
+        )(any(), any())
+      )
+        .thenReturn(Future(new ~(Some(testInternalId), carfEnrolment)))
+
+      val result: Future[Result] = testCarfIdRetrievalActionExtractor.invokeBlock(FakeRequest(), testAction)
+
+      status(result)           mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.PlaceholderController.onPageLoad("Content not yet available").url)
     }
 
     "redirect to Index Page (start of registration journey) if carf enrolment is not present" in {

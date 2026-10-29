@@ -20,8 +20,10 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import models.{IdentifierRequestWithSubscriptionId, IdentifierType, NormalMode, SubscriptionId}
+import pages.PasscodePage
 import play.api.mvc.*
 import play.api.mvc.Results.*
+import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -41,21 +43,23 @@ trait CarfIdRetrievalAction {
 class CarfIdRetrievalActionImpl @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
-    val parser: BodyParsers.Default
+    val parser: BodyParsers.Default,
+    sessionRepository: SessionRepository
 )(implicit val executionContext: ExecutionContext)
     extends CarfIdRetrievalAction
     with AuthorisedFunctions {
 
   override def apply(): ActionBuilder[IdentifierRequestWithSubscriptionId, AnyContent]
     with ActionFunction[Request, IdentifierRequestWithSubscriptionId] =
-    new CarfIdRetrievalActionExtractor(authConnector, config, parser)
+    new CarfIdRetrievalActionExtractor(authConnector, config, parser, sessionRepository)
 
 }
 
 class CarfIdRetrievalActionExtractor @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
-    val parser: BodyParsers.Default
+    val parser: BodyParsers.Default,
+    sessionRepository: SessionRepository
 )(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[IdentifierRequestWithSubscriptionId, AnyContent]
     with ActionFunction[Request, IdentifierRequestWithSubscriptionId]
@@ -71,7 +75,12 @@ class CarfIdRetrievalActionExtractor @Inject() (
       case Some(internalId) ~ enrolments =>
         getCarfId(enrolments) match {
           case Some(subscriptionId) =>
-            block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
+            handlePasscodeCheck(internalId).flatMap {
+              case true =>
+                block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
+              case _    =>
+                Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Content not yet available")))
+            }
           case None                 =>
             logInfo(
               "[CarfIdRetrievalActionExtractor][invokeBlock] User has no CARF enrolment. Taking user to the start of the registration journey."
@@ -100,4 +109,12 @@ class CarfIdRetrievalActionExtractor @Inject() (
       carfId    <- if (id.value.nonEmpty) Some(id.value) else None
     } yield carfId
 
+  private def handlePasscodeCheck(userId: String): Future[Boolean] =
+    if (config.passcodeCheckEnabled)
+      passcodeCheck(userId)
+    else
+      Future.successful(true)
+
+  private def passcodeCheck(userId: String): Future[Boolean] =
+    sessionRepository.get(userId).map(_.exists(_.get(PasscodePage).contains(config.passcode)))
 }

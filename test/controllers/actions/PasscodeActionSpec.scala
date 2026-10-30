@@ -44,12 +44,14 @@ class PasscodeActionSpec extends SpecBase {
   val mockAppConfig: FrontendAppConfig       = mock[FrontendAppConfig]
   val defaultBodyParser: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
-  val testContent = "Test"
+  val testContent  = "Test"
+  val testPasscode = "Test123"
 
   val testPasscodeAction: PasscodeActionExtractor = new PasscodeActionExtractor(
     mockAuthConnector,
     mockAppConfig,
-    defaultBodyParser
+    defaultBodyParser,
+    testPasscode
   )
 
   val testAction: Request[_] => Future[Result] = { _ =>
@@ -88,7 +90,7 @@ class PasscodeActionSpec extends SpecBase {
       )
     }
 
-    "redirect to the login page if no longer authorised or never logged in" in {
+    "redirect to the login page with the passcode page as the continue redirect as if no longer authorised or never logged in" in {
       List(
         BearerTokenExpired(),
         MissingBearerToken(),
@@ -96,13 +98,13 @@ class PasscodeActionSpec extends SpecBase {
         SessionRecordNotFound()
       ).foreach { exception =>
         when(mockAppConfig.loginUrl).thenReturn("/test")
-        when(mockAppConfig.loginContinueUrl).thenReturn("/test2")
+        when(mockAppConfig.loginContinuePasscodeUrl).thenReturn("/passcode")
         when(mockAuthConnector.authorise[Unit](any(), any())(any(), any())).thenReturn(Future.failed(exception))
 
         val result: Future[Result] = testPasscodeAction.invokeBlock(FakeRequest(), testAction)
 
         status(result)                 mustBe SEE_OTHER
-        redirectLocation(result).value mustBe s"/test?continue=%2Ftest2"
+        redirectLocation(result).value mustBe s"/test?continue=%2Fpasscode%2FTest123"
       }
     }
 

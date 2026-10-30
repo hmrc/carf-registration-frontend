@@ -35,7 +35,7 @@ class PasscodeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def processPasscode(passcode: String): Action[AnyContent] = identify().async { implicit request =>
+  def processPasscode(passcode: String): Action[AnyContent] = identify(passcode = passcode).async { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(UserAnswers(request.userId).set(PasscodePage, passcode))
       _              <- sessionRepository.set(updatedAnswers)

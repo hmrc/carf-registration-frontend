@@ -16,11 +16,12 @@
 
 package controllers.changeContactDetails
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes
 import models.responses.{DisplaySubscriptionDetails, DisplaySubscriptionResponse}
 import models.{IdentifierRequestWithSubscriptionId, UserAnswers}
-import pages.QuestionPage
+import pages.{PasscodePage, QuestionPage}
 import pages.changeContactDetails.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +37,8 @@ class ChangeContactDetailsIndexController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     carfIdRetrieval: CarfIdRetrievalAction,
     sessionRepository: SessionRepository,
-    val subscriptionService: SubscriptionService
+    val subscriptionService: SubscriptionService,
+    appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -61,20 +63,23 @@ class ChangeContactDetailsIndexController @Inject() (
       subscriptionDetails: DisplaySubscriptionResponse
   )(implicit request: IdentifierRequestWithSubscriptionId[AnyContent]) =
     for {
-      individualDetails <- Future.successful(subscriptionDetails.success.carfSubscriptionDetails.primaryContact)
-      a                 <- Future.fromTry(
-                             UserAnswers(
-                               id = request.userId,
-                               changeIsIndividualRegType = Some(true)
-                             ).set(ChangeDetailsIndividualEmailPage, individualDetails.email)
-                           )
-      b                 <- Future.fromTry(a.set(ChangeDetailsIndividualHavePhonePage, individualDetails.phone.nonEmpty))
-      updatedAnswers    <- individualDetails.phone match {
-                             case Some(phoneNo) =>
-                               Future.fromTry(b.set(ChangeDetailsIndividualPhoneNumberPage, phoneNo))
-                             case None          => Future.successful(b)
-                           }
-      _                 <- sessionRepository.set(updatedAnswers)
+      individualDetails       <- Future.successful(subscriptionDetails.success.carfSubscriptionDetails.primaryContact)
+      a                       <- Future.fromTry(
+                                   UserAnswers(
+                                     id = request.userId,
+                                     changeIsIndividualRegType = Some(true)
+                                   ).set(ChangeDetailsIndividualEmailPage, individualDetails.email)
+                                 )
+      userAnswersWithPasscode <- handlePasscodePersistence(a)
+      b                       <- Future.fromTry(
+                                   userAnswersWithPasscode.set(ChangeDetailsIndividualHavePhonePage, individualDetails.phone.nonEmpty)
+                                 )
+      updatedAnswers          <- individualDetails.phone match {
+                                   case Some(phoneNo) =>
+                                     Future.fromTry(b.set(ChangeDetailsIndividualPhoneNumberPage, phoneNo))
+                                   case None          => Future.successful(b)
+                                 }
+      _                       <- sessionRepository.set(updatedAnswers)
     } yield Redirect(
       controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad()
     )
@@ -91,11 +96,12 @@ class ChangeContactDetailsIndexController @Inject() (
     )
 
     for {
-      a              <- addOptionalDetailsToUserAnswers(details, userAnswers)
-      b              <- Future.fromTry(a.set(ChangeDetailsOrgFirstEmailPage, organisationPrimaryDetails.email))
-      c              <- Future.fromTry(b.set(ChangeDetailsOrgFirstHavePhonePage, organisationPrimaryDetails.phone.nonEmpty))
-      updatedAnswers <- Future.fromTry(c.set(ChangeDetailsOrgHaveSecondContactPage, details.secondaryContact.isDefined))
-      _              <- sessionRepository.set(updatedAnswers)
+      userAnswersWithPasscode <- handlePasscodePersistence(userAnswers)
+      a                       <- addOptionalDetailsToUserAnswers(details, userAnswersWithPasscode)
+      b                       <- Future.fromTry(a.set(ChangeDetailsOrgFirstEmailPage, organisationPrimaryDetails.email))
+      c                       <- Future.fromTry(b.set(ChangeDetailsOrgFirstHavePhonePage, organisationPrimaryDetails.phone.nonEmpty))
+      updatedAnswers          <- Future.fromTry(c.set(ChangeDetailsOrgHaveSecondContactPage, details.secondaryContact.isDefined))
+      _                       <- sessionRepository.set(updatedAnswers)
     } yield Redirect(
       controllers.changeContactDetails.routes.ChangeOrganisationContactDetailsController.onPageLoad()
     )
@@ -124,4 +130,14 @@ class ChangeContactDetailsIndexController @Inject() (
       updatedUserAnswers <- setUserAnswer(organisationSecondaryPhone, ChangeDetailsOrgSecondPhoneNumberPage, e)
     } yield updatedUserAnswers
   }
+
+  private def handlePasscodePersistence(
+      userAnswers: UserAnswers
+  )(implicit request: IdentifierRequestWithSubscriptionId[AnyContent]): Future[UserAnswers] =
+    if (appConfig.passcodeCheckEnabled) {
+      for {
+        passcode                    <- sessionRepository.get(request.userId).map(_.flatMap(_.get(PasscodePage)))
+        updatedAnswers: UserAnswers <- Future.fromTry(userAnswers.set(PasscodePage, passcode.getOrElse("incorrect")))
+      } yield updatedAnswers
+    } else Future.successful(userAnswers)
 }

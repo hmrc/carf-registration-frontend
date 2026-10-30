@@ -18,12 +18,14 @@ package controllers.changeContactDetails
 
 import base.SpecBase
 import cats.data.EitherT
+import config.FrontendAppConfig
 import models.error.ApiError
 import models.error.ApiError.InternalServerError
 import models.responses.DisplaySubscriptionResponse
 import models.{UniqueTaxpayerReference, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{times, verify, when}
+import pages.PasscodePage
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualPhoneNumberPage, ChangeDetailsOrgFirstNamePage, ChangeDetailsOrgSecondPhoneNumberPage}
 import pages.individual.HaveNiNumberPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
@@ -76,10 +78,13 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
     }
 
     "when display subscription response is individual" - {
-      "must set user answers with all page info and redirect successfully when phone is none" in new Setup {
+      "must set user answers with all page info (+ Passcode when it exists in the repository and feature switch is on) and redirect successfully when phone is none" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = false)))
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(mockSessionRepository.get(any()))
+          .thenReturn(Future.successful(Some(emptyUserAnswers.withPage(PasscodePage, "TestPasscode"))))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
 
@@ -92,7 +97,8 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         verify(mockSessionRepository, times(1)).set(
           argThat(ua =>
             ua.get(ChangeDetailsIndividualEmailPage).contains(testEmail) &&
-              ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty
+              ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty &&
+              ua.get(PasscodePage).contains("TestPasscode")
           )
         )
 
@@ -101,6 +107,65 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
             argThat(_.changeIsIndividualRegType.get == true)
           )
       }
+
+      "must set user answers with all page info (+ Incorrect passcode when no passcode exists in the repository and feature switch is on) and redirect successfully when phone is none" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = false)))
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(emptyUserAnswers)))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad().url
+        )
+        verify(mockSessionRepository, times(1)).set(
+          argThat(ua =>
+            ua.get(ChangeDetailsIndividualEmailPage).contains(testEmail) &&
+              ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty &&
+              ua.get(PasscodePage).contains("incorrect")
+          )
+        )
+
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.changeIsIndividualRegType.get == true)
+          )
+      }
+
+      "must set user answers with all page info (+ Incorrect passcode when nothing exists for the user in the repository and feature switch is on) and redirect successfully when phone is none" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = false)))
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(mockSessionRepository.get(any())).thenReturn(Future.successful(None))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          controllers.changeContactDetails.routes.ChangeIndividualContactDetailsController.onPageLoad().url
+        )
+        verify(mockSessionRepository, times(1)).set(
+          argThat(ua =>
+            ua.get(ChangeDetailsIndividualEmailPage).contains(testEmail) &&
+              ua.get(ChangeDetailsIndividualPhoneNumberPage).isEmpty &&
+              ua.get(PasscodePage).contains("incorrect")
+          )
+        )
+
+        verify(mockSessionRepository)
+          .set(
+            argThat(_.changeIsIndividualRegType.get == true)
+          )
+      }
+
       "must set user answers with all page info and redirect successfully when phone is returned from the service" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testIndividualDisplaySubscriptionResponse(hasPhone = true)))
@@ -129,11 +194,13 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
     }
 
     "when display subscription response is organisation" - {
-      "must set user answers with all page info and redirect successfully when phone is none" in new Setup {
+      "must set user answers with all page info (+ Passcode when it exists in the repository and feature switch is on) and redirect successfully when phone is none" in new Setup {
         when(mockSubscriptionService.displaySubscription(any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponseWithNoPhone))
-
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(mockSessionRepository.get(any()))
+          .thenReturn(Future.successful(Some(emptyUserAnswers.withPage(PasscodePage, "TestPasscode"))))
 
         val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
 
@@ -147,7 +214,61 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
         verify(mockSessionRepository)
           .set(
             argThat { ua =>
-              !ua.changeIsIndividualRegType.get && ua.get(ChangeDetailsOrgFirstNamePage).isDefined
+              !ua.changeIsIndividualRegType.get &&
+              ua.get(ChangeDetailsOrgFirstNamePage).isDefined &&
+              ua.get(PasscodePage).contains("TestPasscode")
+            }
+          )
+      }
+
+      "must set user answers with all page info (+ Incorrect passcode when no passcode exists in the repository and feature switch is on) and redirect successfully when phone is none" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponseWithNoPhone))
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(emptyUserAnswers)))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          routes.ChangeOrganisationContactDetailsController.onPageLoad().url
+        )
+        verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
+        verify(mockSessionRepository)
+          .set(
+            argThat { ua =>
+              !ua.changeIsIndividualRegType.get &&
+              ua.get(ChangeDetailsOrgFirstNamePage).isDefined &&
+              ua.get(PasscodePage).contains("incorrect")
+            }
+          )
+      }
+
+      "must set user answers with all page info (+ Incorrect passcode when nothing exists for the user in the repository and feature switch is on) and redirect successfully when phone is none" in new Setup {
+        when(mockSubscriptionService.displaySubscription(any())(any(), any()))
+          .thenReturn(EitherT.rightT[Future, ApiError](testOrganisationDisplaySubscriptionResponseWithNoPhone))
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
+        when(mockSessionRepository.get(any())).thenReturn(Future.successful(None))
+
+        val request = FakeRequest(GET, routes.ChangeContactDetailsIndexController.onPageLoad().url)
+
+        val result: Future[Result] = route(application, request).value
+
+        status(result)        mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(
+          routes.ChangeOrganisationContactDetailsController.onPageLoad().url
+        )
+        verify(mockSubscriptionService, times(1)).displaySubscription(any())(any(), any())
+        verify(mockSessionRepository)
+          .set(
+            argThat { ua =>
+              !ua.changeIsIndividualRegType.get &&
+              ua.get(ChangeDetailsOrgFirstNamePage).isDefined &&
+              ua.get(PasscodePage).contains("incorrect")
             }
           )
       }
@@ -198,8 +319,11 @@ class ChangeContactDetailsIndexControllerSpec extends SpecBase {
 
   class Setup {
     val mockSubscriptionService: SubscriptionService = mock[SubscriptionService]
-    val application: Application                     = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+    val mockAppConfig: FrontendAppConfig             = mock[FrontendAppConfig]
+
+    val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
       .overrides(bind[SubscriptionService].toInstance(mockSubscriptionService))
+      .overrides(bind[FrontendAppConfig].toInstance(mockAppConfig))
       .build()
   }
 }

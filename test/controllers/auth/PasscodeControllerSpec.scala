@@ -49,4 +49,26 @@ class PasscodeControllerSpec extends SpecBase {
       }
     }
   }
+
+  "processPasscodeChangeDetails" - {
+    "must create UserAnswers and set PasscodePage to value passed through and redirect to ChangeContactDetailsIndexController" in {
+
+      when(mockSessionRepository.set(any)) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(None)
+          .build()
+
+      running(application) {
+
+        val request = FakeRequest(GET, routes.PasscodeController.processPasscodeChangeDetails("foo").url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ChangeContactDetailsIndexController.onPageLoad().url
+        verify(mockSessionRepository, times(1)).set(argThat(ua => ua.get(PasscodePage).contains("foo")))
+      }
+    }
+  }
 }

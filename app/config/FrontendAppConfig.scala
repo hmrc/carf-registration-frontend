@@ -69,7 +69,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val companiesHouseSearchUrl: String = configuration.get("urls.companiesHouseSearch")
   lazy val countryCodeJson: String    = configuration.get[String]("json.countries")
-  val aeoiEmailAddress: String        = configuration.get("email.aeoi")
+
+  val aeoiEmailAddress: String             = configuration.get("email.aeoi")
+  lazy val carfDigitalEmailAddress: String = configuration.get("email.carfDigital")
 
   private val exitSurveyBaseUrl: String = configuration.get[String]("urls.feedbackFrontendBase")
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/carf-registration-frontend?useServiceNavigation"

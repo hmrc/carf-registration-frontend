@@ -38,15 +38,16 @@ class PasscodeActionImpl @Inject() (
     with AuthorisedFunctions {
 
   override def apply(
-      redirect: Boolean = true
+      passcode: String
   ): ActionBuilder[PasscodeRequest, AnyContent] with ActionFunction[Request, PasscodeRequest] =
-    new PasscodeActionExtractor(authConnector, config, parser)
+    new PasscodeActionExtractor(authConnector, config, parser, passcode)
 }
 
 class PasscodeActionExtractor @Inject() (
     override val authConnector: AuthConnector,
     config: FrontendAppConfig,
-    val parser: BodyParsers.Default
+    val parser: BodyParsers.Default,
+    passcode: String
 )(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[PasscodeRequest, AnyContent]
     with ActionFunction[Request, PasscodeRequest]
@@ -59,7 +60,7 @@ class PasscodeActionExtractor @Inject() (
         case Some(id) => block(PasscodeRequest(request = request, userId = id))
         case _        => Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Could not retrieve id!")))
       } recover { case _: NoActiveSession =>
-      Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+      Redirect(config.loginUrl, Map("continue" -> Seq(s"${config.loginContinuePasscodeUrl}/$passcode")))
     }
   }
 
@@ -67,6 +68,6 @@ class PasscodeActionExtractor @Inject() (
 
 trait PasscodeAction {
   def apply(
-      redirect: Boolean = true
+      passcode: String = "invalid-code"
   ): ActionBuilder[PasscodeRequest, AnyContent] with ActionFunction[Request, PasscodeRequest]
 }

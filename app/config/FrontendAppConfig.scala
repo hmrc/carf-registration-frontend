@@ -49,11 +49,14 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  val loginUrl: String               = configuration.get[String]("urls.login")
-  val loginContinueUrl: String       = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String             = configuration.get[String]("urls.signOut")
-  val signOutNoSurveyUrl: String     = configuration.get[String]("urls.signOutNoSurvey")
-  val signedOutPageUrl: String       = configuration.get[String]("urls.signedOut")
+  val loginUrl: String                      = configuration.get[String]("urls.login")
+  val loginContinueUrl: String              = configuration.get[String]("urls.loginContinue")
+  private val loginContinuePasscode: String = configuration.get[String]("urls.loginContinuePasscode")
+  val loginContinuePasscodeUrl: String      = s"$loginContinueUrl$loginContinuePasscode"
+  val signOutUrl: String                    = configuration.get[String]("urls.signOut")
+  val signOutNoSurveyUrl: String            = configuration.get[String]("urls.signOutNoSurvey")
+  val signedOutPageUrl: String              = configuration.get[String]("urls.signedOut")
+
   lazy val findUTRUrl: String        = configuration.get[String]("urls.findUTR")
   lazy val findCorpTaxUTRUrl: String = configuration.get[String]("urls.findCorporationTaxUTR")
   lazy val findNINumberUrl: String   = configuration.get[String]("urls.findNINumberUrl")

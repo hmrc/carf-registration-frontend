@@ -37,7 +37,7 @@ class FakePasscodeAction @Inject() (bodyParsers: PlayBodyParsers)
     scala.concurrent.ExecutionContext.Implicits.global
 
   override def apply(
-      redirect: Boolean = true
+      passcode: String = "TestCode123"
   ): ActionBuilder[PasscodeRequest, AnyContent] with ActionFunction[Request, PasscodeRequest] = this
 
 }

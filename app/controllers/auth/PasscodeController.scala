@@ -42,4 +42,12 @@ class PasscodeController @Inject() (
         _              <- sessionRepository.set(updatedAnswers)
       } yield Redirect(controllers.routes.IndexController.onPageLoad(NormalMode))
   }
+
+  def processPasscodeChangeDetails(passcode: String): Action[AnyContent] = passcodeAction(passcode = passcode).async {
+    implicit request =>
+      for {
+        updatedAnswers <- Future.fromTry(UserAnswers(request.userId).set(PasscodePage, passcode))
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield Redirect(controllers.changeContactDetails.routes.ChangeContactDetailsIndexController.onPageLoad())
+  }
 }

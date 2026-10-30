@@ -66,7 +66,9 @@ class PasscodeControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.changeContactDetails.routes.ChangeContactDetailsIndexController.onPageLoad().url
+        redirectLocation(
+          result
+        ).value        mustEqual controllers.changeContactDetails.routes.ChangeContactDetailsIndexController.onPageLoad().url
         verify(mockSessionRepository, times(1)).set(argThat(ua => ua.get(PasscodePage).contains("foo")))
       }
     }

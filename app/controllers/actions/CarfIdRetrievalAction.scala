@@ -78,8 +78,7 @@ class CarfIdRetrievalActionExtractor @Inject() (
             handlePasscodeCheck(internalId).flatMap {
               case true =>
                 block(IdentifierRequestWithSubscriptionId(request, internalId, SubscriptionId(subscriptionId)))
-              case _    =>
-                Future.successful(Redirect(routes.PlaceholderController.onPageLoad("Content not yet available")))
+              case _    => Future.successful(Redirect(controllers.routes.PasscodeIncorrectController.onPageLoad()))
             }
           case None                 =>
             logInfo(

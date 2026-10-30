@@ -114,7 +114,7 @@ class IdentifierActionSpec extends SpecBase {
       contentAsString(result) mustBe testContent
     }
 
-    "redirect to Placeholder page if passcode is enabled and passcode is incorrect" in {
+    "redirect to the Passcode Incorrect Page if passcode is enabled and passcode is incorrect" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
       when(mockAppConfig.passcode).thenReturn("foo")
@@ -133,7 +133,7 @@ class IdentifierActionSpec extends SpecBase {
       val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
 
       status(result)           mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.PlaceholderController.onPageLoad("Content not yet available").url)
+      redirectLocation(result) mustBe Some(controllers.routes.PasscodeIncorrectController.onPageLoad().url)
     }
 
     "redirect to Placeholder page if passcode is enabled and passcode is not present" in {
@@ -154,7 +154,7 @@ class IdentifierActionSpec extends SpecBase {
       val result: Future[Result] = testIdentifierAction.invokeBlock(FakeRequest(), testAction)
 
       status(result)           mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.PlaceholderController.onPageLoad("Content not yet available").url)
+      redirectLocation(result) mustBe Some(controllers.routes.PasscodeIncorrectController.onPageLoad().url)
     }
 
     "redirect to StandardUserSignInProblem page when affinity group is Assistant" in {

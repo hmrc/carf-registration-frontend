@@ -304,3 +304,4 @@ GET         /change-contact/organisation/provide-second-contact-phone           
 POST        /change-contact/organisation/provide-second-contact-phone             controllers.changeContactDetails.ChangeOrgSecondContactPhoneNumberController.onSubmit(mode: Mode = ProvideMode)
 
 GET         /problem/page-unavailable                                             controllers.PageUnavailableController.onPageLoad()
+GET         /register/problem/service-unavailable                                 controllers.PasscodeIncorrectController.onPageLoad()

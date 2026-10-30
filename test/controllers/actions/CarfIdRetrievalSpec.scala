@@ -107,7 +107,7 @@ class CarfIdRetrievalSpec extends SpecBase {
       contentAsString(result) mustBe testContent
     }
 
-    "redirect to Placeholder Page if passcode is enabled and passcode is incorrect" in {
+    "redirect to the Passcode Incorrect Page if passcode is enabled and passcode is incorrect" in {
       when(mockAppConfig.enrolmentKey).thenReturn(carfKey)
       when(mockAppConfig.passcodeCheckEnabled).thenReturn(true)
       when(mockAppConfig.passcode).thenReturn("foo")
@@ -125,7 +125,7 @@ class CarfIdRetrievalSpec extends SpecBase {
       val result: Future[Result] = testCarfIdRetrievalActionExtractor.invokeBlock(FakeRequest(), testAction)
 
       status(result)           mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.PlaceholderController.onPageLoad("Content not yet available").url)
+      redirectLocation(result) mustBe Some(controllers.routes.PasscodeIncorrectController.onPageLoad().url)
     }
 
     "redirect to Index Page (start of registration journey) if carf enrolment is not present" in {

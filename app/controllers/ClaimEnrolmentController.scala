@@ -93,7 +93,7 @@ class ClaimEnrolmentController @Inject() (
                           }
                       }
                     } else {
-                      logAndRedirectOnError("No UTR present in request")
+                      logAndRedirectOnError("User selected 'No' on page")
                     }
                 )
           }

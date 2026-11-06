@@ -317,7 +317,7 @@ class SubscriptionConnectorISpec
   "updateSubscription" should {
     "successfully update a subscription and return a subscription ID" in {
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -331,7 +331,7 @@ class SubscriptionConnectorISpec
 
     "return JsonValidationError when response JSON is invalid" in {
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -345,7 +345,7 @@ class SubscriptionConnectorISpec
 
     "return JsonValidationError when response JSON structure is incorrect" in {
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -378,7 +378,7 @@ class SubscriptionConnectorISpec
       val testApiErrorDetailResponseJson: String = generateErrorResponseJson("500")
 
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -392,7 +392,7 @@ class SubscriptionConnectorISpec
 
     "return UnableToProcessSubscriptionError when response body is not valid JSON" in {
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -406,7 +406,7 @@ class SubscriptionConnectorISpec
 
     "return UnableToProcessSubscriptionError when response body is empty JSON" in {
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(BAD_REQUEST)
@@ -422,7 +422,7 @@ class SubscriptionConnectorISpec
       val validRequestWithoutSecondaryContact = validSubscriptionRequest.copy(secondaryContact = None)
 
       stubFor(
-        put(urlPathMatching("/carf-account/subscription/amend"))
+        put(urlPathMatching(s"/carf-account/subscription/amend/$testSubscriptionId"))
           .willReturn(
             aResponse()
               .withStatus(OK)

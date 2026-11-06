@@ -82,7 +82,7 @@ class SubscriptionService @Inject() (
     subscriptionHelper.buildUpdatedSubscriptionRequest(userAnswers, carfId) match {
       case Some(request) =>
         subscriptionConnector
-          .updateSubscription(request)
+          .updateSubscription(request, carfId)
           .leftMap { error =>
             logWarn(s"[SubscriptionService][updateSubscription] Failed to update subscription: $error")
             error

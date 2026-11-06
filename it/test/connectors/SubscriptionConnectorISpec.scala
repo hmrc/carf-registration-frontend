@@ -325,7 +325,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Right(SubscriptionId("CARF123456"))
     }
 
@@ -339,7 +339,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Left(JsonValidationError)
     }
 
@@ -353,7 +353,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Left(JsonValidationError)
     }
 
@@ -369,7 +369,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
@@ -386,7 +386,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
@@ -400,7 +400,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
@@ -414,7 +414,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validSubscriptionRequest).value.futureValue
+      val result = connector.updateSubscription(validSubscriptionRequest, testSubscriptionId).value.futureValue
       result shouldBe Left(UnableToProcessSubscriptionError)
     }
 
@@ -430,7 +430,7 @@ class SubscriptionConnectorISpec
           )
       )
 
-      val result = connector.updateSubscription(validRequestWithoutSecondaryContact).value.futureValue
+      val result = connector.updateSubscription(validRequestWithoutSecondaryContact, testSubscriptionId).value.futureValue
       result shouldBe Right(SubscriptionId("CARF123456"))
     }
   }

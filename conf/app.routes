@@ -306,3 +306,6 @@ POST        /change-contact/organisation/provide-second-contact-phone           
 
 GET         /problem/page-unavailable                                             controllers.PageUnavailableController.onPageLoad()
 GET         /register/problem/service-unavailable                                 controllers.PasscodeIncorrectController.onPageLoad()
+
+GET         /claim-enrolment                                                      controllers.ClaimEnrolmentController.onPageLoad()
+POST        /claim-enrolment                                                      controllers.ClaimEnrolmentController.onSubmit()

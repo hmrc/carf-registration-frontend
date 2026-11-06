@@ -684,3 +684,7 @@ passcodeIncorrectPage.para5 = During the testing session, you will be able to ac
 passcodeIncorrectPage.bullet1 = register for cryptoasset reporting
 passcodeIncorrectPage.bullet2 = add reporting cryptoasset service providers (RCASPs) you will send reports for
 passcodeIncorrectPage.para6 = You will be able to upload and send reports at a later date.
+
+claimEnrolment.title = Do you want to claim an enrolment?
+claimEnrolment.heading = Do you want to claim an enrolment for {0}?
+claimEnrolment.error.required = Select yes if you want to claim an enrolment

@@ -41,8 +41,7 @@ class HaveNiNumberController @Inject() (
     requireData: DataRequiredAction,
     formProvider: HaveNiNumberFormProvider,
     val controllerComponents: MessagesControllerComponents,
-    view: HaveNiNumberView,
-    retrieveCtUTR: CtUtrRetrievalAction
+    view: HaveNiNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -51,12 +50,11 @@ class HaveNiNumberController @Inject() (
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify() andThen retrieveCtUTR() andThen getData() andThen submissionLock andThen requireData) {
-      implicit request =>
+    (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
 
-        val preparedForm = request.userAnswers.get(HaveNiNumberPage).fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(HaveNiNumberPage).fold(form)(form.fill)
 
-        Ok(view(preparedForm, mode))
+      Ok(view(preparedForm, mode))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify() andThen getData() andThen requireData).async {

@@ -50,10 +50,11 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
   }
 
   def updateSubscription(
-      updateSubscriptionRequest: SubscriptionRequest
+      updateSubscriptionRequest: SubscriptionRequest,
+      carfId: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): ResultT[SubscriptionId] = {
 
-    val submissionUrl = url"${config.carfAccountBaseUrl}/subscription/amend"
+    val submissionUrl = url"${config.carfAccountBaseUrl}/subscription/amend/$carfId"
 
     processSubscriptionRequest(updateSubscriptionRequest, submissionUrl, true)
   }

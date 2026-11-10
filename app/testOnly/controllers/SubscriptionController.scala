@@ -35,7 +35,7 @@ class SubscriptionController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def updateOrgSubscription(name: String, provideOptional: String): Action[AnyContent] = Action.async {
+  def updateOrgSubscription(name: String, provideOptional: String, carfId: String): Action[AnyContent] = Action.async {
     implicit request =>
 
       val organisation = SubscriptionOrganisationContact(name)
@@ -56,12 +56,12 @@ class SubscriptionController @Inject() (
         tradingName = if provideOptional == "true" then Some("tradingName") else None
       )
 
-      connector.updateSubscription(subscriptionRequest).processResponse
+      connector.updateSubscription(subscriptionRequest, carfId).processResponse
 
   }
 
-  def updateIndvSubscription(email: String, provideOptional: String): Action[AnyContent] = Action.async {
-    implicit request =>
+  def updateIndvSubscription(email: String, provideOptional: String, carfId: String): Action[AnyContent] =
+    Action.async { implicit request =>
 
       val individual = SubscriptionIndividualContact("John", "Doe")
       val contact    = SubscriptionContactDetails(
@@ -80,8 +80,8 @@ class SubscriptionController @Inject() (
         tradingName = if provideOptional == "true" then Some("tradingName") else None
       )
 
-      connector.updateSubscription(subscriptionRequest).processResponse
-  }
+      connector.updateSubscription(subscriptionRequest, carfId).processResponse
+    }
 
   extension (result: ResultT[SubscriptionId]) {
     private def processResponse =

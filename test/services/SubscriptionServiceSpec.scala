@@ -24,7 +24,7 @@ import models.error.ApiError
 import models.error.ApiError.{InternalServerError, MandatoryInformationMissingError}
 import models.requests.SubscriptionRequest
 import models.responses.{DisplaySubscriptionContact, DisplaySubscriptionDetails, DisplaySubscriptionIndividual, DisplaySubscriptionResponse, DisplaySubscriptionSuccess}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage, WhatIsYourNameIndividualPage}
@@ -122,18 +122,26 @@ class SubscriptionServiceSpec extends SpecBase {
 
     "updateSubscription" - {
       "should successfully update subscription with valid user answers" in {
-        when(mockConnector.updateSubscription(any[SubscriptionRequest])(any(), any())).thenReturn(
+        when(
+          mockConnector.updateSubscription(
+            any[SubscriptionRequest],
+            eqTo(exampleSubscriptionId.value)
+          )(any(), any())
+        ).thenReturn(
           EitherT.rightT[Future, ApiError](exampleSubscriptionId)
         )
 
         val result = testService.updateSubscription(updatedUserAnswers, exampleSubscriptionId.value).value.futureValue
 
         result mustBe Right(exampleSubscriptionId)
-        verify(mockConnector).updateSubscription(any[SubscriptionRequest])(any(), any())
+        verify(mockConnector)
+          .updateSubscription(any[SubscriptionRequest], eqTo(exampleSubscriptionId.value))(any(), any())
       }
 
       "should return error when connector fails" in {
-        when(mockConnector.updateSubscription(any[SubscriptionRequest])(any(), any())).thenReturn(
+        when(
+          mockConnector.updateSubscription(any[SubscriptionRequest], eqTo(exampleSubscriptionId.value))(any(), any())
+        ).thenReturn(
           EitherT.leftT[Future, SubscriptionId](InternalServerError)
         )
 
@@ -150,7 +158,8 @@ class SubscriptionServiceSpec extends SpecBase {
             "[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
           )
         )
-        verify(mockConnector, never()).updateSubscription(any[SubscriptionRequest])(any(), any())
+        verify(mockConnector, never())
+          .updateSubscription(any[SubscriptionRequest], eqTo(exampleSubscriptionId.value))(any(), any())
       }
     }
 

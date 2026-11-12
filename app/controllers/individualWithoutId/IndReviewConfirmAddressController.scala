@@ -21,11 +21,12 @@ import controllers.routes
 import models.Mode
 import navigation.Navigator
 import pages.individualWithoutId.{IndReviewConfirmAddressPageForNavigatorOnly, IndWithoutIdAddressPagePrePop, IndWithoutIdUkAddressInUserAnswers}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.*
+
 import views.html.individualWithoutId.IndReviewConfirmAddressView
 
 import javax.inject.Inject
@@ -43,7 +44,8 @@ class IndReviewConfirmAddressController @Inject() (
     view: IndReviewConfirmAddressView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
@@ -57,7 +59,7 @@ class IndReviewConfirmAddressController @Inject() (
         case Some(address) =>
           Ok(view(address, mode, editAddressLink))
         case None          =>
-          logWarn("[IndReviewConfirmAddressController][onPageLoad] No address found in user answers")
+          logger.warn("[IndReviewConfirmAddressController][onPageLoad] No address found in user answers")
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
     }
@@ -71,7 +73,7 @@ class IndReviewConfirmAddressController @Inject() (
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(IndReviewConfirmAddressPageForNavigatorOnly, mode, updatedAnswers))
         case None          =>
-          logWarn("[IndReviewConfirmAddressController][onSubmit] No address found in user answers")
+          logger.warn("[IndReviewConfirmAddressController][onSubmit] No address found in user answers")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
   }

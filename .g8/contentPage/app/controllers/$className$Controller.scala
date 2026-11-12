@@ -15,7 +15,7 @@ class $className$Controller @Inject()(
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: $className$View
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     ) extends FrontendBaseController with I18nSupport with Logging{
 
   def onPageLoad: Action[AnyContent] = (identify() andThen getData() andThen submissionLock andThen requireData) {
     implicit request =>

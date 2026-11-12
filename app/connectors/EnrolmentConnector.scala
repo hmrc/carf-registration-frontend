@@ -23,6 +23,7 @@ import models.error.ApiError
 import models.requests.EnrolmentRequest
 import models.requests.EnrolmentRequest.*
 import org.apache.pekko.actor.ActorSystem
+import play.api.Logging
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -30,14 +31,14 @@ import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.LoggerUtil.*
 
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 
 class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     val system: ActorSystem
-) extends RetryMechanism {
+) extends RetryMechanism
+    with Logging {
 
   private lazy val enrolmentUrl = config.taxEnrolmentBaseUrl
 
@@ -53,19 +54,19 @@ class EnrolmentConnector @Inject() (val config: FrontendAppConfig, val http: Htt
             case response if response.status == NO_CONTENT                    =>
               Future.successful(Right(()))
             case response if response.status == BAD_REQUEST                   =>
-              logError(
+              logger.error(
                 s"[EnrolmentConnector][createEnrolment] Failed to create enrolment as Bad request was returned with message: ${response.body}"
               )
               Future.successful(Left(ApiError.BadRequestError))
             case response if response.status >= 500 && response.status <= 599 =>
-              logWarn(
+              logger.warn(
                 s"[EnrolmentConnector][createEnrolment] Received 5xx error (${response.status}), failing future to trigger retry."
               )
               Future.failed(
                 new RuntimeException(s"Upstream 5xx error: ${response.status} with message: ${response.body}")
               )
             case response                                                     =>
-              logError(s"[EnrolmentConnector][createEnrolment] Failed to create enrolment due to ${response.body}")
+              logger.error(s"[EnrolmentConnector][createEnrolment] Failed to create enrolment due to ${response.body}")
               Future.successful(Left(ApiError.InternalServerError))
           }
       }

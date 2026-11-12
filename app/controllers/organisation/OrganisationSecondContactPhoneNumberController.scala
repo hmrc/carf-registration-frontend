@@ -22,12 +22,12 @@ import forms.organisation.OrganisationSecondContactPhoneNumberFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.organisation.{OrganisationSecondContactNamePage, OrganisationSecondContactPhoneNumberPage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.*
 import views.html.organisation.OrganisationSecondContactPhoneNumberView
 
 import javax.inject.Inject
@@ -46,7 +46,8 @@ class OrganisationSecondContactPhoneNumberController @Inject() (
     view: OrganisationSecondContactPhoneNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[String] = formProvider()
 
@@ -61,7 +62,7 @@ class OrganisationSecondContactPhoneNumberController @Inject() (
       request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
         case None            =>
-          logWarn(
+          logger.warn(
             "[OrganisationSecondContactPhoneNumberController][onPageLoad] Name not found in user answers"
           )
           Redirect(routes.JourneyRecoveryController.onPageLoad())
@@ -77,7 +78,7 @@ class OrganisationSecondContactPhoneNumberController @Inject() (
             request.userAnswers.get(OrganisationSecondContactNamePage) match {
               case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
               case None            =>
-                logWarn(
+                logger.warn(
                   "[OrganisationSecondContactPhoneNumberController][onSubmit] Name not found in user answers"
                 )
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

@@ -19,13 +19,13 @@ package connectors
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.SendEmailRequest
+import play.api.Logging
 import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,7 +38,7 @@ case object EmailNotSent extends EmailStatus
 class EmailConnector @Inject() (
     appConfig: FrontendAppConfig,
     httpV2Client: HttpClientV2
-) {
+) extends Logging {
 
   def sendEmail(
       emailAddress: String,
@@ -62,15 +62,15 @@ class EmailConnector @Inject() (
       .map { response =>
         response.status match {
           case ACCEPTED =>
-            logInfo("[EmailConnector][sendEmail] Email sent successfully")
+            logger.info("[EmailConnector][sendEmail] Email sent successfully")
             EmailSent
           case status   =>
-            logError(s"[EmailConnector][sendEmail] Sending Email failed with response status $status")
+            logger.error(s"[EmailConnector][sendEmail] Sending Email failed with response status $status")
             EmailNotSent
         }
       }
       .recoverWith { case t: Throwable =>
-        logError("[EmailConnector][sendEmail] Unable to connect to Email Service")
+        logger.error("[EmailConnector][sendEmail] Unable to connect to Email Service")
         Future.successful(EmailNotSent)
       }
   }

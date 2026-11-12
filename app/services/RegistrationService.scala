@@ -21,15 +21,15 @@ import models.JourneyType.{IndWithoutId, OrgWithoutId}
 import models.error.{CarfError, DataError}
 import models.requests.*
 import models.responses.{RegisterIndividualWithIdResponse, RegisterOrganisationWithIdResponse}
-import models.{toAddressDetails, toAddressDetailsNonUk, toAddressDetailsOrg, BusinessDetails, IndividualDetails, JourneyType, Name, SafeId, UserAnswers}
+import models.{toAddressDetails, toAddressDetailsNonUk, toAddressDetailsOrg, BusinessDetails, IndividualDetails, Name, SafeId, UserAnswers}
 import pages.*
 import pages.individual.{IndividualEmailPage, IndividualHavePhonePage, IndividualPhoneNumberPage}
 import pages.individualWithoutId.*
 import pages.orgWithoutId.{OrgWithoutIdBusinessNamePage, OrganisationBusinessAddressPage}
 import pages.organisation.*
+import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.LoggerUtil.*
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -37,7 +37,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) {
+class RegistrationService @Inject() (connector: RegistrationConnector)(implicit ec: ExecutionContext) extends Logging {
 
   def getIndividualByNino(nino: String, name: Name, dob: LocalDate)(implicit
       hc: HeaderCarrier
@@ -72,7 +72,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
         )
         handleIndividualRegistrationResponse(connector.individualWithUtr(request))
       case None              =>
-        logWarn("[RegistrationService][getIndividualByUtr] Required Individual data was missing from UserAnswers.")
+        logger.warn("[RegistrationService][getIndividualByUtr] Required Individual data was missing from UserAnswers.")
         Future.successful(Left(DataError))
     }
   }
@@ -98,7 +98,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           )
           handleOrganisationRegistrationResponse(connector.organisationWithUtrNonAutoMatch(request))
         case None                          =>
-          logWarn("[RegistrationService][getBusinessWithUtr] Required data was missing from UserAnswers.")
+          logger.warn("[RegistrationService][getBusinessWithUtr] Required data was missing from UserAnswers.")
           Future.successful(Left(DataError))
       }
     } else {
@@ -115,14 +115,14 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   ): Future[Either[CarfError, BusinessDetails]] =
     responseFuture.value.flatMap {
       case Right(response) =>
-        logInfo(
+        logger.info(
           "[RegistrationService][handleOrganisationRegistrationResponse] Successfully retrieved organisation details."
         )
         Future.successful(
           Right(BusinessDetails(name = response.organisationName, address = response.address, safeId = response.safeId))
         )
       case Left(error)     =>
-        logWarn(
+        logger.warn(
           s"[RegistrationService][handleOrganisationRegistrationResponse] Failed to retrieve organisation details: $error"
         )
         Future.successful(Left(error))
@@ -133,7 +133,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
   ): Future[Either[CarfError, IndividualDetails]] =
     responseFuture.value.flatMap {
       case Right(response) =>
-        logInfo(
+        logger.info(
           "[RegistrationService][handleIndividualRegistrationResponse] Successfully retrieved Individual details."
         )
         Future.successful(
@@ -148,7 +148,7 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
           )
         )
       case Left(error)     =>
-        logWarn(
+        logger.warn(
           s"[RegistrationService][handleIndividualRegistrationResponse] Failed to retrieve Individual details: $error"
         )
         Future.successful(Left(error))
@@ -165,13 +165,13 @@ class RegistrationService @Inject() (connector: RegistrationConnector)(implicit 
 
         result.bimap(
           err =>
-            logWarn(
+            logger.warn(
               s"[RegistrationService][registerForWithoutIdJourneys] Failed to register without id. JourneyType: ${userAnswers.journeyType}. Error: $err"
             )
             err
           ,
           success =>
-            logInfo(
+            logger.info(
               s"[RegistrationService][registerForWithoutIdJourneys] Successfully registered user without id. JourneyType: ${userAnswers.journeyType}"
             )
             userAnswers.copy(safeId = Some(success))

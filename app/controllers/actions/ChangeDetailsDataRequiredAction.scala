@@ -19,13 +19,13 @@ package controllers.actions
 import controllers.routes
 import models.responses.DisplaySubscriptionResponse
 import models.{DataRequestWithSubscriptionId, IdentifierRequestWithSubscriptionId}
+import play.api.Logging
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 import repositories.SessionRepository
 import services.SubscriptionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,7 +34,8 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
     val sessionRepository: SessionRepository,
     val subscriptionService: SubscriptionService
 )(implicit val executionContext: ExecutionContext)
-    extends ChangeDetailsDataRequiredAction {
+    extends ChangeDetailsDataRequiredAction
+    with Logging {
 
   override protected def refine[A](
       request: IdentifierRequestWithSubscriptionId[A]
@@ -58,7 +59,7 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
                 )
               )
             case _            =>
-              logWarn("[ChangeDetailsDataRequiredAction][refine] Could not retrieve display subscription details.")
+              logger.warn("[ChangeDetailsDataRequiredAction][refine] Could not retrieve display subscription details.")
               throw new Exception("[ChangeDetailsDataRequiredAction][refine] Could not retrieve subscription details")
           }
         } else {
@@ -74,7 +75,7 @@ class ChangeDetailsDataRequiredActionImpl @Inject() (
           )
         }
       case None              =>
-        logWarn("[ChangeDetailsDataRequiredAction][refine] User answers could not be found for request.")
+        logger.warn("[ChangeDetailsDataRequiredAction][refine] User answers could not be found for request.")
         Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
     }
 

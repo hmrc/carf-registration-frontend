@@ -17,7 +17,8 @@
 package testOnly.controllers
 
 import connectors.SubscriptionConnector
-import models.SubscriptionId
+import controllers.actions.CarfIdRetrievalAction
+import models.{IdentifierRequestWithSubscriptionId, IdentifierType, SubscriptionId}
 import models.requests.{SubscriptionContactDetails, SubscriptionIndividualContact, SubscriptionOrganisationContact, SubscriptionRequest}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,13 +31,14 @@ import scala.language.implicitConversions
 
 class SubscriptionController @Inject() (
     connector: SubscriptionConnector,
+    carfIdRetrieval: CarfIdRetrievalAction,
     val controllerComponents: MessagesControllerComponents,
     implicit val executionContext: ExecutionContext
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def updateOrgSubscription(name: String, provideOptional: String, carfId: String): Action[AnyContent] = Action.async {
-    implicit request =>
+  def updateOrgSubscription(name: String, provideOptional: String, carfId: String): Action[AnyContent] =
+    carfIdRetrieval().async { implicit request =>
 
       val organisation = SubscriptionOrganisationContact(name)
 
@@ -56,12 +58,11 @@ class SubscriptionController @Inject() (
         tradingName = if provideOptional == "true" then Some("tradingName") else None
       )
 
-      connector.updateSubscription(subscriptionRequest, carfId).processResponse
-
-  }
+      connector.updateSubscription(subscriptionRequest, carfId).processResponse(carfId)
+    }
 
   def updateIndvSubscription(email: String, provideOptional: String, carfId: String): Action[AnyContent] =
-    Action.async { implicit request =>
+    carfIdRetrieval().async { implicit request =>
 
       val individual = SubscriptionIndividualContact("John", "Doe")
       val contact    = SubscriptionContactDetails(
@@ -80,14 +81,21 @@ class SubscriptionController @Inject() (
         tradingName = if provideOptional == "true" then Some("tradingName") else None
       )
 
-      connector.updateSubscription(subscriptionRequest, carfId).processResponse
+      connector.updateSubscription(subscriptionRequest, carfId).processResponse(carfId)
     }
 
   extension (result: ResultT[SubscriptionId]) {
-    private def processResponse =
+    private def processResponse(
+        carfIdFromURL: String
+    )(implicit request: IdentifierRequestWithSubscriptionId[AnyContent]) =
       result.value
         .map {
-          case Right(subscriptionId) => Ok(s"Subscription ID: $subscriptionId")
+          case Right(subscriptionId) =>
+            Ok(
+              s"Subscription ID from response: $subscriptionId\n" +
+                s"CARF ID from url: $carfIdFromURL\n" +
+                s"CARF ID from enrolments: ${request.subscriptionId.value}\n"
+            )
           case Left(error)           => Ok(error.toString)
         }
   }

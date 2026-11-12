@@ -26,6 +26,7 @@ import models.requests.DataRequest
 import models.{JourneyType, NormalMode, SafeId, SubscriptionId, UserAnswers}
 import navigation.Navigator
 import pages.NavigatorOnlyCheckYourAnswersErrors
+import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -36,7 +37,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CheckYourAnswersHelper
 import viewmodels.Section
 import views.html.CheckYourAnswersView
-import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -57,7 +57,8 @@ class CheckYourAnswersController @Inject() (
     sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   private def businessDetailsSectionMaybe(userAnswers: UserAnswers)(implicit messages: Messages): Option[Section] =
     helper.getBusinessDetailsSectionMaybe(userAnswers)
@@ -92,7 +93,7 @@ class CheckYourAnswersController @Inject() (
       (sectionsMaybe, isMatchValidOrNotNeeded(userAnswers)) match {
         case (Some(sections), true)                   => Ok(view(sections))
         case (sectionsMaybe, matchIsValidOrNotNeeded) =>
-          logWarn(
+          logger.warn(
             "[CheckYourAnswersController][onPageLoad] Error! Could not load page. " +
               s"< journeyType = ${userAnswers.journeyType} > " +
               s"< matchIsValidOrNotNeeded = $matchIsValidOrNotNeeded > " +
@@ -144,14 +145,14 @@ class CheckYourAnswersController @Inject() (
           case Left(AlreadyRegisteredError) =>
             Redirect(navigator.nextPage(NavigatorOnlyCheckYourAnswersErrors, NormalMode, request.userAnswers))
           case Left(DataError)              =>
-            logWarn("[CheckYourAnswersController][onSubmit] Had missing data on submission")
+            logger.warn("[CheckYourAnswersController][onSubmit] Had missing data on submission")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case error                        =>
-            logWarn(s"[CheckYourAnswersController][onSubmit] Failed to subscribe: $error")
+            logger.warn(s"[CheckYourAnswersController][onSubmit] Failed to subscribe: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
       } else {
-        logWarn("[CheckYourAnswersController][onSubmit] Error! Valid match was not found for this user")
+        logger.warn("[CheckYourAnswersController][onSubmit] Error! Valid match was not found for this user")
         Future.successful(Redirect(controllers.routes.InformationMissingController.onPageLoad()))
       }
     }

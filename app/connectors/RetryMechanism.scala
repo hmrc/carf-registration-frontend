@@ -20,14 +20,14 @@ import models.error.ApiError.InternalServerError
 import models.error.CarfError
 import org.apache.pekko.actor.{ActorSystem, Scheduler}
 import org.apache.pekko.pattern.retry
+import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.LoggerUtil.logError
 
 import scala.concurrent.duration.*
 import scala.concurrent.{ExecutionContext, Future}
 
-trait RetryMechanism {
+trait RetryMechanism extends Logging {
   val config: FrontendAppConfig
   val system: ActorSystem
 
@@ -44,7 +44,9 @@ trait RetryMechanism {
         config.apiRetryAttempts,
         config.apiRetryDelayInSeconds.seconds
       ).recoverWith { e =>
-        logError(s"[RetryMechanism][retryCall] Retry Failed returning final outcome with message: \n${e.getMessage}")
+        logger.error(
+          s"[RetryMechanism][retryCall] Retry Failed returning final outcome with message: \n${e.getMessage}"
+        )
         Future.successful(Left(InternalServerError))
       }
     )

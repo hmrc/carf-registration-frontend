@@ -22,6 +22,7 @@ import models.error.ApiError
 import models.error.ApiError.{AlreadyRegisteredError, InternalServerError, UnableToProcessSubscriptionError}
 import models.requests.SubscriptionRequest
 import models.responses.{DisplaySubscriptionResponse, SubscriptionResponse}
+import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -29,7 +30,6 @@ import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.LoggerUtil.*
 
 import java.net.URL
 import javax.inject.Inject
@@ -38,7 +38,7 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration.*
 
-class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) {
+class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2) extends Logging {
 
   def createSubscription(
       createSubscriptionRequest: SubscriptionRequest
@@ -82,19 +82,19 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
             Try(response.json.as[SubscriptionResponse]) match {
               case Success(data)      => Right(data.subscriptionId)
               case Failure(exception) =>
-                logError(
+                logger.error(
                   s"[SubscriptionConnector][processSubscriptionRequest] Error parsing SubscriptionResponse with endpoint: $submissionUrl"
                 )
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
-            logWarn(
+            logger.warn(
               s"[SubscriptionConnector][processSubscriptionRequest] Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl"
             )
             Left(handleErrorResponse(response))
         }
         .recover { case NonFatal(e) =>
-          logError(
+          logger.error(
             s"[SubscriptionConnector][processSubscriptionRequest] Future Failed to complete due to: ${e.getMessage}"
           )
           Left(InternalServerError)
@@ -117,18 +117,18 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
               Try(httpResponse.json.as[DisplaySubscriptionResponse]) match {
                 case Success(data)      => Right(data)
                 case Failure(exception) =>
-                  logError(
+                  logger.error(
                     s"[SubscriptionConnector][displaySubscription] Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}"
                   )
                   Left(ApiError.JsonValidationError)
               }
             case NOT_FOUND =>
-              logError(
+              logger.error(
                 s"[SubscriptionConnector][displaySubscription] No match could be found for this user: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
               )
               Left(ApiError.NotFoundError)
             case _         =>
-              logError(
+              logger.error(
                 s"[SubscriptionConnector][displaySubscription] Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
               )
               Left(InternalServerError)
@@ -141,11 +141,11 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
     val jsonBody = Try(Json.parse(response.body)).toOption.getOrElse(Json.obj())
     (jsonBody \ "status").asOpt[String] match {
       case Some("already_registered") =>
-        logError("[SubscriptionConnector][handleErrorResponse] Subscription already exists.")
+        logger.error("[SubscriptionConnector][handleErrorResponse] Subscription already exists.")
         AlreadyRegisteredError
 
       case _ =>
-        logError(
+        logger.error(
           s"[SubscriptionConnector][handleErrorResponse] Received error response from backend: ${response.status}"
         )
         UnableToProcessSubscriptionError

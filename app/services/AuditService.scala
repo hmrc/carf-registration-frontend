@@ -28,22 +28,21 @@ import pages.individual.*
 import pages.individualWithoutId.*
 import pages.orgWithoutId.*
 import pages.organisation.*
+import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import types.ResultT
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.*
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import utils.LoggerUtil.*
 
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
-class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionContext) {
+class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionContext) extends Logging {
 
   private case class AddressHolder(
       addressLine1: String,
@@ -144,14 +143,14 @@ class AuditService @Inject (auditConnector: AuditConnector)(using ec: ExecutionC
       case Success         =>
         Right[CarfError, Unit](())
       case Disabled        =>
-        logError(s"[AuditService][sendEvent] Failed to audit $auditType for $journeyType Disabled result returned")
+        logger.error(s"[AuditService][sendEvent] Failed to audit $auditType for $journeyType Disabled result returned")
         Left[CarfError, Unit](InternalServerError)
       case Failure(msg, _) =>
-        logError(s"[AuditService][sendEvent] Failed to audit $auditType for $journeyType with message $msg")
+        logger.error(s"[AuditService][sendEvent] Failed to audit $auditType for $journeyType with message $msg")
         Left[CarfError, Unit](InternalServerError)
     } recover {
       case e if NonFatal(e) =>
-        logError(s"[AuditService][sendEvent] Failed to audit $auditType for $journeyType")
+        logger.error(s"[AuditService][sendEvent] Failed to audit $auditType for $journeyType")
         Left[CarfError, Unit](InternalServerError)
     })
 

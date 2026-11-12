@@ -25,18 +25,18 @@ import models.responses.AddressResponse
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.{Logger, Logging}
 import types.ResultT
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.LoggerUtil.*
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http: HttpClientV2)(implicit
     ec: ExecutionContext
-) {
+) extends Logging {
 
   private lazy val searchByPostcodeUrl = url"${config.addressLookupBaseUrl}/lookup"
 
@@ -55,13 +55,13 @@ class AddressLookupConnector @Inject() (val config: FrontendAppConfig, val http:
               case Success(data)      =>
                 Right(data)
               case Failure(exception) =>
-                logError(
+                logger.error(
                   s"[AddressLookupConnector][searchByPostcode] Error parsing response as AddressResponse with uri: $searchByPostcodeUrl"
                 )
                 Left(ApiError.JsonValidationError)
             }
           case response                              =>
-            logError(
+            logger.error(
               s"[AddressLookupConnector][searchByPostcode] Unexpected response: status code: ${response.status}, with message: ${response.body} from uri: $searchByPostcodeUrl"
             )
             Left(ApiError.InternalServerError)

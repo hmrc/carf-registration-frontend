@@ -22,12 +22,13 @@ import forms.organisation.FirstContactEmailFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.organisation.{FirstContactEmailPage, FirstContactNamePage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.*
+
 import views.html.organisation.FirstContactEmailView
 
 import javax.inject.Inject
@@ -45,7 +46,8 @@ class FirstContactEmailController @Inject() (
     view: FirstContactEmailView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[String] = formProvider()
 
@@ -60,7 +62,7 @@ class FirstContactEmailController @Inject() (
       request.userAnswers.get(FirstContactNamePage) match {
         case Some(firstContactName) => Ok(view(preparedForm, mode, firstContactName))
         case None                   =>
-          logWarn("[FirstContactEmailController][onPageLoad] Name not found in user answers")
+          logger.warn("[FirstContactEmailController][onPageLoad] Name not found in user answers")
           Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
   }
@@ -75,7 +77,7 @@ class FirstContactEmailController @Inject() (
               case Some(firstContactName) =>
                 Future.successful(BadRequest(view(formWithErrors, mode, firstContactName)))
               case None                   =>
-                logWarn("[FirstContactEmailController][onSubmit] Name not found in user answers")
+                logger.warn("[FirstContactEmailController][onSubmit] Name not found in user answers")
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             },
           value =>

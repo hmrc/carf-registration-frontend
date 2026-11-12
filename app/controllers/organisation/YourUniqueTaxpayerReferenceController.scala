@@ -23,11 +23,11 @@ import models.{Mode, RegistrationType, UniqueTaxpayerReference}
 import navigation.Navigator
 import pages.RegistrationTypePage
 import pages.organisation.{UniqueTaxpayerReferenceInUserAnswers, YourUtrPageForNavigatorOnly}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.*
 import views.html.organisation.YourUniqueTaxpayerReferenceView
 
 import javax.inject.Inject
@@ -46,7 +46,8 @@ class YourUniqueTaxpayerReferenceController @Inject() (
     view: YourUniqueTaxpayerReferenceView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
@@ -60,7 +61,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
           Ok(view(preparedForm, mode, messageKey))
 
         case None =>
-          logWarn("[YourUniqueTaxpayerReferenceController][onPageLoad] Could not retrieve registration type")
+          logger.warn("[YourUniqueTaxpayerReferenceController][onPageLoad] Could not retrieve registration type")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
@@ -83,7 +84,7 @@ class YourUniqueTaxpayerReferenceController @Inject() (
                 } yield Redirect(navigator.nextPage(YourUtrPageForNavigatorOnly, mode, updatedAnswers))
             )
         case None             =>
-          logWarn("[YourUniqueTaxpayerReferenceController][onSubmit] Could not retrieve registration type")
+          logger.warn("[YourUniqueTaxpayerReferenceController][onSubmit] Could not retrieve registration type")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }

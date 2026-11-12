@@ -27,13 +27,14 @@ import models.{BusinessDetails, IndividualDetails, IsThisYourBusinessPageDetails
 import navigation.Navigator
 import pages.IsThisYourBusinessPage
 import pages.organisation.UniqueTaxpayerReferenceInUserAnswers
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.*
+
 import utils.{CountryListFactory, UserAnswersHelper}
 import views.html.IsThisYourBusinessView
 
@@ -56,7 +57,8 @@ class IsThisYourBusinessController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
-    with UserAnswersHelper {
+    with UserAnswersHelper
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -86,7 +88,7 @@ class IsThisYourBusinessController @Inject() (
               )
 
             case (_, _) =>
-              logWarn(
+              logger.warn(
                 s"[IsThisYourBusinessController][onPageLoad] No UTR or no JourneyType <$maybeJourneyTypeSoleTrader> found in user answers. Redirecting to journey recovery."
               )
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -117,7 +119,7 @@ class IsThisYourBusinessController @Inject() (
               }
             )
         case None                      =>
-          logWarn(
+          logger.warn(
             "[IsThisYourBusinessController][onSubmit] No business details found. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -139,18 +141,18 @@ class IsThisYourBusinessController @Inject() (
         )
       case Left(NotFoundError)    =>
         if (isAutoMatch) {
-          logWarn(
+          logger.warn(
             "[IsThisYourBusinessController][handleBusinessLookup] Auto-match failed for a non-Sole Trader. Redirecting to journey recovery."
           )
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {
-          logWarn(
+          logger.warn(
             "[IsThisYourBusinessController][handleBusinessLookup] Manual entry failed for a non-Sole Trader. Redirecting to business-not-identified."
           )
           Future.successful(Redirect(controllers.organisation.routes.BusinessNotIdentifiedController.onPageLoad()))
         }
       case Left(error)            =>
-        logWarn(s"[IsThisYourBusinessController][handleBusinessLookup] Unexpected error. Error: $error")
+        logger.warn(s"[IsThisYourBusinessController][handleBusinessLookup] Unexpected error. Error: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
 
@@ -168,13 +170,13 @@ class IsThisYourBusinessController @Inject() (
         )
 
       case Left(NotFoundError) =>
-        logWarn(
+        logger.warn(
           "[IsThisYourBusinessController][handleIndividualLookup] User is a Sole Trader. Redirecting to sole-trader-not-identified."
         )
         Future.successful(Redirect(controllers.individual.routes.ProblemSoleTraderNotIdentifiedController.onPageLoad()))
 
       case Left(error) =>
-        logWarn(s"[IsThisYourBusinessController][handleIndividualLookup] Unexpected error. Error: $error")
+        logger.warn(s"[IsThisYourBusinessController][handleIndividualLookup] Unexpected error. Error: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 
     }
@@ -188,7 +190,7 @@ class IsThisYourBusinessController @Inject() (
     countryListFactory
       .getDescriptionFromCode(address.countryCode)
       .fold {
-        logError(
+        logger.error(
           s"[IsThisYourBusinessController][handleLookupSuccess] Failed to convert country code to country name for country code: (${address.countryCode}"
         )
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -213,7 +215,7 @@ class IsThisYourBusinessController @Inject() (
         } yield {
           val preparedForm = existingPageAnswer.fold(form)(form.fill)
 
-          logInfo("[IsThisYourBusinessController][handleLookupSuccess] Sole Trader Business data found and cached.")
+          logger.info("[IsThisYourBusinessController][handleLookupSuccess] Sole Trader Business data found and cached.")
 
           Ok(view(preparedForm, mode, soleTraderBusinessDetails))
         }

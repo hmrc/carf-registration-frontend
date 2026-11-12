@@ -22,13 +22,14 @@ import controllers.actions.{CarfIdRetrievalAction, ChangeDetailsDataRequiredActi
 import models.error.DataError
 import models.responses.hasIndividualChangedData
 import pages.changeContactDetails.{ChangeDetailsIndividualEmailPage, ChangeDetailsIndividualHavePhonePage, ChangeDetailsIndividualPhoneNumberPage}
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{AuditService, SubscriptionService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ChangeIndividualDetailsHelper
-import utils.LoggerUtil.*
+
 import views.html.ChangeIndividualContactDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,12 +45,13 @@ class ChangeIndividualContactDetailsController @Inject() (
     auditService: AuditService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(): Action[AnyContent] = (carfIdRetrieval() andThen changeDetailsDataRequiredAction) {
     implicit request =>
       request.userAnswers.displaySubscriptionResponse.fold {
-        logWarn("[ChangeIndividualContactDetailsController][onPageLoad] No subscription data found")
+        logger.warn("[ChangeIndividualContactDetailsController][onPageLoad] No subscription data found")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       } { displaySubscriptionResponse =>
 
@@ -71,7 +73,7 @@ class ChangeIndividualContactDetailsController @Inject() (
           case Some((summaryListRows, hasChanged)) =>
             Ok(view(summaryListRows, hasChanged, appConfig.carfManagementFrontendHomePageUrl))
           case None                                =>
-            logWarn("[ChangeIndividualContactDetailsController][onPageLoad] Could not retrieve contact details")
+            logger.warn("[ChangeIndividualContactDetailsController][onPageLoad] Could not retrieve contact details")
             Redirect(controllers.changeContactDetails.routes.ContactDetailsMissingController.onPageLoad())
         }
       }
@@ -93,10 +95,10 @@ class ChangeIndividualContactDetailsController @Inject() (
 
             } yield Redirect(controllers.changeContactDetails.routes.ChangeDetailsUpdatedController.onPageLoad())
           case Left(DataError) =>
-            logWarn("[ChangeIndividualContactDetailsController][onSubmit] Had missing data on submission")
+            logger.warn("[ChangeIndividualContactDetailsController][onSubmit] Had missing data on submission")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           case error           =>
-            logWarn(s"[ChangeIndividualContactDetailsController][onSubmit] Failed to update: $error")
+            logger.warn(s"[ChangeIndividualContactDetailsController][onSubmit] Failed to update: $error")
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
   }

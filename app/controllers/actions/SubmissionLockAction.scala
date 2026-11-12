@@ -18,14 +18,16 @@ package controllers.actions
 
 import controllers.routes
 import models.requests.OptionalDataRequest
-import play.api.mvc._
+import play.api.mvc.*
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import pages.SubmissionSucceededPage
-import utils.LoggerUtil.*
+import play.api.Logging
 
 class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit val ec: ExecutionContext)
-    extends ActionFilter[OptionalDataRequest] {
+    extends ActionFilter[OptionalDataRequest]
+    with Logging {
 
   override protected def executionContext: ExecutionContext = ec
 
@@ -35,7 +37,7 @@ class SubmissionLockAction @Inject() (val parser: BodyParsers.Default)(implicit 
 
     if (submitted) {
 
-      logInfo(
+      logger.info(
         s"[SubmissionLockAction][filter] Blocking request after submission. path=${request.uri}"
       )
 

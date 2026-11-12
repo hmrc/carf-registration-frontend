@@ -21,14 +21,14 @@ import config.Constants
 import config.Constants.{maxPhoneLength, ninoFormatRegex, ninoRegex}
 import models.Enumerable
 import models.countries.*
+import play.api.Logging
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import utils.LoggerUtil.*
 
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
 
-trait Formatters extends Transforms {
+trait Formatters extends Transforms with Logging {
 
   private type EitherFormErrorOrValue = Either[Seq[FormError], String]
   private lazy val notRealError: String => EitherFormErrorOrValue = notRealKey =>
@@ -278,7 +278,7 @@ trait Formatters extends Transforms {
                 case Success(value)                   => value
                 case Failure(_: NumberParseException) => formErrorInvalidKey
                 case Failure(exception)               =>
-                  logWarn(
+                  logger.warn(
                     s"[phoneNumberFormatter][bind] Unexpected phone number form error occurred with message: ${exception.getMessage}"
                   )
                   formErrorInvalidKey
@@ -402,10 +402,10 @@ trait Formatters extends Transforms {
             sanitisedPostcode match {
               case s if s.length > maxLengthPostcode          => Left(Seq(FormError(key, lengthKey)))
               case s if !s.matches(validCharRegex)            => Left(Seq(FormError(key, invalidCharKey)))
-              case s if data.getOrElse("country", "").isEmpty =>
+              case _ if data.getOrElse("country", "").isEmpty =>
                 if (!postCode.replaceAll("\\s+", "").matches(regex)) { Left(Seq(FormError(key, invalidKey))) }
                 else { Right(validPostCodeFormat(postCode.replaceAll("\\s+", ""))) }
-              case s if notRealKey.isDefined                  =>
+              case _ if notRealKey.isDefined                  =>
                 notRealPostcodeCheckForCdAndUkOnly(sanitisedPostcode, data, invalidKey, notRealKey.get)
               case s                                          => Right(validPostCodeFormat(s))
             }

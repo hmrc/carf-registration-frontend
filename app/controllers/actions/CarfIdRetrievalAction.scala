@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import controllers.routes
 import models.{IdentifierRequestWithSubscriptionId, IdentifierType, NormalMode, SubscriptionId}
 import pages.PasscodePage
+import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import repositories.SessionRepository
@@ -29,7 +30,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.LoggerUtil.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -63,7 +63,8 @@ class CarfIdRetrievalActionExtractor @Inject() (
 )(implicit val executionContext: ExecutionContext)
     extends ActionBuilder[IdentifierRequestWithSubscriptionId, AnyContent]
     with ActionFunction[Request, IdentifierRequestWithSubscriptionId]
-    with AuthorisedFunctions {
+    with AuthorisedFunctions
+    with Logging {
   override def invokeBlock[A](
       request: Request[A],
       block: IdentifierRequestWithSubscriptionId[A] => Future[Result]
@@ -81,13 +82,13 @@ class CarfIdRetrievalActionExtractor @Inject() (
               case _    => Future.successful(Redirect(controllers.routes.PasscodeIncorrectController.onPageLoad()))
             }
           case None                 =>
-            logInfo(
+            logger.info(
               "[CarfIdRetrievalActionExtractor][invokeBlock] User has no CARF enrolment. Taking user to the start of the registration journey."
             )
             Future.successful(Redirect(controllers.routes.IndexController.onPageLoad(NormalMode)))
         }
       case _                             =>
-        logWarn("[CarfIdRetrievalActionExtractor][invokeBlock] Unable to retrieve internal id")
+        logger.warn("[CarfIdRetrievalActionExtractor][invokeBlock] Unable to retrieve internal id")
         throw AuthorisationException.fromString(
           "[CarfIdRetrievalActionExtractor][invokeBlock] Unable to retrieve internal id"
         )

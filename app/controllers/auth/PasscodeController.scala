@@ -19,6 +19,7 @@ package controllers.auth
 import models.{NormalMode, UserAnswers}
 import controllers.actions.PasscodeAction
 import pages.PasscodePage
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -33,7 +34,8 @@ class PasscodeController @Inject() (
     passcodeAction: PasscodeAction
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def processPasscode(passcode: String): Action[AnyContent] = passcodeAction(passcode = passcode).async {
     implicit request =>

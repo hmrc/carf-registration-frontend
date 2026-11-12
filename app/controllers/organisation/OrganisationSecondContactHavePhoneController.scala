@@ -22,6 +22,7 @@ import forms.organisation.OrganisationSecondContactHavePhoneFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.organisation.{OrganisationSecondContactHavePhonePage, OrganisationSecondContactNamePage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -29,7 +30,6 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.UserAnswersHelper
 import views.html.organisation.OrganisationSecondContactHavePhoneView
-import utils.LoggerUtil.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,7 +48,8 @@ class OrganisationSecondContactHavePhoneController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
-    with UserAnswersHelper {
+    with UserAnswersHelper
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -60,7 +61,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
       request.userAnswers.get(OrganisationSecondContactNamePage) match {
         case Some(usersName) => Ok(view(preparedForm, mode, usersName))
         case None            =>
-          logWarn(
+          logger.warn(
             "[OrganisationSecondContactHavePhoneController][onPageLoad] Name not found in user answers"
           )
           Redirect(routes.JourneyRecoveryController.onPageLoad())
@@ -76,7 +77,7 @@ class OrganisationSecondContactHavePhoneController @Inject() (
             request.userAnswers.get(OrganisationSecondContactNamePage) match {
               case Some(usersName) => Future.successful(BadRequest(view(formWithErrors, mode, usersName)))
               case None            =>
-                logWarn(
+                logger.warn(
                   "[OrganisationSecondContactHavePhoneController][onSubmit] Name not found in user answers"
                 )
                 Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

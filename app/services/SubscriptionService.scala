@@ -18,15 +18,13 @@ package services
 
 import cats.data.EitherT
 import connectors.SubscriptionConnector
-import models.error.ApiError
 import models.error.ApiError.MandatoryInformationMissingError
-import models.requests.SubscriptionRequest
 import models.responses.*
 import models.{SubscriptionId, UserAnswers}
+import play.api.Logging
 import types.ResultT
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SubscriptionHelper
-import utils.LoggerUtil.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionService @Inject() (
     subscriptionConnector: SubscriptionConnector,
     subscriptionHelper: SubscriptionHelper
-) {
+) extends Logging {
 
   def subscribe(userAnswers: UserAnswers)(implicit
       hc: HeaderCarrier,
@@ -46,11 +44,11 @@ class SubscriptionService @Inject() (
         subscriptionConnector
           .createSubscription(request)
           .leftMap { error =>
-            logWarn(s"[SubscriptionService][subscribe] Failed to create subscription: $error")
+            logger.warn(s"[SubscriptionService][subscribe] Failed to create subscription: $error")
             error
           }
       case None          =>
-        logWarn(
+        logger.warn(
           "[SubscriptionService][subscribe] There has been an error building the subscription request from userAnswers"
         )
         EitherT {
@@ -71,7 +69,7 @@ class SubscriptionService @Inject() (
     subscriptionConnector
       .displaySubscription(subscriptionId.value)
       .leftMap { error =>
-        logWarn(s"[SubscriptionService][displaySubscription] Failed to retrieve subscription: $error")
+        logger.warn(s"[SubscriptionService][displaySubscription] Failed to retrieve subscription: $error")
         error
       }
 
@@ -84,11 +82,11 @@ class SubscriptionService @Inject() (
         subscriptionConnector
           .updateSubscription(request, carfId)
           .leftMap { error =>
-            logWarn(s"[SubscriptionService][updateSubscription] Failed to update subscription: $error")
+            logger.warn(s"[SubscriptionService][updateSubscription] Failed to update subscription: $error")
             error
           }
       case None          =>
-        logWarn(
+        logger.warn(
           "[SubscriptionService][updateSubscription] There has been an error building the subscription request from userAnswers"
         )
         ResultT.fromError(

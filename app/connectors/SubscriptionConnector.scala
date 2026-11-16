@@ -83,13 +83,13 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
               case Success(data)      => Right(data.subscriptionId)
               case Failure(exception) =>
                 logError(
-                  s"[SubscriptionConnector][processSubscriptionRequest] Error parsing SubscriptionResponse with endpoint: $submissionUrl"
+                  s"[SubscriptionConnector][processSubscriptionRequest] Error parsing SubscriptionResponse from subscription call"
                 )
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
             logWarn(
-              s"[SubscriptionConnector][processSubscriptionRequest] Unexpected response: status code: ${response.status}, from endpoint: $submissionUrl"
+              s"[SubscriptionConnector][processSubscriptionRequest] Unexpected response from subscription call: status code: ${response.status}"
             )
             Left(handleErrorResponse(response))
         }
@@ -118,18 +118,18 @@ class SubscriptionConnector @Inject() (val config: FrontendAppConfig, val http: 
                 case Success(data)      => Right(data)
                 case Failure(exception) =>
                   logError(
-                    s"[SubscriptionConnector][displaySubscription] Error parsing DisplaySubscriptionResponse with endpoint: ${baseUrl.toURI}"
+                    s"[SubscriptionConnector][displaySubscription] Error parsing DisplaySubscriptionResponse from subscription retrieval"
                   )
                   Left(ApiError.JsonValidationError)
               }
             case NOT_FOUND =>
               logError(
-                s"[SubscriptionConnector][displaySubscription] No match could be found for this user: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
+                s"[SubscriptionConnector][displaySubscription] No match could be found for this user: status code: ${httpResponse.status}"
               )
               Left(ApiError.NotFoundError)
             case _         =>
               logError(
-                s"[SubscriptionConnector][displaySubscription] Unexpected response: status code: ${httpResponse.status}, from endpoint: ${baseUrl.toURI}"
+                s"[SubscriptionConnector][displaySubscription] Unexpected response from subscription retrieval: status code: ${httpResponse.status}"
               )
               Left(InternalServerError)
           }

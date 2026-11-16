@@ -68,18 +68,18 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
               case Success(data)      => Right(data)
               case Failure(exception) =>
                 logError(
-                  s"[RegistrationConnector][registerIndividualWithId] Error parsing RegisterIndividualWithIdResponse with endpoint: ${endpoint.toURI}"
+                  s"[RegistrationConnector][registerIndividualWithId] Error parsing RegisterIndividualWithIdResponse from registration call"
                 )
                 Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>
             logError(
-              s"[RegistrationConnector][registerIndividualWithId] No match could be found for this user: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              s"[RegistrationConnector][registerIndividualWithId] No match could be found for this user: status code: ${response.status}"
             )
             Left(ApiError.NotFoundError)
           case response                                 =>
             logError(
-              s"[RegistrationConnector][registerIndividualWithId] Unexpected response: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              s"[RegistrationConnector][registerIndividualWithId] Unexpected response from registration call: status code: ${response.status}"
             )
             Left(ApiError.InternalServerError)
         }
@@ -116,18 +116,18 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
               case Success(data)      => Right(data)
               case Failure(exception) =>
                 logError(
-                  s"[RegistrationConnector][registerOrganisationWithId] Error parsing RegisterOrganisationWithIdResponse with endpoint: ${endpoint.toURI}"
+                  s"[RegistrationConnector][registerOrganisationWithId] Error parsing RegisterOrganisationWithIdResponse from registration call"
                 )
                 Left(ApiError.JsonValidationError)
             }
           case response if response.status == NOT_FOUND =>
             logError(
-              s"[RegistrationConnector][registerOrganisationWithId] No match found for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              s"[RegistrationConnector][registerOrganisationWithId] No match could be found for this organisation: status code: ${response.status}"
             )
             Left(ApiError.NotFoundError)
           case response                                 =>
             logError(
-              s"[RegistrationConnector][registerOrganisationWithId] Unexpected response for organisation: status code: ${response.status}, from endpoint: ${endpoint.toURI}"
+              s"[RegistrationConnector][registerOrganisationWithId] Unexpected response from registration call: status code: ${response.status}"
             )
             Left(ApiError.InternalServerError)
         }
@@ -161,13 +161,13 @@ class RegistrationConnector @Inject() (val config: FrontendAppConfig, val http: 
               case Success(data)      => Right(data)
               case Failure(exception) =>
                 logError(
-                  s"[RegistrationConnector][registerWithoutId] Error parsing RegisterIndividualWithoutIdResponse with endpoint: ${endpoint.toURI}"
+                  s"[RegistrationConnector][registerWithoutId] Error parsing RegisterIndividualWithoutIdResponse from registration call"
                 )
                 Left(ApiError.JsonValidationError)
             }
           case response                          =>
             logError(
-              s"[RegistrationConnector][registerWithoutId] Unexpected response from endpoint ${endpoint.toURI}, status: ${response.status}"
+              s"[RegistrationConnector][registerWithoutId] Unexpected response from registration call, status: ${response.status}"
             )
             Left(ApiError.InternalServerError)
         }

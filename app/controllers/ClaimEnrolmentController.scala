@@ -22,13 +22,13 @@ import forms.ClaimEnrolmentFormProvider
 import models.requests.DataRequest
 import models.{BusinessDetails, UserAnswers}
 import pages.PasscodePage
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{EnrolmentService, RegistrationService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.*
 import views.html.ClaimEnrolmentView
 
 import javax.inject.Inject
@@ -49,7 +49,8 @@ class ClaimEnrolmentController @Inject() (
     view: ClaimEnrolmentView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -57,7 +58,7 @@ class ClaimEnrolmentController @Inject() (
     (identify() andThen retrieveCtUTR() andThen getData() andThen requireData).async { implicit request =>
       getBusinessDetailsOrErrorMessage(request).map {
         case Left(errorMessage: String)              =>
-          logError(s"[ClaimEnrolmentController][onPageLoad] $errorMessage")
+          logger.error(s"[ClaimEnrolmentController][onPageLoad] $errorMessage")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case Right(businessDetails: BusinessDetails) =>
           Ok(view(form, businessDetails.name))
@@ -88,7 +89,7 @@ class ClaimEnrolmentController @Inject() (
                             case Left(_)  =>
                               logAndRedirectOnError("Create enrolment failed")
                             case Right(_) =>
-                              logWarn("[ClaimEnrolmentController][onPageLoad] Claim enrolment success!")
+                              logger.warn("[ClaimEnrolmentController][onPageLoad] Claim enrolment success!")
                               Future.successful(Redirect(handlePasscodeRouting(request.userAnswers)))
                           }
                       }
@@ -122,6 +123,6 @@ class ClaimEnrolmentController @Inject() (
       appConfig.managementRoutingUrl
 
   private def logAndRedirectOnError(message: String): Future[Result] =
-    logError(s"[ClaimEnrolmentController][onPageLoad] $message")
+    logger.error(s"[ClaimEnrolmentController][onPageLoad] $message")
     Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 }

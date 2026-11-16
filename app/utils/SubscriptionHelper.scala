@@ -27,9 +27,9 @@ import pages.individual.*
 import pages.individualWithoutId.{IndFindAddressPage, IndWithoutIdAddressPagePrePop, IndWithoutNinoNamePage}
 import pages.orgWithoutId.{HaveTradingNamePage, OrgWithoutIdBusinessNamePage, TradingNamePage}
 import pages.organisation.*
-import utils.LoggerUtil.*
+import play.api.Logging
 
-class SubscriptionHelper {
+class SubscriptionHelper extends Logging {
 
   def buildSubscriptionRequest(userAnswers: UserAnswers): Option[SubscriptionRequest] =
     for {
@@ -253,7 +253,7 @@ class SubscriptionHelper {
     for {
       name   <- businessName
       result <- if (name.length > validTradingNameMaxLength) {
-                  logInfo(
+                  logger.info(
                     s"[SubscriptionHelper][businessNameLengthCheck] Business name was greater than 80 characters and has been replaced with $None"
                   )
                   None

@@ -24,11 +24,11 @@ import models.{Mode, RegistrationType}
 import navigation.Navigator
 import pages.RegistrationTypePage
 import pages.organisation.WhatIsTheNameOfYourBusinessPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.logWarn
 import views.html.organisation.WhatIsTheNameOfYourBusinessView
 
 import javax.inject.Inject
@@ -47,7 +47,8 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
     view: WhatIsTheNameOfYourBusinessView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify() andThen getData() andThen submissionLock andThen requireData) { implicit request =>
@@ -60,7 +61,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
 
           Ok(view(preparedForm, mode, messageKey))
         case None             =>
-          logWarn("[WhatIsTheNameOfYourBusinessController][onPageLoad] Could not retrieve registration type")
+          logger.warn("[WhatIsTheNameOfYourBusinessController][onPageLoad] Could not retrieve registration type")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
 
@@ -89,7 +90,7 @@ class WhatIsTheNameOfYourBusinessController @Inject() (
             )
 
         case None =>
-          logWarn("[WhatIsTheNameOfYourBusinessController][onSubmit] Could not retrieve registration type")
+          logger.warn("[WhatIsTheNameOfYourBusinessController][onSubmit] Could not retrieve registration type")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
   }

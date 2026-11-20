@@ -193,7 +193,7 @@ problemDifferentBusiness.title = You’re unable to use this service with this G
 problemDifferentBusiness.heading = You’re unable to use this service with this Government Gateway user ID
 problemDifferentBusiness.link = sign in with the Government Gateway user ID for the organisation you wish to register
 problemDifferentBusiness.businessDetailsFound = You have signed in with a Government Gateway user ID that is linked to the following business details:
-problemDifferentBusiness.registerADifferentOrg = If you want to register a different organisation for the cryptoasset reporting framework service, you must
+problemDifferentBusiness.registerADifferentOrg = If you want to register a different organisation for the Cryptoasset Reporting Framework service, you must
 
 haveTradingName.title = Does your business trade under a different name?
 haveTradingName.heading = Does your business trade under a different name?
@@ -497,7 +497,7 @@ registrationConfirmation.2.email.sent = We have also sent a confirmation email t
 
 registrationConfirmation.next.heading = What you should do next
 registrationConfirmation.next.text = To send cryptoasset reports, you must
-registrationConfirmation.next.text.postLink = add a cryptoasset service provider
+registrationConfirmation.next.text.postLink = add a reporting cryptoasset service provider (RCASP)
 
 registrationConfirmation.feedback.heading = Before you go
 registrationConfirmation.feedback.text = Your feedback helps us make our service better.
@@ -564,7 +564,7 @@ address.country.error.required = Select country
 unableToChangeBusiness.title = You’re unable to change your business details
 unableToChangeBusiness.heading = You’re unable to change your business details
 unableToChangeBusiness.p1 = You have signed in with a Government Gateway user ID that is linked to the following business details:
-unableToChangeBusiness.p2 = If you want to register a different organisation for cryptoasset reporting, you must
+unableToChangeBusiness.p2 = If you want to register a different organisation for the Cryptoasset Reporting Framework service, you must
 unableToChangeBusiness.p2.link = sign in with the Government Gateway user ID for the organisation you wish to register
 
 indvWithoutChooseAddress.title = Choose your address
@@ -584,7 +584,7 @@ individualAlreadyRegistered.p3.part3 = if you need support with accessing this s
 
 organisationAlreadyRegistered.title = Your organisation is already registered to use this service
 organisationAlreadyRegistered.heading = Your organisation is already registered to use this service
-organisationAlreadyRegistered.p1.part1 = To access the cryptoasset reporting framework service, you must either:
+organisationAlreadyRegistered.p1.part1 = To access the Cryptoasset Reporting Framework service, you must either:
 organisationAlreadyRegistered.p1.part2 = sign in with the Government Gateway user ID used to register for this service
 organisationAlreadyRegistered.p1.part3 = make sure you have permission to use this service through the
 organisationAlreadyRegistered.p1.part4 = tax and scheme management service
